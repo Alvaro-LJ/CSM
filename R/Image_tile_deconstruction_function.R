@@ -1,3 +1,19 @@
+#' Divide images into tile chuncks
+#'
+#' `Image_tile_deconstruction_function()` divides into smaller chunks all the images in a directory.
+#' This allows faster computations when using CSM apps, performing image thresholding and cell segmentation.
+#' @param Directory Character string specifying the path to the folder where images to be chopped into tiles are present.
+#' @param Output_directory Character string specifying the path to the folder where  output images are written. It must be an empty folder.
+#' @param RGB_Color_images Logical. Is the image a RGB color image?
+#' @param Ordered_Channels Character vector specifying image channels. If RGB_Color_images is TRUE it will be set automatically to c("R", "G", "B").
+#' @param Channels_to_keep Character vector specifying image channels to be kept after image chopping.
+#' @param Tile_pixel_size Integer specifying the size of the tiles in pixels.
+#' @param Tile_Overlap Integer specifying the overlap amount between tiles in pixels.
+#' @param N_cores Integer. Number of cores to parallelize your computation.
+#' @returns The function writes the tiles in the ouput directory. The names of the resulting images should not be modified. If modified this can
+#' result in unexpected results when using companion functions [Image_from_tile_rebuilder()], [Tile_to_image_cell_arrange_function()].
+
+
 Image_tile_deconstruction_function <-
   function(Directory = NULL,
            Output_directory = NULL,
