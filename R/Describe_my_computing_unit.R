@@ -1,3 +1,6 @@
+#' Obtain CPU information and available RAM
+#' @return A list containing information regarding CPU, RAM, R version being used and Operating system
+
 Describe_my_computing_unit <-
   function() {
     if(stringr::str_detect(benchmarkme::get_platform_info()$OS.type, "windows")){
