@@ -28,12 +28,8 @@
 #' @param Equalize (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) A logical value specifying if channel should be equalized
 #' @param Opening_kernel_size (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Opening kernel size (set to 1 if no opening is required)
 #' @param Closing_kernel_size (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Closing kernel size (set to 1 if no closing is required)
-
 #' @returns A tibble containing cell feature data including cell X Y coordinates
-
 #' @export
-
-
 Cell_segmentator_quantificator <-
   function(Directory = NULL,
            Parameter_list = NULL,
