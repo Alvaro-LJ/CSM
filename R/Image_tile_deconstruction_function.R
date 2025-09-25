@@ -12,7 +12,7 @@
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @returns The function writes the tiles in the ouput directory. The names of the resulting images should not be modified. If modified this can
 #' result in unexpected results when using companion functions [Image_from_tile_rebuilder()], [Tile_to_image_cell_arrange_function()].
-
+#' @export
 
 Image_tile_deconstruction_function <-
   function(Directory = NULL,
@@ -23,6 +23,32 @@ Image_tile_deconstruction_function <-
            Tile_pixel_size = NULL,
            Tile_Overlap = 0,
            N_cores = NULL){
+
+    #Check installation of suggested packages
+    {
+      if(!requireNamespace("RBioFormats", quietly = TRUE)) stop(
+        paste0("RBioFormats Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("RBioFormats")
+               })
+        )
+      )
+      if(!requireNamespace("EBImage", quietly = TRUE)) stop(
+        paste0("EBImage Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("EBImage")
+               })
+        )
+      )
+    }
+
+
     on.exit({
       future::plan("future::sequential")
       gc()

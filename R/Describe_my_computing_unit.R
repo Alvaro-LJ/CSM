@@ -1,8 +1,17 @@
 #' Obtain CPU information and available RAM
 #' @return A list containing information regarding CPU, RAM, R version being used and Operating system
+#' @export
 
 Describe_my_computing_unit <-
   function() {
+
+    #Check that benchmarkme is installed
+    if(!requireNamespace("benchmarkme", quietly = FALSE)) stop(
+      paste0("benchmarkme CRAN package is required to execute the function. Please install using the following code: ",
+             expression(install.packages("benchmarkme")))
+    )
+
+    #Proceed
     if(stringr::str_detect(benchmarkme::get_platform_info()$OS.type, "windows")){
       list(
         CPU =  paste0("CPU: ", benchmarkme::get_cpu()$model_name, ". Number of available threads (cores): ", benchmarkme::get_cpu()$no_of_cores),
