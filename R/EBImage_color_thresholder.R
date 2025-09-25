@@ -8,7 +8,6 @@
 #' @param Final_Tolerance A numeric value specifying the final tolerance.
 #' @returns The function returns a greyscale EBImage object
 #' @keywords Internal
-#' @export
 
 EBImage_color_thresholder <-
   function(Image = NULL,

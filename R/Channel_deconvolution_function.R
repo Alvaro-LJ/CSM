@@ -5,8 +5,7 @@
 #' @param Image A EBImage object.
 #' @param Parameters A list of image pre and post-processing
 #' @returns The function returns a greyscale EBImage object
-#' @keywords internal
-#' @export
+#' @keywords Internal
 
 Channel_deconvolution_function <-
   function(Image = NULL,
