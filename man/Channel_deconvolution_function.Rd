@@ -17,4 +17,4 @@ The function returns a greyscale EBImage object
 \description{
 Intended for internal use only
 }
-\keyword{internal}
+\keyword{Internal}
