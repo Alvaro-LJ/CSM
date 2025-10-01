@@ -13,10 +13,10 @@
 #' @param Min_cell_no An integer value for the DBscan method. Minimum cell number in distance to consider a cell to be clustered.
 #' @param Distance_radius A numeric value for the DBscan method. Distance to be sampled.
 #'
-#' @param Perform_Dimension_reduction Logical value. Should Dimension Reduction be performed (see details)
-#' @param Dimension_reduction Dimension reduction method. One of the following: PCA, TSNE, UMAP
-#' @param Dimension_reduction_prop A numeric value between 0 and 1 to indicate the percentage of the cells to be used in dimension computation (applicable for TSNE and UMAP)
-#' @param Cluster_on_Reduced A logical value indicating if clustering should be performed on new dimensions
+#' @param Perform_Dimension_reduction Logical value. Should Dimension Reduction be performed (see details).
+#' @param Dimension_reduction Dimension reduction method. One of the following: PCA, TSNE, UMAP.
+#' @param Dimension_reduction_prop A numeric value between 0 and 1 to indicate the percentage of the cells to be used in dimension computation (applicable for TSNE and UMAP).
+#' @param Cluster_on_Reduced A logical value indicating if clustering should be performed on new dimensions.
 #'
 #' @param Max_N_phenotypes If Strategy is Consensus_Clustering: Number of maximum phenotypes that can be identified.
 #' @param Consensus_reps If Strategy is Consensus_Clustering: Number of iterations to converge.

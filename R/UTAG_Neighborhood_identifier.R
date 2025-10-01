@@ -1,3 +1,83 @@
+#' Performs neighborhood identification based on message-passed cells features
+#'
+#' The function identifies cell neighborhoods based on message-passed cell obtained using the [UTAG_message_passing()] function.
+#'
+#' @param DATA A dataframe or tibble containing message-passed cell feature data obtained using [UTAG_message_passing()] function.
+#' @param Strategy One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
+#' @param Min_Neighbors A numeric value indicating the minimum amount of neighbors. Cells with a number of neighbors below the threshold will be removed from analysis.
+#'
+#' @param Apply_Denoise A logical value. Specify if a denoising filtering is required before clustering (see details).
+#' @param Denoising Denoising strategy. One of the following: Quantile, Standard_Deviation, Threshold, Otsu or DimRed_DBscan.
+#' @param Percentile A numeric value indicating the percentile for quantile threshold. Cells below percentile for all features will be considered to be noise.
+#' @param N_Standard_Deviations A numeric value indicating the number of standard deviations from mean for Standard_Deviation method. Cells below SD for all features will be considered to be noise.
+#' @param Selected_threshold A numeric value indicating the threshold to be used for the Threshold method. Cells below the threshold for all features will be considered to be noise.
+#' @param Min_cell_no An integer value for the DBscan method. Minimum cell number in distance to consider a cell to be clustered.
+#' @param Distance_radius A numeric value for the DBscan method. Distance to be sampled.
+#'
+#' @param Perform_Dimension_reduction Logical value. Should Dimension Reduction be performed (see details).
+#' @param Dimension_reduction Dimension reduction method. One of the following: PCA, TSNE, UMAP.
+#' @param Dimension_reduction_prop A numeric value between 0 and 1 to indicate the percentage of the cells to be used in dimension computation (applicable for TSNE and UMAP).
+#' @param Cluster_on_Reduced A logical value indicating if clustering should be performed on new dimensions.
+#'
+#' @param Max_N_neighborhoods If Strategy is Consensus_Clustering: Number of maximum neighborhoods that can be identified.
+#' @param Consensus_reps If Strategy is Consensus_Clustering: Number of iterations to converge.
+#' @param Consensus_p_Items If Strategy is Consensus_Clustering: Percentage of cells that you desire to sample in each iteration.
+#' @param Consensus_Cluster_Alg If Strategy is Consensus_Clustering: Clustering algorithm to be used (’hc’ hierarchical (hclust), ’pam’ for paritioning around medoids, ’km’ for k-means).
+#' @param Consensus_Distance If Strategy is Consensus_Clustering: Distance metric to be used (pearson(1 - Pearson correlation), spearman(1 - Spearman correlation), euclidean, binary, maximum, canberra, minkowski.
+#' @param Consensus_Name If Strategy is Consensus_Clustering: Name of the folder that is going to be created in order to place the resulting graphs.
+#'
+#' @param Max_SOM_neighborhoods If Strategy is SOM: umber of maximum neighborhoods that can be identified.
+#'
+#' @param Nearest_neighbors_for_graph If strategy is Graph_Based: The number of closest neighbors to calculate the graph.
+#' @param Graph_Method If strategy is Graph_Based: One of Louvain, Leiden, Greedy, WalkTrap, Spinglass, Leading_Eigen or Edge_Betweenness.
+#' @param Graph_Resolution If strategy is Graph_Based: Used for Louvain and Leiden. 1 is default. The smaller the value, the larger the clusters will be.
+#' @param N_steps If strategy is Graph_Based: Number of steps given in the WalkTrap algorithm.
+#'
+#' @param N_K_centroids If strategy is K_Means_Meta_clustering: Number of centroids to perform K means.
+#' @param Max_N_neighborhoods_Meta If strategy is K_Means_Meta_clustering: Number of maximum neighborhoods that can be identified.
+#' @param Consensus_reps_Meta If strategy is K_Means_Meta_clustering: Number of iterations to converge.
+#' @param Consensus_p_Items_Meta If strategy is K_Means_Meta_clustering: Percentage of cells that you desire to sample in each iteration.
+#' @param Consensus_Name_Meta If strategy is K_Means_Meta_clustering: Name of the folder that is going to be created in order to place the resulting graphs.
+#'
+#' @param Batch_size If strategy is Batch_K_means: Number of cells to be included in each random batch.
+#' @param Max_N_neighborhoods_Batch If strategy is Batch_K_means: Number of maximum neighborhoods that can be identified.
+#' @param N_initiations If strategy is Batch_K_means: Number of times the algorithm is going to be tried to find the best clustering result.
+#' @param Max_iterations If strategy is Batch_K_means: Max number of iterations in each try.
+#'
+#' @param Quality_metric If strategy is GMM:T he quality measure used to test the number of clusters ("AIC" or "BIC").
+#' @param Max_N_phenotypes_GMM If strategy is GMM: Number of maximum phenotypes that can be identified.
+#' @param Max_iterations_km If strategy is GMM: Number of max iterations in the K means clustering performed.
+#' @param Max_iterations_em If strategy is GMM: Number of max iterations in the Expectation Maximization algorithm.
+#' @param GMM_Distance If strategy is GMM: Distance metric used in the model ("eucl_dist" or "maha_dist").
+#'
+#' @param Samples_CLARA If strategy is CLARA_clustering: Number of samples the CLARA algorithm is going to use to be calculated.
+#' @param Sample_per_CLARA If strategy is CLARA_clustering: Percentage (from 0 to 1) of the total cells that are going to be allocated to each sample.
+#' @param Max_N_neighborhoods_CLARA If strategy is CLARA_clustering: Number of maximum neighborhoods that can be identified.
+#' @param Distance_CLARA If strategy is CLARA_clustering: Distance metric used in the model (euclidean, manhattan, chebyshev, canberra, braycurtis, pearson_correlation, simple_matching_coefficient, minkowski, hamming, jaccard_coefficient, Rao_coefficient, mahalanobis, cosine)
+#' @param N_cores If strategy is CLARA_clustering: Number of cores to parallelize your computation
+#'
+#' @details
+#' De-noising process does not remove cells from the final output. It rather assigns noise cells to a single phenotype. Otsu thresholding and DBSCAN based denoising are based on EBImage::otsu and dbscan::dbscan functions, respectively.
+#'
+#' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then predicting coordinates for all the cells. This can be more computationally efficient.
+#'
+#' Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
+#'
+#' Self Organizing Maps clustering is performed using the FlowSOM::FlowSOM function.
+#'
+#' For graph based clustering Nearest neighbors graphs are built using bluster::makeSNNGraph and clustered using functions included in the igraph package.
+#'
+#' K_Means_Meta_clustering first summarizes cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
+#'
+#' Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
+#'
+#' @seealso [UTAG_message_passing()], [DATA_neighborhoods_renamer()], [Neighborhood_Quantifier()], [Neighborhood_voting_function()], [Tiled_neighborhoods_graphicator()]
+#'
+#' @returns Returns a tibble with cell features and a column named 'Neighborhood_assignment' containing cell neighborhoods.
+#' If dimension reduction has been performed returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
+#'
+#' @export
+
 UTAG_Neighborhood_identifier <-
   function(DATA = NULL,
            Strategy = NULL,
@@ -86,7 +166,19 @@ UTAG_Neighborhood_identifier <-
     if(Cluster_on_Reduced){
       if(!Perform_Dimension_reduction) stop("If Clustering needst o be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
     }
+    #Check specific arguments and suggested packages
     if(Strategy == "Consensus_Clustering"){
+      #Check suggested packages
+      if(!requireNamespace("ConsensusClusterPlus", quietly = TRUE)) stop(
+        paste0("ConsensusClusterPlus Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("ConsensusClusterPlus")
+               })
+        )
+      )
       #Check arguments by generating a argument check vector and message vector
       Argument_checker <- c(Max_N_neighborhoods_OK = (Max_N_neighborhoods >= 2 & Max_N_neighborhoods%%1 == 0),
                             Consensus_reps_OK = (Consensus_reps >= 1 & Consensus_reps%%1 == 0),
@@ -108,10 +200,36 @@ UTAG_Neighborhood_identifier <-
       }
     }
     if(Strategy == "SOM"){
+      #Check suggested packages
+      if(!requireNamespace("FlowSOM", quietly = TRUE)) stop(
+        paste0("FlowSOM Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("FlowSOM")
+               })
+        )
+      )
       #Check arguments
       if(!(Max_SOM_neighborhoods > 1 & Max_SOM_neighborhoods%%1 == 0)) stop("Max_SOM_neighborhoods must be an integer value > 1")
     }
     if(Strategy == "Graph_Based"){
+      #Check suggested packages
+      if(!requireNamespace("bluster", quietly = TRUE)) stop(
+        paste0("bluster Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("bluster")
+               })
+        )
+      )
+      if(!requireNamespace("igraph", quietly = FALSE)) stop(
+        paste0("igraph CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("igraph")))
+      )
       #Check arguments by generating a argument check vector and message vector
       Argument_checker <- c(Nearest_neighbors_for_graph_OK = (Nearest_neighbors_for_graph >= 1 & Nearest_neighbors_for_graph%%1 == 0),
                             Graph_Method_OK = Graph_Method %in% c("Louvain", "Leiden", "Greedy", "WalkTrap", "Spinglass", "Leading_Eigen", "Edge_Betweenness"),
@@ -129,6 +247,17 @@ UTAG_Neighborhood_identifier <-
       }
     }
     if(Strategy == "K_Means_Meta_clustering"){
+      #Check suggested packages
+      if(!requireNamespace("ConsensusClusterPlus", quietly = TRUE)) stop(
+        paste0("ConsensusClusterPlus Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("ConsensusClusterPlus")
+               })
+        )
+      )
       #Check arguments
       Argument_checker <- c(N_K_centroids_OK = all(nrow(DATA) > N_K_centroids, N_K_centroids%%1 == 0, N_K_centroids > 0),
                             Max_N_neighborhoods_Meta_OK = (Max_N_neighborhoods_Meta >= 2 & Max_N_neighborhoods_Meta%%1 == 0),
@@ -149,6 +278,11 @@ UTAG_Neighborhood_identifier <-
       }
     }
     if(Strategy == "Batch_K_means"){
+      #Check suggested packages
+      if(!requireNamespace("ClusterR", quietly = FALSE)) stop(
+        paste0("ClusterR CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("ClusterR")))
+      )
       #Check arguments
       Argument_checker <- c(Batch_size_OK = (Batch_size <= nrow(DATA) & Batch_size%%1 == 0 & Batch_size > 0),
                             Max_N_neighborhoods_Batch_OK = (Max_N_neighborhoods_Batch >= 2 & Max_N_neighborhoods_Batch%%1 == 0),
@@ -167,6 +301,11 @@ UTAG_Neighborhood_identifier <-
       }
     }
     if(Strategy == "GMM"){
+      #Check suggested packages
+      if(!requireNamespace("ClusterR", quietly = FALSE)) stop(
+        paste0("ClusterR CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("ClusterR")))
+      )
       #Check arguments
       Argument_checker <- c(Quality_metric_OK = Quality_metric %in% c("AIC", "BIC"),
                             Max_N_neighborhoods_GMM_OK = (Max_N_neighborhoods_GMM >= 2 & Max_N_neighborhoods_GMM%%1 == 0),
@@ -187,6 +326,11 @@ UTAG_Neighborhood_identifier <-
       }
     }
     if(Strategy == "CLARA_clustering"){
+      #Check suggested packages
+      if(!requireNamespace("ClusterR", quietly = FALSE)) stop(
+        paste0("ClusterR CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("ClusterR")))
+      )
       #Check arguments
       Argument_checker <- c(Samples_CLARA_OK = (Samples_CLARA >= 1 & Samples_CLARA%%1 == 0),
                             Sample_per_CLARA_OK = (Sample_per_CLARA > 0 & Sample_per_CLARA <= 1),
@@ -208,6 +352,73 @@ UTAG_Neighborhood_identifier <-
                  fill = sum(!Argument_checker)))
       }
     }
+    if(Apply_Denoise){
+      #check denoising argument is correctly stated
+      if(!Denoising %in% c("Quantile", "Standard_Deviation", "Threshold", "Otsu", "DimRed_DBscan")) {
+        stop("Denoising should be one of Quantile, Standard_Deviation, Threshold, Otsu, DimRed_DBscan")
+      }
+      if(Denoising == "DimRed_DBscan"){
+        #Requires previous dimension reduction
+        if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
+      }
+
+      #Check suggested packages
+      if(Denoising == "Otsu"){
+        if(!requireNamespace("EBImage", quietly = TRUE)) stop(
+          paste0("EBImage Bioconductor package is required to execute the function. Please install using the following code: ",
+                 expression({
+                   if (!require("BiocManager", quietly = TRUE))
+                     install.packages("BiocManager")
+
+                   BiocManager::install("EBImage")
+                 })
+          )
+        )
+      }
+      if(Denoising == "DimRed_DBscan"){
+        if(!requireNamespace("dbscan", quietly = FALSE)) stop(
+          paste0("dbscan CRAN package is required to execute the function. Please install using the following code: ",
+                 expression(install.packages("dbscan")))
+        )
+      }
+    }
+    if(Perform_Dimension_reduction){
+      if(Dimension_reduction == "PCA"){
+        if(!requireNamespace("svd", quietly = FALSE)) stop(
+          paste0("svd CRAN package is required to execute the function. Please install using the following code: ",
+                 expression(install.packages("svd")))
+        )
+      }
+      if(Dimension_reduction == "TSNE"){
+        if(!requireNamespace("snifter", quietly = TRUE)) stop(
+          paste0("snifter Bioconductor package is required to execute the function. Please install using the following code: ",
+                 expression({
+                   if (!require("BiocManager", quietly = TRUE))
+                     install.packages("BiocManager")
+
+                   BiocManager::install("snifter")
+                 })
+          )
+        )
+      }
+      if(Dimension_reduction == "UMAP"){
+        if(!requireNamespace("uwot", quietly = FALSE)) stop(
+          paste0("uwot CRAN package is required to execute the function. Please install using the following code: ",
+                 expression(install.packages("uwot")))
+        )
+      }
+    }
+    #Check complex heatmap package
+    if(!requireNamespace("ComplexHeatmap", quietly = TRUE)) stop(
+      paste0("ComplexHeatmap Bioconductor package is required to execute the function. Please install using the following code: ",
+             expression({
+               if (!require("BiocManager", quietly = TRUE))
+                 install.packages("BiocManager")
+
+               BiocManager::install("ComplexHeatmap")
+             })
+      )
+    )
 
 
     #Import data and filter by the n of neighbors
