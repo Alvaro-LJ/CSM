@@ -42,6 +42,16 @@ segmentator_tester_app <-
                })
         )
       )
+      if(!requireNamespace("ComplexHeatmap", quietly = TRUE)) stop(
+        paste0("ComplexHeatmap Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("ComplexHeatmap")
+               })
+        )
+      )
       if(!requireNamespace("magick", quietly = FALSE)) stop(
         paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("benchmarkme")))

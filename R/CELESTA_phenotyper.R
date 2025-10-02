@@ -99,7 +99,7 @@ CELESTA_phenotyper <-
 
     #Build the final Prior_info dataframe
     #Collapse the lineage level, bind it to marker info and add row names
-    Lineage_level <- stringr::stringr::str_c(Prior_info$Assignment_round, Prior_info$Phenotype_dependency, Prior_info$Phenotype_Number, sep = "_")
+    Lineage_level <- stringr::str_c(Prior_info$Assignment_round, Prior_info$Phenotype_dependency, Prior_info$Phenotype_Number, sep = "_")
     Final_template <- cbind(Prior_info[["Phenotype"]], Lineage_level, Prior_info[-c(1:8)])
     names(Final_template)[1] <- ""
 
