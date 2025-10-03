@@ -30,12 +30,12 @@ Clinical_Data_analyzer <-
     #Check suggested packages
     {
       if(!requireNamespace("survival", quietly = FALSE)) stop(
-        paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("magick")))
+        paste0("survival CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("survival")))
       )
       if(!requireNamespace("survminer", quietly = FALSE)) stop(
-        paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("magick")))
+        paste0("survminer CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("survminer")))
       )
     }
 
