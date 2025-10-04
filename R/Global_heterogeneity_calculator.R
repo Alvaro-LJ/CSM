@@ -3,7 +3,7 @@
 #' The function calculates various heterogeneity metrics based on cell composition distribution. It does not take into account spatial information.
 #'
 #' @param DATA A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.
-#' @param Phenotypes_included A character vector indicating the phenotype labels that will be included in the plot.
+#' @param Phenotypes_included A character vector indicating the phenotype labels that will be included in the analysis.
 #'
 #' @details
 #' Shannon, Simpson,Inverse Simpson and Renyi entropy indexes are calculated using the vegan package.
