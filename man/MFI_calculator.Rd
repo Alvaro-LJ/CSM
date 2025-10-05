@@ -17,4 +17,7 @@ A list containing the MFI and the total foreground pixels
 \description{
 Internal use only
 }
+\details{
+Used in \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}
+}
 \keyword{Internal}

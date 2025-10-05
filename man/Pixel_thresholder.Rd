@@ -32,4 +32,7 @@ An EBImage object containing the binary thresholded image
 \description{
 Internal use only
 }
+\details{
+Used in \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}, \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}, \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}
+}
 \keyword{Internal}

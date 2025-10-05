@@ -6,6 +6,11 @@
 #' @param Target A numeric vector of length = 3. Represents the target RGB channels.
 #' @param Color_Tolerance A numeric vector of length = 3. Represents the individual tolerances of target RGB channels.
 #' @param Final_Tolerance A numeric value specifying the final tolerance.
+#'
+#' @details
+#' Used in [Channel_deconvolution_function()], [Color_deconvolution_App_launcher()]
+#'
+#'
 #' @returns The function returns a greyscale EBImage object
 #' @keywords Internal
 

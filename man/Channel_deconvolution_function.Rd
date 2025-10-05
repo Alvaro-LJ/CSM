@@ -17,4 +17,7 @@ The function returns a greyscale EBImage object
 \description{
 Intended for internal use only
 }
+\details{
+Used in \code{\link[=Image_deconvolution_function]{Image_deconvolution_function()}}
+}
 \keyword{Internal}

@@ -6,6 +6,11 @@
 #' @param Threshold_value If Threshold_type = 'Arbitrary', the value applied to threshold the image
 #' @param Blurr A logical value indicating if blurring should be applied before thresholding
 #' @param Sigma Sigma applied to the Gaussian kernel for blurring
+#'
+#' @details
+#' Used in [Image_thresholding_app_launcher()], [Pixel_Threshold_calculator()], [MFI_Experimet_Calculator()]
+#'
+#'
 #' @returns An EBImage object containing the binary tissue mask of foreground pixels
 #' @keywords Internal
 

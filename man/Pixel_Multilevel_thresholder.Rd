@@ -35,6 +35,9 @@ An EBImage object containing the multi-level thresholded image
 \description{
 Internal use only
 }
+\details{
+Used in \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}, \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}
+}
 \keyword{Internal}
 \keyword{Thresholds}
 \keyword{according}

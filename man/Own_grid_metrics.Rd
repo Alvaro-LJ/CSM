@@ -9,4 +9,7 @@ Own_grid_metrics(spe_object, FUN, n_split, ...)
 \description{
 Intended for internal use only
 }
+\details{
+Used in \code{\link[=SPIAT_Heterogeneity_Analyzer]{SPIAT_Heterogeneity_Analyzer()}}
+}
 \keyword{Internal}

@@ -26,4 +26,7 @@ A list containing the histogram, the cut-off values and the cells above and belo
 \description{
 Intended for internal use only
 }
+\details{
+Used in \code{\link[=Thresholding_tester_app]{Thresholding_tester_app()}}
+}
 \keyword{Internal}

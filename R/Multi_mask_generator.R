@@ -2,6 +2,10 @@
 #'
 #' Internal use only
 #' @param ... EBImage type objects containing binary thresholded tissue masks
+#'
+#' @details
+#' Used in [MFI_Experimet_Calculator()]
+#'
 #' @returns The result of the intersection of all images provided
 #' @keywords Internal
 

@@ -26,4 +26,7 @@ The function returns a greyscale EBImage object
 \description{
 Intended for internal use only
 }
+\details{
+Used in \code{\link[=Channel_deconvolution_function]{Channel_deconvolution_function()}}, \code{\link[=Color_deconvolution_App_launcher]{Color_deconvolution_App_launcher()}}
+}
 \keyword{Internal}

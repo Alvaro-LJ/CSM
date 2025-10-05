@@ -15,4 +15,7 @@ The result of the intersection of all images provided
 \description{
 Internal use only
 }
+\details{
+Used in \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}
+}
 \keyword{Internal}

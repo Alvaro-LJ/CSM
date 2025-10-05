@@ -1,9 +1,14 @@
 #' Thresholds RGB channels of a color image and performs pre and post-processing steps
 #'
 #' Intended for internal use only
-
+#'
 #' @param Image A EBImage object.
 #' @param Parameters A list of image pre and post-processing
+#'
+#' @details
+#' Used in [Image_deconvolution_function()]
+#'
+#'
 #' @returns The function returns a greyscale EBImage object
 #' @keywords Internal
 

@@ -6,6 +6,11 @@
 #' @param DATA_Thresholded Dataframe or tibble containing thresholded cell features.
 #' @param LOCAL Logical value indicating if thresholds are calculated locally.
 #' @param CASE A character indicating which image needs to be summarized.
+#'
+#' @details
+#' Used in [Thresholding_tester_app()]
+#'
+#'
 #' @returns A list containing the histogram, the cut-off values and the cells above and below threshold for the selected case
 #' @keywords Internal
 

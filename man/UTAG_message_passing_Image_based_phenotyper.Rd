@@ -39,6 +39,8 @@ A tibble containing cell feature data that have undergone neighbor message passi
 Intended for internal use only
 }
 \details{
+Used in \code{\link[=Image_based_phenotyper_App_launcher]{Image_based_phenotyper_App_launcher()}}, \code{\link[=Model_cell_phenotyper]{Model_cell_phenotyper()}}
+
 Weighting strategy modifies the way neighbors share information:
 
 Proximity weighting allows closer neighbors to have a higher influence compared to distant neighbors. For a set of neighbors each located at a distance d from the cell of origin, and being the sum of all neighbor distances D, weight is defined as 1/(d/D).

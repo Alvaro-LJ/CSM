@@ -18,6 +18,11 @@
 #' @param Blurr A logical value indicating if blurring should be applied before thresholding
 #' @param Sigma Sigma applied to the Gaussian kernel for blurring
 #' @returns An EBImage object containing the multi-level thresholded image
+#'
+#' @details
+#' Used in [Image_thresholding_app_launcher()], [Pixel_Threshold_calculator()]
+#'
+#'
 #' @keywords Internal
 
 Pixel_Multilevel_thresholder <-

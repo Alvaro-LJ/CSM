@@ -8,6 +8,10 @@
 #' @param Tile_height A numeric value indicating the height of the tiles.
 #' @param Variables_to_keep A character vector indicating the column names to be kept when tiling the image.
 #'
+#' @details
+#' Used in [Image_tiling_processing_function()]
+#'
+#'
 #' @returns A list containing two elements. Tile_info contains information of tiles. Final_tibble contains cell information and the tile where they are located.
 #'
 #' @seealso [Suggested_Tile_Size_Calculator()], [Image_tiling_processing_function()]

@@ -17,4 +17,7 @@ A dataframe containing unique combinations
 \description{
 Intended for internal use only. In contrast to expand.grid only unique combinations are preserved.
 }
+\details{
+Used in \code{\link[=Concordance_calculator]{Concordance_calculator()}}, \code{\link[=Neighborhood_discovery_function]{Neighborhood_discovery_function()}}, \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}}, \code{\link[=Clustered_Tiled_Images_analyzer]{Clustered_Tiled_Images_analyzer()}}
+}
 \keyword{Internal}

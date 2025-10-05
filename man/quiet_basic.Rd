@@ -9,4 +9,7 @@ quiet_basic(x)
 \description{
 Intended for internal use only
 }
+\details{
+Used in \code{\link[=Own_grid_metrics]{Own_grid_metrics()}}, \code{\link[=SPIAT_Heterogeneity_Analyzer]{SPIAT_Heterogeneity_Analyzer()}}
+}
 \keyword{Internal}

@@ -2,6 +2,10 @@
 #'
 #' Intended for internal use only
 #'
+#' @details
+#' Used in [SPIAT_Heterogeneity_Analyzer()]
+#'
+#'
 #' @keywords Internal
 
 Own_grid_metrics <-

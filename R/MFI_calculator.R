@@ -3,6 +3,11 @@
 #' Internal use only
 #' @param Target An EBImage type object with a single channel to be thresholded
 #' @param Tissue_mask An EBImage type object of the binary tissue mask
+#'
+#' @details
+#' Used in [MFI_Experimet_Calculator()]
+#'
+#'
 #' @returns A list containing the MFI and the total foreground pixels
 #' @keywords Internal
 

@@ -29,6 +29,9 @@ A list containing two elements. Tile_info contains information of tiles. Final_t
 \description{
 Intended for internal use only
 }
+\details{
+Used in \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}
+}
 \seealso{
 \code{\link[=Suggested_Tile_Size_Calculator]{Suggested_Tile_Size_Calculator()}}, \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}
 }
