@@ -1,4 +1,4 @@
-#' Calculates distance between a single cell of origin and two targte cells
+#' Calculates distance between a single cell of origin and two target cells
 #'
 #' The function calculates the Euclidean distance between three cell phenotypes. One is considered the Cell of Origin (COO) and two others are considered the target cells.
 #' The COO and one of the target cells can be the same cell type.

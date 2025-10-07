@@ -303,6 +303,7 @@ ReClustering_function <-
     #If NA then NEW cluster does not add any info
     DATA$NEW_Cluster[is.na(DATA$NEW_Cluster)] <- ""
     DATA <- DATA %>% dplyr::mutate(Phenotype = stringr::str_c(Phenotype, NEW_Cluster, sep = "_")) %>% dplyr::select(-NEW_Cluster)
+    DATA$Phenotype <- sub("_$", "", DATA$Phenotype)
 
     #Return the final data
     return(DATA)

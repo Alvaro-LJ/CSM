@@ -28,7 +28,7 @@ DATA_Phenotype_renamer <-
       names_tibble <- tibble(Phenotype = factor(1:length(unique(DATA_Phenotypes$Phenotype))),
                              New_names = New_names)
       Result <-dplyr::left_join(DATA_Phenotypes, names_tibble, by = "Phenotype")
-      Result %>%dplyr::mutate(Phenotype = New_names) %>% dplyr::select(-New_names)
+      return(Result %>%dplyr::mutate(Phenotype = New_names) %>% dplyr::select(-New_names))
     }
 
     #If new names and old names are provided then check first that the lengths are equal and check that old names are present in data. Then proceed
