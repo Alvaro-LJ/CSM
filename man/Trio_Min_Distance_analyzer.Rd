@@ -17,7 +17,7 @@ Trio_Min_Distance_analyzer(
 
 \item{DATA}{A list containing trio cell distance matrix. It can be computed using \code{\link[=Trio_Distance_matrix_generator]{Trio_Distance_matrix_generator()}} function.}
 
-\item{DATA_RANDOM}{(OPTIONAL) A list containing random  trio cell distance matrix. It can be computed using \code{\link[=Trio_Random_Distance_matrix_generator]{Trio_Random_Distance_matrix_generator()}} function.}
+\item{DATA_RANDOM}{(OPTIONAL) A list containing random trio cell distance matrix. It can be computed using \code{\link[=Trio_Random_Distance_matrix_generator]{Trio_Random_Distance_matrix_generator()}} function.}
 
 \item{Include_Random}{A logical value indicating if the Random background should be used.}
 

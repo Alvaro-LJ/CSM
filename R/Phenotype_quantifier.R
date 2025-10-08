@@ -2,11 +2,11 @@
 #'
 #' The function generates positive cell counts, percentages and optionally cell densities according to cell phenotypes.
 #'
-#' @param DATA A dataframe or tibble containing cell feature data that and a column named 'Phenotype' containing cell labels.
+#' @param DATA A dataframe or tibble containing cell feature data and a column named 'Phenotype' containing cell labels.
 #' @param Calculate_Density A logical value indicating if density should be calculated.
-#' @param DATA_Area If Calculate_Density is TRUE, a dataframe or tibble containing image names and tissue area information.
+#' @param DATA_Area If Calculate_Density is TRUE, a dataframe or tibble containing image names and tissue area information. It can be calculated using [Image_size_calculator()].
 #'
-#' @returns Returns a tibble with cell counts, pertentages and optionally cell densities per image.
+#' @returns Returns a tibble with cell counts, percentages and optionally cell densities per image.
 #'
 #' @export
 
@@ -21,7 +21,7 @@ Phenotype_quantifier <-
     }
 
     #Obtain the number of cells by image according to the phenotypes
-    Results <- DATA %>% group_by(Subject_Names, Phenotype) %>% dplyr::count() %>%dplyr::ungroup() %>% pivot_wider(names_from = Phenotype, values_from = n)
+    Results <- DATA %>% group_by(Subject_Names, Phenotype) %>% dplyr::count() %>% dplyr::ungroup() %>% dplyr::pivot_wider(names_from = Phenotype, values_from = n)
     Results[is.na(Results)] <- 0
 
     #Calculate the number of total cells

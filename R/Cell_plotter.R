@@ -2,7 +2,7 @@
 #'
 #' The function generates a plot of the cells of a single image. It is similar to [Cell_image_plot_generator()] but the original image is not drawn in the background.
 #'
-#' @param DATA A dataframe or tibble containing cell feature data.
+#' @param DATA A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.
 #' @param Image_name A character value indicating the image to be plotted.
 #' @param Phenotypes_included A character vector indicating the phenotype labels that will be included in the plot.
 #'

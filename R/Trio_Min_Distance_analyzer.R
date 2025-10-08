@@ -4,7 +4,7 @@
 #'
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @param DATA A list containing trio cell distance matrix. It can be computed using [Trio_Distance_matrix_generator()] function.
-#' @param DATA_RANDOM (OPTIONAL) A list containing random  trio cell distance matrix. It can be computed using [Trio_Random_Distance_matrix_generator()] function.
+#' @param DATA_RANDOM (OPTIONAL) A list containing random trio cell distance matrix. It can be computed using [Trio_Random_Distance_matrix_generator()] function.
 #' @param Include_Random A logical value indicating if the Random background should be used.
 #' @param By_Sample_Random If a random background needs to be included, a logical value indicating if the random background should be calculated by sample or by experiment (see details).
 #'

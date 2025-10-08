@@ -7,7 +7,7 @@
 Cell_plotter(DATA = NULL, Image_name = NULL, Phenotypes_included = NULL)
 }
 \arguments{
-\item{DATA}{A dataframe or tibble containing cell feature data.}
+\item{DATA}{A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.}
 
 \item{Image_name}{A character value indicating the image to be plotted.}
 

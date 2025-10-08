@@ -7,14 +7,14 @@
 Phenotype_quantifier(DATA = NULL, Calculate_Density = NULL, DATA_Area = NULL)
 }
 \arguments{
-\item{DATA}{A dataframe or tibble containing cell feature data that and a column named 'Phenotype' containing cell labels.}
+\item{DATA}{A dataframe or tibble containing cell feature data and a column named 'Phenotype' containing cell labels.}
 
 \item{Calculate_Density}{A logical value indicating if density should be calculated.}
 
-\item{DATA_Area}{If Calculate_Density is TRUE, a dataframe or tibble containing image names and tissue area information.}
+\item{DATA_Area}{If Calculate_Density is TRUE, a dataframe or tibble containing image names and tissue area information. It can be calculated using \code{\link[=Image_size_calculator]{Image_size_calculator()}}.}
 }
 \value{
-Returns a tibble with cell counts, pertentages and optionally cell densities per image.
+Returns a tibble with cell counts, percentages and optionally cell densities per image.
 }
 \description{
 The function generates positive cell counts, percentages and optionally cell densities according to cell phenotypes.
