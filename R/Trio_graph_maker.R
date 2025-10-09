@@ -4,7 +4,7 @@
 
 #' @param Image_name A character value indicating the image to be plotted.
 #' @param DATA_Phenotypes A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.
-#' @param Strategy A character value indicating the plot that will be generated. One of the following: "Min_Distance" or"TRIO_in_Radius".
+#' @param Strategy A character value indicating the plot that will be generated. One of the following: "Min_Distance" or "TRIO_in_Radius".
 #' @param TRIO_Distances If Strategy is Min_Distance, a trio distance matrix list generated using [Trio_Distance_matrix_generator()] function.
 #' @param Trio_Cumulative If Strategy is TRIO_in_Radius, a trio cumulative interaction matrix list generated using [Trio_Cumulative_Interaction_generator()] function.
 #' @param Radius If strategy is TRIO_in_Radius, a numeric value indicating the radius to be plotted. It must have been computed during the generation of the cumulative interaction matrix.

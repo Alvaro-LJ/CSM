@@ -22,6 +22,15 @@ Image_size_calculator <-
            Hull_ratio = NULL
 
   ) {
+
+    #Check suggested package
+    if(Strategy == "Convave_hull"){
+      if(!requireNamespace("sf", quietly = FALSE)) stop(
+        paste0("sf CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("sf")))
+      )
+    }
+
     DATA <- DATA
     #Check arguments
     if(!all(c("Subject_Names", "X", "Y") %in% names(DATA)[c(1:4)])) {

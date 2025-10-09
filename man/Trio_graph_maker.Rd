@@ -18,7 +18,7 @@ Trio_graph_maker(
 
 \item{DATA_Phenotypes}{A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.}
 
-\item{Strategy}{A character value indicating the plot that will be generated. One of the following: "Min_Distance" or"TRIO_in_Radius".}
+\item{Strategy}{A character value indicating the plot that will be generated. One of the following: "Min_Distance" or "TRIO_in_Radius".}
 
 \item{TRIO_Distances}{If Strategy is Min_Distance, a trio distance matrix list generated using \code{\link[=Trio_Distance_matrix_generator]{Trio_Distance_matrix_generator()}} function.}
 
