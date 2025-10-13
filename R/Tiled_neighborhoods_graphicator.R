@@ -24,7 +24,7 @@ Tiled_neighborhoods_graphicator <-
 
       PLOT <- Image_to_graph %>%
         dplyr::select(dplyr::contains("tile_"), dplyr::contains("PROP")) %>%
-        pivot_longer(dplyr::contains("PROP")) %>%
+        tidyr::pivot_longer(dplyr::contains("PROP")) %>%
         ggplot() + geom_rect(aes(group = tile_id, xmin = tile_xmin, ymin = tile_ymin, xmax = tile_xmax, ymax = tile_ymax, fill = value), color = "black") +
         facet_wrap(~name) + theme_minimal() + theme(panel.grid = element_blank()) +
         scale_fill_gradient(low = "grey", high = "red")

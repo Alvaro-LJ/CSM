@@ -63,7 +63,7 @@ Thresholding_summary_function <-
       Thresholds_results <- as_tibble(Thresholds_results)
       Thresholds_results$Threshold_level <-stringr::str_c("Threshold_Level_", 1:nrow(Thresholds_results))
       Thresholds_results <- Thresholds_results[c(ncol(Thresholds_results), 1:(ncol(Thresholds_results)-1))]
-      For_histogram <- Thresholds_results %>% pivot_longer(-1)
+      For_histogram <- Thresholds_results %>% tidyr::pivot_longer(-1)
     }
     #Generate the final tibble if only polychotomic variables are present
     else if (ncol(Thresholded_Dichom) < 1){
@@ -71,7 +71,7 @@ Thresholding_summary_function <-
       Thresholds_results <- Thresholds_Poly
       Thresholds_results$Threshold_level <-stringr::str_c("Threshold_Level_", 1:nrow(Thresholds_results))
       Thresholds_results <- Thresholds_results[c(ncol(Thresholds_results), 1:(ncol(Thresholds_results)-1))]
-      For_histogram <- Thresholds_results %>% pivot_longer(-1)
+      For_histogram <- Thresholds_results %>% tidyr::pivot_longer(-1)
     }
     #Generate the final tibble if both type of variables are present
     else if (ncol(Thresholded_Poly) >= 1 & ncol(Thresholded_Dichom) >= 1){
@@ -82,12 +82,12 @@ Thresholding_summary_function <-
       Thresholds_results <-dplyr::bind_cols(Thresholds_results, Thresholds_Poly)
       Thresholds_results$Threshold_level <-stringr::str_c("Threshold_Level_", 1:nrow(Thresholds_results))
       Thresholds_results <- Thresholds_results[c(ncol(Thresholds_results), 1:(ncol(Thresholds_results)-1))]
-      For_histogram <- Thresholds_results %>% pivot_longer(-1)
+      For_histogram <- Thresholds_results %>% tidyr::pivot_longer(-1)
     }
 
     #If not many markers present in the analysis, then print it in the plot window
     if(ncol(Markers) <= 10){
-      plot(Markers %>% pivot_longer(1:ncol(Markers)) %>%
+      plot(Markers %>% tidyr::pivot_longer(1:ncol(Markers)) %>%
              ggplot(aes(x = value)) + facet_wrap(~name, "free", ncol = 1, nrow = ncol(Markers)) +
              geom_histogram(bins = 1000) +
              cowplot::theme_cowplot() +
@@ -100,7 +100,7 @@ Thresholding_summary_function <-
     if(ncol(Markers) > 10) {
       warning(paste0("If the amount of Markers included is more than 10, the resulting graph will be exported to ", getwd()))
       png("Thresholds_for_Markers.png", width = 5000, height = 10000)
-      plot(Markers %>% pivot_longer(1:ncol(Markers)) %>%
+      plot(Markers %>% tidyr::pivot_longer(1:ncol(Markers)) %>%
              ggplot(aes(x = value)) + facet_wrap(~name, "free", ncol = 1, nrow = ncol(Markers)) +
              geom_histogram(bins = 1000) +
              cowplot::theme_cowplot() +

@@ -28,7 +28,7 @@ Clustered_Tiled_Images_renamer <-
                              New_names = New_names)
 
       return(purrr::map(Tiled_images, function(Image){
-        dplyr::left_join(Image, names_tibble, by = "Cluster_assignment") %>%dplyr::mutate(Cluster_assignment = New_names) %>% dplyr::select(-New_names)
+        dplyr::left_join(Image, names_tibble, by = "Cluster_assignment") %>% dplyr::mutate(Cluster_assignment = New_names) %>% dplyr::select(-New_names)
       }))
     }
 

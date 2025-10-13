@@ -32,7 +32,7 @@ Thresholding_graphicator_function <-
     #Generate the plot of the values by marker
     print("Generating plots")
     PLOT_1 <-
-      DATA %>% pivot_longer(-c(1:4)) %>%
+      DATA %>% tidyr::pivot_longer(-c(1:4)) %>%
       ggplot(aes(x = X, y = Y, color = value)) +
       scale_colour_gradient("", low = alpha("white", 0), high = alpha("black", 0.95))+
       facet_wrap(~name, ncol = 1, nrow = ncol(DATA)-4, "free") +
@@ -46,7 +46,7 @@ Thresholding_graphicator_function <-
 
     #Generate the plot of positive cells
     PLOT_2 <-
-      DATA_thresholded %>% pivot_longer(-c(1:4)) %>%
+      DATA_thresholded %>% tidyr::pivot_longer(-c(1:4)) %>%
       ggplot(aes(x = X, y = Y, color = as.character(value))) +
       scale_colour_manual(values = c(alpha("white", 0), alpha("black", 0.95)))+
       facet_wrap(~name, ncol = 1, nrow = ncol(DATA)-4, "free") +

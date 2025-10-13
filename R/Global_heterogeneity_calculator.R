@@ -52,8 +52,8 @@ Global_heterogeneity_calculator <-
 
       #Generate the cell count data
       Interim <- DATA %>% dplyr::filter(Phenotype %in% Phenotypes_included) %>%
-        group_by(Subject_Names, Phenotype) %>% dplyr::count() %>%dplyr::ungroup() %>%
-        pivot_wider(id_cols = Subject_Names, names_from = Phenotype, values_from = n)
+        dplyr::group_by(Subject_Names, Phenotype) %>% dplyr::count() %>% dplyr::ungroup() %>%
+        tidyr::pivot_wider(id_cols = Subject_Names, names_from = Phenotype, values_from = n)
       #Substitute NA for 0
       Interim[is.na(Interim)] <- 0
 
@@ -62,7 +62,7 @@ Global_heterogeneity_calculator <-
 
       #Calculate experiment wise cell proportion distribution (for KL and JS)
       Global_counts <- DATA %>% dplyr::filter(Phenotype %in% Phenotypes_included) %>%
-        dplyr::count(Phenotype) %>%dplyr::mutate(n = n/sum(n)) %>% pivot_wider(names_from = Phenotype, values_from = n)
+        dplyr::count(Phenotype) %>% dplyr::mutate(n = n/sum(n)) %>% tidyr::pivot_wider(names_from = Phenotype, values_from = n)
       #Sort Global_counts according to column name
       Global_counts <- Global_counts[sort(names(Global_counts))]
       Global_counts <- unlist(Global_counts)

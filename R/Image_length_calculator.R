@@ -21,7 +21,7 @@ Image_length_calculator <-
                             )
                           })
     )
-    plot(DF %>% pivot_longer(-1) %>% ggplot(aes(x = value)) + facet_wrap(~name, "free", ncol = 1, nrow = 3) + geom_histogram(bins = 50) +
+    plot(DF %>% tidyr::pivot_longer(-1) %>% ggplot(aes(x = value)) + facet_wrap(~name, "free", ncol = 1, nrow = 3) + geom_histogram(bins = 50) +
            cowplot::theme_cowplot()+
            scale_x_continuous("Size"))
     names(DF)[1] <- "Subject_Names"

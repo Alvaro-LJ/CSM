@@ -132,7 +132,7 @@ Tailored_Closest_neighbor_calculator <-
               RESULT <- RESULT %>% dplyr::filter(DIST <= Max_dist_allowed)
             }
             #Count the neighbors (relative to all neighbors) and distance metrics
-            Neighbors_in_window_result <- RESULT %>% dplyr::count(Phenotype) %>% dplyr::pivot_wider(names_from = Phenotype, values_from = n)
+            Neighbors_in_window_result <- RESULT %>% dplyr::count(Phenotype) %>% tidyr::pivot_wider(names_from = Phenotype, values_from = n)
             FINAL <-dplyr::bind_cols(Tibble_COO[row,], Neighbors_in_window_result/nrow(RESULT))
             FINAL <- FINAL %>%dplyr::mutate(N_neighbors = nrow(RESULT),
                                             min_DIST = min(RESULT$DIST),
@@ -188,7 +188,7 @@ Tailored_Closest_neighbor_calculator <-
     corrplot::corrplot(cor_DATA, method = "shade", type = "lower", order = "hclust", addCoef.col = "black", number.cex = 0.8, tl.cex = 0.8,
                        tl.pos = "lt", tl.col = "black")
 
-    plot(RESULTS %>% dplyr::select(max_DIST, avg_DIST, median_DIST) %>% pivot_longer(1:3) %>%
+    plot(RESULTS %>% dplyr::select(max_DIST, avg_DIST, median_DIST) %>% tidyr::pivot_longer(1:3) %>%
            ggplot(aes(x = value)) + facet_wrap(~name, ncol = 1, nrow = 3, "free") + geom_histogram(binwidth = 2)+
            cowplot::theme_cowplot()+
            scale_x_continuous("Distance"))

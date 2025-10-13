@@ -46,7 +46,7 @@ Cumulative_Interaction_generator <-
     RESULTS <- suppressMessages(
       furrr::future_map(DATA, function(x) {
         #Get our tibble and format it adequately and remove NA values if necessary
-        Longer_distance_matrix <-  x[[2]] %>% pivot_longer(2:ncol(x[[2]])) %>% na.omit()
+        Longer_distance_matrix <-  x[[2]] %>% tidyr::pivot_longer(2:ncol(x[[2]])) %>% na.omit()
 
         #Calculate the cumulative distance tibble with the desired sampling strategy
         Cumulative_distance_tibble <-

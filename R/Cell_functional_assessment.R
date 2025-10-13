@@ -66,7 +66,7 @@ Cell_functional_assessment <-
 
       #Plot the functional marker by each Target variable
       plot(
-        DATA_Joined %>% pivot_longer(-c(1:5)) %>%
+        DATA_Joined %>% tidyr::pivot_longer(-c(1:5)) %>%
           ggplot(aes(x = Variable, y = log10(value+0.00001), fill = Variable)) + facet_wrap(~name, "free", nrow = 1, ncol = (ncol(DATA_Joined) - 5)) +
           geom_boxplot() +
           cowplot::theme_cowplot() +
@@ -83,9 +83,9 @@ Cell_functional_assessment <-
                                                                                                                                          p50 = ~quantile(.x, 0.5, na.rm = T),
                                                                                                                                          p75 = ~quantile(.x, 0.75, na.rm = T),
                                                                                                                                          max = ~max(.x, na.rm = T))) %>%
-        ungroup() %>% pivot_longer(-c(1:2)) %>%dplyr::mutate(Final_Variable = stringr::str_c(Variable, name, sep = "_")) %>%
+        ungroup() %>% tidyr::pivot_longer(-c(1:2)) %>% dplyr::mutate(Final_Variable = stringr::str_c(Variable, name, sep = "_")) %>%
         dplyr::select(-Variable, -name) %>%
-        pivot_wider(names_from = Final_Variable, values_from = value)
+        tidyr::pivot_wider(names_from = Final_Variable, values_from = value)
 
       #Return the target Variable name to its original value
       names(DATA_Joined)[5] <- Target_Variable
@@ -114,7 +114,7 @@ Cell_functional_assessment <-
 
       #Plot the results
       plot(
-        DATA_Joined %>% pivot_longer(-c(1:5)) %>%
+        DATA_Joined %>% tidyr::pivot_longer(-c(1:5)) %>%
           ggplot(aes(x = Variable, y = 1)) + facet_wrap(~name, "free", nrow = 1, ncol = (ncol(DATA_Joined) - 5)) +
           geom_col(aes(fill = as.factor(value)), position = position_fill(reverse = T),  linewidth = 1) +
           cowplot::theme_cowplot() +
@@ -130,7 +130,7 @@ Cell_functional_assessment <-
 
       #Prepare the overall target cell counts to calculate percentages
       Cell_count_tibble <- For_Counts %>% group_by(Subject_Names) %>% dplyr::count(Variable) %>% ungroup() %>%
-        pivot_wider(names_from = Variable, values_from = n)
+        tidyr::pivot_wider(names_from = Variable, values_from = n)
       Cell_count_tibble[is.na(Cell_count_tibble)] <- 0
       #Make sure cell count tibble is arranged by subject_names
       Cell_count_tibble <- Cell_count_tibble %>% dplyr::arrange(Subject_Names)
@@ -149,7 +149,7 @@ Cell_functional_assessment <-
           Interim <- Interim %>% group_by(Subject_Names, Variable) %>% dplyr::count(Functional_Marker) %>% ungroup() %>%
             dplyr::mutate(Final_Variable = stringr::str_c(Variable, names(For_Counts)[var], Functional_Marker, sep = "_")) %>%
             dplyr::select(-Variable,-Functional_Marker) %>%
-            pivot_wider(names_from = Final_Variable, values_from = n)
+            tidyr::pivot_wider(names_from = Final_Variable, values_from = n)
           Interim[is.na(Interim)] <- 0
 
           #Make sure both tibbles are ordered in the same way with respect to the Subject Names column

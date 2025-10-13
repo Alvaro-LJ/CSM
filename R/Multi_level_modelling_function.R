@@ -71,7 +71,7 @@ Multi_level_modelling_function <-
     #First we need to create a dataframe with in an adequate format
     print("Formatting data")
     Interim <-purrr::map_dfr(1:length(DATA_cumulative), function(Image) {
-      DATA_cumulative[[Image]][[2]] %>% pivot_longer(-1) %>%
+      DATA_cumulative[[Image]][[2]] %>% tidyr::pivot_longer(-1) %>%
         dplyr::mutate(name = as.double(name),
                       Cell_Of_Origin_ID = stringr::str_c(names(DATA_cumulative)[Image], Cell_Of_Origin_no, sep = "_"),
                       Subject_Names = names(DATA_cumulative)[Image]) %>%

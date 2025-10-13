@@ -80,7 +80,7 @@ Tiled_image_heterogeneity_calculator <-
           #Build cell count by tile matrix
           Interim2 <-
             Interim %>% dplyr::filter(tile_id %in% Filtered_tiles[[1]]) %>% group_by(tile_id, Phenotype) %>% dplyr::count() %>%
-            pivot_wider(id_cols = tile_id,
+            tidyr::pivot_wider(id_cols = tile_id,
                         names_from = Phenotype,
                         values_from = n)
           Interim2[is.na(Interim2)] <- 0

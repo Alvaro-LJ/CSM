@@ -27,6 +27,6 @@ Advanced_Distance_function_A_B_single <-
     names(Tibble_interim) <- c("Cell_A_no", "Cell_B_no", "X_Cell_A", "Y_Cell_A", "X_Cell_B", "Y_Cell_B")
     return(
       Tibble_interim %>% dplyr::mutate(DIST = sqrt((X_Cell_A - X_Cell_B)^2 + (Y_Cell_A - Y_Cell_B)^2)) %>%
-        dplyr::select(Cell_A_no, Cell_B_no, DIST) %>% dplyr::pivot_wider(id_cols = Cell_A_no, names_from = Cell_B_no, values_from = DIST)
+        dplyr::select(Cell_A_no, Cell_B_no, DIST) %>% tidyr::pivot_wider(id_cols = Cell_A_no, names_from = Cell_B_no, values_from = DIST)
     )
   }

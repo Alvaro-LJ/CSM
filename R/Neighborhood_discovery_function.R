@@ -575,7 +575,7 @@ Neighborhood_discovery_function <-
         #We determine the distance between nodes that will be the features of the edges
         DISTANCE_MATRIX <- as_tibble(as.matrix(dist(Neighbor_patterns_scaled, method = Graph_Distance_method)))
         DISTANCE_MATRIX <- DISTANCE_MATRIX %>%dplyr::mutate(from = as.character(1:nrow(DISTANCE_MATRIX)))
-        DISTANCE_MATRIX <- DISTANCE_MATRIX[c(ncol(DISTANCE_MATRIX), 2:(ncol(DISTANCE_MATRIX)-1))] %>% pivot_longer(-1, names_to = "to", values_to = "weight") %>%
+        DISTANCE_MATRIX <- DISTANCE_MATRIX[c(ncol(DISTANCE_MATRIX), 2:(ncol(DISTANCE_MATRIX)-1))] %>% tidyr::pivot_longer(-1, names_to = "to", values_to = "weight") %>%
           dplyr::mutate(ID = stringr::str_c(from, to, sep = "_")) %>% dplyr::select(-from, -to)
 
         #We bind the edges to their features (distance) and we build the graph
@@ -899,7 +899,7 @@ Neighborhood_discovery_function <-
     }
 
     #Visualize the neighbor composition data for each neighborhood
-    plot(Neighbor_patterns %>% pivot_longer(cols = -Neighborhood_assignment) %>%
+    plot(Neighbor_patterns %>% tidyr::pivot_longer(cols = -Neighborhood_assignment) %>%
            ggplot(aes(x = as.factor(Neighborhood_assignment), y = value)) +
            geom_violin(aes(color = name, fill = name), alpha=0.3, position=position_dodge(width=0.5)) +
            stat_summary(aes(color = name),

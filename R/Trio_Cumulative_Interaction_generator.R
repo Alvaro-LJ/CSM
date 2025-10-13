@@ -48,9 +48,9 @@ Trio_Cumulative_Interaction_generator <-
       suppressMessages({
         furrr::future_map(DATA, function(x) {
           #Get our tibble and format it adequately and remove NA values if necessary
-          Longer_distance_matrix_A_to_B <-  x$A_to_B %>% pivot_longer(2:ncol(x$A_to_B)) %>% na.omit()
+          Longer_distance_matrix_A_to_B <-  x$A_to_B %>% tidyr::pivot_longer(2:ncol(x$A_to_B)) %>% na.omit()
 
-          Longer_distance_matrix_A_to_C <-  x$A_to_C %>% pivot_longer(2:ncol(x$A_to_C)) %>% na.omit()
+          Longer_distance_matrix_A_to_C <-  x$A_to_C %>% tidyr::pivot_longer(2:ncol(x$A_to_C)) %>% na.omit()
 
           #Calculate the cumulative distance tibble with the desired sampling strategy for both A to B
           Cumulative_distance_tibble_A_to_B <-

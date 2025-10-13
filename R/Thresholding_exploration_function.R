@@ -36,9 +36,9 @@ Thresholding_exploration_function <-
         #Start with dichotomic variables if these are present in the data
         if(length(names(DATA_Dichom)) > 4){
           #Start with dichomotic variables
-          Results_Dichom <- DATA_Dichom %>% dplyr::filter(Subject_Names == Image) %>% pivot_longer(-c(1:4)) %>%
+          Results_Dichom <- DATA_Dichom %>% dplyr::filter(Subject_Names == Image) %>% tidyr::pivot_longer(-c(1:4)) %>%
             group_by(name) %>% dplyr::count(value) %>% dplyr::ungroup() %>% dplyr::filter(value) %>%
-            pivot_wider(names_from = name, values_from = n) %>% dplyr::select(-value)
+            tidyr::pivot_wider(names_from = name, values_from = n) %>% dplyr::select(-value)
 
           #If no cells are positive prime the tibble with the first column
           if(nrow(Results_Dichom) == 0){
@@ -49,10 +49,10 @@ Thresholding_exploration_function <-
 
         #Continue with polychotomic variables if these are present
         if(length(names(DATA_Poly)) > 4){
-          Results_Poly <- DATA_Poly %>% dplyr::filter(Subject_Names == Image) %>% pivot_longer(-c(1:4)) %>%
+          Results_Poly <- DATA_Poly %>% dplyr::filter(Subject_Names == Image) %>% tidyr::pivot_longer(-c(1:4)) %>%
             group_by(name) %>% dplyr::count(value) %>% dplyr::ungroup() %>% dplyr::filter(value != 0) %>%
             dplyr::mutate(Variable = stringr::str_c(name, "Level", value, sep = "_")) %>% dplyr::select(-name,-value) %>%
-            pivot_wider(names_from = Variable, values_from = n)
+            tidyr::pivot_wider(names_from = Variable, values_from = n)
           #If no cells are positive prime the tibble with the first column
           if (nrow(Results_Poly) == 0) {
             Results_Poly <- tibble(value = 0)

@@ -46,7 +46,7 @@ Compartment_Phenotype_quantifier <-
     Cell_prop_by_compartment <-purrr::map(Cells_by_compartment, function(Unique_Compartment){
       #Obtain the number of cells by image according to the phenotypes
       Results <- Unique_Compartment %>% group_by(Subject_Names, Phenotype) %>% dplyr::count() %>%dplyr::ungroup() %>%
-        pivot_wider(names_from = Phenotype, values_from = n)
+        tidyr::pivot_wider(names_from = Phenotype, values_from = n)
       Results[is.na(Results)] <- 0
 
       #Calculate the number of total cells

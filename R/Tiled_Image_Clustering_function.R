@@ -406,7 +406,7 @@ Tiled_Image_Clustering_function <-
         #Build cell count by tile matrix
         Interim2 <-
           Interim %>% dplyr::filter(tile_id %in% Filtered_tiles[[1]]) %>% group_by(tile_id, Phenotype) %>% dplyr::count() %>%
-          pivot_wider(id_cols = tile_id,
+          tidyr::pivot_wider(id_cols = tile_id,
                       names_from = Phenotype,
                       values_from = n)
         Interim2[is.na(Interim2)] <- 0
@@ -661,7 +661,7 @@ Tiled_Image_Clustering_function <-
         #We determine the distance between nodes that will be the features of the edges
         DISTANCE_MATRIX <- as_tibble(as.matrix(dist(Tile_patterns_scaled, method = Graph_Distance_method)))
         DISTANCE_MATRIX <- DISTANCE_MATRIX %>%dplyr::mutate(from = as.character(1:nrow(DISTANCE_MATRIX)))
-        DISTANCE_MATRIX <- DISTANCE_MATRIX[c(ncol(DISTANCE_MATRIX), 2:(ncol(DISTANCE_MATRIX)-1))] %>% pivot_longer(-1, names_to = "to", values_to = "weight") %>%
+        DISTANCE_MATRIX <- DISTANCE_MATRIX[c(ncol(DISTANCE_MATRIX), 2:(ncol(DISTANCE_MATRIX)-1))] %>% tidyr::pivot_longer(-1, names_to = "to", values_to = "weight") %>%
           dplyr::mutate(ID = stringr::str_c(from, to, sep = "_")) %>% dplyr::select(-from, -to)
 
         #We bind the edges to their features (distance) and we build the graph
@@ -983,7 +983,7 @@ Tiled_Image_Clustering_function <-
     }
 
     #Visualize the cluster composition data for each neighborhood
-    plot(Tile_patterns %>% pivot_longer(cols = -Cluster_assignment) %>%
+    plot(Tile_patterns %>% tidyr::pivot_longer(cols = -Cluster_assignment) %>%
            ggplot(aes(x = as.factor(Cluster_assignment), y = value)) +
            geom_violin(aes(color = name, fill = name), alpha=0.3, position=position_dodge(width=0.5)) +
            stat_summary(aes(color = name),

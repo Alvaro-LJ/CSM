@@ -27,7 +27,7 @@ Tiled_images_graphicator <-
       #Generate a cell count by tile info (we need to change the counting system to account for tiles were there are no cells and dissapear from count)
       Interim <- Tiled_Images[[2]] %>% dplyr::select(tile_id, Phenotype) %>% dplyr::filter(Phenotype %in% Phenotypes_included) %>%
         group_by(tile_id) %>%
-        dplyr::count(Phenotype) %>% pivot_wider(names_from = Phenotype, values_from = n)
+        dplyr::count(Phenotype) %>% tidyr::pivot_wider(names_from = Phenotype, values_from = n)
 
       #Generate a tibble and account for cero values
       Interim <- dplyr::left_join(tibble(tile_id = unique(Tiled_Images[[2]]$tile_id)),

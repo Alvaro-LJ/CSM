@@ -84,7 +84,7 @@ Clinical_Data_analyzer <-
             JOINED <- JOINED %>% dplyr::mutate(Subject_Names = factor(Subject_Names, levels = JOINED$Subject_Names))
 
             #Plot samples by clinical variable
-            plot(JOINED %>% pivot_longer(-c(1:2)) %>%
+            plot(JOINED %>% tidyr::pivot_longer(-c(1:2)) %>%
                    ggplot(aes(x = Subject_Names, fill = Clin_var, y = value)) +
                    facet_wrap(~name, "free_y", ncol = 1, nrow = ncol(JOINED)-2) + geom_col(width = 0.5, color = "black") +
                    cowplot::theme_cowplot() +
@@ -95,7 +95,7 @@ Clinical_Data_analyzer <-
             )
 
             #Plot summary
-            plot(JOINED %>% pivot_longer(-c(1:2)) %>%
+            plot(JOINED %>% tidyr::pivot_longer(-c(1:2)) %>%
                    ggplot(aes(x = Clin_var, fill = Clin_var, y = value)) +
                    facet_wrap(~name, "free_y", ncol = 1, nrow = ncol(JOINED)-2) + geom_bar(width = 0.5, color = "black", stat = "summary", fun = "mean") +
                    cowplot::theme_cowplot() +
@@ -166,7 +166,7 @@ Clinical_Data_analyzer <-
 
             #Plot the individual variables and outcomes
             plot(
-              JOINED %>% pivot_longer(-c(1:2)) %>%
+              JOINED %>% tidyr::pivot_longer(-c(1:2)) %>%
                 ggplot(aes(x = Clin_var, y = value)) +
                 facet_wrap(~name, "free_y", ncol = 1, nrow = ncol(JOINED)-2) +
                 geom_point(size = 1.2) + geom_smooth(method = "lm", color = "red", se = F) +

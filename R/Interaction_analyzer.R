@@ -78,7 +78,7 @@ Interaction_analyzer <-
 
       print("Obtaining data")
       Interaction_DF <-purrr::map_dfr(DATA, function(Image){
-        Image %>% dplyr::mutate(col_id = stringr::str_c(from_label, to_label, sep = "_")) %>% pivot_wider(id_cols = group_by, names_from = col_id, values_from = ct) %>%
+        Image %>% dplyr::mutate(col_id = stringr::str_c(from_label, to_label, sep = "_")) %>% tidyr::pivot_wider(id_cols = group_by, names_from = col_id, values_from = ct) %>%
           dplyr::rename("Subject_Names" = "group_by")
       })
 
@@ -145,7 +145,7 @@ Interaction_analyzer <-
       Interaction_DF <-purrr::map_dfr(DATA, function(Image){
         Image %>% dplyr::mutate(col_id = stringr::str_c(from_label, to_label, sep = "_")) %>%
           dplyr::filter(sig) %>%
-          dplyr::pivot_wider(id_cols = group_by, names_from = col_id, values_from = ct) %>%
+          tidyr::pivot_wider(id_cols = group_by, names_from = col_id, values_from = ct) %>%
           dplyr::rename("Subject_Names" = "group_by")
       })
       #If no clustering is required return the actual data

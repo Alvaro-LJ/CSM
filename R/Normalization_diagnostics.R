@@ -76,7 +76,7 @@ Normalization_diagnostics <-
 
     #Generate the plot of the Otsu thresholds by sample
     plot(
-      dplyr::bind_rows(Thresholds_original, Thresholds_normalized) %>% pivot_longer(cols = -c(1:2)) %>%
+      dplyr::bind_rows(Thresholds_original, Thresholds_normalized) %>% tidyr::pivot_longer(cols = -c(1:2)) %>%
         ggplot(aes(x = factor(Data, levels= c("Original", "Normalized")), y = value, color = Data, fill = Data)) + facet_wrap(~name, scales = "free_y") +
         geom_boxplot(outlier.color=NA, alpha = 0.2, coef = 0) +
         geom_point(position=position_jitter(width = 0.1), alpha = 0.5) +
@@ -101,7 +101,7 @@ Normalization_diagnostics <-
 
     plot(
       CV_tibble %>%
-        pivot_longer(-Data) %>%
+        tidyr::pivot_longer(-Data) %>%
         ggplot(aes(x = name, y = value, fill = factor(Data, levels = c("Original", "Normalized")))) +
         geom_col(width = 0.5, color = "black", size = 1.2, position = position_dodge(width = 0.6)) +
         scale_x_discrete("") +
@@ -121,8 +121,8 @@ Normalization_diagnostics <-
 
     plot(
       ggplot() +
-        geom_density(aes(y = value, x = -after_stat(density), fill = "Original"), color = "black", size = 0.8, data = Histo_Original %>% pivot_longer(-1)) +
-        geom_density(aes(y = value, x = after_stat(density), fill = "Normalized"), color = "black", size = 0.8, data = Histo_Normalized %>% pivot_longer(-1))+
+        geom_density(aes(y = value, x = -after_stat(density), fill = "Original"), color = "black", size = 0.8, data = Histo_Original %>% tidyr::pivot_longer(-1)) +
+        geom_density(aes(y = value, x = after_stat(density), fill = "Normalized"), color = "black", size = 0.8, data = Histo_Normalized %>% tidyr::pivot_longer(-1))+
         facet_wrap(~name, scales = "free") +
         geom_vline(xintercept = 0, size = 0.8, color = "black") +
         scale_x_continuous("", labels = NULL) +

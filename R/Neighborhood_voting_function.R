@@ -44,7 +44,7 @@ Neighborhood_voting_function <-
         Interim <- Interim %>% dplyr::filter(Neighborhood_assignment %in% Neighborhoods_included) #Select only desired neighborhoods
         Tiles <- Interim %>% dplyr::count(tile_id) %>% dplyr::filter(n >= Minimum_cell_no_per_tile) %>% dplyr::select(tile_id) #Filter tiles without enough voters
         Votes <- Interim %>% dplyr::filter(tile_id %in% Tiles[[1]]) %>% dplyr::group_by(tile_id, Neighborhood_assignment) %>% dplyr::count() %>%
-          dplyr::pivot_wider(names_from = Neighborhood_assignment, values_from = n) #Count the votes per tile
+          tidyr::pivot_wider(names_from = Neighborhood_assignment, values_from = n) #Count the votes per tile
         Votes[is.na(Votes)] <- 0
         Votes_prop <- Votes[-1] / apply(Votes[-1], MARGIN = 1, function(x) sum(x)) #Calculate the proportion of votes supporting each neighborhood
         names(Votes_prop) <-stringr::str_c("PROP_", names(Votes_prop))
@@ -61,7 +61,7 @@ Neighborhood_voting_function <-
         if(nrow(Vote_count) > 0) {
           #Generate a function that calculates the winner, 2nd and third candidates in each tile
           Election_results <-purrr::map_dfr(seq_along(1:nrow(Vote_count)), function(Tile_no) {
-            Election_results <- Vote_count[Tile_no, ] %>% dplyr::pivot_longer(1:ncol(Vote_count)) %>% dplyr::arrange(desc(value)) %>%
+            Election_results <- Vote_count[Tile_no, ] %>% tidyr::pivot_longer(1:ncol(Vote_count)) %>% dplyr::arrange(desc(value)) %>%
               dplyr::mutate(name = substr(name, start = 6, stop = nchar(name))) %>%
               dplyr::mutate(value = case_when(value == 0 ~ NA,
                                               TRUE ~ value),
@@ -104,7 +104,7 @@ Neighborhood_voting_function <-
     Summary_tibble <-purrr::map_dfr(seq_along(1:length(RESULTS)), function(Image) {
       Subject_Names <- names(RESULTS)[Image]
       N_tiles <- nrow(RESULTS[[Image]])
-      Counts <- RESULTS[[Image]] %>% dplyr::count(Winner) %>% dplyr::pivot_wider(names_from = Winner, values_from = n)
+      Counts <- RESULTS[[Image]] %>% dplyr::count(Winner) %>% tidyr::pivot_wider(names_from = Winner, values_from = n)
       Prop_counts <- Counts / N_tiles
       names(Prop_counts) <- stringr::str_c("PROP_", names(Prop_counts))
       Final_tibble <- tibble(Subject_Names = Subject_Names)

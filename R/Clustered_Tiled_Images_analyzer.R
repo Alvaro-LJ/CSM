@@ -59,7 +59,7 @@ Clustered_Tiled_Images_analyzer <-
 
     #Generate a tibble with the counts
     RESULTS <-purrr::map_dfr(Tiled_images, function(Image){
-      Count_DF <- Image %>% dplyr::count(Cluster_assignment) %>% pivot_wider(names_from = Cluster_assignment, values_from = n)
+      Count_DF <- Image %>% dplyr::count(Cluster_assignment) %>% tidyr::pivot_wider(names_from = Cluster_assignment, values_from = n)
       Count_DF$n_tiles <- nrow(Image)
       return(Count_DF)
     }, .progress = list(clear = F,
@@ -103,7 +103,7 @@ Clustered_Tiled_Images_analyzer <-
           names(DISTANCE_MATRIX) <- Image$tile_id
           DISTANCE_MATRIX <- DISTANCE_MATRIX %>%dplyr::mutate(from = Image$tile_id)
           DISTANCE_MATRIX <- DISTANCE_MATRIX[c(ncol(DISTANCE_MATRIX), 1:(ncol(DISTANCE_MATRIX)-1))]
-          DISTANCE_MATRIX <- DISTANCE_MATRIX %>% pivot_longer(-1, names_to = "to", values_to = "weight") %>%
+          DISTANCE_MATRIX <- DISTANCE_MATRIX %>% tidyr::pivot_longer(-1, names_to = "to", values_to = "weight") %>%
             dplyr::mutate(ID = stringr::str_c(from, to, sep = "_")) %>% dplyr::select(-from, -to)
 
           #We join both tibbles to generate the final graph

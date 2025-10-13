@@ -82,7 +82,7 @@ SPIAT_entropy_gradient_generator <-
     RESULTS$Subject_Names <- names(DATA_SPIAT)
     RESULTS <- RESULTS[c(ncol(RESULTS), 1:(ncol(RESULTS)-1))]
 
-    plot(RESULTS %>% pivot_longer(-1) %>%
+    plot(RESULTS %>% tidyr::pivot_longer(-1) %>%
            dplyr::mutate(name = factor(name, levels =stringr::str_c("Radius_", gradient_pos))) %>%
            ggplot(aes(x = name, y = value, color = Subject_Names, group = Subject_Names)) + geom_line() +
            cowplot::theme_cowplot() +

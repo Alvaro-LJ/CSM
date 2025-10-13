@@ -32,7 +32,7 @@ Neighborhood_Quantifier <-
       Interim <- DATA_neighborhoods %>% dplyr::filter(Subject_Names == Image)
 
       #Count the number of neighborhoods
-      Results <- Interim %>% dplyr::count(Neighborhood_assignment) %>% dplyr::pivot_wider(names_from = Neighborhood_assignment, values_from = n)
+      Results <- Interim %>% dplyr::count(Neighborhood_assignment) %>% tidyr::pivot_wider(names_from = Neighborhood_assignment, values_from = n)
       #Quantify the proportion
       Results_prop <- Results/nrow(Interim)
       names(Results_prop) <- stringr::str_c("PROP_", names(Results))
@@ -52,7 +52,7 @@ Neighborhood_Quantifier <-
     RESULTS_TIBBLE[is.na(RESULTS_TIBBLE)] <- 0
 
     #Graph without clinical data
-    plot(RESULTS_TIBBLE %>% dplyr::select(Subject_Names, contains("PROP_")) %>% dplyr::pivot_longer(-Subject_Names) %>%
+    plot(RESULTS_TIBBLE %>% dplyr::select(Subject_Names, contains("PROP_")) %>% tidyr::pivot_longer(-Subject_Names) %>%
            ggplot(aes(x = Subject_Names, y = value)) + facet_wrap(~name, "free_y", ncol = 1, nrow = length(unique(DATA_neighborhoods$Neighborhood_assignment))) +
            geom_col(width = 0.5, color = "black") +
            cowplot::theme_cowplot() +
@@ -81,7 +81,7 @@ Neighborhood_Quantifier <-
       names(Density_results) <-stringr::str_c("Density_", names(Density_results))
 
       #Graph without clinical data
-      plot(bind_cols(For_density[1], Density_results) %>% dplyr::select(Subject_Names, contains("Density_")) %>% dplyr::pivot_longer(-Subject_Names) %>%
+      plot(bind_cols(For_density[1], Density_results) %>% dplyr::select(Subject_Names, contains("Density_")) %>% tidyr::pivot_longer(-Subject_Names) %>%
              ggplot(aes(x = Subject_Names, y = value)) + facet_wrap(~name, "free_y", ncol = 1, nrow = length(unique(DATA_neighborhoods$Neighborhood_assignment))) +
              geom_col(width = 0.5, color = "black") +
              cowplot::theme_cowplot() +

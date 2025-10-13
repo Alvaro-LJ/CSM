@@ -102,7 +102,7 @@ LISA_Tumor_Stroma_identifier <-
     #Generate the tumor proportion results and add labels
     Proportion_results <- as_tibble(prop.table(table(For_test$Region, For_test$Cell_ref), margin = 1), .name_repair = "universal")
     names(Proportion_results) <- c("Region", "Cell", "Proportion")
-    Proportion_results <- Proportion_results %>% pivot_wider(names_from = Cell, values_from = Proportion)
+    Proportion_results <- Proportion_results %>% tidyr::pivot_wider(names_from = Cell, values_from = Proportion)
 
     #Generate name results
     Tumor_region <- Proportion_results[[which(Proportion_results[["TUMOR"]] == max(Proportion_results[["TUMOR"]])), 1]]
@@ -186,7 +186,7 @@ LISA_Tumor_Stroma_identifier <-
           #Generate the tumor proportion results and add labels
           Proportion_results <- as_tibble(prop.table(table(For_test$Compartment, For_test$Cell_ref), margin = 1), .name_repair = "universal")
           names(Proportion_results) <- c("Region", "Cell", "Proportion")
-          Proportion_results <- Proportion_results %>% pivot_wider(names_from = Cell, values_from = Proportion)
+          Proportion_results <- Proportion_results %>% tidyr::pivot_wider(names_from = Cell, values_from = Proportion)
 
           #Generate name results
           Tumor_region <- Proportion_results[[which(Proportion_results[["TUMOR"]] == max(Proportion_results[["TUMOR"]])), 1]]

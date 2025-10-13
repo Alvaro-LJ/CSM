@@ -32,7 +32,7 @@ Advanced_Distance_function_A_B_C <-
     names(Tibble_interim) <- c("Cell_A_no", "Cell_B_no", "X_Cell_A", "Y_Cell_A", "X_Cell_B", "Y_Cell_B")
 
     Final_tibble_A_B <- Tibble_interim %>%dplyr::mutate(DIST = sqrt((X_Cell_A - X_Cell_B)^2 + (Y_Cell_A - Y_Cell_B)^2)) %>%
-      dplyr::select(Cell_A_no, Cell_B_no, DIST) %>% dplyr::pivot_wider(id_cols = Cell_A_no, names_from = Cell_B_no, values_from = DIST) %>%
+      dplyr::select(Cell_A_no, Cell_B_no, DIST) %>% tidyr::pivot_wider(id_cols = Cell_A_no, names_from = Cell_B_no, values_from = DIST) %>%
       dplyr::rename("Cell_Of_Origin_no" = "Cell_A_no")
 
     #Second tibble A to C cell types
@@ -43,7 +43,7 @@ Advanced_Distance_function_A_B_C <-
     Tibble_interim <-dplyr::left_join(Tibble_interim, Tibble_C, by = "Cell_no") %>% dplyr::select(1:6)
     names(Tibble_interim) <- c("Cell_A_no", "Cell_C_no", "X_Cell_A", "Y_Cell_A", "X_Cell_C", "Y_Cell_C")
     Final_tibble_A_C <- Tibble_interim %>% dplyr::mutate(DIST = sqrt((X_Cell_A - X_Cell_C)^2 + (Y_Cell_A - Y_Cell_C)^2)) %>%
-      dplyr::select(Cell_A_no, Cell_C_no, DIST) %>% dplyr::pivot_wider(id_cols = Cell_A_no, names_from = Cell_C_no, values_from = DIST) %>%
+      dplyr::select(Cell_A_no, Cell_C_no, DIST) %>% tidyr::pivot_wider(id_cols = Cell_A_no, names_from = Cell_C_no, values_from = DIST) %>%
       dplyr::rename("Cell_Of_Origin_no" = "Cell_A_no")
 
     #Final result

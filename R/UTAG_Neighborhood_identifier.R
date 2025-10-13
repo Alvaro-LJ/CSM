@@ -1039,7 +1039,7 @@ UTAG_Neighborhood_identifier <-
     }
 
     #Visualize the neighbor composition data for each neighborhood
-    plot(DATA_Phenotypes %>% dplyr::select(-c(1:4)) %>% pivot_longer(cols = -Neighborhood_assignment) %>%
+    plot(DATA_Phenotypes %>% dplyr::select(-c(1:4)) %>% tidyr::pivot_longer(cols = -Neighborhood_assignment) %>%
            ggplot(aes(x = as.factor(Neighborhood_assignment), y = value)) +
            geom_violin(aes(color = name, fill = name), alpha=0.3, position=position_dodge(width=0.5)) +
            stat_summary(aes(color = name),

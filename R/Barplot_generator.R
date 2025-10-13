@@ -27,7 +27,7 @@ Barplot_generator <-
       DATA <- DATA[order(DATA[[which(names(DATA) == Ordering_phenotype)]],decreasing=TRUE),]
       DATA <- DATA %>%dplyr::mutate(Subject_Names = factor(Subject_Names, levels = DATA$Subject_Names))
 
-      PLOT <- DATA %>% pivot_longer(-1) %>%
+      PLOT <- DATA %>% tidyr::pivot_longer(-1) %>%
         ggplot(aes(x = Subject_Names, y = value, fill = name)) + geom_col(position = "fill", color = "black", width = 0.5) +
         cowplot::theme_cowplot() +
         scale_x_discrete("Image") +

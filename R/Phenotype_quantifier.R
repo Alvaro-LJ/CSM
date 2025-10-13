@@ -21,7 +21,7 @@ Phenotype_quantifier <-
     }
 
     #Obtain the number of cells by image according to the phenotypes
-    Results <- DATA %>% group_by(Subject_Names, Phenotype) %>% dplyr::count() %>% dplyr::ungroup() %>% dplyr::pivot_wider(names_from = Phenotype, values_from = n)
+    Results <- DATA %>% group_by(Subject_Names, Phenotype) %>% dplyr::count() %>% dplyr::ungroup() %>% tidyr::pivot_wider(names_from = Phenotype, values_from = n)
     Results[is.na(Results)] <- 0
 
     #Calculate the number of total cells
