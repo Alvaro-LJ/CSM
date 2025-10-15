@@ -22,7 +22,7 @@
 #' @param Max_N_neighborhoods If Strategy is Consensus_Clustering: Number of maximum neighborhoods that can be identified.
 #' @param Consensus_reps If Strategy is Consensus_Clustering: Number of iterations to converge.
 #' @param Consensus_p_Items If Strategy is Consensus_Clustering: Percentage of cells that you desire to sample in each iteration.
-#' @param Consensus_Cluster_Alg If Strategy is Consensus_Clustering: Clustering algorithm to be used (’hc’ hierarchical (hclust), ’pam’ for paritioning around medoids, ’km’ for k-means).
+#' @param Consensus_Cluster_Alg If Strategy is Consensus_Clustering: Clustering algorithm to be used: hc (hierarchical clustering), pam (paritioning around medoids), km (for k-means).
 #' @param Consensus_Distance If Strategy is Consensus_Clustering: Distance metric to be used (pearson(1 - Pearson correlation), spearman(1 - Spearman correlation), euclidean, binary, maximum, canberra, minkowski.
 #' @param Consensus_Name If Strategy is Consensus_Clustering: Name of the folder that is going to be created in order to place the resulting graphs.
 #'
@@ -102,7 +102,7 @@ UTAG_Neighborhood_identifier <-
            Max_N_neighborhoods = NULL, #Number of maximum neighborhods that you desire to find
            Consensus_reps = NULL, #Number of iterations of the algorithm to try to converge
            Consensus_p_Items = NULL, #Percentage of the closest neighbor patterns that you desire to sample in each iteration
-           Consensus_Cluster_Alg = NULL, #Clustering algorithm to be used (’hc’ hierarchical (hclust), ’pam’ for paritioning around medoids, ’km’ for k-means )
+           Consensus_Cluster_Alg = NULL,
            Consensus_Distance = NULL, #Distance metric to be used (pearson(1 - Pearson correlation), spearman(1 - Spearman correlation), euclidean, binary, maximum, canberra, minkowski
            Consensus_Name = NULL, #Name of the folder that is going to be created in order to place the resulting graphs
 
@@ -991,7 +991,7 @@ UTAG_Neighborhood_identifier <-
     if(Apply_Denoise){
       DATA_Phenotypes <- DATA_Phenotypes %>%dplyr::mutate(Phenotype = as.numeric(as.numeric(Phenotype) + 1))
       DATA_Phenotypes <-dplyr::bind_rows(DATA_NOISE, DATA_Phenotypes) %>% dplyr::arrange(Unique_ID) %>% dplyr::select(-Unique_ID, -NOISE)
-      message("If denoising is applied, Cluster nº1 contains the noisy cells")
+      message("If denoising is applied, Cluster number 1 contains the noisy cells")
     }
     #Turn it into a factor
     DATA_Phenotypes <- DATA_Phenotypes %>%dplyr::mutate(Phenotype = factor(Phenotype))

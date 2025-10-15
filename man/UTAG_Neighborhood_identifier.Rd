@@ -87,7 +87,7 @@ UTAG_Neighborhood_identifier(
 
 \item{Consensus_p_Items}{If Strategy is Consensus_Clustering: Percentage of cells that you desire to sample in each iteration.}
 
-\item{Consensus_Cluster_Alg}{If Strategy is Consensus_Clustering: Clustering algorithm to be used (’hc’ hierarchical (hclust), ’pam’ for paritioning around medoids, ’km’ for k-means).}
+\item{Consensus_Cluster_Alg}{If Strategy is Consensus_Clustering: Clustering algorithm to be used: hc (hierarchical clustering), pam (paritioning around medoids), km (for k-means).}
 
 \item{Consensus_Distance}{If Strategy is Consensus_Clustering: Distance metric to be used (pearson(1 - Pearson correlation), spearman(1 - Spearman correlation), euclidean, binary, maximum, canberra, minkowski.}
 

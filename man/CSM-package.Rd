@@ -4,12 +4,24 @@
 \name{CSM-package}
 \alias{CSM}
 \alias{CSM-package}
-\title{CSM: What the Package Does (One Line, Title Case)}
+\title{CSM: Toolbox to analyze tissue images with spatial resolution}
 \description{
-What the package does (one paragraph).
+Contains functions to perform tissue spatial analysis. Functions are organized in 7 modules. STEP0 Generates cell and pixel level information and formats data. STEP1 normalizes cell features. STEP2 thresholds features. STEP3 performs cell phenotyping. STEP4 analyzes heterogeneity. STEP5 performs cell-to-cell spatial interaction analysis. STEP6 performs neighborhood analysis.
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com}
+\strong{Maintainer}: Alvaro Lopez-Janeiro \email{alopezj@unav.es} (\href{https://orcid.org/0000-0002-5744-3115}{ORCID})
+
+Authors:
+\itemize{
+  \item Paulo Perez-Dominguez \email{pperezdomin@unav.es}
+}
+
+Other contributors:
+\itemize{
+  \item Eduardo Miraval \email{emiraval@unav.es} [contributor]
+  \item Raluca Alexandru \email{ralexandru@unav.es} [contributor]
+  \item Carlos E. de Andrea \email{ceandrea@unav.es} [contributor]
+}
 
 }
 \keyword{internal}

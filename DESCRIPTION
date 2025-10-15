@@ -1,12 +1,92 @@
 Package: CSM
-Title: What the Package Does (One Line, Title Case)
+Title: Toolbox to analyze tissue images with spatial resolution
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person(given = "Alvaro", family = "Lopez-Janeiro", email = "alopezj@unav.es", role = "cre", comment = c(ORCID = "0000-0002-5744-3115")),
+    person(given = "Paulo", family = "Perez-Dominguez", email = "pperezdomin@unav.es", role = "aut"),
+    person(given = "Eduardo", family = "Miraval",email = "emiraval@unav.es", role = "ctb"),
+    person(given = "Raluca", family = "Alexandru", email = "ralexandru@unav.es", role = "ctb"),
+    person(given = "Carlos E.", family = "de Andrea",email = "ceandrea@unav.es", role = "ctb"))
+Description: Contains functions to perform tissue spatial analysis. 
+    Functions are organized in 7 modules. STEP0 Generates cell and pixel level
+    information and formats data. STEP1 normalizes cell features. STEP2
+    thresholds features. STEP3 performs cell phenotyping. STEP4 analyzes 
+    heterogeneity. STEP5 performs cell-to-cell spatial interaction analysis.
+    STEP6 performs neighborhood analysis.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
-    magrittr
+    benchmarkme,
+    berryFunctions,
+    cowplot,
+    dplyr,
+    furrr,
+    future,
+    ggforce,
+    ggiraph,
+    ggplot2,
+    ggpubr,
+    gt,
+    magrittr,
+    pals,
+    patchwork,
+    sf,
+    shiny,
+    shinyalert,
+    shinyWidgets,
+    tibble,
+    tidyr
+Suggests: 
+    ape,
+    autothresholdr,
+    bluster,
+    brulee,
+    catsim,
+    ClusterR,
+    ComplexHeatmap,
+    ConsensusClusterPlus,
+    corrplot,
+    cytomapper,
+    dbscan,
+    deldir,
+    dendextend,
+    DescTools,
+    EBImage,
+    FlowSOM,
+    glcm,
+    igraph,
+    imager,
+    imagerExtra,
+    imcRtools,
+    lisaClust,
+    lme4,
+    magick,
+    Matrix,
+    mmand,
+    mxnorm,
+    partR2,
+    philentropy,
+    picante,
+    randomForest,
+    raster,
+    RBioFormats,
+    readr,
+    simpleSeg,
+    SingleCellExperiment,
+    snifter,
+    SpatialExperiment,
+    spatstat,
+    SPIAT,
+    survival,
+    survminer,
+    svd,
+    tabularaster,
+    tidymodels,
+    uwot,
+    vegan,
+    xgboost
+Remotes: 
+    akoyabio/rtree,
+    plevritis/CELESTA

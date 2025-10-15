@@ -21,6 +21,10 @@ Image_based_phenotyper_App_launcher <-
 
     #Check suggested packages
     {
+      if(!requireNamespace("Matrix", quietly = FALSE)) stop(
+        paste0("Matrix CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("Matrix")))
+      )
       if(!requireNamespace("rtree", quietly = FALSE)) stop(
         paste0("rtree GitHub package is required to execute the function. Please install using the following code: ",
                expression(remotes::install_github("akoyabio/rtree")))

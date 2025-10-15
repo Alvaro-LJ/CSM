@@ -42,10 +42,17 @@ UTAG_message_passing <-
 
            N_cores = NULL) {
     #Check suggested packages
-    if(!requireNamespace("rtree", quietly = FALSE)) stop(
-      paste0("rtree GitHub package is required to execute the function. Please install using the following code: ",
-             expression(remotes::install_github("akoyabio/rtree")))
-    )
+    {
+      if(!requireNamespace("rtree", quietly = FALSE)) stop(
+        paste0("rtree GitHub package is required to execute the function. Please install using the following code: ",
+               expression(remotes::install_github("akoyabio/rtree")))
+      )
+      if(!requireNamespace("Matrix", quietly = FALSE)) stop(
+        paste0("Matrix CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("Matrix")))
+      )
+    }
+
 
     #What to do on exit
     on.exit({
