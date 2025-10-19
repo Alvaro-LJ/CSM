@@ -234,7 +234,7 @@ Cell_segmentator_quantificator <-
 
     #If they are actually demanded by the user print them in the summary
     else {
-      Actual_quantiles <- str_remove(as.character(quantiles_to_calculate), "\\.")
+      Actual_quantiles <- stringr::str_remove(as.character(quantiles_to_calculate), "\\.")
       Character_quantiles <- stringr::str_c("q", Actual_quantiles, sep = "")
       Character_quantiles
       cat(paste0("The following directory has been selected: ", Directory),
@@ -383,6 +383,6 @@ Cell_segmentator_quantificator <-
     gc()
 
 
-    return(map_dfr(SEGMENTATION_RESULTS,dplyr::bind_rows))
+    return(purrr::map_dfr(SEGMENTATION_RESULTS,dplyr::bind_rows))
 
   }

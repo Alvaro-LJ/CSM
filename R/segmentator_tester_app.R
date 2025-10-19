@@ -60,6 +60,7 @@ segmentator_tester_app <-
 
     #check that the directory provided contains at least one file
     if(length(dir(Directory)) <1 ) stop("No files found in the Directory provided")
+    if(is.null(Ordered_Channels)) stop("Ordered_Channels must not be NULL")
 
     #Obtain image names and channel names
     Real_Images <- dir(Directory, full.names = FALSE)
