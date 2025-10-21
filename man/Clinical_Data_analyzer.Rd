@@ -34,7 +34,7 @@ Returns a summary of association and generates summary plots.
 }
 \description{
 \code{Clinical_Data_analyzer()} will calculate the association between image feature data (a numeric variable) and image metadata.
-Image feature data can be obtained in various ways using CSM, for example running \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}}, \code{\link[=Global_Heterogeneity_by_sample]{Global_Heterogeneity_by_sample()}}, \code{\link[=Distance_analyzer]{Distance_analyzer()}} among others.
+Image feature data can be obtained in various ways using CSM, for example running \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}}, \code{\link[=Global_heterogeneity_calculator]{Global_heterogeneity_calculator()}}, \code{\link[=Distance_analyzer]{Distance_analyzer()}} among others.
 }
 \details{
 If image metadata variable is a character, the function will calculate t-tests or ANOVA depending on the amount of categories.

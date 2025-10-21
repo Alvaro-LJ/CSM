@@ -1,7 +1,7 @@
 #' Calculates association between image feature data and image metadata
 #'
 #' `Clinical_Data_analyzer()` will calculate the association between image feature data (a numeric variable) and image metadata.
-#' Image feature data can be obtained in various ways using CSM, for example running [Phenotype_quantifier()], [Global_Heterogeneity_by_sample()], [Distance_analyzer()] among others.
+#' Image feature data can be obtained in various ways using CSM, for example running [Phenotype_quantifier()], [Global_heterogeneity_calculator()], [Distance_analyzer()] among others.
 #'
 #'
 #' @param DATA A dataframe or tibble containing image feature data.

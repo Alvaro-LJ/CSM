@@ -14,6 +14,16 @@ Image_thresholding_app_launcher(Directory = NULL, Ordered_Channels = NULL)
 \description{
 \code{Image_thresholding_app_launcher()} launches an APP to interactively explore image pixel segmentation parameters interactively.
 }
+\examples{
+\dontrun{
+Image_thresholding_app_launcher(
+Directory = "Image_directory",
+Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5")
+)
+}
+
+
+}
 \seealso{
 \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}, \code{\link[=Binary_threshold_image_combinator]{Binary_threshold_image_combinator()}}, \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}
 }

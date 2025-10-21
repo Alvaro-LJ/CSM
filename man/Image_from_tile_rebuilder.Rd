@@ -28,3 +28,13 @@ The function writes the images in the ouput directory.
 Warning: Image reconstruction is limited to ≈ 2-3Gb.
 Image reconstruction is designed to rebuild complete images from tiles once these have undergone pixel thresholding using \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}.
 }
+\examples{
+\dontrun{
+Image_from_tile_rebuilder(
+Directory = "Tiled_Image_directory",
+Output_directory = "Output_directory",
+RGB_Color_images = FALSE,
+N_cores = 1
+)
+}
+}

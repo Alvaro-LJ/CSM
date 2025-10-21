@@ -2,6 +2,16 @@
 #'
 #' `Image_tile_deconstruction_function()` divides into smaller chunks all the images in a directory.
 #' This allows faster computations when using CSM apps, performing image thresholding and cell segmentation.
+#' The names of the resulting images should not be modified. If modified this can
+#' result in unexpected results when using companion functions [Image_from_tile_rebuilder()], [Tile_to_image_cell_arrange_function()].
+#' Tile overlap may be useful to avoid segmentation errors in cells close to the tile edge.
+#'
+#' Allowed image formats are tiff and ome.tiff. The ome.tiff files have been less extensively tested than tiff files.
+#'
+#' Warning!! The function uses the RBioFormats Bioconductor package that parses the Bioformats Java library to R. Sometimes even if the user
+#' has installed the RBioFormats package from bioconductor the function will still return an error. If this happens, the issue can be solved
+#' checking the installed Java version in the computer and manually installing the CRAN rJava package.
+#'
 #' @param Directory Character string specifying the path to the folder where images to be chopped into tiles are present.
 #' @param Output_directory Character string specifying the path to the folder where  output images are written. It must be an empty folder.
 #' @param RGB_Color_images Logical. Is the image a RGB color image?
@@ -10,19 +20,32 @@
 #' @param Tile_pixel_size Integer specifying the size of the tiles in pixels.
 #' @param Tile_Overlap Integer specifying the overlap amount between tiles in pixels.
 #' @param N_cores Integer. Number of cores to parallelize your computation.
-#' @returns The function writes the tiles in the ouput directory. The names of the resulting images should not be modified. If modified this can
-#' result in unexpected results when using companion functions [Image_from_tile_rebuilder()], [Tile_to_image_cell_arrange_function()].
+#' @returns The function writes the tiles in the ouput directory.
+#'
+#' @examples
+#' \dontrun{
+#' Image_tile_deconstruction_function(
+#' Directory = "Input_image_directory",
+#' Output_directory = "Output_directory",
+#' Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5"),
+#' Channels_to_keep = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5"),
+#' RGB_Color_images = FALSE,
+#' Tile_pixel_size = 500,
+#' Tile_Overlap = 0,
+#' N_cores = 2
+#')
+#' }
 #' @export
 
 Image_tile_deconstruction_function <-
   function(Directory = NULL,
            Output_directory = NULL,
-           RGB_Color_images = NULL,
+           RGB_Color_images = FALSE,
            Ordered_Channels = NULL,
            Channels_to_keep = NULL,
            Tile_pixel_size = NULL,
            Tile_Overlap = 0,
-           N_cores = NULL){
+           N_cores = 1){
 
     #Check installation of suggested packages
     {
@@ -96,6 +119,7 @@ Image_tile_deconstruction_function <-
              Y_size = Metadata$coreMetadata$sizeY,
              N_Channels = Metadata$coreMetadata$sizeC,
              Z_Planes = Metadata$coreMetadata$sizeZ,
+             T_Planes = Metadata$coreMetadata$sizeT,
              Pixel_depth = Metadata$coreMetadata$bitsPerPixel,
              Pixel_type = Metadata$coreMetadata$pixelType)
     })
@@ -121,6 +145,7 @@ Image_tile_deconstruction_function <-
       N_series_Random <- Image_info[Image_info$Whole_path == Random_sample, 2]
       N_Channels_Random <- Image_info[Image_info$Whole_path == Random_sample, 5]
       Z_Planes_Random <- Image_info[Image_info$Whole_path == Random_sample, 6]
+      T_Planes_Random <- Image_info[Image_info$Whole_path == Random_sample, 7]
 
       #Increase JAVA RAM use to 200Gb
       rJava::.jinit(parameters="-Xmx200g") #To increase JAVA RAM use
@@ -147,6 +172,15 @@ Image_tile_deconstruction_function <-
                                                                 Y = c(1:Tile_pixel_size))
           )
         }
+        else if(T_Planes_Random == length(Ordered_Channels)){
+          Image_subset <- RBioFormats::read.image(Random_sample,
+                                                  proprietary.metadata = FALSE,
+                                                  read.metadata = TRUE,
+                                                  normalize = TRUE,
+                                                  subset = list(X = c(1:Tile_pixel_size),
+                                                                Y = c(1:Tile_pixel_size))
+          )
+        }
         #If not this means that the channels are not well specified
         else stop("Length of Ordered_Channels does not match the number of channels in the image")
       }
@@ -165,6 +199,15 @@ Image_tile_deconstruction_function <-
         }
         #If not try the algorithm with the Z planes
         else if(Z_Planes_Random == length(Ordered_Channels)){
+          Image_subset <- RBioFormats::read.image(Random_sample,
+                                                  proprietary.metadata = FALSE,
+                                                  read.metadata = TRUE,
+                                                  normalize = TRUE,
+                                                  subset = list(X = c(1:Tile_pixel_size),
+                                                                Y = c(1:Tile_pixel_size))
+          )[[1]]
+        }
+        else if(T_Planes_Random == length(Ordered_Channels)){
           Image_subset <- RBioFormats::read.image(Random_sample,
                                                   proprietary.metadata = FALSE,
                                                   read.metadata = TRUE,
@@ -211,6 +254,7 @@ Image_tile_deconstruction_function <-
       Image_Series <- Image_info$N_series[Tibble_row]
       Image_N_Channels <- Image_info$N_Channels[Tibble_row]
       Image_Z_Planes <- Image_info$Z_Planes[Tibble_row]
+      Image_T_Planes <- Image_info$T_Planes[Tibble_row]
       Image_Xmax <- Image_info$X_size[Tibble_row]
       Image_Ymax <- Image_info$Y_size[Tibble_row]
       Image_tile_size <- Image_info$Tile_pixel_size[Tibble_row]
@@ -261,6 +305,7 @@ Image_tile_deconstruction_function <-
           #Try it
           tryCatch(
             {
+              if(Image_Series == 1){
               Tile_image <- RBioFormats::read.image(Image_path,
                                                     proprietary.metadata = FALSE,
                                                     read.metadata = TRUE,
@@ -268,6 +313,7 @@ Image_tile_deconstruction_function <-
                                                     subset = list(X = c(Tile_Position_tibble$X_Position_Min[Tile_index]:Tile_Position_tibble$X_Position_Max[Tile_index]),
                                                                   Y = c(Tile_Position_tibble$Y_Position_Min[Tile_index]:Tile_Position_tibble$Y_Position_Max[Tile_index]))
               )
+              }
 
               #If the image is composed of various series then select the first one
               if(Image_Series > 1){

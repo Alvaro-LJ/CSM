@@ -11,7 +11,7 @@
 #' @returns Returns a tibble with the total positive pixels per image after combining binary thresholded images
 #'
 #' @details
-#' If processed images are saved, these can be further combined with cell position data using [DATA_Phenotypes_distance()].
+#' If processed images are saved, these can be further combined with cell position data using [Cell_to_pixel_distance_calculator()].
 #'
 #' @seealso [Image_thresholding_app_launcher()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
 #' @export

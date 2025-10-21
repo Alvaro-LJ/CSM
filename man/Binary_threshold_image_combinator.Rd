@@ -30,7 +30,7 @@ Returns a tibble with the total positive pixels per image after combining binary
 This function can be used to generate binary thresholded images that result from combining several thresholded images using the operators AND, OR, NOT
 }
 \details{
-If processed images are saved, these can be further combined with cell position data using \code{\link[=DATA_Phenotypes_distance]{DATA_Phenotypes_distance()}}.
+If processed images are saved, these can be further combined with cell position data using \code{\link[=Cell_to_pixel_distance_calculator]{Cell_to_pixel_distance_calculator()}}.
 }
 \seealso{
 \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}, \code{\link[=Binary_threshold_image_combinator]{Binary_threshold_image_combinator()}}, \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}

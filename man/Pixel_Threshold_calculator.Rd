@@ -5,12 +5,12 @@
 \title{Performs image pixel thresholding according to user preferences}
 \usage{
 Pixel_Threshold_calculator(
-  N_cores = NULL,
+  N_cores = 1,
   Directory = NULL,
   Ordered_Channels = NULL,
   Channels_to_keep = NULL,
   Target_channel = NULL,
-  Save_processed_images = NULL,
+  Save_processed_images = FALSE,
   Output_Directory = NULL,
   Local_thresholding = NULL,
   Threshold_type = NULL,
@@ -66,9 +66,37 @@ Returns a tibble with the total foreground pixels and pixels above threshold per
 Generates binary or multi-level images based on pixel thresholding.
 }
 \details{
-If processed images are saved, these can be further combined with cell position data using \code{\link[=DATA_Phenotypes_distance]{DATA_Phenotypes_distance()}}.
+If processed images are saved, these can be further combined with cell position data using \code{\link[=Cell_to_pixel_distance_calculator]{Cell_to_pixel_distance_calculator()}}.
 Local thresholding calculates a threshold value for every image in the experiment. If set to FALSE, global thresholding will be applied, and a unique threshold value will be calculated for all images.
 Otsu threshold is calculated using the EBImage::otsu function. Automatic multilevel threshold is calculated using the imagerExtra::ThresholdML function.
+}
+\examples{
+\dontrun{
+Pixel_Threshold_calculator(
+N_cores = 2,
+Directory = "Image_directory",
+Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5"),
+Channels_to_keep = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5"),
+Target_channel = "Channel_1",
+
+Save_processed_images = TRUE,
+Output_Directory = "Output_directory",
+
+Local_thresholding = FALSE,
+Threshold_type = "Arbitrary",
+Threshold_value = 0.02,
+Levels = 3,
+
+Threshold_type_tissueMask = "Absolute",
+Threshold_value_tissueMask = 0.001,
+Blurr_tissueMask = TRUE,
+Sigma_tissueMask = 0.5,
+
+Blurr_target = FALSE,
+Sigma_target = NULL
+)
+}
+
 }
 \seealso{
 \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}, \code{\link[=Binary_threshold_image_combinator]{Binary_threshold_image_combinator()}}, \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}

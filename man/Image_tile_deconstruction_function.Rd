@@ -7,12 +7,12 @@
 Image_tile_deconstruction_function(
   Directory = NULL,
   Output_directory = NULL,
-  RGB_Color_images = NULL,
+  RGB_Color_images = FALSE,
   Ordered_Channels = NULL,
   Channels_to_keep = NULL,
   Tile_pixel_size = NULL,
   Tile_Overlap = 0,
-  N_cores = NULL
+  N_cores = 1
 )
 }
 \arguments{
@@ -33,10 +33,33 @@ Image_tile_deconstruction_function(
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 }
 \value{
-The function writes the tiles in the ouput directory. The names of the resulting images should not be modified. If modified this can
-result in unexpected results when using companion functions \code{\link[=Image_from_tile_rebuilder]{Image_from_tile_rebuilder()}}, \code{\link[=Tile_to_image_cell_arrange_function]{Tile_to_image_cell_arrange_function()}}.
+The function writes the tiles in the ouput directory.
 }
 \description{
 \code{Image_tile_deconstruction_function()} divides into smaller chunks all the images in a directory.
 This allows faster computations when using CSM apps, performing image thresholding and cell segmentation.
+The names of the resulting images should not be modified. If modified this can
+result in unexpected results when using companion functions \code{\link[=Image_from_tile_rebuilder]{Image_from_tile_rebuilder()}}, \code{\link[=Tile_to_image_cell_arrange_function]{Tile_to_image_cell_arrange_function()}}.
+Tile overlap may be useful to avoid segmentation errors in cells close to the tile edge.
+}
+\details{
+Allowed image formats are tiff and ome.tiff. The ome.tiff files have been less extensively tested than tiff files.
+
+Warning!! The function uses the RBioFormats Bioconductor package that parses the Bioformats Java library to R. Sometimes even if the user
+has installed the RBioFormats package from bioconductor the function will still return an error. If this happens, the issue can be solved
+checking the installed Java version in the computer and manually installing the CRAN rJava package.
+}
+\examples{
+\dontrun{
+Image_tile_deconstruction_function(
+Directory = "Input_image_directory",
+Output_directory = "Output_directory",
+Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5"),
+Channels_to_keep = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5"),
+RGB_Color_images = FALSE,
+Tile_pixel_size = 500,
+Tile_Overlap = 0,
+N_cores = 2
+)
+}
 }

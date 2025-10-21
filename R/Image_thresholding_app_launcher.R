@@ -4,6 +4,16 @@
 #' @param Directory Character specifying the path to the folder where images to be thresholded are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @seealso [Pixel_Threshold_calculator()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
+#'
+#' @examples
+#' \dontrun{
+#' Image_thresholding_app_launcher(
+#' Directory = "Image_directory",
+#' Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5")
+#' )
+#' }
+#'
+#'
 #' @export
 
 Image_thresholding_app_launcher <-

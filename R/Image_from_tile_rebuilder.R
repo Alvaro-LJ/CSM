@@ -8,7 +8,18 @@
 #' @param RGB_Color_images Logical. Is the image a RGB color image?
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @returns The function writes the images in the ouput directory.
+#'
+#' @examples
+#' \dontrun{
+#'Image_from_tile_rebuilder(
+#' Directory = "Tiled_Image_directory",
+#' Output_directory = "Output_directory",
+#' RGB_Color_images = FALSE,
+#' N_cores = 1
+#')
+#' }
 #' @export
+
 Image_from_tile_rebuilder <-
   function(Directory = NULL,
                   Output_directory = NULL,
@@ -69,7 +80,7 @@ Image_from_tile_rebuilder <-
     Look_up_table <- tibble(File_names = sub("(.*)\\.[^.]+$", "\\1", Image_names_short))
     Look_up_table$Image_name <- gsub("\\([^)]*\\)", "", Look_up_table$File_names)
     Look_up_table$Tile_info <- regmatches(Look_up_table$File_names, regexpr("(?<=\\()[^)]*(?=\\))", Look_up_table$File_names, perl = TRUE))
-    Tile_info_list <- str_split(Look_up_table$Tile_info, "-")
+    Tile_info_list <- stringr::str_split(Look_up_table$Tile_info, "-")
     Look_up_table$Tile_ID <-purrr::map_chr(Tile_info_list, ~.[[1]])
     Look_up_table$X_Position_Min <-purrr::map_int(Tile_info_list, ~as.integer(.[[2]]))
     Look_up_table$X_Position_Max <-purrr::map_int(Tile_info_list, ~as.integer(.[[3]]))
