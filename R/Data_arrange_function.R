@@ -9,6 +9,16 @@
 #' @param Markers_to_keep A character vector indicating the names of the columns to be kept in the analysis.
 #' @returns Returns a tibble with cell features. The function adds a unique Cell_no to every cell in the dataset.
 #'
+#' @examples
+#' Data_arrange_function(
+#'   DATA = CSM_RAWcellfeaturedata_test,
+#'   X = 'm.cx',
+#'   Y = "m.cy",
+#'   Subject_Names = "imageID",
+#'   Markers_to_keep = c("CK-EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE")
+#' )
+#'
+#'
 #' @export
 Data_arrange_function <-
   function(DATA, X, Y, Subject_Names, Markers_to_keep) {

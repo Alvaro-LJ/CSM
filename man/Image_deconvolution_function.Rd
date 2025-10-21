@@ -21,10 +21,21 @@ Image_deconvolution_function(
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 }
 \value{
-The function writes the images in the ouput directory.
+The function writes multi-tiff images in the ouput directory.
 }
 \description{
 \code{Image_deconvolution_function()} generates multi-channel tiff images according to color deconvolution parameters.
+}
+\examples{
+|dontrun{
+Image_deconvolution_function(
+Directory = "Image_directory",
+Output_directory = "Output_directory",
+Deconvolution_parameters = Deconvolution_Parameters,
+N_cores = 1
+)
+}
+
 }
 \seealso{
 \code{\link[=Color_deconvolution_App_launcher]{Color_deconvolution_App_launcher()}}

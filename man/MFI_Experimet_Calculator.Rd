@@ -5,7 +5,7 @@
 \title{Calculates MFI for a set of images}
 \usage{
 MFI_Experimet_Calculator(
-  N_cores = NULL,
+  N_cores = 1,
   Directory = NULL,
   Ordered_Channels = NULL,
   Channels_to_keep = NULL,
@@ -46,7 +46,39 @@ Calculates the Mean Fluorescence Intensity of a target channel for every image i
 }
 \details{
 Target_masks should be a named lists. The names of the list should be any of the Channels_to_keep. Each element should be a list with the following named elements:
-Mask_name, Threshold_type, Threshold_value, Blurr, Sigma. These parameters should follow the same rules as the ones used to calculate tissueMask
+Mask_name, Threshold_type, Threshold_value, Blurr, Sigma. These parameters should follow the same rules as the ones used to calculate tissueMask (see examples).
+}
+\examples{
+\dontrun{
+
+#Optionally generate marker masks to obtain the target MFI
+Target_mask_list <- list(
+  Marker1 = list(Mask_name = "Marker1", #Name must match a channel in the provided images
+                Threshold_type = "Arbitrary",
+                Threshold_value = 0.1,
+                Blurr = TRUE,
+                Sigma = 1),
+  Marker2 = list(Mask_name = "Marker2", #Name must match a channel in the provided images
+                Threshold_type = "Arbitrary",
+                Threshold_value = 0.001,
+                Blurr = TRUE,
+                Sigma = 2)
+)
+#Then calculate the MFI
+MFI_Experimet_Calculator(
+N_cores = 2,
+Directory = "Image_containing_directory",
+Ordered_Channels = c("Marker1", "Marker2" ,"Marker3"),
+Channels_to_keep = c("Marker1", "Marker2" ,"Marker3"),
+Target_channel = "Marker3",
+Target_masks = Target_mask_list,
+Threshold_type_tissueMask = "Arbitrary",
+Threshold_value_tissueMask = 0.01,
+Blurr_tissueMask = TRUE,
+Sigma_tissueMask = 0.5
+)
+}
+
 }
 \seealso{
 \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}, \code{\link[=Binary_threshold_image_combinator]{Binary_threshold_image_combinator()}}, \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}

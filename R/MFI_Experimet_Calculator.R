@@ -19,13 +19,47 @@
 #'
 #' @details
 #'Target_masks should be a named lists. The names of the list should be any of the Channels_to_keep. Each element should be a list with the following named elements:
-#'Mask_name, Threshold_type, Threshold_value, Blurr, Sigma. These parameters should follow the same rules as the ones used to calculate tissueMask
+#'Mask_name, Threshold_type, Threshold_value, Blurr, Sigma. These parameters should follow the same rules as the ones used to calculate tissueMask (see examples).
 #'
 #' @seealso [Image_thresholding_app_launcher()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
+#'
+#' @examples
+#' \dontrun{
+#'
+#' #Optionally generate marker masks to obtain the target MFI
+#' Target_mask_list <- list(
+#'   Marker1 = list(Mask_name = "Marker1", #Name must match a channel in the provided images
+#'                 Threshold_type = "Arbitrary",
+#'                 Threshold_value = 0.1,
+#'                 Blurr = TRUE,
+#'                 Sigma = 1),
+#'   Marker2 = list(Mask_name = "Marker2", #Name must match a channel in the provided images
+#'                 Threshold_type = "Arbitrary",
+#'                 Threshold_value = 0.001,
+#'                 Blurr = TRUE,
+#'                 Sigma = 2)
+#')
+#' #Then calculate the MFI
+#' MFI_Experimet_Calculator(
+#' N_cores = 2,
+#' Directory = "Image_containing_directory",
+#' Ordered_Channels = c("Marker1", "Marker2" ,"Marker3"),
+#' Channels_to_keep = c("Marker1", "Marker2" ,"Marker3"),
+#' Target_channel = "Marker3",
+
+#' Target_masks = Target_mask_list,
+
+#' Threshold_type_tissueMask = "Arbitrary",
+#' Threshold_value_tissueMask = 0.01,
+#' Blurr_tissueMask = TRUE,
+#' Sigma_tissueMask = 0.5
+#' )
+#' }
+#'
 #' @export
 
 MFI_Experimet_Calculator <-
-  function(N_cores = NULL,
+  function(N_cores = 1,
            Directory = NULL,
            Ordered_Channels = NULL,
            Channels_to_keep =NULL,
@@ -124,7 +158,7 @@ MFI_Experimet_Calculator <-
                     stringr::str_c(which(!Adequate_names), collapse = ", ")))
       }
       #Check the actual arguments within the list of lists
-      walk(Target_masks, function(Individual_mask){
+      purrr::walk(Target_masks, function(Individual_mask){
         #Check mask name present in channels to keep
         if(!Individual_mask[["Mask_name"]] %in% Channels_to_keep) stop(paste0(Individual_mask[["Mask_name"]], ": Invalid mask name.",
                                                                               "It must be present in channels_to_keep: ",

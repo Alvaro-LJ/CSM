@@ -14,6 +14,20 @@
 #' If processed images are saved, these can be further combined with cell position data using [Cell_to_pixel_distance_calculator()].
 #'
 #' @seealso [Image_thresholding_app_launcher()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
+#'
+#' @examples
+#' \dontrun{
+#' Binary_threshold_image_combinator(
+#' Dir1 = "Thresholded_Image_directory1",
+#' Dir2 = "Thresholded_Image_directory2",
+#' Dir2 = "Thresholded_Image_directory3",
+#' Save_processed_images = TRUE,
+#' Output_Directory = "Combined_threshold_directory",
+#' Operators = c("AND", "NOT"),
+#' N_cores = 1
+#' )
+#' }
+#'
 #' @export
 
 Binary_threshold_image_combinator <-

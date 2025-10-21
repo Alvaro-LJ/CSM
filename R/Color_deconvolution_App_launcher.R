@@ -546,7 +546,7 @@ Color_deconvolution_App_launcher <-
                                                  tooltip = as.character(col),
                                                  hover_nearest = FALSE
               ),
-              size = 0) +
+              linewidth = 0) +
               scale_fill_identity() +
               cowplot::theme_cowplot()+
               guides(color = "none") +

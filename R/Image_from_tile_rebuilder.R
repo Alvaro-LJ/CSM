@@ -22,9 +22,9 @@
 
 Image_from_tile_rebuilder <-
   function(Directory = NULL,
-                  Output_directory = NULL,
-                  RGB_Color_images = NULL,
-                  N_cores = NULL){
+           Output_directory = NULL,
+           RGB_Color_images = FALSE,
+           N_cores = 1){
 
     #Check installation of suggested packages
     {
@@ -113,7 +113,7 @@ Image_from_tile_rebuilder <-
             Column_image <- EBImage::abind(map(Column_information$Whole_path, ~RBioFormats::read.image(.,
                                                                                                        proprietary.metadata = FALSE,
                                                                                                        read.metadata = TRUE,
-                                                                                                       normalize = FALSE)),
+                                                                                                       normalize = TRUE)),
                                            along = 2) #Generate the columns
             return(Column_image)
           }),

@@ -1,12 +1,12 @@
 #' Launches a shiny APP to explore cell segmentation parameters
 #'
-#' `segmentator_tester_app()` launches an APP to interactively explore cell segmentation parameters interactively
+#' `Segmentator_tester_app()` launches an APP to interactively explore cell segmentation parameters interactively
 #' Parameters can then be used to feed the [Cell_segmentator_quantificator()].
 #' @param Directory Character specifying the path to the folder where images to be segmented are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @export
 
-segmentator_tester_app <-
+Segmentator_tester_app <-
   function(Directory = NULL,
            Ordered_Channels = NULL){
 

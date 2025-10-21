@@ -7,8 +7,8 @@
 Image_from_tile_rebuilder(
   Directory = NULL,
   Output_directory = NULL,
-  RGB_Color_images = NULL,
-  N_cores = NULL
+  RGB_Color_images = FALSE,
+  N_cores = 1
 )
 }
 \arguments{

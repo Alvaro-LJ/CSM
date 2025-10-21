@@ -1,9 +1,9 @@
 #' Performs cell segmentation and obtains cell feature matrix
 #'
 #' `Cell_segmentator_quantificator()` performs cell segmentation according to user defined parameters.
-#' Parameters can then be obtained using [segmentator_tester_app()].
+#' Parameters can then be obtained using [Segmentator_tester_app()].
 #' @param Directory Character specifying the path to the folder where images to be segmented are present.
-#' @param Parameter_list List obtained using the [segmentator_tester_app()] containing segmentation parameters.
+#' @param Parameter_list List obtained using the [Segmentator_tester_app()] containing segmentation parameters.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Channels_to_keep Character vector specifying image channels to be kept in the analysis (must be a subse of Ordered_Channels).
 #' @param N_cores Integer. Number of cores to parallelize your computation.
@@ -29,15 +29,57 @@
 #' @param Opening_kernel_size (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Opening kernel size (set to 1 if no opening is required)
 #' @param Closing_kernel_size (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Closing kernel size (set to 1 if no closing is required)
 #' @returns A tibble containing cell feature data including cell X Y coordinates
+#'
+#' @examples
+#' \dontrun{
+#' #'
+#' #If Segmentator_tester_app has been used to obtain a Parameter list
+#' Cell_segmentator_quantificator(
+#' Directory = "Image_directory",
+#' Parameter_list = Segmentation_Parameters,
+#' N_cores = 2,
+#' quantiles_to_calculate = c(0.05, 0.25, 0.5, 0.75, 0.95)
+#' )
+#'
+#' #Otherwise segmentation parameters can be supplied
+#' Cell_segmentator_quantificator(
+#' Directory = "Image_directory",
+#' N_cores = 2,
+#' quantiles_to_calculate = c(0.05, 0.25, 0.5, 0.75, 0.95),
+#' Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4"),
+#' Channels_to_keep = c("Channel_1", "Channel_2", "Channel_3", "Channel_4" ),
+#' Nuclear_marker = "Channel_1",
+#' Cell_body_method = "discModel",
+#' Min_pixel = 10,
+#' Smooth_amount = 1,
+#' Normalization = "tissueMask",
+#' Watershed_type = "combine",
+#' Tolerance_value = NULL,
+#' Neighborhood_distance = 1,
+#' Disc_size = 7,
+#' Tissue_mask_markers = c("Channel_2", "Channel_3", "Channel_4"),
+#' Perform_PCA = FALSE,
+#' Perform_nuclear_channel_processing = TRUE,
+#' Black_level = 10,
+#' White_level = 90,
+#' Gamma_level = 0.05,
+#' Equalize = FALSE,
+#' Opening_kernel_size = 1,
+#' Closing_kernel_size = 1
+#')
+#'
+#' }
+#'
+#'
 #' @export
 Cell_segmentator_quantificator <-
   function(Directory = NULL,
            Parameter_list = NULL,
            Ordered_Channels = NULL,
            Channels_to_keep = NULL,
-           N_cores = NULL,
+           N_cores = 1,
 
-           quantiles_to_calculate = NULL, # quantiles to be calculated for each marker
+           quantiles_to_calculate = c(0.25, 0.5, 0.75), # quantiles to be calculated for each marker
 
 
            Nuclear_marker = NULL, #marker or list of markers corresponding to the nuclei
@@ -264,125 +306,138 @@ Cell_segmentator_quantificator <-
 
     SEGMENTATION_RESULTS <-
       furrr::future_map(seq_along(1:length(Complete_Image_Names)), function(Index){
-        #Pre-process nuclear channels if required
-        if(Perform_nuclear_channel_processing){
-          Image <- magick::image_read(Complete_Image_Names[Index]) #Import image
+        try({
+          #Pre-process nuclear channels if required
+          if(Perform_nuclear_channel_processing){
+            Image <- magick::image_read(Complete_Image_Names[Index]) #Import image
 
-          Nuclear_channels_number <- match(Nuclear_marker, Ordered_Channels)
+            Nuclear_channels_number <- match(Nuclear_marker, Ordered_Channels)
 
-          #Apply changes to every nuclear channel
-          for(index in Nuclear_channels_number){
-            Image_Modified <- Image[index]
+            #Apply changes to every nuclear channel
+            for(index in Nuclear_channels_number){
+              Image_Modified <- Image[index]
 
-            if(Equalize) Image_Modified <- Image_Modified %>% magick::image_equalize() #Equalize if necesary
-            Image_Modified <- Image_Modified %>% magick::image_level(black_point = Black_level,
-                                                                     white_point = White_level,
-                                                                     mid_point = 10^Gamma_level) #Chane withe, black and gamma
-            Image_Modified <- Image_Modified %>% magick::as_EBImage() #turn to EBImage object
-            Image_Modified  <-
-              Image_Modified %>% EBImage::opening(EBImage::makeBrush(size = Opening_kernel_size, shape = "disc")) %>%
-              EBImage::closing(EBImage::makeBrush(size = Closing_kernel_size, shape = "disc")) #opening and closing
+              if(Equalize) Image_Modified <- Image_Modified %>% magick::image_equalize() #Equalize if necesary
+              Image_Modified <- Image_Modified %>% magick::image_level(black_point = Black_level,
+                                                                       white_point = White_level,
+                                                                       mid_point = 10^Gamma_level) #Chane withe, black and gamma
+              Image_Modified <- Image_Modified %>% magick::as_EBImage() #turn to EBImage object
+              Image_Modified  <-
+                Image_Modified %>% EBImage::opening(EBImage::makeBrush(size = Opening_kernel_size, shape = "disc")) %>%
+                EBImage::closing(EBImage::makeBrush(size = Closing_kernel_size, shape = "disc")) #opening and closing
 
-            Image_Modified <- magick::image_read(Image_Modified) #again as Magick image
+              Image_Modified <- magick::image_read(Image_Modified) #again as Magick image
 
-            Image[index] <- Image_Modified
+              Image[index] <- Image_Modified
+            }
+            #Returna a EBImage object
+            Image <- Image %>% magick::as_EBImage()
           }
-          #Returna a EBImage object
-          Image <- Image %>% magick::as_EBImage()
+
+          #Import image with the EBImage importer if no processing is required
+          else{
+            Image <- EBImage::readImage(Complete_Image_Names[Index])
+          }
+
+          #Transform it to cytoImage object
+          Image <- cytomapper::CytoImageList(Image)
+          cytomapper::channelNames(Image) <- Ordered_Channels #define channel names
+          S4Vectors::mcols(Image)$imageID <- as.character(Simple_Image_Names[Index])#Modify name
+          Image <- cytomapper::getChannels(Image, Ordered_Channels[Ordered_Channels %in% Channels_to_keep]) #Keep only user defined channels
+
+          #Perform cell segmentation
+          Seg_results <- simpleSeg::simpleSeg(Image,
+                                              nucleus = Nuclear_marker,
+                                              cellBody = Cell_body_method,
+                                              sizeSelection = Min_pixel,
+                                              smooth = Smooth_amount,
+                                              transform = Normalization,
+                                              watershed = Watershed_type,
+                                              tolerance = Tolerance_value,
+                                              ext = Neighborhood_distance,
+                                              discSize = Disc_size,
+                                              tissue = Tissue_mask_markers,
+                                              pca = Perform_PCA,
+                                              cores = 1)
+          S4Vectors::mcols(Seg_results)$imageID <- as.character(Simple_Image_Names[Index])
+
+
+          #Calculate basic tibble with morphology
+          Position_morphology_mean <- cytomapper::measureObjects(mask = Seg_results,
+                                                                 image = Image,
+                                                                 img_id = "imageID",
+                                                                 feature_types = c("basic", "shape", "moment"),
+                                                                 shape_feature = c("area", "perimeter", "radius.mean", "radius.sd", "radius.max", "radius.min"),
+                                                                 moment_feature = c("cx", "cy", "eccentricity", "majoraxis"),
+                                                                 basic_feature = "mean")
+
+          Position_morphology_mean <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Position_morphology_mean)),
+                                                      as_tibble(t(SummarizedExperiment::assays(Position_morphology_mean)[[1]])))) %>% dplyr::select(-objectNum)
+          names(Position_morphology_mean)[-c(1:12)] <- stringr::str_c(names(Position_morphology_mean)[-c(1:12)], "_AVERAGE")
+
+          #Calculate the tibble with sd
+          Position_sd <- cytomapper::measureObjects(mask = Seg_results,
+                                                    image = Image,
+                                                    img_id = "imageID",
+                                                    feature_types = "basic",
+                                                    basic_feature = "sd"
+          )
+
+          Position_sd <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Position_sd)),
+                                         as_tibble(t(SummarizedExperiment::assays(Position_sd)[[1]])))) %>% dplyr::select(-objectNum)
+          names(Position_sd)[-c(1:2)] <- stringr::str_c(names(Position_sd)[-c(1:2)], "_SD")
+
+          #Bind both tibbles
+          Final_tibble <- dplyr::bind_cols(Position_morphology_mean, Position_sd[-c(1:2)])
+
+          #If no quantiles required return the basic tibble info
+          if(is.null(quantiles_to_calculate)){
+            #Remove Image to save RAM space
+            rm(Image)
+            gc()
+            return(Final_tibble)
+          }
+
+          else{
+            #If provided calculate the desired quantiles for each image
+            quantile_tibble <-purrr::map_dfc(seq_along(1:length(quantiles_to_calculate)),
+                                             function(quantile_index){
+                                               quantile_info <- cytomapper::measureObjects(mask = Seg_results,
+                                                                                           image = Image,
+                                                                                           img_id = "imageID",
+                                                                                           feature_types = "basic",
+                                                                                           basic_feature = Character_quantiles[quantile_index],
+                                                                                           basic_quantiles = quantiles_to_calculate[quantile_index]
+                                               )
+                                               quantile_info <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(quantile_info)),
+                                                                                as_tibble(t(SummarizedExperiment::assays(quantile_info)[[1]])))) %>% dplyr::select(-objectNum)
+                                               names(quantile_info)[-c(1:2)] <- stringr::str_c(names(quantile_info)[-c(1:2)], Character_quantiles[quantile_index], sep = "_")
+                                               quantile_info[-c(1:2)]
+                                             })
+            #Remove Image to save RAM space
+            rm(Image)
+            gc()
+            #bind both tibbles and return the result
+            return(dplyr::bind_cols(Final_tibble, quantile_tibble))
+          }
         }
-
-        #Import image with the EBImage importer if no processing is required
-        else{
-          Image <- EBImage::readImage(Complete_Image_Names[Index])
-        }
-
-        #Transform it to cytoImage object
-        Image <- cytomapper::CytoImageList(Image)
-        cytomapper::channelNames(Image) <- Ordered_Channels #define channel names
-        S4Vectors::mcols(Image)$imageID <- as.character(Simple_Image_Names[Index])#Modify name
-        Image <- cytomapper::getChannels(Image, Ordered_Channels[Ordered_Channels %in% Channels_to_keep]) #Keep only user defined channels
-
-        #Perform cell segmentation
-        Seg_results <- simpleSeg::simpleSeg(Image,
-                                            nucleus = Nuclear_marker,
-                                            cellBody = Cell_body_method,
-                                            sizeSelection = Min_pixel,
-                                            smooth = Smooth_amount,
-                                            transform = Normalization,
-                                            watershed = Watershed_type,
-                                            tolerance = Tolerance_value,
-                                            ext = Neighborhood_distance,
-                                            discSize = Disc_size,
-                                            tissue = Tissue_mask_markers,
-                                            pca = Perform_PCA,
-                                            cores = 1)
-        S4Vectors::mcols(Seg_results)$imageID <- as.character(Simple_Image_Names[Index])
-
-
-        #Calculate basic tibble with morphology
-        Position_morphology_mean <- cytomapper::measureObjects(mask = Seg_results,
-                                                               image = Image,
-                                                               img_id = "imageID",
-                                                               feature_types = c("basic", "shape", "moment"),
-                                                               shape_feature = c("area", "perimeter", "radius.mean", "radius.sd", "radius.max", "radius.min"),
-                                                               moment_feature = c("cx", "cy", "eccentricity", "majoraxis"),
-                                                               basic_feature = "mean")
-
-        Position_morphology_mean <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Position_morphology_mean)),
-                                                    as_tibble(t(SummarizedExperiment::assays(Position_morphology_mean)[[1]])))) %>% dplyr::select(-objectNum)
-        names(Position_morphology_mean)[-c(1:12)] <- stringr::str_c(names(Position_morphology_mean)[-c(1:12)], "_AVERAGE")
-
-        #Calculate the tibble with sd
-        Position_sd <- cytomapper::measureObjects(mask = Seg_results,
-                                                  image = Image,
-                                                  img_id = "imageID",
-                                                  feature_types = "basic",
-                                                  basic_feature = "sd"
         )
-
-        Position_sd <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Position_sd)),
-                                       as_tibble(t(SummarizedExperiment::assays(Position_sd)[[1]])))) %>% dplyr::select(-objectNum)
-        names(Position_sd)[-c(1:2)] <- stringr::str_c(names(Position_sd)[-c(1:2)], "_SD")
-
-        #Bind both tibbles
-        Final_tibble <- dplyr::bind_cols(Position_morphology_mean, Position_sd[-c(1:2)])
-
-        #If no quantiles required return the basic tibble info
-        if(is.null(quantiles_to_calculate)){
-          #Remove Image to save RAM space
-          rm(Image)
-          gc()
-          return(Final_tibble)
-        }
-
-        else{
-          #If provided calculate the desired quantiles for each image
-          quantile_tibble <-purrr::map_dfc(seq_along(1:length(quantiles_to_calculate)),
-                                           function(quantile_index){
-                                             quantile_info <- cytomapper::measureObjects(mask = Seg_results,
-                                                                                         image = Image,
-                                                                                         img_id = "imageID",
-                                                                                         feature_types = "basic",
-                                                                                         basic_feature = Character_quantiles[quantile_index],
-                                                                                         basic_quantiles = quantiles_to_calculate[quantile_index]
-                                             )
-                                             quantile_info <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(quantile_info)),
-                                                                              as_tibble(t(SummarizedExperiment::assays(quantile_info)[[1]])))) %>% dplyr::select(-objectNum)
-                                             names(quantile_info)[-c(1:2)] <- stringr::str_c(names(quantile_info)[-c(1:2)], Character_quantiles[quantile_index], sep = "_")
-                                             quantile_info[-c(1:2)]
-                                           })
-          #Remove Image to save RAM space
-          rm(Image)
-          gc()
-          #bind both tibbles and return the result
-          return(dplyr::bind_cols(Final_tibble, quantile_tibble))
-        }
       },
       .progress = TRUE)
     future::plan("future::sequential")
     gc()
 
+    #check for any errors during segmentation
+    Any_error <- purrr::map_lgl(SEGMENTATION_RESULTS, function(Image) berryFunctions::is.error(Image))
+    if(any(Any_error)){
+      Error_images <- Simple_Image_Names[Any_error]
+      warning(paste0("The following images returned an error during cell segmentation, hence they will be removed from the analysis. This may probably occur due to abscence of cells in these images: ",
+                     stringr::str_c(Error_images, collapse = ", ")))
+      SEGMENTATION_RESULTS <- SEGMENTATION_RESULTS[!Any_error]
+    }
 
-    return(purrr::map_dfr(SEGMENTATION_RESULTS,dplyr::bind_rows))
+
+    #Return the final tibble
+    return(purrr::map_dfr(SEGMENTATION_RESULTS, dplyr::bind_rows))
 
   }

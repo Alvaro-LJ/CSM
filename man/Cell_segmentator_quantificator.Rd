@@ -9,8 +9,8 @@ Cell_segmentator_quantificator(
   Parameter_list = NULL,
   Ordered_Channels = NULL,
   Channels_to_keep = NULL,
-  N_cores = NULL,
-  quantiles_to_calculate = NULL,
+  N_cores = 1,
+  quantiles_to_calculate = c(0.25, 0.5, 0.75),
   Nuclear_marker = NULL,
   Cell_body_method = NULL,
   Min_pixel = NULL,
@@ -34,7 +34,7 @@ Cell_segmentator_quantificator(
 \arguments{
 \item{Directory}{Character specifying the path to the folder where images to be segmented are present.}
 
-\item{Parameter_list}{List obtained using the \code{\link[=segmentator_tester_app]{segmentator_tester_app()}} containing segmentation parameters.}
+\item{Parameter_list}{List obtained using the \code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}} containing segmentation parameters.}
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
 
@@ -85,5 +85,47 @@ A tibble containing cell feature data including cell X Y coordinates
 }
 \description{
 \code{Cell_segmentator_quantificator()} performs cell segmentation according to user defined parameters.
-Parameters can then be obtained using \code{\link[=segmentator_tester_app]{segmentator_tester_app()}}.
+Parameters can then be obtained using \code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}}.
+}
+\examples{
+\dontrun{
+#'
+#If Segmentator_tester_app has been used to obtain a Parameter list
+Cell_segmentator_quantificator(
+Directory = "Image_directory",
+Parameter_list = Segmentation_Parameters,
+N_cores = 2,
+quantiles_to_calculate = c(0.05, 0.25, 0.5, 0.75, 0.95)
+)
+
+#Otherwise segmentation parameters can be supplied
+Cell_segmentator_quantificator(
+Directory = "Image_directory",
+N_cores = 2,
+quantiles_to_calculate = c(0.05, 0.25, 0.5, 0.75, 0.95),
+Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4"),
+Channels_to_keep = c("Channel_1", "Channel_2", "Channel_3", "Channel_4" ),
+Nuclear_marker = "Channel_1",
+Cell_body_method = "discModel",
+Min_pixel = 10,
+Smooth_amount = 1,
+Normalization = "tissueMask",
+Watershed_type = "combine",
+Tolerance_value = NULL,
+Neighborhood_distance = 1,
+Disc_size = 7,
+Tissue_mask_markers = c("Channel_2", "Channel_3", "Channel_4"),
+Perform_PCA = FALSE,
+Perform_nuclear_channel_processing = TRUE,
+Black_level = 10,
+White_level = 90,
+Gamma_level = 0.05,
+Equalize = FALSE,
+Opening_kernel_size = 1,
+Closing_kernel_size = 1
+)
+
+}
+
+
 }

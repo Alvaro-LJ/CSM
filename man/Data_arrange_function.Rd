@@ -23,3 +23,14 @@ Returns a tibble with cell features. The function adds a unique Cell_no to every
 \description{
 \code{Data_arrange_function()}must be run in order to format cell feature matrix. Many CSM functions won't work if the data has not been adequately formatted
 }
+\examples{
+Data_arrange_function(
+  DATA = CSM_RAWcellfeaturedata_test,
+  X = 'm.cx',
+  Y = "m.cy",
+  Subject_Names = "imageID",
+  Markers_to_keep = c("CK-EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE")
+)
+
+
+}

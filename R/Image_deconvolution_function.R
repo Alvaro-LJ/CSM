@@ -5,8 +5,19 @@
 #' @param Output_directory Character string specifying the path to the folder where  output images are written. It must be an empty folder.
 #' @param Deconvolution_parameters A list containing parameters. Created using [Color_deconvolution_App_launcher()].
 #' @param N_cores Integer. Number of cores to parallelize your computation.
-#' @returns The function writes the images in the ouput directory.
+#' @returns The function writes multi-tiff images in the ouput directory.
 #' @seealso [Color_deconvolution_App_launcher()]
+#'
+#' @examples
+#' |dontrun{
+#' Image_deconvolution_function(
+#' Directory = "Image_directory",
+#' Output_directory = "Output_directory",
+#' Deconvolution_parameters = Deconvolution_Parameters,
+#' N_cores = 1
+#' )
+#' }
+#'
 #' @export
 
 Image_deconvolution_function <-
