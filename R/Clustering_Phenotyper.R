@@ -259,7 +259,7 @@ Clustering_Phenotyper <-
       )
 
       #Check arguments
-      Argument_checker <- c(N_K_centroids_OK = all(nrow(MARKERS) > N_K_centroids, N_K_centroids%%1 == 0, N_K_centroids > 0),
+      Argument_checker <- c(N_K_centroids_OK = all(nrow(DATA) > N_K_centroids, N_K_centroids%%1 == 0, N_K_centroids > 0),
                             Max_N_phenotypes_Meta_OK = (Max_N_phenotypes_Meta >= 2 & Max_N_phenotypes_Meta%%1 == 0),
                             Consensus_reps_Meta_OK = (Consensus_reps_Meta >= 1 & Consensus_reps_Meta%%1 == 0),
                             Consensus_p_Items_Meta_OK = (Consensus_p_Items_Meta > 0 & Consensus_p_Items_Meta <= 1),

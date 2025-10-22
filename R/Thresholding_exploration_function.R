@@ -7,6 +7,36 @@
 #' @param DATA_Area If Calculate_Density is TRUE, a dataframe or tibble containing image names and tissue area information.
 #' @returns Returns a tibble with cell counts, pertentages and optionally cell densities per image.
 #'
+#'
+#' @examples
+#'#Calculate tissue area-------------------
+#'DATA_AREA <- Image_size_calculator(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "Tiling",
+#'   Image_to_plot = NULL,
+#'   Tile_accuracy = 60
+#')
+#'
+#'#Threshold data---------------------------
+#'DATA_thresholded <- Thresholding_function(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "EBI_Otsu",
+#'   Local_thresholding = FALSE,
+#'   Method_autothreshold = "Otsu",
+#'   number_iterations_TriClass = 20,
+#'   Percentile = 0.5,
+#'   Defined_threshold = 0.1,
+#'   Levels = 3
+#' )
+#'
+#'#Generate the summary tibble-------------
+#'Thresholding_exploration_function(
+#'   DATA = DATA_thresholded,
+#'   Calculate_Density = TRUE,
+#'   DATA_Area = DATA_AREA
+#' )
+#'
+#'
 #' @export
 
 Thresholding_exploration_function <-
@@ -29,9 +59,9 @@ Thresholding_exploration_function <-
         DATA_vars <- DATA[-c(1:4)]
 
         #Select dichotomic variables
-        DATA_Dichom <-dplyr::bind_cols(DATA[c(1:4)], DATA_vars[map_lgl(DATA_vars, function(Var) length(unique(Var)) <= 2)])
+        DATA_Dichom <- dplyr::bind_cols(DATA[c(1:4)], DATA_vars[purrr::map_lgl(DATA_vars, function(Var) length(unique(Var)) <= 2)])
         #Select polychotomic variables
-        DATA_Poly <-dplyr::bind_cols(DATA[c(1:4)], DATA_vars[map_lgl(DATA_vars, function(Var) length(unique(Var)) > 2)])
+        DATA_Poly <- dplyr::bind_cols(DATA[c(1:4)], DATA_vars[purrr::map_lgl(DATA_vars, function(Var) length(unique(Var)) > 2)])
 
         #Start with dichotomic variables if these are present in the data
         if(length(names(DATA_Dichom)) > 4){

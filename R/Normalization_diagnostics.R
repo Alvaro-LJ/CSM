@@ -10,6 +10,32 @@
 #'
 #' @seealso [Normalization_function()], [Normalization_function_parallel()]
 #'
+#' @examples
+#' #Run normalization----------------------
+#' mxnorm_Parameters <-
+#' list(
+#'   slide_id = "Subject_Names",
+#'   image_id = "Subject_Names",
+#'   marker_cols = names(CSM_Arrangedcellfeaturedata_test[-c(1:4)]),
+#'   transform = "None",
+#'   method = "ComBat",
+#'   method_override = NULL,
+#'   method_override_name = NULL
+#')
+#'
+#' Normalized_data <-  Normalization_function(
+#'   CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "mxnorm",
+#'   Parameters = mxnorm_Parameters
+#' )
+#'
+#' #Check normalization results---------------
+#'Normalization_diagnostics(
+#' Original_DATA = CSM_Arrangedcellfeaturedata_test,
+#' Normalized_DATA = Normalized_data
+#' )
+#'
+#'
 #' @export
 
 Normalization_diagnostics <-
@@ -103,10 +129,11 @@ Normalization_diagnostics <-
       CV_tibble %>%
         tidyr::pivot_longer(-Data) %>%
         ggplot(aes(x = name, y = value, fill = factor(Data, levels = c("Original", "Normalized")))) +
-        geom_col(width = 0.5, color = "black", size = 1.2, position = position_dodge(width = 0.6)) +
+        geom_col(width = 0.5, color = "black", linewidth = 1.2, position = position_dodge(width = 0.6)) +
         scale_x_discrete("") +
         scale_y_continuous("CV of Otsu thresholds") +
         scale_fill_discrete("") +
+        guides(fill = guide_legend(title = "")) +
         cowplot::theme_cowplot() +
         theme(axis.text = element_text(size = 12, color = "black"),
               legend.text = element_text(size = 12, color = "black"),
@@ -119,20 +146,23 @@ Normalization_diagnostics <-
     Histo_Normalized <-dplyr::bind_cols(tibble(Data = "Normalized"),
                                         Normalized_DATA[-c(1:4)] %>% scale())
 
-    plot(
+    suppressWarnings(
+      plot(
       ggplot() +
-        geom_density(aes(y = value, x = -after_stat(density), fill = "Original"), color = "black", size = 0.8, data = Histo_Original %>% tidyr::pivot_longer(-1)) +
-        geom_density(aes(y = value, x = after_stat(density), fill = "Normalized"), color = "black", size = 0.8, data = Histo_Normalized %>% tidyr::pivot_longer(-1))+
+        geom_density(aes(y = value, x = -after_stat(density), fill = "Original"), color = "black", linewidth = 0.8, data = Histo_Original %>% tidyr::pivot_longer(-1)) +
+        geom_density(aes(y = value, x = after_stat(density), fill = "Normalized"), color = "black", linewidth = 0.8, data = Histo_Normalized %>% tidyr::pivot_longer(-1))+
         facet_wrap(~name, scales = "free") +
-        geom_vline(xintercept = 0, size = 0.8, color = "black") +
+        geom_vline(xintercept = 0, linewidth = 0.8, color = "black") +
         scale_x_continuous("", labels = NULL) +
         scale_y_continuous("",
                            limits = c(-3, 3), #Limit the Y scale to avoid over-informating outsiders
                            labels = NULL)+
         cowplot::theme_cowplot() +
         scale_fill_discrete("", breaks = c("Original", "Normalized"))+
+        guides(fill = guide_legend(title = "")) +
         theme(legend.position = "bottom",
               strip.background =element_rect(fill="white"),
               strip.text = element_text(size = 12, color = "black", face = "bold"))
+    )
     )
   }

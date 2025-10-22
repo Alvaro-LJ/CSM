@@ -9,9 +9,9 @@
 #' @param Method_autothreshold If strategy is "Autothreshold", indicate the type of threshold to be used. It must be one of "IJDefault", "Huang", "Huang2", "Intermodes", "IsoData", "Li", "MaxEntropy", "Mean",
 #' "MinErrorI", "Minimum", "Moments", "Otsu", "RenyiEntropy", "Shanbhag", "Triangle", "Yen".
 #' @param number_iterations_TriClass If strategy is "TriClass_Otsu", an integer value indicating the maximum number of iterations.
-#' @param Percentile If strategy is "Quantile", a numeric value indicating the quantile to be used as cut-off value
-#' @param Defined_threshold If strategy is "Arbitrary", a numeric value indicating the cut-off value
-#' @param Levels If strategy is "Multi_level", an integer indicating the number of levels
+#' @param Percentile If strategy is "Quantile", a numeric value indicating the quantile to be used as cut-off value.
+#' @param Defined_threshold If strategy is "Arbitrary", a numeric value indicating the cut-off value.
+#' @param Levels If strategy is "Multi_level", an integer indicating the number of levels.
 #'
 #' @details
 #' Local thresholding is generally discouraged. It may capture image-specific artifacts or patterns and not true feature positivity.
@@ -24,12 +24,25 @@
 #'
 #' @returns Returns a tibble with thresholded cell features. All features are thresholded using the same approach. For binary thresholding features are converted to logical vectors, for multi-level are converted to numeric vectors.
 #'
+#' @examples
+#'
+#' Thresholding_function(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "EBI_Otsu",
+#'   Local_thresholding = TRUE,
+#'   Method_autothreshold = "Otsu",
+#'   number_iterations_TriClass = 20,
+#'   Percentile = 0.5,
+#'   Defined_threshold = 0.1,
+#'   Levels = 3
+#' )
+#'
 #' @export
 
 Thresholding_function <-
   function(DATA = NULL,
            Strategy = NULL,
-           Local_thresholding = F,
+           Local_thresholding = FALSE,
            Method_autothreshold = "Otsu",
            number_iterations_TriClass = 20,
            Percentile = 0.5,
@@ -74,6 +87,12 @@ Thresholding_function <-
                  expression(install.packages("imagerExtra")))
         )
       }
+      if(Strategy == "Arbitrary"){
+        if(!requireNamespace("mmand", quietly = FALSE)) stop(
+          paste0("Arbitrary CRAN package is required to execute the function. Please install using the following code: ",
+                 expression(install.packages("mmand")))
+        )
+      }
     }
 
     if(!(Strategy %in% c("EBI_Otsu", "Kmeans", "Kmeans_Otsu", "Autothreshold", "TriClass_Otsu", "Mean", "Quantile", "Arbitrary", "Multi_level"))) {
@@ -86,7 +105,7 @@ Thresholding_function <-
     if(!is.logical(Local_thresholding)) stop("Local_thresholding must be a logical value")
 
     else if(Local_thresholding == T) {
-      warning("Local thresholding should be avoided. Take into account that global thresholding is the preferred method")
+      warning("Local thresholding should be avoided. Take into account that global thresholding is the preferred method.")
 
       if(Strategy == "EBI_Otsu"){
         dplyr::bind_cols(DATA[(1:4)],

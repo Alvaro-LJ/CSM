@@ -8,7 +8,33 @@
 #'
 #' @returns Returns a tibble where each row are unique positive feature combinations found in DATA.
 #'
-#' @seealso [Phenotype_assigner_function()]
+#' @seealso [Thresholding_function()], [Thresholding_function_tailored()] [Phenotype_assigner_function()]
+#'
+#' @examples
+#' #Threshold data-------------------------------------
+#'DATA_thresholded <- Thresholding_function(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "EBI_Otsu",
+#'   Local_thresholding = FALSE,
+#'   Method_autothreshold = "Otsu",
+#'   number_iterations_TriClass = 20,
+#'   Percentile = 0.5,
+#'   Defined_threshold = 0.1,
+#'   Levels = 3
+#' )
+#' #Find unique feature positivity combinations----------
+#'Phenotype_possibilities <- Marker_combinator_generator(
+#'   DATA = DATA_thresholded,
+#'   Markers = names(DATA_thresholded)[-c(1:4)]
+#')
+#'#Assign a phenotype to each combination------------
+#'Phenotype_possibilities$Phenotype <- c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
+#'
+#'#Perform phenotyping-------------------------------
+#'Phenotype_assigner_function(
+#'   DATA = DATA_thresholded,
+#'   Phenotype_possibilities = Phenotype_possibilities
+#')
 #'
 #' @export
 

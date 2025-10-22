@@ -27,6 +27,24 @@ Image_size_calculator(
 Returns a tibble with tissue size for each image
 }
 \description{
-The function approximates tissue size either by tiling the tissue and analyzing the amount of tiles that present cells or by calculating the silouette of the tissue by calculating the concave hull.
-The area can then be used by other functions to calculate densities like \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}} or \code{\link[=Neighborhood_Quantifier]{Neighborhood_Quantifier()}}.
+The function approximates tissue size either by tiling the tissue and analyzing the amount of tiles where cells are present or by approximating the silhouette of the tissue by calculating the concave hull.
+The area can then be used by other functions to calculate cell densities like \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}} or \code{\link[=Neighborhood_Quantifier]{Neighborhood_Quantifier()}}.
+}
+\examples{
+Image_size_calculator(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Strategy = "Tiling",
+  Image_to_plot = NULL,
+  Tile_accuracy = 60,
+  Hull_ratio = NULL
+)
+
+Image_size_calculator(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Strategy = "Concave_hull",
+  Image_to_plot = NULL,
+  Tile_accuracy = NULL,
+  Hull_ratio = 0.75
+)
+
 }

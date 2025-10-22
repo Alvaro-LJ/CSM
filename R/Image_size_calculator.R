@@ -1,7 +1,7 @@
 #' Approximates tissue size
 #'
-#' The function approximates tissue size either by tiling the tissue and analyzing the amount of tiles that present cells or by calculating the silouette of the tissue by calculating the concave hull.
-#' The area can then be used by other functions to calculate densities like [Phenotype_quantifier()] or [Neighborhood_Quantifier()].
+#' The function approximates tissue size either by tiling the tissue and analyzing the amount of tiles where cells are present or by approximating the silhouette of the tissue by calculating the concave hull.
+#' The area can then be used by other functions to calculate cell densities like [Phenotype_quantifier()] or [Neighborhood_Quantifier()].
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Strategy Either 'Tiling' or 'Concave_hull'
@@ -9,6 +9,25 @@
 #' @param Tile_accuracy Lower values calculate the area in a more precise manner, with higher computational times. If the value is too low, it can classify areas of stroma as not being tissue.
 #' @param Hull_ratio A numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.
 #' @returns Returns a tibble with tissue size for each image
+#'
+#' @examples
+#' Image_size_calculator(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "Tiling",
+#'   Image_to_plot = NULL,
+#'   Tile_accuracy = 60,
+#'   Hull_ratio = NULL
+#' )
+#'
+#'Image_size_calculator(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "Concave_hull",
+#'   Image_to_plot = NULL,
+#'   Tile_accuracy = NULL,
+#'   Hull_ratio = 0.75
+#' )
+#'
+#' @import dplyr
 #'
 #' @export
 

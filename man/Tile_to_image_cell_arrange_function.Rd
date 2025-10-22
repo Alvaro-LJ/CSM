@@ -2,20 +2,35 @@
 % Please edit documentation in R/Tile_to_image_cell_arrange_function.R
 \name{Tile_to_image_cell_arrange_function}
 \alias{Tile_to_image_cell_arrange_function}
-\title{Arrange cell coordinates according to position in whole using tile information}
+\title{Arrange cell coordinates according to position in whole image using tile information}
 \usage{
 Tile_to_image_cell_arrange_function(DATA = NULL, Dist_to_edge = NULL)
 }
 \arguments{
-\item{DATA}{Dataframe or tibble with cell features. This data should have been processed at some point using \code{\link[=DATA_arrange_function]{DATA_arrange_function()}}}
+\item{DATA}{Dataframe or tibble with cell features. This data should have been processed at some point using \code{\link[=DATA_arrange_function]{DATA_arrange_function()}}.}
 
-\item{Dist_to_edge}{For overlapping tiles, cells closer to tile edge than Dist_to_edge will be removed}
+\item{Dist_to_edge}{For overlapping tiles, cells closer to tile edge than Dist_to_edge will be removed.}
 }
 \value{
 A tibble containing cell features with modified X and Y coordinates
 }
 \description{
-\code{Tile_to_image_cell_arrange_function()} modifies cell X and Y coordinates to reflect cell position in the entire image.
+\code{Tile_to_image_cell_arrange_function()} modifies cell X and Y coordinates to reflect cell position in the entire image. For cell segmentation pipelines that
+are based on tiled images (those processed using the \code{\link[=Image_tile_deconstruction_function]{Image_tile_deconstruction_function()}} function), the function will return the tile-based X Y coordinates to image-based coordinates.
+The function performs the operation based on the tile X Y coordinates info contained in the Subject_Names variable. If names have been modified the function could return unexpected results.
+}
+\examples{
+\dontrun{
+#Returns an error since Subject_Names in dataframe does not contain adequate tile information
+Tile_to_image_cell_arrange_function(
+ DATA = CSM_Arrangedcellfeaturedata_test,
+ Dist_to_edge = 0
+)
+
+}
+
+
+
 }
 \seealso{
 \code{\link[=Image_tile_deconstruction_function]{Image_tile_deconstruction_function()}}, \code{\link[=Image_from_tile_rebuilder]{Image_from_tile_rebuilder()}}

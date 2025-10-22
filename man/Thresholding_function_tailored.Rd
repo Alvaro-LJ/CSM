@@ -26,6 +26,27 @@ EBI_Otsu calculates Otsu threshold using EBImage::otsu function. Kmeans calculat
 Autothreshold calculates thresholds using the autothresholdr::auto_thresh_mask. TriClass_Otsu calculates thresholds using imagerExtra::ThresholdTriclass function.
 Multi_level thresholds are calculated using imagerExtra::ThresholdML function.
 }
+\examples{
+#Generate strategy tibble---------------
+Thresholding_strategy_tibble <-
+tibble(
+  variable = names(CSM_Arrangedcellfeaturedata_test)[-(1:4)],
+  Strategy = c("TriClass_Otsu", "Kmeans", "Autothreshold"),
+  Local_thresholding = F,
+  Method_autothreshold = "Otsu",
+  number_iterations_TriClass = 20,
+  Percentile = NA,
+  Defined_threshold = NA,
+  Levels = NA
+)
+
+#Execute thresholding-----------------
+Thresholding_function_tailored(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Variables_tibble = Thresholding_strategy_tibble
+)
+
+}
 \seealso{
 \code{\link[=Thresholding_tester_app]{Thresholding_tester_app()}}, \code{\link[=Thresholding_function]{Thresholding_function()}}, \code{\link[=Thresholding_exploration_function]{Thresholding_exploration_function()}}, \code{\link[=Thresholding_summary_function]{Thresholding_summary_function()}}, \code{\link[=Thresholding_graphicator_function]{Thresholding_graphicator_function()}}.
 }

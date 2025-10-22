@@ -19,3 +19,10 @@ The function is used to split cell feature matrix into a tibble containing featu
 Feature that are set aside are stored in a tibble containing cell_no and spatial coordinates.
 Features set aside can be used in fine tuning of cell phenotypes using \code{\link[=ReClustering_function]{ReClustering_function()}} or functional analysis using \code{\link[=Cell_functional_assessment]{Cell_functional_assessment()}}
 }
+\examples{
+Data_set_aside(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Markers_to_set = "GZMB_AVERAGE"
+)
+
+}

@@ -1,8 +1,25 @@
 #' Checks for potential flaws in cell feature data
 #'
-#' `Data_QC_Check_function()` checks that there are no missing values in the cell feature dataset and that there are no variables with constant value
-#' @param DATA A dataframe or tibble containing cell feature data
-#' @returns A message indicating potential issues in cell feature dataset
+#' `Data_QC_Check_function()` checks that there are no missing values in the cell feature dataset and that there are no constant value variables.
+#' @param DATA A dataframe or tibble containing cell feature data.
+#' @returns A message indicating potential issues in cell feature dataset.
+#'
+#' @examples
+#' #No QC flags-------------------------
+#' Data_QC_Check_function(
+#' DATA = CSM_Arrangedcellfeaturedata_test
+#' )
+#'
+#' #Constant value flag----------------
+#' Data_QC_Check_function(
+#' DATA = CSM_Arrangedcellfeaturedata_test %>% dplyr::mutate(Constant_variable = 1)
+#' )
+#'
+#' #Missing value flag----------------
+#' Data_QC_Check_function(
+#' DATA = CSM_Arrangedcellfeaturedata_test %>% dplyr::mutate(Missing_variable = NA)
+#' )
+#'
 #' @export
 
 Data_QC_Check_function <-

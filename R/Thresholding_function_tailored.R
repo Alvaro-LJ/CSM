@@ -18,6 +18,26 @@
 #'
 #' @returns Returns a tibble with thresholded cell features. Every feature is thresholded using specific parameters. For binary thresholding features are converted to logical vectors, for multi-level are converted to numeric vectors.
 #'
+#' @examples
+#' #Generate strategy tibble---------------
+#' Thresholding_strategy_tibble <-
+#' tibble(
+#'   variable = names(CSM_Arrangedcellfeaturedata_test)[-(1:4)],
+#'   Strategy = c("TriClass_Otsu", "Kmeans", "Autothreshold"),
+#'   Local_thresholding = F,
+#'   Method_autothreshold = "Otsu",
+#'   number_iterations_TriClass = 20,
+#'   Percentile = NA,
+#'   Defined_threshold = NA,
+#'   Levels = NA
+#' )
+#'
+#' #Execute thresholding-----------------
+#' Thresholding_function_tailored(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Variables_tibble = Thresholding_strategy_tibble
+#' )
+#'
 #' @export
 
 Thresholding_function_tailored <-

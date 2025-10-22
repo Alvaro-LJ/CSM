@@ -5,7 +5,7 @@
 \title{Removes cells in edge of tissue}
 \usage{
 Cell_in_edge_remover(
-  N_cores = NULL,
+  N_cores = 1,
   DATA = NULL,
   Hull_ratio = NULL,
   Distance_to_edge = NULL,
@@ -19,7 +19,7 @@ Cell_in_edge_remover(
 
 \item{Hull_ratio}{A numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.}
 
-\item{Distance_to_edge}{A numeric value indicating the maximum distance to tissue edge allowed}
+\item{Distance_to_edge}{A numeric value indicating the maximum distance to tissue edge allowed.}
 
 \item{Image_preview}{A character value indicating which Subject_Names will be used in the quick test. If NULL a random image will be selected.}
 }
@@ -28,4 +28,16 @@ Returns a tibble with cell features without cells closer to the edge than Distan
 }
 \description{
 Removes cells in the edge of tissue calculating the concave hull. Cells in the edge of tissue can sometimes be subject of technical artifacts and can be worth removing them before analysis.
+}
+\examples{
+\dontrun{
+Cell_in_edge_remover(
+  N_cores = 2,
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Hull_ratio = 0.5,
+  Distance_to_edge = 10,
+  Image_preview = "ABCM22001_B09_MiniCrop.tif"
+)
+}
+
 }

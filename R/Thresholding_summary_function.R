@@ -7,6 +7,26 @@
 #'
 #' @returns Returns a tibble with cut-off values and generates summary plots.
 #'
+#' @examples
+#' Threshold data---------------------------
+#'DATA_thresholded <- Thresholding_function(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "EBI_Otsu",
+#'   Local_thresholding = FALSE,
+#'   Method_autothreshold = "Otsu",
+#'   number_iterations_TriClass = 20,
+#'   Percentile = 0.5,
+#'   Defined_threshold = 0.1,
+#'   Levels = 3
+#' )
+#'
+#' #Calculate the summary
+#' Thresholding_summary_function(
+#'    DATA = CSM_Arrangedcellfeaturedata_test,
+#'    DATA_thresholded = DATA_thresholded
+#' )
+#'
+#'
 #' @export
 
 Thresholding_summary_function <-
@@ -17,7 +37,7 @@ Thresholding_summary_function <-
     Markers <- DATA[-c(1:4)]
 
     #Generate two tibbles for dichotomic thresholds
-    Thresholded_Dichom <- Thresholded[map_lgl(Thresholded, function(Var) length(unique(Var)) <= 2)]
+    Thresholded_Dichom <- Thresholded[purrr::map_lgl(Thresholded, function(Var) length(unique(Var)) <= 2)]
     Markers_Dichom <- Markers[names(Thresholded_Dichom)]
     #If dichotomic variables are present calculate the thresholds
     if(ncol(Thresholded_Dichom) >= 1){
@@ -32,7 +52,7 @@ Thresholding_summary_function <-
     }
 
     #Generate two tibbles for Polychotomic thresholds
-    Thresholded_Poly <- Thresholded[map_lgl(Thresholded, function(Var) length(unique(Var)) > 2)]
+    Thresholded_Poly <- Thresholded[purrr::map_lgl(Thresholded, function(Var) length(unique(Var)) > 2)]
     Markers_Poly <- Markers[names(Thresholded_Poly)]
     #If polychotomic variables are present, calculate the thresholds
     if(ncol(Thresholded_Poly) >= 1){
@@ -60,8 +80,8 @@ Thresholding_summary_function <-
       #Generate the result tibble
       Thresholds_results <- matrix(Thresholds_Dichom, byrow = T, ncol = length(Thresholds_Dichom))
       colnames(Thresholds_results) <- names(Thresholds_Dichom)
-      Thresholds_results <- as_tibble(Thresholds_results)
-      Thresholds_results$Threshold_level <-stringr::str_c("Threshold_Level_", 1:nrow(Thresholds_results))
+      Thresholds_results <- tibble::as_tibble(Thresholds_results)
+      Thresholds_results$Threshold_level <- stringr::str_c("Threshold_Level_", 1:nrow(Thresholds_results))
       Thresholds_results <- Thresholds_results[c(ncol(Thresholds_results), 1:(ncol(Thresholds_results)-1))]
       For_histogram <- Thresholds_results %>% tidyr::pivot_longer(-1)
     }
@@ -69,7 +89,7 @@ Thresholding_summary_function <-
     else if (ncol(Thresholded_Dichom) < 1){
       #Generate the result tibble
       Thresholds_results <- Thresholds_Poly
-      Thresholds_results$Threshold_level <-stringr::str_c("Threshold_Level_", 1:nrow(Thresholds_results))
+      Thresholds_results$Threshold_level <- stringr::str_c("Threshold_Level_", 1:nrow(Thresholds_results))
       Thresholds_results <- Thresholds_results[c(ncol(Thresholds_results), 1:(ncol(Thresholds_results)-1))]
       For_histogram <- Thresholds_results %>% tidyr::pivot_longer(-1)
     }
@@ -77,7 +97,7 @@ Thresholding_summary_function <-
     else if (ncol(Thresholded_Poly) >= 1 & ncol(Thresholded_Dichom) >= 1){
       Thresholds_results <- matrix(Thresholds_Dichom, byrow = T, ncol = length(Thresholds_Dichom))
       colnames(Thresholds_results) <- names(Thresholds_Dichom)
-      Thresholds_results <- as_tibble(Thresholds_results)
+      Thresholds_results <- tibble::as_tibble(Thresholds_results)
       Thresholds_results[2:Max_level_size, ] <- NA
       Thresholds_results <-dplyr::bind_cols(Thresholds_results, Thresholds_Poly)
       Thresholds_results$Threshold_level <-stringr::str_c("Threshold_Level_", 1:nrow(Thresholds_results))

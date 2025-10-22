@@ -8,6 +8,14 @@
 #' @param Correlation_method Either "pearson" or "spearman".
 #' @returns Generates a correlation matrix plot
 #'
+#' @examples
+#' Plot_correlation_matrix(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Variables_included = names(CSM_Arrangedcellfeaturedata_test)[-c(1:4)],
+#'   Correlation_method = "pearson"
+#' )
+#'
+#'
 #' @export
 
 Plot_correlation_matrix <-

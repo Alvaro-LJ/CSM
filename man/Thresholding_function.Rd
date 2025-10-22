@@ -7,7 +7,7 @@
 Thresholding_function(
   DATA = NULL,
   Strategy = NULL,
-  Local_thresholding = F,
+  Local_thresholding = FALSE,
   Method_autothreshold = "Otsu",
   number_iterations_TriClass = 20,
   Percentile = 0.5,
@@ -27,11 +27,11 @@ Thresholding_function(
 
 \item{number_iterations_TriClass}{If strategy is "TriClass_Otsu", an integer value indicating the maximum number of iterations.}
 
-\item{Percentile}{If strategy is "Quantile", a numeric value indicating the quantile to be used as cut-off value}
+\item{Percentile}{If strategy is "Quantile", a numeric value indicating the quantile to be used as cut-off value.}
 
-\item{Defined_threshold}{If strategy is "Arbitrary", a numeric value indicating the cut-off value}
+\item{Defined_threshold}{If strategy is "Arbitrary", a numeric value indicating the cut-off value.}
 
-\item{Levels}{If strategy is "Multi_level", an integer indicating the number of levels}
+\item{Levels}{If strategy is "Multi_level", an integer indicating the number of levels.}
 }
 \value{
 Returns a tibble with thresholded cell features. All features are thresholded using the same approach. For binary thresholding features are converted to logical vectors, for multi-level are converted to numeric vectors.
@@ -46,6 +46,20 @@ Local thresholding is generally discouraged. It may capture image-specific artif
 EBI_Otsu calculates Otsu threshold using EBImage::otsu function. Kmeans calculates threshold using the mmand::threshold function. Kmeans_Otsu calculates the threhold using imager::threshold function.
 Autothreshold calculates thresholds using the autothresholdr::auto_thresh_mask. TriClass_Otsu calculates thresholds using imagerExtra::ThresholdTriclass function.
 Multi_level thresholds are calculated using imagerExtra::ThresholdML function.
+}
+\examples{
+
+Thresholding_function(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Strategy = "EBI_Otsu",
+  Local_thresholding = TRUE,
+  Method_autothreshold = "Otsu",
+  number_iterations_TriClass = 20,
+  Percentile = 0.5,
+  Defined_threshold = 0.1,
+  Levels = 3
+)
+
 }
 \seealso{
 \code{\link[=Thresholding_tester_app]{Thresholding_tester_app()}}, \code{\link[=Thresholding_function_tailored]{Thresholding_function_tailored()}}, \code{\link[=Thresholding_exploration_function]{Thresholding_exploration_function()}}, \code{\link[=Thresholding_summary_function]{Thresholding_summary_function()}}, \code{\link[=Thresholding_graphicator_function]{Thresholding_graphicator_function()}}.

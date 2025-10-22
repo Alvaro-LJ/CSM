@@ -17,3 +17,24 @@ Returns a tibble with cut-off values and generates summary plots.
 \description{
 Given the original and thresholded dataset, the function calculates cut-off values and generates summary graphs.
 }
+\examples{
+Threshold data---------------------------
+DATA_thresholded <- Thresholding_function(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Strategy = "EBI_Otsu",
+  Local_thresholding = FALSE,
+  Method_autothreshold = "Otsu",
+  number_iterations_TriClass = 20,
+  Percentile = 0.5,
+  Defined_threshold = 0.1,
+  Levels = 3
+)
+
+#Calculate the summary
+Thresholding_summary_function(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   DATA_thresholded = DATA_thresholded
+)
+
+
+}

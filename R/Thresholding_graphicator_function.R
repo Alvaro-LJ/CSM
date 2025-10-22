@@ -7,7 +7,29 @@
 #' @param Marker_names A character vector indicating features that need to be plotted.
 #' @param Image_name A character value indicating the image to be plotted.
 #'
-#' @returns Returns a tibble with cell counts, percentages and optionally cell densities per image.
+#' @returns Plots individual cells feature expression values and cells that are above threshold
+#'
+#' @examples
+#' #Threshold data---------------------------
+#'DATA_thresholded <- Thresholding_function(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Strategy = "EBI_Otsu",
+#'   Local_thresholding = FALSE,
+#'   Method_autothreshold = "Otsu",
+#'   number_iterations_TriClass = 20,
+#'   Percentile = 0.5,
+#'   Defined_threshold = 0.1,
+#'   Levels = 3
+#' )
+#'
+#' #Plot results---------------------------
+#' Thresholding_graphicator_function(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   DATA_thresholded = DATA_thresholded,
+#'   Marker_names = names(DATA_thresholded)[-c(1:4)],
+#'   Image_name = "ABCM22001_B09_MiniCrop.tif"
+#')
+#'
 #'
 #' @export
 

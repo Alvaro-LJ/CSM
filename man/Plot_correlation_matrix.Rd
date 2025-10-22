@@ -24,3 +24,12 @@ Generates a correlation matrix plot
 The function calculates correlation between variables and draws a correlation matrix. Highly correlated or anti-correlated variables can cause trouble in subsequent analyses.
 Therefore, checking for correlation is a good practice before proceeding with analyses.
 }
+\examples{
+Plot_correlation_matrix(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Variables_included = names(CSM_Arrangedcellfeaturedata_test)[-c(1:4)],
+  Correlation_method = "pearson"
+)
+
+
+}

@@ -5,14 +5,27 @@
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Hull_ratio A numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.
-#' @param Distance_to_edge A numeric value indicating the maximum distance to tissue edge allowed
+#' @param Distance_to_edge A numeric value indicating the maximum distance to tissue edge allowed.
 #' @param Image_preview A character value indicating which Subject_Names will be used in the quick test. If NULL a random image will be selected.
 #' @returns Returns a tibble with cell features without cells closer to the edge than Distance_to_edge.
+#'
+#' @examples
+#' \dontrun{
+#' Cell_in_edge_remover(
+#'   N_cores = 2,
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Hull_ratio = 0.5,
+#'   Distance_to_edge = 10,
+#'   Image_preview = "ABCM22001_B09_MiniCrop.tif"
+#' )
+#' }
+#'
+#' @import dplyr
 #'
 #' @export
 
 Cell_in_edge_remover <-
-  function(N_cores = NULL,
+  function(N_cores = 1,
            DATA = NULL,
            Hull_ratio = NULL,
            Distance_to_edge = NULL,
@@ -38,7 +51,7 @@ Cell_in_edge_remover <-
     }
     Sample <- DATA %>% dplyr::filter(Subject_Names == Image_preview)
     Cells_sf <- sf::st_as_sf(Sample , coords = c("X", "Y"))
-    Edge_line <- sf::st_cast((Cells_sf %>% dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% dplyr::summarise), "LINESTRING")
+    Edge_line <- sf::st_cast((Cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
     Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
 
     plot(Sample %>%
@@ -77,7 +90,7 @@ Cell_in_edge_remover <-
         #Prepare our data
         Image_tibble <- DATA %>% dplyr::filter(Subject_Names == x)
         Cells_sf <- sf::st_as_sf(Image_tibble , coords = c("X", "Y"))
-        Edge_line <- sf::st_cast((Cells_sf %>% dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% dplyr::summarise), "LINESTRING")
+        Edge_line <- sf::st_cast((Cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
         Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
 
 

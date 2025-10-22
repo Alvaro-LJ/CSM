@@ -1,10 +1,28 @@
-#' Arrange cell coordinates according to position in whole using tile information
+#' Arrange cell coordinates according to position in whole image using tile information
 #'
-#' `Tile_to_image_cell_arrange_function()` modifies cell X and Y coordinates to reflect cell position in the entire image.
-#' @param DATA Dataframe or tibble with cell features. This data should have been processed at some point using [DATA_arrange_function()]
-#' @param Dist_to_edge For overlapping tiles, cells closer to tile edge than Dist_to_edge will be removed
+#' `Tile_to_image_cell_arrange_function()` modifies cell X and Y coordinates to reflect cell position in the entire image. For cell segmentation pipelines that
+#' are based on tiled images (those processed using the [Image_tile_deconstruction_function()] function), the function will return the tile-based X Y coordinates to image-based coordinates.
+#' The function performs the operation based on the tile X Y coordinates info contained in the Subject_Names variable. If names have been modified the function could return unexpected results.
+#'
+#' @param DATA Dataframe or tibble with cell features. This data should have been processed at some point using [DATA_arrange_function()].
+#' @param Dist_to_edge For overlapping tiles, cells closer to tile edge than Dist_to_edge will be removed.
+#'
 #' @returns A tibble containing cell features with modified X and Y coordinates
+#'
 #' @seealso [Image_tile_deconstruction_function()], [Image_from_tile_rebuilder()]
+#'
+#' @examples
+#' \dontrun{
+#' #Returns an error since Subject_Names in dataframe does not contain adequate tile information
+#' Tile_to_image_cell_arrange_function(
+#'  DATA = CSM_Arrangedcellfeaturedata_test,
+#'  Dist_to_edge = 0
+#' )
+#'
+#' }
+#'
+#'
+#'
 #' @export
 Tile_to_image_cell_arrange_function <-
     function(DATA = NULL,
@@ -13,7 +31,7 @@ Tile_to_image_cell_arrange_function <-
       if(!identical(names(DATA)[1:4],  c("Cell_no", "X", "Y", "Subject_Names")))  stop("DATA provided should have been processed using the DATA_arrange_function")
 
       #Check that all images come from tiles
-      Image_from_tile <- str_detect(unique(DATA$Subject_Names), "\\(Tile")
+      Image_from_tile <- stringr::str_detect(unique(DATA$Subject_Names), "\\(Tile")
       if(!all(Image_from_tile)){
         Problematic_images <- unique(DATA$Subject_Names)[!Image_from_tile]
         stop(paste0("The followin images are not tiles or their file names have been severely modified. Please check before running the function: ",
@@ -28,7 +46,7 @@ Tile_to_image_cell_arrange_function <-
 
       Look_up_table$New_Subject_Names <- gsub("\\([^)]*\\)", "", DATA$Subject_Names)
       Look_up_table$Tile_info <- regmatches(DATA$Subject_Names, regexpr("(?<=\\()[^)]*(?=\\))", DATA$Subject_Names, perl = TRUE))
-      Tile_info_list <- str_split(Look_up_table$Tile_info, "-")
+      Tile_info_list <- stringr::str_split(Look_up_table$Tile_info, "-")
       Look_up_table$Tile_ID <-purrr::map_chr(Tile_info_list, ~.[[1]])
       Look_up_table$X_Position_Min <-purrr::map_int(Tile_info_list, ~as.integer(.[[2]]))
       Look_up_table$X_Position_Max <-purrr::map_int(Tile_info_list, ~as.integer(.[[3]]))
@@ -43,7 +61,7 @@ Tile_to_image_cell_arrange_function <-
       #Check if there is overlap between tiles by analyzing the first two tiles between the first image
       #Select a Subject_Names with more than 2 tiles
       Selected_image <-
-        (map_dfr(unique(Look_up_table$New_Subject_Names), function(Image){
+        (purrr::map_dfr(unique(Look_up_table$New_Subject_Names), function(Image){
           Interim <- Look_up_table %>% dplyr::filter(New_Subject_Names == Image)
           tibble(New_Subject_Names = Image, N_tiles = length(unique(Interim$Tile_ID)))
         }) %>%
@@ -96,15 +114,15 @@ Tile_to_image_cell_arrange_function <-
             Y_conflict <- Y_conflict[-which(Y_conflict == Min_Image_Y)]
             Y_conflict_tibble <- tibble(From_y = Y_conflict, To_y = Y_conflict + Overlap_size -1)
 
-            Cells_in_conflict_area_X <- pmap(X_conflict_tibble, function(From_x, To_x) Image_data$New_X >= From_x & Image_data$New_X <= To_x)
-            Cells_in_conflict_area_Y <- pmap(Y_conflict_tibble, function(From_y, To_y) Image_data$New_Y >= From_y & Image_data$New_Y <= To_y)
+            Cells_in_conflict_area_X <- purrr::pmap(X_conflict_tibble, function(From_x, To_x) Image_data$New_X >= From_x & Image_data$New_X <= To_x)
+            Cells_in_conflict_area_Y <- purrr::pmap(Y_conflict_tibble, function(From_y, To_y) Image_data$New_Y >= From_y & Image_data$New_Y <= To_y)
 
             #reduce to a single vector
             Cell_in_conflict_vector <- reduce(c(Cells_in_conflict_area_X, Cells_in_conflict_area_Y), function(A, B) A | B)
 
             #First we get the cells not in conflict and in conflict
-            Cells_out_of_conflict <- Image_data %>% dplyr::filter(!Cell_in_conflict_vector)
-            Cells_in_conflict <- Image_data %>% dplyr::filter(Cell_in_conflict_vector)
+            Cells_out_of_conflict <- Image_data %>% dplyr::filter(!unlist(Cell_in_conflict_vector))
+            Cells_in_conflict <- Image_data %>% dplyr::filter(unlist(Cell_in_conflict_vector))
 
             #Now we remove cells that are in the conflict zone and very close to the edges according to their tiles
             Cells_in_conflict <-
@@ -136,7 +154,7 @@ Tile_to_image_cell_arrange_function <-
       New_DATA <-dplyr::left_join(New_DATA, DATA %>% dplyr::select(-c(2:4)), by = dplyr::join_by(Old_Cell_no == Cell_no)) %>% dplyr::select(-Old_Cell_no)
       names(New_DATA)[c(1:3)] <- c("X", "Y", "Subject_Names")
 
-      New_DATA <- New_DATA %>% dplyr::mutate(Cell_no = stringr::str_c("CELL", as.character(unlist(map(
+      New_DATA <- New_DATA %>% dplyr::mutate(Cell_no = stringr::str_c("CELL", as.character(unlist(purrr::map(
         purrr::map_dbl(unique(New_DATA$Subject_Names), function(x) {
           nrow(New_DATA %>% dplyr::filter(Subject_Names == x))
         }), function(x) {

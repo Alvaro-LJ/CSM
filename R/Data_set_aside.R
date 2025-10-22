@@ -8,6 +8,12 @@
 #' @param Markers_to_set Character vector indicating which cell features will be placed aside.
 #' @returns A list with two elements: Aside (containing markers removed from main cell feature dataset) and DATA containing remaining features
 #'
+#' @examples
+#' Data_set_aside(
+#'   DATA = CSM_Arrangedcellfeaturedata_test,
+#'   Markers_to_set = "GZMB_AVERAGE"
+#' )
+#'
 #' @export
 
 Data_set_aside <-

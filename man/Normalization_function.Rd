@@ -17,7 +17,7 @@ Normalization_function(DATA = NULL, Strategy = NULL, Parameters = NULL)
 Returns a tibble containing normalized cell feature data.
 }
 \description{
-Normalization of cell feature data following two potential strategies included in mxnorm and simpleSeg packages
+Normalization of cell feature data following two potential strategies included in mxnorm and simpleSeg packages.
 }
 \details{
 For mxnorm normalization, the list must contain the following elements:
@@ -36,6 +36,54 @@ imageID (The column name of the DATA that contains the image ID),
 transformation (Choose between:  NULL, "asinh", "sqrt"),
 method ("trim99", "minMax"),
 cores (Irrelevant argument. If parallelization is required use N_cores argument and \code{\link[=Normalization_function_parallel]{Normalization_function_parallel()}} function).
+}
+\examples{
+#Set normalization parameters-----------
+mxnorm_Parameters <-
+list(
+  slide_id = "Subject_Names",
+  image_id = "Subject_Names",
+  marker_cols = names(CSM_Arrangedcellfeaturedata_test[-c(1:4)]),
+  transform = "None",
+  method = "ComBat",
+  method_override = NULL,
+  method_override_name = NULL
+)
+
+mxnorm_Parameters_slide <-
+list(
+  slide_id = c(rep("Slide1", times = 229), rep("Slide2", times = 818)),
+  image_id = "Subject_Names", #The column name of the DATA that contains the image ID
+  marker_cols = names(CSM_Arrangedcellfeaturedata_test[-c(1:4)]),
+  transform = "None",
+  method = "ComBat",
+  method_override = NULL,
+  method_override_name = NULL
+)
+
+simpleSeg_Parameters <-
+list(
+  cells = CSM_Arrangedcellfeaturedata_test,
+  markers = names(CSM_Arrangedcellfeaturedata_test[-c(1:4)]),
+  imageID = "Subject_Names",
+  transformation = "sqrt",
+  method = c("trim99", "minMax"),
+  cores = 1
+)
+
+#Run normalization----------------------
+Normalization_function(
+  CSM_Arrangedcellfeaturedata_test,
+  Strategy = "mxnorm",
+  Parameters = mxnorm_Parameters
+)
+
+Normalization_function(
+  CSM_Arrangedcellfeaturedata_test,
+  Strategy = "simpleSeg",
+  Parameters = simpleSeg_Parameters
+)
+
 }
 \seealso{
 \code{\link[=Normalization_function_parallel]{Normalization_function_parallel()}}, \code{\link[=Normalization_diagnostics]{Normalization_diagnostics()}}

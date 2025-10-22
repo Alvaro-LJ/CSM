@@ -7,11 +7,28 @@
 Data_QC_Check_function(DATA)
 }
 \arguments{
-\item{DATA}{A dataframe or tibble containing cell feature data}
+\item{DATA}{A dataframe or tibble containing cell feature data.}
 }
 \value{
-A message indicating potential issues in cell feature dataset
+A message indicating potential issues in cell feature dataset.
 }
 \description{
-\code{Data_QC_Check_function()} checks that there are no missing values in the cell feature dataset and that there are no variables with constant value
+\code{Data_QC_Check_function()} checks that there are no missing values in the cell feature dataset and that there are no constant value variables.
+}
+\examples{
+#No QC flags-------------------------
+Data_QC_Check_function(
+DATA = CSM_Arrangedcellfeaturedata_test
+)
+
+#Constant value flag----------------
+Data_QC_Check_function(
+DATA = CSM_Arrangedcellfeaturedata_test \%>\% dplyr::mutate(Constant_variable = 1)
+)
+
+#Missing value flag----------------
+Data_QC_Check_function(
+DATA = CSM_Arrangedcellfeaturedata_test \%>\% dplyr::mutate(Missing_variable = NA)
+)
+
 }

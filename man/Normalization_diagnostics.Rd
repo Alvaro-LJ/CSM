@@ -18,6 +18,33 @@ Generates plots
 The function will analyze normalization performance by comparing the Coefficient of Variation of Otsu thresholds across samples. In theory, if normalization is successful,
 the coefficient of variation of the Otsu threshold should be reduced. In addition the function will also generate smoothened histograms comparing feature expression distribution before and after normalization.
 }
+\examples{
+#Run normalization----------------------
+mxnorm_Parameters <-
+list(
+  slide_id = "Subject_Names",
+  image_id = "Subject_Names",
+  marker_cols = names(CSM_Arrangedcellfeaturedata_test[-c(1:4)]),
+  transform = "None",
+  method = "ComBat",
+  method_override = NULL,
+  method_override_name = NULL
+)
+
+Normalized_data <-  Normalization_function(
+  CSM_Arrangedcellfeaturedata_test,
+  Strategy = "mxnorm",
+  Parameters = mxnorm_Parameters
+)
+
+#Check normalization results---------------
+Normalization_diagnostics(
+Original_DATA = CSM_Arrangedcellfeaturedata_test,
+Normalized_DATA = Normalized_data
+)
+
+
+}
 \seealso{
 \code{\link[=Normalization_function]{Normalization_function()}}, \code{\link[=Normalization_function_parallel]{Normalization_function_parallel()}}
 }
