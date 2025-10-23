@@ -8,6 +8,19 @@
 #'
 #' @returns Returns a tibble with cell features and the phenotype column with the modified labels.
 #'
+#'
+#' @examples
+#' print(unique(CSM_Phenotypecell_test$Phenotype))
+#'
+#' New_names_DATA <-
+#'  DATA_Phenotype_renamer(
+#'     DATA = CSM_Phenotypecell_test,
+#'     New_names = c("CD8_GZMB_NEGATIVE", "CD8_GZMB_POSITIVE"),
+#'     Old_names = c("CD8_GZMBneg", "CD8_GZMBpos")
+#' )
+#'
+#' print(unique(New_names_DATA$Phenotype))
+#'
 #' @export
 
 DATA_Phenotype_renamer <-

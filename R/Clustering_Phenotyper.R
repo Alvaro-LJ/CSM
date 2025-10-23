@@ -59,6 +59,7 @@
 #' De-noising process does not remove cells from the final output. It rather assigns noise cells to a single phenotype. Otsu thresholding and DBSCAN based denoising are based on EBImage::otsu and dbscan::dbscan functions, respectively.
 #'
 #' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then predicting coordinates for all the cells. This can be more computationally efficient.
+#' The first time TSNE is sused, snifter will install a CONDA distribution in you R library through basilisk package. The path to the library is relevant. Any non-standard characters in you path may lead to errors (non ASCII characters, spaces...).
 #'
 #' Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 #'
@@ -75,6 +76,31 @@
 #'
 #' @returns Returns a tibble with cell features and a column named 'Phenotype' containing cell labels.
 #' If dimension reduction has been performed returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
+#'
+#' @examples
+#' |dontrun{
+#' Clustering_Phenotyper(
+#'     DATA = CSM_Arrangedcellfeaturedata_test,
+#'     Strategy = "GMM",
+#'
+#'     Apply_Denoise = TRUE,
+#'     Denoising = "DimRed_DBscan",
+#'     Min_cell_no = 5,
+#'     Distance_radius = 100,
+#'
+#'     Perform_Dimension_reduction = TRUE,
+#'     Dimension_reduction = "UMAP",
+#'     Dimension_reduction_prop = 1,
+#'     Cluster_on_Reduced = TRUE,
+#'
+#'     Quality_metric = "AIC",
+#'     Max_N_phenotypes_GMM = 5,
+#'     Max_iterations_km = 15,
+#'     Max_iterations_em = 15,
+#'     GMM_Distance = "eucl_dist"
+#')
+#' }
+#'
 #'
 #' @export
 

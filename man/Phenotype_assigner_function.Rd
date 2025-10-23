@@ -2,7 +2,7 @@
 % Please edit documentation in R/Phenotype_assigner_function.R
 \name{Phenotype_assigner_function}
 \alias{Phenotype_assigner_function}
-\title{Assigns a phenotype to every cell according to user specified preferences.}
+\title{Assigns a phenotype to every cell according to user specified labels and thresholding results.}
 \usage{
 Phenotype_assigner_function(DATA = NULL, Phenotype_possibilities = NULL)
 }

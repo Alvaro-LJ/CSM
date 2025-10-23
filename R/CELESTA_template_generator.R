@@ -4,11 +4,21 @@
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Markers_to_keep A character vector indicating the names of the columns to be kept in the template.
-#' @param Template_name The name of the file that will be written.
+#' @param Template_name The name of the file that will be written (optionally including the path where the file will be writen).
 #'
-#' @returns Creates a CSV file containing the template in the working directory.
+#' @returns Creates a CSV file containing the template in the working directory (or the path specified).
 #'
 #' @seealso [CELESTA_phenotyper()]. For more information on how to fullfill the template please visit https://github.com/plevritis-lab/CELESTA.
+#'
+#' @examples
+#' \dontrun{
+#' CELESTA_template_generator(
+#'    DATA = CSM_Arrangedcellfeaturedata_test,
+#'    Markers_to_keep = c("CK_EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE"),
+#'    Template_name = "Mypath/name_of_the_template"
+#'    )
+#' }
+#'
 #'
 #' @export
 

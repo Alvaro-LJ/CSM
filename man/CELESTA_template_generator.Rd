@@ -15,13 +15,24 @@ CELESTA_template_generator(
 
 \item{Markers_to_keep}{A character vector indicating the names of the columns to be kept in the template.}
 
-\item{Template_name}{The name of the file that will be written.}
+\item{Template_name}{The name of the file that will be written (optionally including the path where the file will be writen).}
 }
 \value{
-Creates a CSV file containing the template in the working directory.
+Creates a CSV file containing the template in the working directory (or the path specified).
 }
 \description{
 In order to run CELESTA, a template indicating expected cell phenotypes present in the tissue must be prepared. This function generates the template that can be modified manually by the user.
+}
+\examples{
+\dontrun{
+CELESTA_template_generator(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Markers_to_keep = c("CK_EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE"),
+   Template_name = "Mypath/name_of_the_template"
+   )
+}
+
+
 }
 \seealso{
 \code{\link[=CELESTA_phenotyper]{CELESTA_phenotyper()}}. For more information on how to fullfill the template please visit https://github.com/plevritis-lab/CELESTA.

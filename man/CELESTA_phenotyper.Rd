@@ -7,9 +7,9 @@
 CELESTA_phenotyper(
   DATA = NULL,
   Template_path = NULL,
-  Alternative_CSV_locale = NULL,
-  N_cores = NULL,
-  Apply_filters = NULL,
+  Alternative_CSV_locale = FALSE,
+  N_cores = 1,
+  Apply_filters = FALSE,
   high_marker_threshold = NULL,
   low_marker_threshold = NULL,
   max_iteration = 10,
@@ -42,6 +42,24 @@ Returns a tibble with cell features and a column named 'Phenotype' containing ce
 }
 \description{
 The function runs the CELESTA algorithm using cell feature data and a template indicating expected cell phenotypes.
+}
+\examples{
+\dontrun{
+CELESTA_phenotyper(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+  Template_path = "Completed_template_path",
+  Alternative_CSV_locale = TRUE,
+  N_cores = 2,
+  Apply_filters = TRUE,
+  high_marker_threshold = 0.90,
+  low_marker_threshold = 0.10,
+  max_iteration = 10,
+  cell_change_threshold = 0.01
+)
+}
+
+
+
 }
 \seealso{
 \code{\link[=CELESTA_template_generator]{CELESTA_template_generator()}}. For more information on how to fulfill the template please visit https://github.com/plevritis-lab/CELESTA.
