@@ -19,3 +19,20 @@ Returns a tibble with cell counts, percentages and optionally cell densities per
 \description{
 The function generates positive cell counts, percentages and optionally cell densities according to cell phenotypes.
 }
+\examples{
+#Calculate tissue surface----------------
+DATA_AREA <-
+Image_size_calculator(
+   DATA = CSM_Phenotypecell_test,
+   Strategy = "Tiling",
+   Tile_accuracy = 100
+ )
+
+#Calculate the cell counts by image-------
+Phenotype_quantifier(
+    DATA = CSM_Phenotypecell_test,
+    Calculate_Density = TRUE,
+    DATA_Area = DATA_AREA
+)
+
+}

@@ -23,3 +23,19 @@ Generates a barplot of the phenotypes composition of every image in DATA.
 \description{
 After quantifying cell phenotypes in every image using \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}} function, the user can plot the results using this function.
 }
+\examples{
+#Generate cell count summary----------------------------------
+Phenotypes_by_Sample <-
+Phenotype_quantifier(
+    DATA = CSM_Phenotypecell_test,
+    Calculate_Density = FALSE
+)
+
+#Generate barplot with desired cell phenotype labels-----------
+Barplot_generator(
+    DATA = Phenotypes_by_Sample,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg"),
+    Ordering_phenotype = "CD8_GZMBpos"
+)
+
+}

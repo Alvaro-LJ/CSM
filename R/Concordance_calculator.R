@@ -13,6 +13,32 @@
 #'
 #' @returns Returns a tibble containing concordance values by sample. Generates summary plots.
 #'
+#' @examples
+#' #Generate datasets with random cell phenotype labels----------------------
+#' CSM_Phenotypecell_test_1 <-
+#'  CSM_Phenotypecell_test %>%
+#'      mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+#'                                size = nrow(CSM_Phenotypecell_test),
+#'                                replace = TRUE))
+#' CSM_Phenotypecell_test_2 <-
+#'  CSM_Phenotypecell_test %>%
+#'      mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+#'                                size = nrow(CSM_Phenotypecell_test),
+#'                                replace = TRUE))
+#' CSM_Phenotypecell_test_3 <-
+#'  CSM_Phenotypecell_test %>%
+#'      mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+#'                                size = nrow(CSM_Phenotypecell_test),
+#'                                replace = TRUE))
+#' #Find concordance between results--------------------------------------
+#'Concordance_calculator(
+#'   Random_1 = CSM_Phenotypecell_test_1,
+#'   Random_2 = CSM_Phenotypecell_test_2,
+#'   Random_3 = CSM_Phenotypecell_test_3,
+#'   Variable = "Phenotype",
+#'   Strategy = "FM"
+#')
+#'
 #' @export
 
 Concordance_calculator <-
@@ -51,7 +77,7 @@ Concordance_calculator <-
     if(length(unique(names(Tibble_list))) != length(Tibble_list)) stop("DATA provided must have each a different name")
 
     #Check that names do not contain the  '_' character. If they do modify with '.'
-    names(Tibble_list) <- str_replace_all(names(Tibble_list), pattern = "_", replacement = ".")
+    names(Tibble_list) <- stringr::str_replace_all(names(Tibble_list), pattern = "_", replacement = ".")
 
     #Check the length of the list
     if(length(Tibble_list) < 2) stop("At least 2 DATA sources must be provided to calculate concordance")
@@ -136,12 +162,12 @@ Concordance_calculator <-
 
       #Execute the comparison plan according to the strategy selected
       if(Strategy == "Rand"){
-        Result <- Comparison_plan %>%dplyr::mutate(Concordance_result = pmap_dbl(Comparison_plan, function(Method_A, Method_B){
+        Result <- Comparison_plan %>%dplyr::mutate(Concordance_result = purrr::pmap_dbl(Comparison_plan, function(Method_A, Method_B){
           catsim::rand_index(Subject[[Method_A]], Subject[[Method_B]])
         }))
       }
       if(Strategy == "FM"){
-        Result <- Comparison_plan %>%dplyr::mutate(Concordance_result = pmap_dbl(Comparison_plan, function(Method_A, Method_B){
+        Result <- Comparison_plan %>%dplyr::mutate(Concordance_result = purrr::pmap_dbl(Comparison_plan, function(Method_A, Method_B){
           dendextend::FM_index(Subject[[Method_A]], Subject[[Method_B]])[[1]]
         }))
       }
@@ -156,7 +182,7 @@ Concordance_calculator <-
                                         function(Index){
                                           Interim_tibble <- Concordance_index_result[[Index]] %>%dplyr::mutate(Comparison = stringr::str_c(Method_A, Method_B, sep = "_")) %>%
                                             dplyr::select(Concordance_result, Comparison) %>%
-                                            pivot_wider(names_from = Comparison, values_from = Concordance_result) %>%
+                                            tidyr::pivot_wider(names_from = Comparison, values_from = Concordance_result) %>%
                                             dplyr::mutate(Subject_Names = names(Concordance_index_result)[Index])
                                           Interim_tibble[c(ncol(Interim_tibble), 1:(ncol(Interim_tibble)-1))]
                                         })
@@ -176,7 +202,7 @@ Concordance_calculator <-
       Interim$Comparison <- names(By_Patient_results)[-1]
 
       #Split the comparison back into the two methods being compared and bind it to the interim tibble
-      Comparisons <- str_split(Interim$Comparison, pattern = "_", simplify = TRUE)
+      Comparisons <- stringr::str_split(Interim$Comparison, pattern = "_", simplify = TRUE)
       colnames(Comparisons) <- c("Method_A", "Method_B")
       Interim <-dplyr::bind_cols(Interim, as_tibble(Comparisons))
 
@@ -214,7 +240,7 @@ Concordance_calculator <-
     suppressWarnings(plot(cowplot::plot_grid(plotlist = Heatmap_plots, nrow = 1, ncol = 3)))
 
     #Generate a heatmap with the results by patient
-    plot(By_Patient_results %>% pivot_longer(-1) %>%
+    plot(By_Patient_results %>% tidyr::pivot_longer(-1) %>%
            ggplot(aes(x = Subject_Names, y = name, fill = value)) +
            geom_tile() +
            scale_x_discrete("") +

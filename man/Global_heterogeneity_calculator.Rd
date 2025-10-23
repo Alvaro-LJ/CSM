@@ -28,3 +28,10 @@ Kullback_Leibler and Jensen_Shannon indexes are calculated using the philentropy
 First '_Sample' indexes compare the observed cell composition against an homogeneous distribution where all cells have the same prevalence in the sample.
 Second '_Experiment' indexes compare the observed cell composition against the cell distribution observed in all the cells from DATA.
 }
+\examples{
+Global_heterogeneity_calculator(
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype)
+)
+
+}

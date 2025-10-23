@@ -17,3 +17,25 @@ Generates a confusion matrix plot
 \description{
 The function generates a confusion matrix between two cell labeling methods (cell phenotype or neighborhood labels for example).
 }
+\examples{
+#Generate datasets with random cell phenotype labels----------------------
+CSM_Phenotypecell_test_1 <-
+ CSM_Phenotypecell_test \%>\%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_2 <-
+ CSM_Phenotypecell_test \%>\%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+
+#Generate the confusion matrix-------------------------------------------
+
+Confusion_matrix_plotter(
+   Random_1 = CSM_Phenotypecell_test_1,
+   Random_2 = CSM_Phenotypecell_test_2,
+   Variable = "Phenotype"
+   )
+
+}

@@ -7,6 +7,27 @@
 #'
 #' @returns Generates a confusion matrix plot
 #'
+#' @examples
+#' #Generate datasets with random cell phenotype labels----------------------
+#' CSM_Phenotypecell_test_1 <-
+#'  CSM_Phenotypecell_test %>%
+#'      mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+#'                                size = nrow(CSM_Phenotypecell_test),
+#'                                replace = TRUE))
+#' CSM_Phenotypecell_test_2 <-
+#'  CSM_Phenotypecell_test %>%
+#'      mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+#'                                size = nrow(CSM_Phenotypecell_test),
+#'                                replace = TRUE))
+#'
+#' #Generate the confusion matrix-------------------------------------------
+#'
+#'Confusion_matrix_plotter(
+#'    Random_1 = CSM_Phenotypecell_test_1,
+#'    Random_2 = CSM_Phenotypecell_test_2,
+#'    Variable = "Phenotype"
+#'    )
+#'
 #' @export
 
 Confusion_matrix_plotter <-
@@ -44,10 +65,10 @@ Confusion_matrix_plotter <-
       suppressWarnings(
         Tibble %>%
           group_by_(names(Tibble)[2], names(Tibble)[3]) %>% count() %>%
-          pivot_wider(names_from = names(Tibble)[2], values_from = n)
+          tidyr::pivot_wider(names_from = names(Tibble)[2], values_from = n)
       )
     Tibble[is.na(Tibble)] <- 0
-    Tibble <- Tibble %>% pivot_longer(-1, names_to = names(DATA_list)[1])
+    Tibble <- Tibble %>% tidyr::pivot_longer(-1, names_to = names(DATA_list)[1])
 
     #Define the order
     Order <- sort(unique(Tibble[[names(Tibble)[2]]]))

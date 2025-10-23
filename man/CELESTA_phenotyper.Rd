@@ -46,7 +46,7 @@ The function runs the CELESTA algorithm using cell feature data and a template i
 \examples{
 \dontrun{
 CELESTA_phenotyper(
-   DATA = CSM_Arrangedcellfeaturedata_test,
+  DATA = CSM_Arrangedcellfeaturedata_test,
   Template_path = "Completed_template_path",
   Alternative_CSV_locale = TRUE,
   N_cores = 2,

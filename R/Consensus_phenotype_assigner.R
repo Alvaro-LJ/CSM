@@ -19,6 +19,40 @@
 #'
 #' @returns Returns a tibble containing consensus cell labels.
 #'
+#' @examples
+#' \dontrun{
+#' #Generate datasets with random cell phenotype labels----------------------
+#' CSM_Phenotypecell_test_1 <-
+#'  CSM_Phenotypecell_test %>%
+#'      mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+#'                                size = nrow(CSM_Phenotypecell_test),
+#'                                replace = TRUE))
+#' CSM_Phenotypecell_test_2 <-
+#'  CSM_Phenotypecell_test %>%
+#'      mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+#'                                size = nrow(CSM_Phenotypecell_test),
+#'                                replace = TRUE))
+#' CSM_Phenotypecell_test_3 <-
+#'  CSM_Phenotypecell_test %>%
+#'      mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+#'                                size = nrow(CSM_Phenotypecell_test),
+#'                                replace = TRUE))
+#'
+#' #Find consensus phenotype labels between the three results--------------
+#'DATA_Phenotypes_consensus <-
+#'Consensus_phenotype_assigner(
+#'  Random_1 = CSM_Phenotypecell_test_1,
+#'  Random_2 = CSM_Phenotypecell_test_2,
+#'  Random_3 = CSM_Phenotypecell_test_3,
+#'
+#'  Win_strategy = "Majority",
+#'  Weights = c(2,1,1),
+#'  No_consensus_value = NA_character_,
+#'  Tie_break_method = "Random",
+#'  N_cores = 2
+#'  )
+#' }
+#'
 #' @export
 
 Consensus_phenotype_assigner <-
@@ -60,8 +94,7 @@ Consensus_phenotype_assigner <-
         stop("Arbitrary_threshold must be a numeric value larger than 0 and lower than 1")
     }
     if (Win_strategy == "Majority") {
-      if (!Tie_break_method %in% c("Random", "No_consensus"))
-        stop("Tie_break_method must be one of the following: Random, No_consensus")
+      if(!Tie_break_method %in% c("Random", "No_consensus")) stop("Tie_break_method must be one of the following: Random, No_consensus")
     }
     if (!is.null(Weights)) {
       if (length(Weights) != length(Phenotype_tibble_list))
@@ -80,14 +113,14 @@ Consensus_phenotype_assigner <-
     if (any(names(Phenotype_tibble_list) == ""))
       stop("User must provide a name for each DATA provided")
     #Check that list contains adequate names
-    Conflictive_tibbles <- !map_lgl(Phenotype_tibble_list, function(Tibble)
+    Conflictive_tibbles <- !purrr::map_lgl(Phenotype_tibble_list, function(Tibble)
       identical(names(Tibble)[1:4], c("Cell_no", "X", "Y", "Subject_Names")))
     if (any(Conflictive_tibbles))
       stop(paste0(
         "The following DATA are not adequately formatted: ",
         stringr::str_c(names(Phenotype_tibble_list)[Conflictive_tibbles], collapse = ", ")
       ))
-    Conflictive_tibbles <- !map_lgl(Phenotype_tibble_list, function(Tibble)
+    Conflictive_tibbles <- !purrr::map_lgl(Phenotype_tibble_list, function(Tibble)
       "Phenotype" %in% names(Tibble))
     if (any(Conflictive_tibbles))
       stop(
@@ -159,7 +192,7 @@ Consensus_phenotype_assigner <-
       #Generate the matrix of votes (1 if voted 0 if no voted)
       Tibble <-dplyr::bind_cols(Vote_tibble[1], Vote_tibble[Column])
       names(Tibble)[2] <- "Method"
-      Tibble <- Tibble %>%dplyr::mutate(Vote = 1) %>% pivot_wider(names_from = Method, values_from = Vote, id_cols = Cell_no)
+      Tibble <- Tibble %>%dplyr::mutate(Vote = 1) %>% tidyr::pivot_wider(names_from = Method, values_from = Vote, id_cols = Cell_no)
       Tibble[is.na(Tibble)] <- 0
 
       #Add columns not present in the method selected
@@ -221,7 +254,7 @@ Consensus_phenotype_assigner <-
         furrr::future_map_dfr(1:nrow(Vote_tibble), function(Row){
           #Calculate the results for each cell
           Cell <- Vote_tibble[Row, ]
-          Cell <- Cell %>% pivot_longer(-1) %>% dplyr::arrange(desc(value))
+          Cell <- Cell %>% tidyr::pivot_longer(-1) %>% dplyr::arrange(desc(value))
 
           #If there is an absolute winner return a tibble with the results
           if(Cell$value[1] > Cell$value[[2]]){
@@ -263,7 +296,7 @@ Consensus_phenotype_assigner <-
         furrr::future_map_dfr(1:nrow(Vote_tibble), function(Row){
           #Calculate the results for each cell
           Cell <- Vote_tibble[Row, ]
-          Cell <- Cell %>% pivot_longer(-1) %>% dplyr::arrange(desc(value))
+          Cell <- Cell %>% tidyr::pivot_longer(-1) %>% dplyr::arrange(desc(value))
           #If there is an winner above threshold with respect to the second highest rival
           if((Cell$value[1] - Cell$value[2]) >= Arbitrary_threshold){
             return(tibble(Cell_no = Cell$Cell_no[1],
@@ -292,7 +325,7 @@ Consensus_phenotype_assigner <-
         furrr::future_map_dfr(1:nrow(Vote_tibble), function(Row){
           #Calculate the results for each cell
           Cell <- Vote_tibble[Row, ]
-          Cell <- Cell %>% pivot_longer(-1) %>% dplyr::arrange(desc(value))
+          Cell <- Cell %>% tidyr::pivot_longer(-1) %>% dplyr::arrange(desc(value))
           #If there is an winner above threshold return the result
           if(Cell$value[1] >= Arbitrary_threshold){
             return(tibble(Cell_no = Cell$Cell_no[1],
@@ -324,7 +357,7 @@ Consensus_phenotype_assigner <-
                                                                                 Max_result = max(Voting_result),
                                                                                 Median_result = quantile(Voting_result, 0.5),
                                                                                 Average_result = mean(Voting_result)))
-    print(Vote_tibble %>% dplyr::count(Phenotype) %>% dplyr::arange(desc(n)))
+    print(Vote_tibble %>% dplyr::count(Phenotype) %>% dplyr::arrange(desc(n)))
     plot(
       Vote_count_summary %>% tidyr::pivot_longer(cols = -Method) %>%
         ggplot(aes(x = name, y = value, color = Method, group = Method)) +

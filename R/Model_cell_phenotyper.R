@@ -9,6 +9,16 @@
 #'
 #' @seealso [Image_based_phenotyper_App_launcher()]
 #'
+#' @examples
+#' \dontrun{
+#' Model_cell_phenotyper(
+#'  DATA = CSM_Arrangedcellfeaturedata_test,
+#'  Model_parameters = Cell_phenotyping_model, #Object containing model specifications generated using the Image_based_phenotyper_App_launcher function
+#'  N_cores = 2
+#')
+#' }
+#'
+#'
 #' @export
 
 Model_cell_phenotyper <-

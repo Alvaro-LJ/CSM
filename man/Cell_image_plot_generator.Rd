@@ -56,6 +56,29 @@ Generates a plot with the image and the cells overlay.
 \description{
 The function generates a plot with an image in the background and cells overlayed. Cell information must have been obtained from the image in order to match X Y coordinates with image coordinates.
 }
+\examples{
+\dontrun{
+Cell_image_plot_generator(
+    Image_directory = "Directory_to_image/ABCM22001_B14_MiniCrop.tif",
+    Channel_to_display = 1,
+    Image_rotate = NULL,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE,
+    Gamma_level = 0,
+    Equalize = FALSE,
+    Black_level = 1,
+    White_level = 20,
+
+    DATA = CSM_Phenotypecell_test,
+    Image_name ="ABCM22001_B14_MiniCrop.tif",
+    Color_by = "Phenotype",
+    Point_size = 2,
+    Pixel_distance_ratio = NULL
+)
+}
+
+
+}
 \seealso{
 \code{\link[=Cell_plotter]{Cell_plotter()}}
 }

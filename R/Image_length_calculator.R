@@ -8,6 +8,10 @@
 #'
 #' @seealso [Suggested_Tile_Size_Calculator()], [Image_tiling_processing_function()]
 #'
+#' @examples
+#' Image_length_calculator(DATA = CSM_Phenotypecell_test)
+#'
+#'
 #' @export
 
 Image_length_calculator <-

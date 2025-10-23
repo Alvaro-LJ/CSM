@@ -78,7 +78,7 @@ UTAG_message_passing_Image_based_phenotyper <-
       names(COO_info) <- unique(DATA$Subject_Names)
 
       #If any image does not have any COO to visit, then remove from analysis
-      Images_to_visit <- names(COO_info)[map_lgl(COO_info, ~sum(.) >= 1)]
+      Images_to_visit <- names(COO_info)[purrr::map_lgl(COO_info, ~sum(.) >= 1)]
 
     }
 

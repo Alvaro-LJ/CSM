@@ -17,3 +17,18 @@ Generates a barplot of the heterogeneity of every image in DATA.
 \description{
 After quantifying heterogeneity for every image using \code{\link[=Global_heterogeneity_calculator]{Global_heterogeneity_calculator()}}, the user can plot the results using this function.
 }
+\examples{
+#Calculate the global heterogeneity by sample----------------------------
+Global_Heterogeneity_by_sample <-
+ Global_heterogeneity_calculator(
+   DATA = CSM_Phenotypecell_test,
+   Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype)
+)
+
+#Generate the barplot----------------------------
+Barplot_Heterogeneity_generator(
+   DATA = Global_Heterogeneity_by_sample,
+   Metric = "Gini"
+)
+
+}

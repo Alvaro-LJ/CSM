@@ -8,6 +8,22 @@
 #'
 #' @returns Returns a tibble with cell counts, percentages and optionally cell densities per image.
 #'
+#' @examples
+#' #Calculate tissue surface----------------
+#' DATA_AREA <-
+#' Image_size_calculator(
+#'    DATA = CSM_Phenotypecell_test,
+#'    Strategy = "Tiling",
+#'    Tile_accuracy = 100
+#'  )
+#'
+#'#Calculate the cell counts by image-------
+#' Phenotype_quantifier(
+#'     DATA = CSM_Phenotypecell_test,
+#'     Calculate_Density = TRUE,
+#'     DATA_Area = DATA_AREA
+#')
+#'
 #' @export
 
 Phenotype_quantifier <-
@@ -21,7 +37,8 @@ Phenotype_quantifier <-
     }
 
     #Obtain the number of cells by image according to the phenotypes
-    Results <- DATA %>% group_by(Subject_Names, Phenotype) %>% dplyr::count() %>% dplyr::ungroup() %>% tidyr::pivot_wider(names_from = Phenotype, values_from = n)
+    Results <- DATA %>% group_by(Subject_Names, Phenotype) %>% dplyr::count() %>% dplyr::ungroup() %>%
+      tidyr::pivot_wider(names_from = Phenotype, values_from = n)
     Results[is.na(Results)] <- 0
 
     #Calculate the number of total cells

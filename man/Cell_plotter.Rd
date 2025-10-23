@@ -19,6 +19,15 @@ Generates a plot of the image cells.
 \description{
 The function generates a plot of the cells of a single image. It is similar to \code{\link[=Cell_image_plot_generator]{Cell_image_plot_generator()}} but the original image is not drawn in the background.
 }
+\examples{
+Cell_plotter(
+   DATA = CSM_Phenotypecell_test,
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg")
+)
+
+
+}
 \seealso{
 \code{\link[=Cell_image_plot_generator]{Cell_image_plot_generator()}}
 }

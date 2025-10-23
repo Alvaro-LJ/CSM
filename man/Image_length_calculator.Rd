@@ -15,6 +15,11 @@ A tibble containing image dimension information.
 \description{
 The function can be used  to plan the image tiling strategy.
 }
+\examples{
+Image_length_calculator(DATA = CSM_Phenotypecell_test)
+
+
+}
 \seealso{
 \code{\link[=Suggested_Tile_Size_Calculator]{Suggested_Tile_Size_Calculator()}}, \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}
 }

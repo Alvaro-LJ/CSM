@@ -6,6 +6,21 @@
 #' @param Metric A character vector indicating the metric that will be displayed in the plot.
 #'
 #' @returns Generates a barplot of the heterogeneity of every image in DATA.
+#'
+#' @examples
+#' #Calculate the global heterogeneity by sample----------------------------
+#'Global_Heterogeneity_by_sample <-
+#'  Global_heterogeneity_calculator(
+#'    DATA = CSM_Phenotypecell_test,
+#'    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype)
+#' )
+#'
+#' #Generate the barplot----------------------------
+#'Barplot_Heterogeneity_generator(
+#'    DATA = Global_Heterogeneity_by_sample,
+#'    Metric = "Gini"
+#')
+#'
 #' @export
 
 Barplot_Heterogeneity_generator <-
@@ -22,7 +37,7 @@ Barplot_Heterogeneity_generator <-
 
       PLOT <-
         DATA %>%
-        ggplot(aes(x = fct_reorder(Subject_Names, metric), y = metric, fill = metric)) + geom_col(color = "black", width = 0.5) +
+        ggplot(aes(x = forcats::fct_reorder(Subject_Names, metric), y = metric, fill = metric)) + geom_col(color = "black", width = 0.5) +
         cowplot::theme_cowplot() +
         scale_x_discrete("Image") +
         scale_y_continuous("Global heterogeneity")+

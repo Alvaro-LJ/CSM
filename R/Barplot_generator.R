@@ -7,6 +7,22 @@
 #' @param Ordering_phenotype A character value indicating the phenotype that will guide barplot ordering.
 #'
 #' @returns Generates a barplot of the phenotypes composition of every image in DATA.
+#'
+#' @examples
+#' #Generate cell count summary----------------------------------
+#' Phenotypes_by_Sample <-
+#' Phenotype_quantifier(
+#'     DATA = CSM_Phenotypecell_test,
+#'     Calculate_Density = FALSE
+#')
+#'
+#' #Generate barplot with desired cell phenotype labels-----------
+#' Barplot_generator(
+#'     DATA = Phenotypes_by_Sample,
+#'     Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg"),
+#'     Ordering_phenotype = "CD8_GZMBpos"
+#')
+#'
 #' @export
 
 Barplot_generator <-

@@ -15,6 +15,44 @@
 #'
 #' @returns A list containing cell feature information and a summary of feature expression in target cells. Also generates summary plots.
 #'
+#' @examples
+#' #' Set aside any features that will not be used in the initial phenotyping process----------------
+#' DATA_list <- Data_set_aside(
+#'    DATA = CSM_Arrangedcellfeaturedata_test,
+#'    Markers_to_set = "GZMB_AVERAGE"
+#'    )
+#'
+#'#Perform initial phenotyping----------------
+#'DATA_thresholded <-
+#' Thresholding_function(
+#'    DATA = DATA_list$DATA,
+#'    Strategy = "TriClass_Otsu",
+#'    Local_thresholding = FALSE,
+#'    number_iterations_TriClass = 20
+#' )
+#'
+#'Phenotype_possibilities <-
+#' Marker_combinator_generator(
+#'    DATA = DATA_thresholded,
+#'    Markers = names(DATA_thresholded)[-c(1:4)]
+#')
+#'Phenotype_possibilities$Phenotype <- c("TUMOR", "OTHER", "CD8", "CD8")
+#'
+#'DATA_Phenotypes <-
+#' Phenotype_assigner_function(
+#'    DATA = DATA_thresholded,
+#'    Phenotype_possibilities = Phenotype_possibilities
+#'    )
+#'
+#' #Analyze target markers in resulting phenotypes
+#' Cell_functional_assessment(
+#'     DATA = DATA_Phenotypes,
+#'     Target_Variable = "Phenotype",
+#'     Targets_Included = c("TUMOR", "CD8"),
+#'     DATA_Aside = DATA_list$Aside,
+#'     Threshold_functional_Markers = FALSE
+#' )
+#'
 #' @export
 
 Cell_functional_assessment <-

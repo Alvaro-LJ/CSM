@@ -24,3 +24,30 @@ Rand index is calculated using catsim::rand_index function.
 
 Fowlkes-Mallows index is calculated using dendextend::FM_index function.
 }
+\examples{
+#Generate datasets with random cell phenotype labels----------------------
+CSM_Phenotypecell_test_1 <-
+ CSM_Phenotypecell_test \%>\%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_2 <-
+ CSM_Phenotypecell_test \%>\%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_3 <-
+ CSM_Phenotypecell_test \%>\%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+#Find concordance between results--------------------------------------
+Concordance_calculator(
+  Random_1 = CSM_Phenotypecell_test_1,
+  Random_2 = CSM_Phenotypecell_test_2,
+  Random_3 = CSM_Phenotypecell_test_3,
+  Variable = "Phenotype",
+  Strategy = "FM"
+)
+
+}

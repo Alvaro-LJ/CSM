@@ -17,6 +17,17 @@ Model_cell_phenotyper(DATA = NULL, Model_parameters = NULL, N_cores = NULL)
 Given a cell feature dataset and a cell phenotype label prediction model, the function assigns cell phenotype labels to all cells in the dataset.
 The model must have been fitted using \code{\link[=Image_based_phenotyper_App_launcher]{Image_based_phenotyper_App_launcher()}}.
 }
+\examples{
+\dontrun{
+Model_cell_phenotyper(
+ DATA = CSM_Arrangedcellfeaturedata_test,
+ Model_parameters = Cell_phenotyping_model, #Object containing model specifications generated using the Image_based_phenotyper_App_launcher function
+ N_cores = 2
+)
+}
+
+
+}
 \seealso{
 \code{\link[=Image_based_phenotyper_App_launcher]{Image_based_phenotyper_App_launcher()}}
 }

@@ -42,3 +42,38 @@ Arbitrary voting assigns the label with the highest votes as long as it has rece
 
 Difference voting assigns the label with the highest votes as long as the difference between the selected label and the second most voted option is above an arbitrary threshold.
 }
+\examples{
+\dontrun{
+#Generate datasets with random cell phenotype labels----------------------
+CSM_Phenotypecell_test_1 <-
+ CSM_Phenotypecell_test \%>\%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_2 <-
+ CSM_Phenotypecell_test \%>\%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_3 <-
+ CSM_Phenotypecell_test \%>\%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+
+#Find consensus phenotype labels between the three results--------------
+DATA_Phenotypes_consensus <-
+Consensus_phenotype_assigner(
+ Random_1 = CSM_Phenotypecell_test_1,
+ Random_2 = CSM_Phenotypecell_test_2,
+ Random_3 = CSM_Phenotypecell_test_3,
+
+ Win_strategy = "Majority",
+ Weights = c(2,1,1),
+ No_consensus_value = NA_character_,
+ Tie_break_method = "Random",
+ N_cores = 2
+ )
+}
+
+}
