@@ -32,6 +32,58 @@ The function calculates the average TRIO score for every image given a radius si
 \details{
 If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
 }
+\examples{
+#Generate distance matrix and random distance matrix------------
+TRIO_Distance <-
+Trio_Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "TUMOR",
+    Target_Cell_1 = "CD8_GZMBneg",
+    Target_Cell_2 = "CD8_GZMBpos",
+    Perform_edge_correction = FALSE
+)
+
+TRIO_RANDOM <-
+ Trio_Random_Distance_matrix_generator(
+  N_cores = 1,
+  DATA = CSM_Phenotypecell_test,
+  Cell_Of_Origin = "TUMOR",
+  Target_Cell_1 = "CD8_GZMBneg",
+  Target_Cell_2 = "CD8_GZMBpos",
+  Random_cells_per_sample = 10,
+  Perform_edge_correction = FALSE
+)
+
+#Generate cumulative interactions (must contain the actual radius distance)--
+TRIO_Cumulative <-
+Trio_Cumulative_Interaction_generator(
+  N_cores = 1,
+  DATA = TRIO_Distance,
+  Start_from = 25,
+  Stop_at = 100,
+  Sampling_frequency = 25
+)
+
+RANDOM_Cumulative <-
+Trio_Cumulative_Interaction_generator(
+  N_cores = 1,
+  DATA = TRIO_RANDOM,
+  Start_from = 25,
+  Stop_at = 100,
+  Sampling_frequency = 25
+)
+
+#Calculate the cells in radius-----------------------------------------------
+Trio_Cells_in_Radius_analyzer(
+  DATA = TRIO_Cumulative,
+  DATA_RANDOM = RANDOM_Cumulative,
+  Radius = 50,
+  Include_Random = TRUE,
+  By_Sample_Random = TRUE
+)
+
+}
 \seealso{
 \code{\link[=Trio_Random_Distance_matrix_generator]{Trio_Random_Distance_matrix_generator()}}, \code{\link[=Trio_Cumulative_Interaction_generator]{Trio_Cumulative_Interaction_generator()}}, \code{\link[=Trio_Min_Distance_analyzer]{Trio_Min_Distance_analyzer()}}, \code{\link[=Trio_graph_maker]{Trio_graph_maker()}}.
 }

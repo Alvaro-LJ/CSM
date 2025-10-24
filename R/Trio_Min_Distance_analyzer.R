@@ -14,6 +14,38 @@
 #'
 #' @returns A tibble containing a summary by sample of spatial interactions.
 #'
+#' @examples
+#' #Generate distance matrix and random distance matrix------------
+#'TRIO_Distance <-
+#' Trio_Distance_matrix_generator(
+#'     N_cores = 1,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Cell_Of_Origin = "TUMOR",
+#'     Target_Cell_1 = "CD8_GZMBneg",
+#'     Target_Cell_2 = "CD8_GZMBpos",
+#'     Perform_edge_correction = FALSE
+#' )
+#'
+#'TRIO_RANDOM <-
+#'  Trio_Random_Distance_matrix_generator(
+#'   N_cores = 1,
+#'   DATA = CSM_Phenotypecell_test,
+#'   Cell_Of_Origin = "TUMOR",
+#'   Target_Cell_1 = "CD8_GZMBneg",
+#'   Target_Cell_2 = "CD8_GZMBpos",
+#'   Random_cells_per_sample = 10,
+#'   Perform_edge_correction = FALSE
+#')
+#'
+#'#Analyze the spatial association------------------------------
+#'Trio_Min_Distance_analyzer(
+#'    N_cores = 1,
+#'    DATA = TRIO_Distance,
+#'    DATA_RANDOM = TRIO_RANDOM,
+#'    Include_Random = TRUE,
+#'    By_Sample_Random = TRUE
+#')
+#'
 #' @export
 
 Trio_Min_Distance_analyzer <-
@@ -200,7 +232,7 @@ Trio_Min_Distance_analyzer <-
       RESULTS_tibble$Random_05CI[RESULTS_tibble$Random_05CI < 0] <- 0
 
       #Plot the results
-      plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Min_dist_to_TRIO))) +
+      plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Min_dist_to_TRIO))) +
              geom_col(aes(y = Min_dist_to_TRIO), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
              geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
              geom_errorbar(aes(ymin = Random_05CI, ymax = Random_95CI), color = "red", linewidth = 0.9, width = 0.3)+
@@ -274,7 +306,7 @@ Trio_Min_Distance_analyzer <-
       RESULTS_tibble$Result_05CI[RESULTS_tibble$Result_05CI < 0] <- 0
 
       #Plot the results
-      plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Min_dist_to_TRIO))) +
+      plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Min_dist_to_TRIO))) +
              geom_col(aes(y = Min_dist_to_TRIO), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
              geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
              cowplot::theme_cowplot() +

@@ -42,6 +42,19 @@ A list containing the random distance matrix for each image. Rows represent Cell
 Given a dataframe with cell features and phenotype labels, random spatial distances between three cell populations is calculated. This is done by
 randomly permuting cell labels in an iterative manner. For every image the same number of random COO to target cell distances are calculated.
 }
+\examples{
+Trio_Random_Distance_matrix_generator(
+  N_cores = 1,
+  DATA = CSM_Phenotypecell_test,
+  Cell_Of_Origin = "TUMOR",
+  Target_Cell_1 = "CD8_GZMBneg",
+  Target_Cell_2 = "CD8_GZMBpos",
+  Random_cells_per_sample = 10,
+  Perform_edge_correction = FALSE
+)
+
+
+}
 \seealso{
 \code{\link[=Trio_Distance_matrix_generator]{Trio_Distance_matrix_generator()}}, \code{\link[=Trio_Cumulative_Interaction_generator]{Trio_Cumulative_Interaction_generator()}}, \code{\link[=Trio_Min_Distance_analyzer]{Trio_Min_Distance_analyzer()}}, \code{\link[=Trio_Cells_in_Radius_analyzer]{Trio_Cells_in_Radius_analyzer()}}, \code{\link[=Trio_graph_maker]{Trio_graph_maker()}}
 }

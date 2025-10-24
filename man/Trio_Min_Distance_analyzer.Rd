@@ -32,3 +32,36 @@ The function calculates the average min distance to generate a TRIO between thre
 \details{
 If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
 }
+\examples{
+#Generate distance matrix and random distance matrix------------
+TRIO_Distance <-
+Trio_Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "TUMOR",
+    Target_Cell_1 = "CD8_GZMBneg",
+    Target_Cell_2 = "CD8_GZMBpos",
+    Perform_edge_correction = FALSE
+)
+
+TRIO_RANDOM <-
+ Trio_Random_Distance_matrix_generator(
+  N_cores = 1,
+  DATA = CSM_Phenotypecell_test,
+  Cell_Of_Origin = "TUMOR",
+  Target_Cell_1 = "CD8_GZMBneg",
+  Target_Cell_2 = "CD8_GZMBpos",
+  Random_cells_per_sample = 10,
+  Perform_edge_correction = FALSE
+)
+
+#Analyze the spatial association------------------------------
+Trio_Min_Distance_analyzer(
+   N_cores = 1,
+   DATA = TRIO_Distance,
+   DATA_RANDOM = TRIO_RANDOM,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+
+}

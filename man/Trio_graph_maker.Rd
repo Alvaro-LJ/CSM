@@ -32,6 +32,45 @@ A graph summarizing spatial interactions for the indicated image.
 \description{
 The function generates a summary plot of TRIO spatial interactions. It can graph results for min dist to TRIO and TRIO score within radius approaches
 }
+\examples{
+#Generate distance matrix-----------------------------------
+TRIO_Distance <-
+Trio_Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "TUMOR",
+    Target_Cell_1 = "CD8_GZMBneg",
+    Target_Cell_2 = "CD8_GZMBpos",
+    Perform_edge_correction = FALSE
+)
+
+#Generate cumulative interactions (must contain the actual radius distance)--
+TRIO_Cumulative <-
+Trio_Cumulative_Interaction_generator(
+  N_cores = 1,
+  DATA = TRIO_Distance,
+  Start_from = 25,
+  Stop_at = 100,
+  Sampling_frequency = 25
+)
+
+#Analyze min distance
+Trio_graph_maker(
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Min_Distance",
+   TRIO_Distances = TRIO_Distance
+)
+
+Trio_graph_maker(
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "TRIO_in_Radius",
+   TRIO_Cumulative = TRIO_Cumulative,
+   Radius = 50
+)
+
+}
 \seealso{
 \code{\link[=Trio_Distance_matrix_generator]{Trio_Distance_matrix_generator()}}, \code{\link[=Trio_Cumulative_Interaction_generator]{Trio_Cumulative_Interaction_generator()}}, \code{\link[=Trio_Min_Distance_analyzer]{Trio_Min_Distance_analyzer()}}, \code{\link[=Trio_Cells_in_Radius_analyzer]{Trio_Cells_in_Radius_analyzer()}}
 }

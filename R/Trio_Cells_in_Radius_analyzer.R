@@ -15,6 +15,57 @@
 #'
 #' @returns A tibble containing a summary by sample of spatial interactions.
 #'
+#' @examples
+#'#Generate distance matrix and random distance matrix------------
+#'TRIO_Distance <-
+#' Trio_Distance_matrix_generator(
+#'     N_cores = 1,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Cell_Of_Origin = "TUMOR",
+#'     Target_Cell_1 = "CD8_GZMBneg",
+#'     Target_Cell_2 = "CD8_GZMBpos",
+#'     Perform_edge_correction = FALSE
+#' )
+#'
+#'TRIO_RANDOM <-
+#'  Trio_Random_Distance_matrix_generator(
+#'   N_cores = 1,
+#'   DATA = CSM_Phenotypecell_test,
+#'   Cell_Of_Origin = "TUMOR",
+#'   Target_Cell_1 = "CD8_GZMBneg",
+#'   Target_Cell_2 = "CD8_GZMBpos",
+#'   Random_cells_per_sample = 10,
+#'   Perform_edge_correction = FALSE
+#')
+#'
+#'#Generate cumulative interactions (must contain the actual radius distance)--
+#'TRIO_Cumulative <-
+#'Trio_Cumulative_Interaction_generator(
+#'   N_cores = 1,
+#'   DATA = TRIO_Distance,
+#'   Start_from = 25,
+#'   Stop_at = 100,
+#'   Sampling_frequency = 25
+#')
+#'
+#'RANDOM_Cumulative <-
+#'Trio_Cumulative_Interaction_generator(
+#'   N_cores = 1,
+#'   DATA = TRIO_RANDOM,
+#'   Start_from = 25,
+#'   Stop_at = 100,
+#'   Sampling_frequency = 25
+#')
+#'
+#'#Calculate the cells in radius-----------------------------------------------
+#'Trio_Cells_in_Radius_analyzer(
+#'   DATA = TRIO_Cumulative,
+#'   DATA_RANDOM = RANDOM_Cumulative,
+#'   Radius = 50,
+#'   Include_Random = TRUE,
+#'   By_Sample_Random = TRUE
+#')
+#'
 #' @export
 
 Trio_Cells_in_Radius_analyzer <-
@@ -140,13 +191,13 @@ Trio_Cells_in_Radius_analyzer <-
 
       print("Generating plot")
       #Plot the results
-      plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Average_TRIO_score))) +
+      plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Average_TRIO_score))) +
              geom_col(aes(y = Average_TRIO_score), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
              geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
              geom_errorbar(aes(ymin = Random_05CI, ymax = Random_95CI), color = "red", linewidth = 0.9, width = 0.3)+
              cowplot::theme_cowplot() +
              scale_x_discrete("") +
-             scale_y_continuous(str_c("Average TRIO score within a radius of ", as.character(Radius))) +
+             scale_y_continuous(stringr::str_c("Average TRIO score within a radius of ", as.character(Radius))) +
              theme(axis.text.x = element_text(angle = -90, vjust = 0.5))
       )
       #Return the results
@@ -195,12 +246,12 @@ Trio_Cells_in_Radius_analyzer <-
 
       print("Generating plot")
       #Plot the results
-      plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Average_TRIO_score))) +
+      plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Average_TRIO_score))) +
              geom_col(aes(y = Average_TRIO_score), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
              geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
              cowplot::theme_cowplot() +
              scale_x_discrete("") +
-             scale_y_continuous(str_c("Average TRIO score within a radius of ", as.character(Radius))) +
+             scale_y_continuous(stringr::str_c("Average TRIO score within a radius of ", as.character(Radius))) +
              theme(axis.text.x = element_text(angle = -90, vjust = 0.5))
       )
       #Return the results

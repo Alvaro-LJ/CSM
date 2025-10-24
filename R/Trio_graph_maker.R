@@ -13,6 +13,44 @@
 #'
 #' @returns A graph summarizing spatial interactions for the indicated image.
 #'
+#' @examples
+#'#Generate distance matrix-----------------------------------
+#'TRIO_Distance <-
+#' Trio_Distance_matrix_generator(
+#'     N_cores = 1,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Cell_Of_Origin = "TUMOR",
+#'     Target_Cell_1 = "CD8_GZMBneg",
+#'     Target_Cell_2 = "CD8_GZMBpos",
+#'     Perform_edge_correction = FALSE
+#' )
+#'
+#'#Generate cumulative interactions (must contain the actual radius distance)--
+#'TRIO_Cumulative <-
+#'Trio_Cumulative_Interaction_generator(
+#'   N_cores = 1,
+#'   DATA = TRIO_Distance,
+#'   Start_from = 25,
+#'   Stop_at = 100,
+#'   Sampling_frequency = 25
+#')
+#'
+#'#Analyze min distance
+#'Trio_graph_maker(
+#'    Image_name = "ABCM22001_B14_MiniCrop.tif",
+#'    DATA_Phenotypes = CSM_Phenotypecell_test,
+#'    Strategy = "Min_Distance",
+#'    TRIO_Distances = TRIO_Distance
+#')
+#'
+#'Trio_graph_maker(
+#'    Image_name = "ABCM22001_B14_MiniCrop.tif",
+#'    DATA_Phenotypes = CSM_Phenotypecell_test,
+#'    Strategy = "TRIO_in_Radius",
+#'    TRIO_Cumulative = TRIO_Cumulative,
+#'    Radius = 50
+#')
+#'
 #' @export
 
 Trio_graph_maker <-
@@ -79,7 +117,7 @@ Trio_graph_maker <-
       names(For_Join) <- c("Cell_no", "Min_Distance_to_Trio")
 
       #Join the min distance with the COO tibble
-      COO_tibble <-dplyr::left_join(COO_tibble, For_Join, by = "Cell_no") %>% dplyr::filter(!is.na(Min_Distance_to_Trio))
+      COO_tibble <- dplyr::left_join(COO_tibble, For_Join, by = "Cell_no") %>% dplyr::filter(!is.na(Min_Distance_to_Trio))
 
       #Build the plot
       PLOT <-
@@ -104,7 +142,7 @@ Trio_graph_maker <-
                 legend.position = "bottom",
                 plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
-      return(PLOT)
+      return(invisible(PLOT))
     }
 
     #Then TRIO in radius analysis
@@ -152,7 +190,7 @@ Trio_graph_maker <-
           scale_x_continuous("", labels = NULL)+
           scale_y_continuous("", labels = NULL)+
           scale_color_discrete("")+
-          scale_fill_viridis_c(str_c("TRIO score ", as.character(Radius), " radius"))+
+          scale_fill_viridis_c(stringr::str_c("TRIO score ", as.character(Radius), " radius"))+
           guides(color = guide_legend(override.aes = list(size = 8)),
                  fill = guide_colorbar(theme = theme(legend.key.width = unit(10, "cm"))))+
           ggtitle(Image_name)+
@@ -164,6 +202,6 @@ Trio_graph_maker <-
                 legend.position = "bottom",
                 plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
-      return(PLOT)
+      return(invisible(PLOT))
     }
   }

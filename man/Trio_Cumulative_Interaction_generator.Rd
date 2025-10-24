@@ -30,6 +30,27 @@ A list containing the cumulative interaction matrix for every image as well as t
 The cumulative interaction matrix contains information regarding the total potential interactions between COO and target cells. For a a given set of increasing distances,
 the number of target cells present from every COO is calculated. The trio score is calculated as √(N Target Cell1*N Target cell 2).
 }
+\examples{
+#Generate a data distance or random distance matrix--------------------------
+TRIO_Distance <-
+Trio_Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "TUMOR",
+    Target_Cell_1 = "CD8_GZMBneg",
+    Target_Cell_2 = "CD8_GZMBpos",
+    Perform_edge_correction = FALSE
+)
+#Calculate the cumulative interaction every 25 pixels up to 100 pixels------
+Trio_Cumulative_Interaction_generator(
+  N_cores = 1,
+  DATA = TRIO_Distance,
+  Start_from = 25,
+  Stop_at = 100,
+  Sampling_frequency = 25
+)
+
+}
 \seealso{
 \code{\link[=Trio_Random_Distance_matrix_generator]{Trio_Random_Distance_matrix_generator()}}, \code{\link[=Trio_Distance_matrix_generator]{Trio_Distance_matrix_generator()}}, \code{\link[=Trio_Cells_in_Radius_analyzer]{Trio_Cells_in_Radius_analyzer()}}.
 }

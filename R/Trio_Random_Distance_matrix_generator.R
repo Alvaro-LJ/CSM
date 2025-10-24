@@ -18,6 +18,18 @@
 #'
 #' @returns A list containing the random distance matrix for each image. Rows represent Cells of Origin and columns represent Target cells.
 #'
+#' @examples
+#' Trio_Random_Distance_matrix_generator(
+#'   N_cores = 1,
+#'   DATA = CSM_Phenotypecell_test,
+#'   Cell_Of_Origin = "TUMOR",
+#'   Target_Cell_1 = "CD8_GZMBneg",
+#'   Target_Cell_2 = "CD8_GZMBpos",
+#'   Random_cells_per_sample = 10,
+#'   Perform_edge_correction = FALSE
+#')
+#'
+#'
 #' @export
 
 Trio_Random_Distance_matrix_generator <-
@@ -41,14 +53,7 @@ Trio_Random_Distance_matrix_generator <-
     }
 
     #Check arguments
-    if(!exists(DATA, envir = .GlobalEnv)){
-      stop("A DATA_Distance object must be created before running the tiling analysis. Check name supplied to the DATA argument")
-    }
-    DATA_Phenotypes <- get(DATA, envir = .GlobalEnv)
-    if(!exists("Advanced_Distance_function_A_B_C_single",  envir = .GlobalEnv)){
-      stop("Please execute required STEP 5 functions")
-    }
-    Advanced_Distance_function_A_B_C_single <- get("Advanced_Distance_function_A_B_C_single",  envir = .GlobalEnv)
+    DATA_Phenotypes <- DATA
     if(!identical(names(DATA_Phenotypes)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) { #Check if Data is correctly formatted
       stop("DATA provided should have an adecuate format")
     }
