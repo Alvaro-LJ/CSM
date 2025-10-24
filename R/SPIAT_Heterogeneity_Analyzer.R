@@ -15,6 +15,28 @@
 #' @returns A tibble containing a summary of the analysis result by image.
 #'
 #' @seealso [SPIAT_object_generator()], [Tiled_image_heterogeneity_analyzer()].
+#'
+#'
+#' @examples
+#' #Generate SPIAT object list----------------------------
+#' DATA_SPIAT <-
+#' SPIAT_object_generator(
+#'     DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+#'     DATA_Phenotypes = CSM_Phenotypecell_test
+#' )
+#'
+#' #Analyze heterogeneity--------------------------------
+#' SPIAT_Heterogeneity_Analyzer(
+#'     N_cores = 2,
+#'     DATA_SPIAT = DATA_SPIAT,
+#'     DATA_Phenotypes = CSM_Phenotypecell_test,
+#'     Tile_size = 125,
+#'     Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+#'     Entropy_threshold = 0.5,
+#'     Autocorrelation_metric = "globalmoran"
+#' )
+#'
+#'
 #' @export
 
 SPIAT_Heterogeneity_Analyzer <-
@@ -27,16 +49,23 @@ SPIAT_Heterogeneity_Analyzer <-
            Entropy_threshold = NULL) {
 
     #Check suggested packages
-    if(!requireNamespace("SPIAT", quietly = TRUE)) stop(
-      paste0("SPIAT Bioconductor package is required to execute the function. Please install using the following code: ",
-             expression({
-               if (!require("BiocManager", quietly = TRUE))
-                 install.packages("BiocManager")
+    {
+      if(!requireNamespace("SPIAT", quietly = TRUE)) stop(
+        paste0("SPIAT Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
 
-               BiocManager::install("SPIAT")
-             })
+                 BiocManager::install("SPIAT")
+               })
+        )
       )
-    )
+      if(!requireNamespace("elsa", quietly = FALSE)) stop(
+        paste0("elsa CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("elsa")))
+      )
+    }
+
 
     #Check arguments by generating a argument check vector and message vector
     Argument_checker <- c(N_cores_OK = (N_cores >= 1 & N_cores%%1 == 0),
@@ -81,7 +110,7 @@ SPIAT_Heterogeneity_Analyzer <-
 
     RESULTS <-
       furrr::future_map(seq_along(1:length(DATA_SPIAT)), function(Index){
-        library(SPIAT)
+        suppressPackageStartupMessages(library(SPIAT))
         #Define functions inside the cores
         Own_grid_metrics <-
           function(spe_object, FUN, n_split, ...) {
@@ -137,8 +166,8 @@ SPIAT_Heterogeneity_Analyzer <-
                                         feature_colname = "Phenotype")
 
         #Calculate percentage of tiles above a defined entropy threshold
-        try(Percent <- SPIAT::calculate_percentage_of_grids(grid_object, threshold = Entropy_threshold, above = TRUE))
-        try(Spatial_autocorrelation <- SPIAT::calculate_spatial_autocorrelation(grid_object, metric = Autocorrelation_metric))
+        Percent <- SPIAT::calculate_percentage_of_grids(grid_object, threshold = Entropy_threshold, above = TRUE)
+        Spatial_autocorrelation <- SPIAT::calculate_spatial_autocorrelation(grid_object, metric = Autocorrelation_metric)
 
         c(Subject_Names = names(DATA_SPIAT)[Index],
           PER_above_threshold = Percent,

@@ -29,6 +29,24 @@ A tibble containing a summary of the analysis result by image.
 \description{
 The function calculates cell interaction pattern based on entropy gradients. For more information see related publication: https://doi.org/10.1038/s41467-023-37822-0.
 }
+\examples{
+#Generate SPIAT object list----------------------------
+DATA_SPIAT <-
+SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+)
+
+#Calculate entropy gradients--------------------------
+SPIAT_entropy_gradient_generator(
+    DATA_SPIAT = DATA_SPIAT,
+    Gradient_start = 0,
+    Gradient_stop = 250,
+    Gradient_sampling = 50,
+    Phenotypes_included = c("CD8_GZMBpos", "TUMOR")
+)
+
+}
 \seealso{
 \code{\link[=SPIAT_object_generator]{SPIAT_object_generator()}}.
 }

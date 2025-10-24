@@ -13,6 +13,27 @@
 #' @returns A tibble containing a summary of the analysis result by image.
 #'
 #' @seealso [SPIAT_object_generator()].
+#'
+#' @examples
+#' #Generate SPIAT object list----------------------------
+#' DATA_SPIAT <-
+#' SPIAT_object_generator(
+#'     DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+#'     DATA_Phenotypes = CSM_Phenotypecell_test
+#' )
+#'
+#' #Find neighborhoods in each sample--------------------
+#' SPIAT_neighborhood_identifier(
+#'     N_cores = 2,
+#'     DATA_SPIAT = DATA_SPIAT,
+#'     Strategy = "hierarchical",
+#'     Cell_types_of_interest = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+#'     Radius = 50,
+#'     Min_neighborhood_size = 10,
+#'     No_Phenotype_name = NULL
+#' )
+#'
+#'
 #' @export
 
 SPIAT_neighborhood_identifier <-
@@ -40,8 +61,7 @@ SPIAT_neighborhood_identifier <-
     #Check arguments
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
 
-    if(!exists(DATA_SPIAT, envir = .GlobalEnv)) stop("DATA_SPIAT must be an existing object")
-    DATA_SPIAT <- get(DATA_SPIAT, envir = .GlobalEnv)
+    DATA_SPIAT <- DATA_SPIAT
     if(!all(purrr::map_lgl(DATA_SPIAT, function(Image) class(Image) == "SpatialExperiment"))) stop("DATA_SPIAT must be created using the SPIAT_object_generator function")
 
     if(!Strategy %in% c("hierarchical", "dbscan")) stop("Strategy must be one of the following: hierarchical, dbscan")
@@ -70,6 +90,9 @@ SPIAT_neighborhood_identifier <-
       suppressMessages(
         furrr::future_map(DATA_SPIAT, function(Image){
           library(SPIAT)
+
+          pdf(NULL) #Avoids anoying PDF generation
+
           #First calculate the neighborhood
           SPIAT_neighborhoods <-  identify_neighborhoods(
             Image,
@@ -92,7 +115,7 @@ SPIAT_neighborhood_identifier <-
                                    log_values = T)
 
           #We calculate the Average_Nearest_Neighbour_Index ANN_index by each cluster
-          Cluster_Interaction_analysis <-purrr::map_dfr(str_subset(unique(SPIAT_neighborhoods$Neighborhood), "Cluster"), function(Cluster) {
+          Cluster_Interaction_analysis <-purrr::map_dfr(stringr::str_subset(unique(SPIAT_neighborhoods$Neighborhood), "Cluster"), function(Cluster) {
             Results <- average_nearest_neighbor_index(SPIAT_neighborhoods,
                                                       reference_celltypes = Cluster,
                                                       feature_colname = "Neighborhood",
@@ -103,6 +126,9 @@ SPIAT_neighborhood_identifier <-
                      Pattern = Results$pattern,
                      p_val = Results$`p-value`))
           })
+
+
+          dev.off()
 
           #We list our results
           return(list(Neighborhoods = SPIAT_neighborhoods,

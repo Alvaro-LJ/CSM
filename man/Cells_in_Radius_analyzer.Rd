@@ -32,6 +32,58 @@ The function calculates the average number of target cells within a user defined
 \details{
 If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
 }
+\examples{
+#Generate distance matrix and random distance matrix------------
+DATA_Distances <-
+Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "CD8_GZMBneg",
+    Target_Cell = "TUMOR",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = FALSE
+)
+
+RANDOM_Distances <-
+Random_Distance_matrix_generator(
+   N_cores = 1,
+   DATA = CSM_Phenotypecell_test,
+   Cell_Of_Origin = "CD8_GZMBneg",
+   Target_Cell = "TUMOR",
+   Random_cells_per_sample = 10,
+   Allow_Cero_Distance = FALSE,
+   Perform_edge_correction = FALSE
+)
+#Generate cumulative interactions (must contain the actual radius distance)--
+DATA_Cumulative <-
+Cumulative_Interaction_generator(
+   N_cores = 1,
+   DATA = DATA_Distances,
+   Start_from = 25,
+   Stop_at = 100,
+   Sampling_frequency = 25
+)
+
+RANDOM_Cumulative <-
+Cumulative_Interaction_generator(
+   N_cores = 1,
+   DATA = RANDOM_Distances,
+   Start_from = 25,
+   Stop_at = 100,
+   Sampling_frequency = 25
+)
+#Calculate the cells in radius-----------------------------------------------
+Cells_in_Radius_analyzer(
+   DATA = DATA_Cumulative ,
+   DATA_RANDOM = RANDOM_Cumulative,
+   Radius = 50,
+   Include_Random = T,
+   By_Sample_Random = T
+)
+
+
+
+}
 \seealso{
 \code{\link[=Distance_matrix_generator]{Distance_matrix_generator()}}, \code{\link[=Random_Distance_matrix_generator]{Random_Distance_matrix_generator()}}, \code{\link[=Cumulative_Interaction_generator]{Cumulative_Interaction_generator()}}
 }

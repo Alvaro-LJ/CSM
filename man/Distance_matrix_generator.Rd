@@ -39,6 +39,21 @@ A list containing the distance matrix for each image. Rows represent Cells of Or
 The function calculates the Euclidean distance between two cell phenotypes. One is considered the Cell of Origin (COO) and another is considered the target cell.
 The COO and target cell can be the same cell type.
 }
+\examples{
+\dontrun{
+Distance_matrix_generator(
+    N_cores = 2,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "CD8_GZMBneg",
+    Target_Cell = "TUMOR",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = TRUE,
+    Hull_ratio = 1,
+    Distance_to_edge = 10
+)
+}
+
+}
 \seealso{
 \code{\link[=Random_Distance_matrix_generator]{Random_Distance_matrix_generator()}}, \code{\link[=Cumulative_Interaction_generator]{Cumulative_Interaction_generator()}}, \code{\link[=Distance_analyzer]{Distance_analyzer()}}, \code{\link[=Cells_in_Radius_analyzer]{Cells_in_Radius_analyzer()}}, \code{\link[=Cell_to_Cell_graph_maker]{Cell_to_Cell_graph_maker()}}
 }

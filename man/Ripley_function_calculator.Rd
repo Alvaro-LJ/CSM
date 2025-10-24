@@ -29,5 +29,15 @@ A tibble containing results by image.
 \description{
 The function calculates the spatial aggregation of a single cell type using Ripleys K and L functions. Function results are integrated to obtain an AUC,
 that can serve as a metric of spatial interaction. The function is calculated using the spatstat R metapackage.
-(specifically the spatstat.explore::envelope).
+(specifically the spatstat.explore::envelope). If integration fails, the user may try different Max_distance thresholds to make it work.
+}
+\examples{
+Ripley_function_calculator(
+   DATA = CSM_Phenotypecell_test,
+   Cell_type = "TUMOR",
+   Max_distance = 15,
+   Strategy = "Ripleys_K",
+   N_simulations = 10
+)
+
 }

@@ -13,6 +13,28 @@
 #'
 #' @returns A list containing the cumulative interaction matrix for every image.
 #'
+#'
+#' @examples
+#' #Generate a data distance or random distance matrix--------------------------
+#' DATA_Distances <-
+#' Distance_matrix_generator(
+#'     N_cores = 1,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Cell_Of_Origin = "CD8_GZMBneg",
+#'     Target_Cell = "TUMOR",
+#'     Allow_Cero_Distance = FALSE,
+#'     Perform_edge_correction = FALSE
+#')
+#'
+#' #Calculate the cumulative interaction every 25 pixels up to 100 pixels------
+#'Cumulative_Interaction_generator(
+#'    N_cores = 1,
+#'    DATA = DATA_Distances,
+#'    Start_from = 25,
+#'    Stop_at = 100,
+#'    Sampling_frequency = 25
+#')
+#'
 #' @export
 
 Cumulative_Interaction_generator <-

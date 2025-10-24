@@ -36,6 +36,27 @@ A tibble containing a summary of the analysis result by image.
 \description{
 The function identifies cell neighborhoods using the SPIAT::identify_neighborhoods function.
 }
+\examples{
+#Generate SPIAT object list----------------------------
+DATA_SPIAT <-
+SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+)
+
+#Find neighborhoods in each sample--------------------
+SPIAT_neighborhood_identifier(
+    N_cores = 2,
+    DATA_SPIAT = DATA_SPIAT,
+    Strategy = "hierarchical",
+    Cell_types_of_interest = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+    Radius = 50,
+    Min_neighborhood_size = 10,
+    No_Phenotype_name = NULL
+)
+
+
+}
 \seealso{
 \code{\link[=SPIAT_object_generator]{SPIAT_object_generator()}}.
 }

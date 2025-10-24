@@ -16,6 +16,57 @@
 #'
 #' @returns A tibble containing a summary by sample of spatial interactions.
 #'
+#' @examples
+#' #Generate distance matrix and random distance matrix------------
+#'DATA_Distances <-
+#' Distance_matrix_generator(
+#'     N_cores = 1,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Cell_Of_Origin = "CD8_GZMBneg",
+#'     Target_Cell = "TUMOR",
+#'     Allow_Cero_Distance = FALSE,
+#'     Perform_edge_correction = FALSE
+#')
+#'
+#'RANDOM_Distances <-
+#' Random_Distance_matrix_generator(
+#'    N_cores = 1,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Cell_Of_Origin = "CD8_GZMBneg",
+#'    Target_Cell = "TUMOR",
+#'    Random_cells_per_sample = 10,
+#'    Allow_Cero_Distance = FALSE,
+#'    Perform_edge_correction = FALSE
+#')
+#' #Generate cumulative interactions (must contain the actual radius distance)--
+#'DATA_Cumulative <-
+#'Cumulative_Interaction_generator(
+#'    N_cores = 1,
+#'    DATA = DATA_Distances,
+#'    Start_from = 25,
+#'    Stop_at = 100,
+#'    Sampling_frequency = 25
+#')
+#'
+#'RANDOM_Cumulative <-
+#'Cumulative_Interaction_generator(
+#'    N_cores = 1,
+#'    DATA = RANDOM_Distances,
+#'    Start_from = 25,
+#'    Stop_at = 100,
+#'    Sampling_frequency = 25
+#')
+#'#Calculate the cells in radius-----------------------------------------------
+#'Cells_in_Radius_analyzer(
+#'    DATA = DATA_Cumulative ,
+#'    DATA_RANDOM = RANDOM_Cumulative,
+#'    Radius = 50,
+#'    Include_Random = T,
+#'    By_Sample_Random = T
+#')
+#'
+#'
+#'
 #' @export
 
 Cells_in_Radius_analyzer <-
@@ -133,13 +184,13 @@ Cells_in_Radius_analyzer <-
       RESULTS_tibble$Random_05CI[RESULTS_tibble$Random_05CI < 0] <- 0
 
       print("Generating plot")
-      plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Average_cells))) +
+      plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Average_cells))) +
              geom_col(aes(y = Average_cells), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
              geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
              geom_errorbar(aes(ymin = Random_05CI, ymax = Random_95CI), color = "red", linewidth = 0.9, width = 0.3)+
              cowplot::theme_cowplot() +
              scale_x_discrete("") +
-             scale_y_continuous(str_c("Average cells within a radius of ", as.character(Radius))) +
+             scale_y_continuous(stringr::str_c("Average cells within a radius of ", as.character(Radius))) +
              theme(axis.text.x = element_text(angle = -90, vjust = 0.5))
       )
 
@@ -183,12 +234,12 @@ Cells_in_Radius_analyzer <-
       RESULTS_tibble$Result_05CI[RESULTS_tibble$Result_05CI < 0] <- 0
 
       print("Generating plot")
-      plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Average_cells))) +
+      plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Average_cells))) +
              geom_col(aes(y = Average_cells), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
              geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
              cowplot::theme_cowplot() +
              scale_x_discrete("") +
-             scale_y_continuous(str_c("Average cells within a radius of ", as.character(Radius))) +
+             scale_y_continuous(stringr::str_c("Average cells within a radius of ", as.character(Radius))) +
              theme(axis.text.x = element_text(angle = -90, vjust = 0.5))
       )
 

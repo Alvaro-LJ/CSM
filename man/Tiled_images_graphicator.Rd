@@ -23,3 +23,23 @@ A list containing plots (one element per phenotype).
 \description{
 The function generates plots of the number of target cells present within each tile for a given image.
 }
+\examples{
+#Divide cells into tiles---------
+Tiled_Images <-
+Image_tiling_processing_function(
+   N_cores = 2,
+   DATA = CSM_Phenotypecell_test,
+   Tile_width = 125,
+   Tile_height = 125,
+   Variables_to_keep = "Phenotype"
+)
+
+#Graph target cells
+Tiled_images_graphicator(
+   Tiled_images = Tiled_Images,
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+)
+
+
+}

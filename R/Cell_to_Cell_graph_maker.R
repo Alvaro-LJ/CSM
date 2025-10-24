@@ -14,6 +14,44 @@
 #'
 #' @returns A graph summarizing spatial interactions for the indicated image.
 #'
+#' @examples
+#' #Generate distance matrix----------------------------------------------------
+#'DATA_Distances <-
+#' Distance_matrix_generator(
+#'     N_cores = 1,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Cell_Of_Origin = "CD8_GZMBneg",
+#'     Target_Cell = "TUMOR",
+#'     Allow_Cero_Distance = FALSE,
+#'     Perform_edge_correction = FALSE
+#')
+#'
+#' #Generate cumulative interactions (must contain the actual radius distance)--
+#'DATA_Cumulative <-
+#'Cumulative_Interaction_generator(
+#'    N_cores = 1,
+#'    DATA = DATA_Distances,
+#'    Start_from = 25,
+#'    Stop_at = 100,
+#'    Sampling_frequency = 25
+#')
+#'
+#'#Graph min distance to target-------------------------------------------------
+#'Cell_to_Cell_graph_maker(
+#'    Image_name = "ABCM22001_B14_MiniCrop.tif",
+#'    DATA_Phenotypes = CSM_Phenotypecell_test,
+#'    Strategy = "Min_Distance",
+#'    DATA_Distances = DATA_Distances
+#')
+#Graph cells within radius------------------------------------------------------
+#'Cell_to_Cell_graph_maker(
+#'    Image_name = "ABCM22001_B14_MiniCrop.tif",
+#'    DATA_Phenotypes = CSM_Phenotypecell_test,
+#'    Strategy = "Cells_in_Radius",
+#'    DATA_Cumulative = DATA_Cumulative,
+#'    Radius = 50
+#')
+#'
 #' @export
 
 Cell_to_Cell_graph_maker <-
@@ -105,7 +143,7 @@ Cell_to_Cell_graph_maker <-
               legend.position = "bottom",
               plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
-      return(PLOT)
+      return(invisible(PLOT))
     }
 
     else if(Strategy == "Average_Distance") {
@@ -153,7 +191,7 @@ Cell_to_Cell_graph_maker <-
                 legend.position = "bottom",
                 plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
-      return(PLOT)
+      return(invisible(PLOT))
     }
 
     else if(Strategy == "Max_Distance") {
@@ -201,7 +239,7 @@ Cell_to_Cell_graph_maker <-
                 legend.position = "bottom",
                 plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
-      return(PLOT)
+      return(invisible(PLOT))
     }
 
     else if(Strategy == "Cells_in_Radius"){
@@ -241,7 +279,7 @@ Cell_to_Cell_graph_maker <-
           cowplot::theme_cowplot() +
           scale_x_continuous("", labels = NULL)+
           scale_y_continuous("", labels = NULL)+
-          scale_fill_viridis_c(str_c("Cells in ", as.character(Radius), " radius"))+
+          scale_fill_viridis_c(stringr::str_c("Cells in ", as.character(Radius), " radius"))+
           ggtitle(Image_name)+
           theme(panel.grid = element_blank(),
                 axis.line = element_blank(),
@@ -251,6 +289,6 @@ Cell_to_Cell_graph_maker <-
                 legend.position = "bottom",
                 plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
-      return(PLOT)
+      return(invisible(PLOT))
     }
   }

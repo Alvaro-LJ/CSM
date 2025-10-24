@@ -37,6 +37,27 @@ If Simplify_result is FALSE, the function returns a list containing cell locatio
 \description{
 The function generates tissue structure according to a cell phenotype label (usually tumor cells). Then all the cells are asigned a label according to their distance to the tissue structures.
 }
+\examples{
+#Generate SPIAT object list----------------------------
+DATA_SPIAT <-
+SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+)
+
+#Calculate tissue structures-------------
+SPIAT_Tissue_structuring_function(
+    N_cores = 2,
+    DATA_SPIAT = DATA_SPIAT,
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Cell_type_to_define_cluster = "TUMOR",
+    Minimum_number_cells_cluster = 5,
+    Cell_types_of_interest = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+    Layers_margin = 5,
+    Simplify_result = T
+)
+
+}
 \seealso{
 \code{\link[=SPIAT_object_generator]{SPIAT_object_generator()}}.
 }

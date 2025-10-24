@@ -30,6 +30,16 @@ A tibble containing recommended tile dimensions.
 The function can be used  to plan the image tiling strategy. The function calculates the tile dimensions required to divide an image into a user provided number of rows and columns.
 The calculation can be performed using the smallest or largest image from the dataset.
 }
+\examples{
+Suggested_Tile_Size_Calculator(
+   CSM_Phenotypecell_test,
+   N_cols = 4,
+   N_rows = 4,
+   Based_on_smaller = TRUE,
+   Draw_preview = TRUE
+)
+
+}
 \seealso{
 \code{\link[=Image_length_calculator]{Image_length_calculator()}}, \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}
 }

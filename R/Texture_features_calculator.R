@@ -1,7 +1,7 @@
 #' Calculates the average texture features of a single cell type.
 #'
 #' The function calculates the average texture features of a single cell type for every image. Image must have been previously tiled using [Image_tiling_processing_function()].
-#' The tiled image is first transformed into a raster like object, then the grey level co-ocurrence matrix is calculated and finally texture features are obtained and averaged.
+#' The tiled image is first transformed into a raster like object, then the grey level co-ocurrence matrix is calculated and texture features are obtained and averaged.
 #'
 #' @param Tiled_images A list containing tiled images obtained using [Image_tiling_processing_function()].
 #' @param Phenotype_included A character value indicating which cell phenotype to analyze.
@@ -10,6 +10,24 @@
 #' Metrics are calculated using the glcm R package.
 #'
 #' @returns A tibble containing averaged texture features by image.
+#'
+#' @examples
+#' #'#Divide cells into tiles-------------------------------------
+#' Tiled_Images <-
+#' Image_tiling_processing_function(
+#'    N_cores = 2,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Tile_width = 125,
+#'    Tile_height = 125,
+#'    Variables_to_keep = "Phenotype"
+#')
+#'
+#'#Calculate average texture features for a given cell phenotype---
+#'Texture_features_calculator(
+#'     Tiled_images = Tiled_Images,
+#'     Phenotype_included = "CD8_GZMBneg"
+#')
+#'
 #' @export
 
 Texture_features_calculator <-
@@ -99,6 +117,7 @@ Texture_features_calculator <-
 
     #Bind the results to the Image name and return the final result
     return(dplyr::bind_cols(tibble(Subject_names = names(Tiled_images)),
-                            Texture_metric_results))
+                            Texture_metric_results)
+           )
 
   }

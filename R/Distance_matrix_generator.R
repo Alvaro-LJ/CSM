@@ -16,6 +16,22 @@
 #'
 #' @returns A list containing the distance matrix for each image. Rows represent Cells of Origin and columns represent Target cells.
 #'
+#' @examples
+#' \dontrun{
+#' Distance_matrix_generator(
+#'     N_cores = 2,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Cell_Of_Origin = "CD8_GZMBneg",
+#'     Target_Cell = "TUMOR",
+#'     Allow_Cero_Distance = FALSE,
+#'     Perform_edge_correction = TRUE,
+#'     Hull_ratio = 1,
+#'     Distance_to_edge = 10
+#')
+#'}
+#'
+#' @import dplyr
+#'
 #' @export
 
 Distance_matrix_generator <-
@@ -65,7 +81,7 @@ Distance_matrix_generator <-
       print("Running edge correction example on a random sample")
       Sample <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == sample(unique(DATA_Phenotypes$Subject_Names), size = 1))
       Cells_sf <- sf::st_as_sf(Sample , coords = c("X", "Y"))
-      Edge_line <- sf::st_cast((Cells_sf %>% dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% dplyr::summarise), "LINESTRING")
+      Edge_line <- sf::st_cast((Cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
       Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
 
       plot(Sample %>%
@@ -91,7 +107,7 @@ Distance_matrix_generator <-
         #Prepare our data
         Image_tibble <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == x)
         Cells_sf <- sf::st_as_sf(Image_tibble , coords = c("X", "Y"))
-        Edge_line <- sf::st_cast((Cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
+        Edge_line <- sf::st_cast((Cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
         Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
         #Calculate cells in border
         COO_in_Border_vector <- Image_tibble$Phenotype == Cell_Of_Origin  & Cells_in_Border_vector

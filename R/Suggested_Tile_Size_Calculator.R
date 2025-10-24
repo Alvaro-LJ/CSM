@@ -13,6 +13,15 @@
 #'
 #' @seealso [Image_length_calculator()], [Image_tiling_processing_function()]
 #'
+#' @examples
+#' Suggested_Tile_Size_Calculator(
+#'    CSM_Phenotypecell_test,
+#'    N_cols = 4,
+#'    N_rows = 4,
+#'    Based_on_smaller = TRUE,
+#'    Draw_preview = TRUE
+#' )
+#'
 #' @export
 
 Suggested_Tile_Size_Calculator <-

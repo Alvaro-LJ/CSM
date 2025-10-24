@@ -18,6 +18,20 @@
 #'
 #' @returns A list containing the random distance matrix for each image. Rows represent Cells of Origin and columns represent Target cells.
 #'
+#' @examples
+#' Random_Distance_matrix_generator(
+#'    N_cores = 2,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Cell_Of_Origin = "CD8_GZMBneg",
+#'    Target_Cell = "TUMOR",
+#'    Random_cells_per_sample = 10,
+#'    Allow_Cero_Distance = FALSE,
+#'    Perform_edge_correction = TRUE,
+#'    Hull_ratio = 1,
+#'    Distance_to_edge = 10
+#')
+#'
+#' @import dplyr
 #' @export
 
 Random_Distance_matrix_generator <-
@@ -40,12 +54,7 @@ Random_Distance_matrix_generator <-
     }
 
     #Check arguments
-    if(!exists("Advanced_Distance_function_A_B_single", envir = .GlobalEnv)) stop("Please execute STEP 5 required functions")
-    Advanced_Distance_function_A_B_single <- get("Advanced_Distance_function_A_B_single",  envir = .GlobalEnv)
-    if(!exists(DATA, envir = .GlobalEnv)){
-      stop("A DATA_Distance object must be created before running the tiling analysis. Check name supplied to the DATA argument")
-    }
-    DATA_Phenotypes <- get(DATA, envir = .GlobalEnv)
+    DATA_Phenotypes <- DATA
     if(!identical(names(DATA_Phenotypes)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) { #Check if Data is correctly formatted
       stop("DATA provided should have an adecuate format")
     }
@@ -108,7 +117,7 @@ Random_Distance_matrix_generator <-
         #If border cell correction required generate the border polygon
         if(Perform_edge_correction){
           Cells_sf <- sf::st_as_sf(Image_tibble , coords = c("X", "Y"))
-          Edge_line <- sf::st_cast((Cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
+          Edge_line <- sf::st_cast((Cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
           Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
         }
 
@@ -156,7 +165,7 @@ Random_Distance_matrix_generator <-
 
     names(RESULTS) <- unique(DATA_Phenotypes$Subject_Names)
 
-    Samples_to_remove <-purrr::map_lgl(RESULTS, function(x) is.na(x[[2]][[1,1]]))
+    Samples_to_remove <- purrr::map_lgl(RESULTS, function(x) is.na(x[[2]][[1,1]]))
 
     #If samples to remove are present print a warning and proceed to remove required samples
     if(sum(Samples_to_remove) > 0) {

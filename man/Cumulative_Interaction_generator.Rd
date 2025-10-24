@@ -30,6 +30,28 @@ A list containing the cumulative interaction matrix for every image.
 The cumulative interaction matrix contains information regarding the total potential interactions between COO and target cells. For a a given set of increasing distances,
 the number of target cells present from every COO is calculated.
 }
+\examples{
+#Generate a data distance or random distance matrix--------------------------
+DATA_Distances <-
+Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "CD8_GZMBneg",
+    Target_Cell = "TUMOR",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = FALSE
+)
+
+#Calculate the cumulative interaction every 25 pixels up to 100 pixels------
+Cumulative_Interaction_generator(
+   N_cores = 1,
+   DATA = DATA_Distances,
+   Start_from = 25,
+   Stop_at = 100,
+   Sampling_frequency = 25
+)
+
+}
 \seealso{
 \code{\link[=Random_Distance_matrix_generator]{Random_Distance_matrix_generator()}}, \code{\link[=Distance_matrix_generator]{Distance_matrix_generator()}}, \code{\link[=Distance_analyzer]{Distance_analyzer()}}, \code{\link[=Cells_in_Radius_analyzer]{Cells_in_Radius_analyzer()}}.
 }

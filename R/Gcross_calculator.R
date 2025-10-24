@@ -15,6 +15,16 @@
 #'
 #' @returns A list containing two outputs: Raw_DATA contains the expected interaction probability for every distance point. Simplified_DATA cotains the AUC data by image.
 #'
+#' @examples
+#'Gcross_calculator(
+#'    DATA = CSM_Phenotypecell_test,
+#'    Cell_Of_Origin = "CD8_GZMBneg",
+#'    Target_Cell = "TUMOR",
+#'    Stop_at = 200,
+#'    Sampling_frequency = 10,
+#'    Use_Clinical = FALSE
+#')
+#'
 #' @export
 
 Gcross_calculator <-

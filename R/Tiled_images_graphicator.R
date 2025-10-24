@@ -7,6 +7,26 @@
 #' @param Phenotypes_included A character vector indicating the phenotype labels that will be included in the plots.
 #'
 #' @returns A list containing plots (one element per phenotype).
+#'
+#' @examples
+#'#Divide cells into tiles---------
+#' Tiled_Images <-
+#' Image_tiling_processing_function(
+#'    N_cores = 2,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Tile_width = 125,
+#'    Tile_height = 125,
+#'    Variables_to_keep = "Phenotype"
+#')
+#'
+#' #Graph target cells
+#' Tiled_images_graphicator(
+#'    Tiled_images = Tiled_Images,
+#'    Image_name = "ABCM22001_B14_MiniCrop.tif",
+#'    Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+#')
+#'
+#'
 #' @export
 
 Tiled_images_graphicator <-
@@ -63,9 +83,9 @@ Tiled_images_graphicator <-
                 legend.text = element_text(size = 15),
                 legend.title = element_text(size = 20),
                 plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
-        Plot
+        return(Plot)
       })
-      cowplot::plot_grid(plotlist = Plot_list)
-      return(Plot_list)
+      plot(cowplot::plot_grid(plotlist = Plot_list))
+      return(invisible(Plot_list))
     }
   }

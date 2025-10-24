@@ -36,6 +36,27 @@ A tibble containing a summary of the analysis result by image.
 The function divides the images into tiles, calculates entropy within tile and then counts the number of tiles above a user defined threshold.
 Results may be similar to those obtained using \code{\link[=Tiled_image_heterogeneity_analyzer]{Tiled_image_heterogeneity_analyzer()}}.
 }
+\examples{
+#Generate SPIAT object list----------------------------
+DATA_SPIAT <-
+SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+)
+
+#Analyze heterogeneity--------------------------------
+SPIAT_Heterogeneity_Analyzer(
+    N_cores = 2,
+    DATA_SPIAT = DATA_SPIAT,
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Tile_size = 125,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+    Entropy_threshold = 0.5,
+    Autocorrelation_metric = "globalmoran"
+)
+
+
+}
 \seealso{
 \code{\link[=SPIAT_object_generator]{SPIAT_object_generator()}}, \code{\link[=Tiled_image_heterogeneity_analyzer]{Tiled_image_heterogeneity_analyzer()}}.
 }

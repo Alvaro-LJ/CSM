@@ -18,6 +18,13 @@ A list with SPIAT objects.
 The function transforms image information into a SPIAT object that can be used in subsequent analysis that depend on SPIAT package, like
 \code{\link[=SPIAT_Heterogeneity_Analyzer]{SPIAT_Heterogeneity_Analyzer()}}, \code{\link[=SPIAT_entropy_gradient_generator]{SPIAT_entropy_gradient_generator()}}, \code{\link[=SPIAT_Tissue_structuring_function]{SPIAT_Tissue_structuring_function()}} and \code{\link[=SPIAT_neighborhood_identifier]{SPIAT_neighborhood_identifier()}}.
 }
+\examples{
+SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+)
+
+}
 \seealso{
 \code{\link[=SPIAT_Heterogeneity_Analyzer]{SPIAT_Heterogeneity_Analyzer()}}, \code{\link[=SPIAT_entropy_gradient_generator]{SPIAT_entropy_gradient_generator()}}, \code{\link[=SPIAT_Tissue_structuring_function]{SPIAT_Tissue_structuring_function()}},\code{\link[=SPIAT_neighborhood_identifier]{SPIAT_neighborhood_identifier()}}.
 }

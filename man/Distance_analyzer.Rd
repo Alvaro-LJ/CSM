@@ -38,6 +38,40 @@ the maximum distance between COO and target cells.
 
 If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
 }
+\examples{
+#Generate distance matrix and random distance matrix------------
+DATA_Distances <-
+Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "CD8_GZMBneg",
+    Target_Cell = "TUMOR",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = FALSE
+)
+
+RANDOM_Distances <-
+Random_Distance_matrix_generator(
+   N_cores = 1,
+   DATA = CSM_Phenotypecell_test,
+   Cell_Of_Origin = "CD8_GZMBneg",
+   Target_Cell = "TUMOR",
+   Random_cells_per_sample = 10,
+   Allow_Cero_Distance = FALSE,
+   Perform_edge_correction = FALSE
+)
+
+#Analyze the spatial association------------------------------
+Distance_analyzer(
+   N_cores = 1,
+   DATA = DATA_Distances,
+   DATA_RANDOM = RANDOM_Distances,
+   Metric = "Min_Distance",
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+
+}
 \seealso{
 \code{\link[=Distance_matrix_generator]{Distance_matrix_generator()}}, \code{\link[=Random_Distance_matrix_generator]{Random_Distance_matrix_generator()}}, \code{\link[=Cell_to_Cell_graph_maker]{Cell_to_Cell_graph_maker()}}
 }

@@ -31,3 +31,30 @@ Quantify_by_Threshold counts the number of tiles above the arbitrary threshold a
 
 Overall_summary quantifies the central tendency and dispersion metrics of the tile heterogeneity metrics and their spatial autocorrelation.
 }
+\examples{
+#Divide cells into tiles---------
+Tiled_Images <-
+Image_tiling_processing_function(
+   N_cores = 2,
+   DATA = CSM_Phenotypecell_test,
+   Tile_width = 125,
+   Tile_height = 125,
+   Variables_to_keep = "Phenotype"
+)
+
+#Calculate heterogeneity by tile----
+Tiled_image_heterogeneity_calculator(
+    Tiled_images = Tiled_Images,
+    Minimum_cell_no_per_tile = 3,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+)
+
+#Generate the summary
+Tiled_image_heterogeneity_analyzer(
+    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
+    Strategy = "Quantify_by_Threshold",
+    Metric = "Shannon",
+    Threshold = 0.5
+)
+
+}

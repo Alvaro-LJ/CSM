@@ -11,6 +11,24 @@
 #' @returns A tibble containing a summary of the analysis result by image.
 #'
 #' @seealso [SPIAT_object_generator()].
+#'
+#' @examples
+#' #Generate SPIAT object list----------------------------
+#' DATA_SPIAT <-
+#' SPIAT_object_generator(
+#'     DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+#'     DATA_Phenotypes = CSM_Phenotypecell_test
+#' )
+#'
+#' #Calculate entropy gradients--------------------------
+#' SPIAT_entropy_gradient_generator(
+#'     DATA_SPIAT = DATA_SPIAT,
+#'     Gradient_start = 0,
+#'     Gradient_stop = 250,
+#'     Gradient_sampling = 50,
+#'     Phenotypes_included = c("CD8_GZMBpos", "TUMOR")
+#' )
+#'
 #' @export
 
 SPIAT_entropy_gradient_generator <-

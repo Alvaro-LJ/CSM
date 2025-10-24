@@ -26,3 +26,32 @@ Returns a plot with the cells and the overlying tiles shaded according to the he
 \description{
 Generates a plot illustrating heterogeneity by tile.
 }
+\examples{
+#Divide cells into tiles---------
+Tiled_Images <-
+Image_tiling_processing_function(
+   N_cores = 2,
+   DATA = CSM_Phenotypecell_test,
+   Tile_width = 125,
+   Tile_height = 125,
+   Variables_to_keep = "Phenotype"
+)
+
+#Calculate heterogeneity by tile----
+Tiled_image_heterogeneity_calculator(
+    Tiled_images = Tiled_Images,
+    Minimum_cell_no_per_tile = 3,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+)
+
+#Graph results----------------------
+Tiled_image_heterogeneity_graph_maker(
+    DATA = CSM_Phenotypecell_test,
+    Tiled_images = Heterogeneity_by_tile,
+    Image_name = "ABCM22001_B09_MiniCrop.tif",
+    Metric = "Shannon"
+)
+
+
+
+}

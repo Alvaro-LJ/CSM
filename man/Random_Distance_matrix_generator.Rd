@@ -43,6 +43,20 @@ Given a dataframe with cell features and phenotype labels, random spatial distan
 randomly permuting cell labels in an iterative manner. For every image the same number of random COO to target cell distances are calculated.
 The COO and target cell can be the same cell type.
 }
+\examples{
+Random_Distance_matrix_generator(
+   N_cores = 2,
+   DATA = CSM_Phenotypecell_test,
+   Cell_Of_Origin = "CD8_GZMBneg",
+   Target_Cell = "TUMOR",
+   Random_cells_per_sample = 10,
+   Allow_Cero_Distance = FALSE,
+   Perform_edge_correction = TRUE,
+   Hull_ratio = 1,
+   Distance_to_edge = 10
+)
+
+}
 \seealso{
 \code{\link[=Distance_matrix_generator]{Distance_matrix_generator()}}, \code{\link[=Cumulative_Interaction_generator]{Cumulative_Interaction_generator()}}, \code{\link[=Distance_analyzer]{Distance_analyzer()}}, \code{\link[=Cells_in_Radius_analyzer]{Cells_in_Radius_analyzer()}}, \code{\link[=Cell_to_Cell_graph_maker]{Cell_to_Cell_graph_maker()}}
 }

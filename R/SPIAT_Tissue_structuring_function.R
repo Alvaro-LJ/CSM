@@ -14,6 +14,27 @@
 #' If Simplify_result is FALSE, the function returns a list containing cell location labels for every image.
 #'
 #' @seealso [SPIAT_object_generator()].
+#'
+#' @examples
+#' #Generate SPIAT object list----------------------------
+#' DATA_SPIAT <-
+#' SPIAT_object_generator(
+#'     DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+#'     DATA_Phenotypes = CSM_Phenotypecell_test
+#' )
+#'
+#' #Calculate tissue structures-------------
+#' SPIAT_Tissue_structuring_function(
+#'     N_cores = 2,
+#'     DATA_SPIAT = DATA_SPIAT,
+#'     DATA_Phenotypes = CSM_Phenotypecell_test,
+#'     Cell_type_to_define_cluster = "TUMOR",
+#'     Minimum_number_cells_cluster = 5,
+#'     Cell_types_of_interest = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+#'     Layers_margin = 5,
+#'     Simplify_result = T
+#')
+#'
 #' @export
 
 SPIAT_Tissue_structuring_function <-
@@ -27,17 +48,25 @@ SPIAT_Tissue_structuring_function <-
            Simplify_result = NULL
   ){
 
-    #Check suggested packages
-    if(!requireNamespace("SPIAT", quietly = TRUE)) stop(
-      paste0("SPIAT Bioconductor package is required to execute the function. Please install using the following code: ",
-             expression({
-               if (!require("BiocManager", quietly = TRUE))
-                 install.packages("BiocManager")
+    {
+      #Check suggested packages
+      if(!requireNamespace("SPIAT", quietly = TRUE)) stop(
+        paste0("SPIAT Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
 
-               BiocManager::install("SPIAT")
-             })
+                 BiocManager::install("SPIAT")
+               })
+        )
       )
-    )
+      if(!requireNamespace("alphahull", quietly = FALSE)) stop(
+        paste0("alphahull CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("alphahull")))
+      )
+    }
+
+
 
     #Check arguments
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
@@ -78,6 +107,11 @@ SPIAT_Tissue_structuring_function <-
       suppressMessages(
         furrr::future_map(seq_along(1:length(DATA_SPIAT)), function(Image) {
           library(SPIAT)
+
+
+          pdf(NULL) #Avoids anoying PDF generation
+
+
           Formatted_image <- DATA_SPIAT[[Image]] #Get formatted image
 
           #Calculate the ratio of target cells that are in a border
@@ -106,7 +140,7 @@ SPIAT_Tissue_structuring_function <-
                                                   n_margin_layers = Layers_margin #Layers of cells that define the internal and external border of the tumor margin
           )
           categories <- unique(formatted_structure$Structure)
-          plot_cell_categories(formatted_structure, feature_colname = "Structure")
+
 
           #Calculate proportions of cells in each structure
           immune_proportions <- calculate_proportions_of_cells_in_structure(
@@ -120,13 +154,16 @@ SPIAT_Tissue_structuring_function <-
             cell_types_of_interest = Cell_types_of_interest,
             feature_colname = "Phenotype")
 
+          dev.off()
+
           #Assign location to cell types
-          list(Cells = Phenotypes_list[[Image]] %>%dplyr::mutate(Location = formatted_structure$Structure),
-               Border_Ratio = Border_Ratio,
-               N_tumor_clusters = N_tumor_clusters,
-               Plot = plot_cell_categories(formatted_structure, feature_colname = "Structure"),
-               Immune_proportions = immune_proportions,
-               Immune_distances = immune_distances)
+          return(
+            list(Cells = Phenotypes_list[[Image]] %>% dplyr::mutate(Location = formatted_structure$Structure),
+                 Border_Ratio = Border_Ratio,
+                 N_tumor_clusters = N_tumor_clusters,
+                 Immune_proportions = immune_proportions,
+                 Immune_distances = immune_distances)
+          )
         },
         .progress = TRUE)
       )

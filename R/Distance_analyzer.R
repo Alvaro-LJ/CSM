@@ -20,6 +20,39 @@
 #'
 #' @returns A tibble containing a summary by sample of spatial interactions.
 #'
+#' @examples
+#' #Generate distance matrix and random distance matrix------------
+#'DATA_Distances <-
+#' Distance_matrix_generator(
+#'     N_cores = 1,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Cell_Of_Origin = "CD8_GZMBneg",
+#'     Target_Cell = "TUMOR",
+#'     Allow_Cero_Distance = FALSE,
+#'     Perform_edge_correction = FALSE
+#')
+#'
+#'RANDOM_Distances <-
+#' Random_Distance_matrix_generator(
+#'    N_cores = 1,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Cell_Of_Origin = "CD8_GZMBneg",
+#'    Target_Cell = "TUMOR",
+#'    Random_cells_per_sample = 10,
+#'    Allow_Cero_Distance = FALSE,
+#'    Perform_edge_correction = FALSE
+#')
+#'
+#' #Analyze the spatial association------------------------------
+#'Distance_analyzer(
+#'    N_cores = 1,
+#'    DATA = DATA_Distances,
+#'    DATA_RANDOM = RANDOM_Distances,
+#'    Metric = "Min_Distance",
+#'    Include_Random = TRUE,
+#'    By_Sample_Random = TRUE
+#')
+#'
 #' @export
 
 Distance_analyzer <-
@@ -134,7 +167,7 @@ Distance_analyzer <-
 
         print("Generating plot")
         #Plot the results
-        plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Average_Distance))) +
+        plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Average_Distance))) +
                geom_col(aes(y = Average_Distance), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
                geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
                geom_errorbar(aes(ymin = Random_05CI, ymax = Random_95CI), color = "red", linewidth = 0.9, width = 0.3)+
@@ -227,7 +260,7 @@ Distance_analyzer <-
 
         print("Generating plot")
         #Plot the results
-        plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Min_Distance))) +
+        plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Min_Distance))) +
                geom_col(aes(y = Min_Distance), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
                geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
                geom_errorbar(aes(ymin = Random_05CI, ymax = Random_95CI), color = "red", linewidth = 0.9, width = 0.3)+
@@ -320,7 +353,7 @@ Distance_analyzer <-
 
         print("Generating plot")
         #Plot the results
-        plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Max_Distance))) +
+        plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Max_Distance))) +
                geom_col(aes(y = Max_Distance), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
                geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
                geom_errorbar(aes(ymin = Random_05CI, ymax = Random_95CI), color = "red", linewidth = 0.9, width = 0.3)+
@@ -378,7 +411,7 @@ Distance_analyzer <-
         RESULTS_tibble$Result_05CI[RESULTS_tibble$Result_05CI < 0] <- 0
 
         #plot the results
-        plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Average_Distance))) +
+        plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Average_Distance))) +
                geom_col(aes(y = Average_Distance), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
                geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
                cowplot::theme_cowplot() +
@@ -420,7 +453,7 @@ Distance_analyzer <-
         RESULTS_tibble$Result_05CI[RESULTS_tibble$Result_05CI < 0] <- 0
 
         #Plot the results
-        plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Min_Distance))) +
+        plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Min_Distance))) +
                geom_col(aes(y = Min_Distance), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
                geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
                cowplot::theme_cowplot() +
@@ -462,7 +495,7 @@ Distance_analyzer <-
         RESULTS_tibble$Result_05CI[RESULTS_tibble$Result_05CI < 0] <- 0
 
         #plot the results
-        plot(RESULTS_tibble %>% ggplot(aes(x = fct_reorder(Subject_Names, Max_Distance))) +
+        plot(RESULTS_tibble %>% ggplot(aes(x = forcats::fct_reorder(Subject_Names, Max_Distance))) +
                geom_col(aes(y = Max_Distance), width = 0.5, color = "black", fill = "white", linewidth = 0.7)+
                geom_errorbar(aes(ymin = Result_05CI, ymax = Result_95CI), color = "black", linewidth = 0.9, width = 0.3)+
                cowplot::theme_cowplot() +

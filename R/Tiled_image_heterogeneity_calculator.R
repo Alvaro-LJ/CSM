@@ -16,6 +16,25 @@
 #' Kullback_Leibler and Jensen_Shannon indexes are calculated using the philentropy package. They compare the observed cell composition within each tile against the global cell composition of the sample.
 #'
 #' @returns A list containing image information with by-tile heterogeneity metrics.
+#'
+#' @examples
+#' #Divide cells into tiles---------
+#' Tiled_Images <-
+#' Image_tiling_processing_function(
+#'    N_cores = 2,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Tile_width = 125,
+#'    Tile_height = 125,
+#'    Variables_to_keep = "Phenotype"
+#')
+#'
+#' #Calculate heterogeneity by tile----
+#' Tiled_image_heterogeneity_calculator(
+#'     Tiled_images = Tiled_Images,
+#'     Minimum_cell_no_per_tile = 3,
+#'     Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+#')
+#'
 #' @export
 
 Tiled_image_heterogeneity_calculator <-
@@ -166,5 +185,5 @@ Tiled_image_heterogeneity_calculator <-
     names(Results) <- names(Tiled_Images)
 
     #Return results except for NULL values
-    return(Results[!map_lgl(Results, is.null)])
+    return(Results[!purrr::map_lgl(Results, is.null)])
   }

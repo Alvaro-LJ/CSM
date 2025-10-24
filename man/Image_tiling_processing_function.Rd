@@ -5,7 +5,7 @@
 \title{Performs image tiling.}
 \usage{
 Image_tiling_processing_function(
-  N_cores = NULL,
+  N_cores = 1,
   DATA = NULL,
   Tile_width = NULL,
   Tile_height = NULL,
@@ -21,13 +21,23 @@ Image_tiling_processing_function(
 
 \item{Tile_height}{A numeric value indicating the height of the tiles.}
 
-\item{Variables_to_keep}{A character vector indicating the column names to be kept when tiling the image.}
+\item{Variables_to_keep}{A character vector indicating the names of the columns to be kept when tiling the image.}
 }
 \value{
 A list containing tile information for every image in DATA.
 }
 \description{
 The function assigns cells to unique tiles. Afterwards, tile information can be used to run subsequent analyses.
+}
+\examples{
+Image_tiling_processing_function(
+   N_cores = 2,
+   DATA = CSM_Phenotypecell_test,
+   Tile_width = 125,
+   Tile_height = 125,
+   Variables_to_keep = "Phenotype"
+)
+
 }
 \seealso{
 \code{\link[=Image_length_calculator]{Image_length_calculator()}}, \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}

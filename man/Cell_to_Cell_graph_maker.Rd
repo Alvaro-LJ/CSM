@@ -33,6 +33,44 @@ A graph summarizing spatial interactions for the indicated image.
 The function generates a summary plot of the spatial interaction between two cell types.
 It can graph results for average, min and max distance as well as cell in radius analyses.
 }
+\examples{
+#Generate distance matrix----------------------------------------------------
+DATA_Distances <-
+Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "CD8_GZMBneg",
+    Target_Cell = "TUMOR",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = FALSE
+)
+
+#Generate cumulative interactions (must contain the actual radius distance)--
+DATA_Cumulative <-
+Cumulative_Interaction_generator(
+   N_cores = 1,
+   DATA = DATA_Distances,
+   Start_from = 25,
+   Stop_at = 100,
+   Sampling_frequency = 25
+)
+
+#Graph min distance to target-------------------------------------------------
+Cell_to_Cell_graph_maker(
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Min_Distance",
+   DATA_Distances = DATA_Distances
+)
+Cell_to_Cell_graph_maker(
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Cells_in_Radius",
+   DATA_Cumulative = DATA_Cumulative,
+   Radius = 50
+)
+
+}
 \seealso{
 \code{\link[=Distance_matrix_generator]{Distance_matrix_generator()}}, \code{\link[=Cumulative_Interaction_generator]{Cumulative_Interaction_generator()}}, \code{\link[=Distance_analyzer]{Distance_analyzer()}}, \code{\link[=Cells_in_Radius_analyzer]{Cells_in_Radius_analyzer()}}
 }
