@@ -17,7 +17,7 @@ UTAG_message_passing(
 )
 }
 \arguments{
-\item{DATA_name}{A character value indicating the name of the tibble or dataframe object containing cell features (not the tibble or dataframe itself).}
+\item{DATA_name}{A tibble or dataframe object containing cell features.}
 
 \item{COO_to_visit}{(OPTIONAL) A logical vector indicating which cells from DATA should be visited by the algorithm.}
 
@@ -49,6 +49,20 @@ Disregarded_minority weighting allows low expressed features to have higher infl
 Proximity weighting is available for averaging and sum message passing strategies. Disregarded_minority can only be used with averaging.
 
 The function is based on the original UTAG pipeline described in the following reference: https://doi.org/10.1038/s41592-022-01657-2 and https://github.com/ElementoLab/utag.
+}
+\examples{
+UTAG_message_passing(
+    DATA = CSM_Arrangedcellfeaturedata_test,
+
+    Neighbor_strategy = "Distance",
+    Message_strategy = "Sum",
+    Max_dist_allowed = 50,
+    Weighting_Strategy = "Proximity",
+
+    N_cores = 1
+)
+
+
 }
 \seealso{
 \code{\link[=UTAG_Neighborhood_identifier]{UTAG_Neighborhood_identifier()}}

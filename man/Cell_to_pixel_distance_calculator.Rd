@@ -39,6 +39,21 @@ A tibble containing Cell feature information along with the distance to the clos
 Given a thresholded image (either binary or multilevel) and the cell feature information matrix, the function will compute the distance from cell to the closest non-zero value pixels.
 This can be used to analyze the spatial interaction of cells with extra-cellular elements in the image. Images can be thresholded using the \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}} function.
 }
+\examples{
+\dontrun{
+Cell_to_pixel_distance_calculator(
+    N_cores = 1,
+    Directory = "Path/To/Thresholded_images",
+    Image_rotate = 90,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE,
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+    Pixel_distance_ratio = NULL
+ )
+}
+
+}
 \seealso{
 \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}
 }

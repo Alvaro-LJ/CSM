@@ -41,6 +41,18 @@ The closest neighbor matrix can be used to identify neighborhoods using \code{\l
 In addition to the matrix, the function generates a correlation plot. The correlation between neighbors composition can be interpreted as attraction repulsion patterns between cell types.
 Neighbors may be defined by distance (a cell is considered a neighbor if it's within a defined distance D), by number (neighbors are the closest N cells) or both (cells are N closest neighbors as long as they are within distance D).
 }
+\examples{
+Tailored_Closest_neighbor_calculator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Strategy = "Distance",
+    Include_COO_in_neighborhood = TRUE,
+    Max_dist_allowed = 50,
+    Cell_Of_Origin = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos"),
+    Target_Cell = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+)
+
+}
 \seealso{
 \code{\link[=Neighborhood_discovery_function]{Neighborhood_discovery_function()}}, \code{\link[=DATA_neighborhoods_renamer]{DATA_neighborhoods_renamer()}}, \code{\link[=Neighborhood_Quantifier]{Neighborhood_Quantifier()}}, \code{\link[=Neighborhood_voting_function]{Neighborhood_voting_function()}}, \code{\link[=Tiled_neighborhoods_graphicator]{Tiled_neighborhoods_graphicator()}}
 }

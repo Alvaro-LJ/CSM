@@ -19,3 +19,16 @@ Returns a tibble with cell features and the Neighborhood_assignment column with 
 \description{
 The function allows the user to modify neighborhood labels. The function works with any dataframe or tibble containing a column named 'Neighborhood_assignment'.
 }
+\examples{
+print(unique(CSM_Neighborhoods_test$Neighborhood_assignment))
+
+New_names_DATA <-
+ DATA_neighborhoods_renamer(
+    DATA = CSM_Neighborhoods_test,
+    New_names = c("Tumor_low_density", "Tumor_high_density"),
+    Old_names = c("Tumor_Other", "Tumor_rich")
+)
+
+print(unique(New_names_DATA$Neighborhood_assignment))
+
+}

@@ -10,6 +10,16 @@
 #' @param Var_to_Merge (OPTIONAL) if Merge is TRUE, a character indicating the feature name to be combined with the segmented feature.
 #' @returns Returns a tibble with the new segmented feature
 #'
+#' @examples
+#' Marker_segmentator(
+#'     DATA = CSM_DistanceToPixelcell_test,
+#'     DATA_variable = "CK_DIST",
+#'     DATA_cutoff = c(0, 1, 5, 500),
+#'     New_labels = c("Inside", "Border", "Outside"),
+#'     Merge = TRUE,
+#'     Var_to_Merge = "Phenotype"
+#' )
+#'
 #' @export
 
 Marker_segmentator <-

@@ -148,6 +148,42 @@ K_Means_Meta_clustering first summarizes cell feature matrix observations using 
 
 Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
 }
+\examples{
+\dontrun{
+#Calculate the closest neighbor matrix----------------------------------------
+DATA_Closest_Neighbors <-
+Tailored_Closest_neighbor_calculator(
+   N_cores = 1,
+   DATA = CSM_Phenotypecell_test,
+   Strategy = "Distance",
+   Include_COO_in_neighborhood = TRUE,
+   Max_dist_allowed = 50,
+   Cell_Of_Origin = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos"),
+   Target_Cell = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+)
+
+#Cluster the result to obtain neighborhoods-----------------------------------
+Neighborhood_discovery_function(
+   DATA = DATA_Closest_Neighbors$Absolute_count,
+   Allowed_max_Dist = 51,
+   Allowed_avg_Dist = 51,
+   Allowed_median_Dist = 51,
+
+   Perform_Dimension_reduction = TRUE,
+   Dimension_reduction = "UMAP",
+   Dimension_reduction_prop = 1,
+   Cluster_on_Reduced = TRUE,
+
+   Strategy = "GMM",
+   Quality_metric = "AIC",
+   Max_N_neighborhoods_GMM = 5,
+   Max_iterations_km = 10,
+   Max_iterations_em = 10,
+   GMM_Distance = "eucl_dist"
+)
+}
+
+}
 \seealso{
 \code{\link[=Tailored_Closest_neighbor_calculator]{Tailored_Closest_neighbor_calculator()}}, \code{\link[=DATA_neighborhoods_renamer]{DATA_neighborhoods_renamer()}}, \code{\link[=Neighborhood_Quantifier]{Neighborhood_Quantifier()}}, \code{\link[=Neighborhood_voting_function]{Neighborhood_voting_function()}}, \code{\link[=Tiled_neighborhoods_graphicator]{Tiled_neighborhoods_graphicator()}}
 }

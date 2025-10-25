@@ -17,6 +17,20 @@
 #'
 #' @seealso [Pixel_Threshold_calculator()]
 #'
+#' @examples
+#' \dontrun{
+#' Cell_to_pixel_distance_calculator(
+#'     N_cores = 1,
+#'     Directory = "Path/To/Thresholded_images",
+#'     Image_rotate = 90,
+#'     Image_x_flip = FALSE,
+#'     Image_y_flip = TRUE,
+#'     DATA = CSM_Phenotypecell_test,
+#'     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+#'     Pixel_distance_ratio = NULL
+#'  )
+#'}
+#'
 #' @export
 
 Cell_to_pixel_distance_calculator <-
@@ -93,9 +107,9 @@ Cell_to_pixel_distance_calculator <-
       Image_names <- dir(Directory, full.names = FALSE)
 
       #Select only the thresholded and not the tissue masks
-      Full_image_names_selected <- Full_image_names[str_detect(Image_names, "Thresholded")]
-      Image_names_selected <- Image_names[str_detect(Image_names, "Thresholded")]
-      Image_names_selected_list <- str_split(Image_names_selected, "_")
+      Full_image_names_selected <- Full_image_names[stringr::str_detect(Image_names, "Thresholded")]
+      Image_names_selected <- Image_names[stringr::str_detect(Image_names, "Thresholded")]
+      Image_names_selected_list <- stringr::str_split(Image_names_selected, "_")
 
 
       #Check that all have been processed using the Pixel_Threshold_calculator

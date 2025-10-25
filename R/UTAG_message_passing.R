@@ -2,7 +2,7 @@
 #'
 #' The function performs message passing. Neighboring cells share their features according to user preferences. The resulting tibble can be used to feed the [UTAG_Neighborhood_identifier()] function.
 #'
-#' @param DATA_name A character value indicating the name of the tibble or dataframe object containing cell features (not the tibble or dataframe itself).
+#' @param DATA_name A tibble or dataframe object containing cell features.
 #' @param COO_to_visit (OPTIONAL) A logical vector indicating which cells from DATA should be visited by the algorithm.
 #' @param Neighbor_strategy A character value indicating how neighboring cells are defined: "Number", "Distance" or "Both".
 #' @param Message_strategy A character value indicating how features are shared between neighboring cells: "Averaging" or "Sum".
@@ -23,6 +23,19 @@
 #' The function is based on the original UTAG pipeline described in the following reference: https://doi.org/10.1038/s41592-022-01657-2 and https://github.com/ElementoLab/utag.
 #'
 #' @seealso [UTAG_Neighborhood_identifier()]
+#'
+#' @examples
+#' UTAG_message_passing(
+#'     DATA = CSM_Arrangedcellfeaturedata_test,
+#'
+#'     Neighbor_strategy = "Distance",
+#'     Message_strategy = "Sum",
+#'     Max_dist_allowed = 50,
+#'     Weighting_Strategy = "Proximity",
+#'
+#'     N_cores = 1
+#')
+#'
 #'
 #' @returns A tibble containing cell feature data that have undergone neighbor message passing.
 
@@ -59,10 +72,8 @@ UTAG_message_passing <-
       future::plan("sequential")
       gc()})
 
-    #Check arguments
-    if(!exists(DATA, envir = .GlobalEnv)) stop("DATA must be the name of an existing object")
     #Import data
-    DATA <- get(DATA_name, envir = .GlobalEnv)
+    DATA <- DATA_name
     #Check data structure
     if(!identical(names(DATA)[c(1:4)], c("Cell_no", "X", "Y", "Subject_Names"))) stop("DATA must be formatted adequately")
     #Check other arguments

@@ -70,6 +70,41 @@
 #' @returns Returns a tibble with cell features and a column named 'Neighborhood_assignment' containing cell neighborhood.
 #' If dimension reduction has been performed returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
 #'
+#' @examples
+#' \dontrun{
+#'#Calculate the closest neighbor matrix----------------------------------------
+#'DATA_Closest_Neighbors <-
+#'Tailored_Closest_neighbor_calculator(
+#'    N_cores = 1,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Strategy = "Distance",
+#'    Include_COO_in_neighborhood = TRUE,
+#'    Max_dist_allowed = 50,
+#'    Cell_Of_Origin = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos"),
+#'    Target_Cell = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+#')
+#'
+#'#Cluster the result to obtain neighborhoods-----------------------------------
+#'Neighborhood_discovery_function(
+#'    DATA = DATA_Closest_Neighbors$Absolute_count,
+#'    Allowed_max_Dist = 51,
+#'    Allowed_avg_Dist = 51,
+#'    Allowed_median_Dist = 51,
+#'
+#'    Perform_Dimension_reduction = TRUE,
+#'    Dimension_reduction = "UMAP",
+#'    Dimension_reduction_prop = 1,
+#'    Cluster_on_Reduced = TRUE,
+#'
+#'    Strategy = "GMM",
+#'    Quality_metric = "AIC",
+#'    Max_N_neighborhoods_GMM = 5,
+#'    Max_iterations_km = 10,
+#'    Max_iterations_em = 10,
+#'    GMM_Distance = "eucl_dist"
+#')
+#' }
+#'
 #' @export
 
 Neighborhood_discovery_function <-
@@ -899,29 +934,34 @@ Neighborhood_discovery_function <-
     }
 
     #Visualize the neighbor composition data for each neighborhood
-    plot(Neighbor_patterns %>% tidyr::pivot_longer(cols = -Neighborhood_assignment) %>%
-           ggplot(aes(x = as.factor(Neighborhood_assignment), y = value)) +
-           geom_violin(aes(color = name, fill = name), alpha=0.3, position=position_dodge(width=0.5)) +
-           stat_summary(aes(color = name),
-                        fun = median, geom = "crossbar", width = 0.4, linetype = 1, linewidth = 0.5,
-                        position = position_dodge(width = 0.5)) +
-           cowplot::theme_cowplot()+
-           scale_x_discrete("Neighborhood")+
-           scale_y_continuous("Neighbors in tha hood")+
-           scale_color_discrete("") +
-           scale_fill_discrete(""))
+    try(
+      plot(Neighbor_patterns %>% tidyr::pivot_longer(cols = -Neighborhood_assignment) %>%
+             ggplot(aes(x = as.factor(Neighborhood_assignment), y = value)) +
+             geom_violin(aes(color = name, fill = name), alpha=0.3, position=position_dodge(width=0.5)) +
+             stat_summary(aes(color = name),
+                          fun = median, geom = "crossbar", width = 0.4, linetype = 1, linewidth = 0.5,
+                          position = position_dodge(width = 0.5)) +
+             cowplot::theme_cowplot()+
+             scale_x_discrete("Neighborhood")+
+             scale_y_continuous("Neighbors in tha hood")+
+             scale_color_discrete("") +
+             scale_fill_discrete(""))
+    )
 
     #Visualize the heatmap of mean by neighborhood
     Mean_tibble <- Neighbor_patterns %>% group_by(Neighborhood_assignment) %>% dplyr::summarize_all(mean) %>%dplyr::ungroup() #Obtain mean tibble
     Mean_matrix <- as.matrix(Mean_tibble[-1] %>% scale()) #Scale it and transform it into a  mtrix
     row.names(Mean_matrix) <- Mean_tibble[[1]]
 
-    plot(ComplexHeatmap::Heatmap(Mean_matrix,
-                                 name = "Scaled")
+    try(
+      plot(ComplexHeatmap::Heatmap(Mean_matrix,
+                                   name = "Scaled")
+      )
     )
 
+
     #Generate the final results
-    Final_result <-dplyr::bind_cols(DATA_Neighbors, Neighbor_patterns["Neighborhood_assignment"])
+    Final_result <- dplyr::bind_cols(DATA_Neighbors, Neighbor_patterns["Neighborhood_assignment"])
 
     #Print the number of observations by neighborhoods
     print(Final_result %>% dplyr::count(Neighborhood_assignment) %>% dplyr::arrange(desc(n)))

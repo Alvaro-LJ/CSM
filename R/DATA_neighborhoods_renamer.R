@@ -8,6 +8,18 @@
 #'
 #' @returns Returns a tibble with cell features and the Neighborhood_assignment column with the modified labels.
 #'
+#' @examples
+#' print(unique(CSM_Neighborhoods_test$Neighborhood_assignment))
+#'
+#' New_names_DATA <-
+#'  DATA_neighborhoods_renamer(
+#'     DATA = CSM_Neighborhoods_test,
+#'     New_names = c("Tumor_low_density", "Tumor_high_density"),
+#'     Old_names = c("Tumor_Other", "Tumor_rich")
+#' )
+#'
+#' print(unique(New_names_DATA$Neighborhood_assignment))
+#'
 #' @export
 
 DATA_neighborhoods_renamer <-
@@ -47,8 +59,8 @@ DATA_neighborhoods_renamer <-
         Replace_old <- Old_names[Index]
         Replacement <- New_names[Index]
 
-        DATA_Phenotypes$Neighborhood_assignment[DATA_Phenotypes$Neighborhood_assignment == Replace_old] <- Replacement
+        DATA_neighborhoods$Neighborhood_assignment[DATA_neighborhoods$Neighborhood_assignment == Replace_old] <- Replacement
       }
-      return(DATA_Phenotypes)
+      return(DATA_neighborhoods)
     }
   }

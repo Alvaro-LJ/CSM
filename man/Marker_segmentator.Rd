@@ -32,3 +32,14 @@ Returns a tibble with the new segmented feature
 \description{
 Given a numeric cell feature and user specified cut-off values, a character vector is generated to summarize the feature.
 }
+\examples{
+Marker_segmentator(
+    DATA = CSM_DistanceToPixelcell_test,
+    DATA_variable = "CK_DIST",
+    DATA_cutoff = c(0, 1, 5, 500),
+    New_labels = c("Inside", "Border", "Outside"),
+    Merge = TRUE,
+    Var_to_Merge = "Phenotype"
+)
+
+}
