@@ -35,12 +35,12 @@
 #' @export
 
 Distance_matrix_generator <-
-  function(N_cores = NULL,
+  function(N_cores = 1,
            DATA = NULL,
            Cell_Of_Origin = NULL,
            Target_Cell = NULL,
-           Allow_Cero_Distance = NULL,
-           Perform_edge_correction = NULL,
+           Allow_Cero_Distance = FALSE,
+           Perform_edge_correction = FALSE,
            Hull_ratio = NULL,
            Distance_to_edge = NULL
   ) {

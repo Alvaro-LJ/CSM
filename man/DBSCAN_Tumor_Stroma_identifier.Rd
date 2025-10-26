@@ -10,7 +10,7 @@ DBSCAN_Tumor_Stroma_identifier(
   Image_preview = NULL,
   Min_cells = NULL,
   Distance_radius = NULL,
-  N_cores = NULL
+  N_cores = 1
 )
 }
 \arguments{
@@ -32,4 +32,16 @@ Returns a tibble with cell features and a column named 'Compartment' containing 
 \description{
 The function calculates tissue compartments (usually tumor and stroma) based on density based clustering. Cells are considered to be in the tissue compartment if they are clustered in proximity to index cell types.
 The function is based on the dbscan::dbscan function.
+}
+\examples{
+\dontrun{
+DBSCAN_Tumor_Stroma_identifier(
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Index_phenotype = "TUMOR",
+    Min_cells = 3,
+    Distance_radius = 50,
+    N_cores = 1
+)
+}
+
 }

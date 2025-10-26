@@ -32,12 +32,12 @@
 #' @export
 
 Trio_Distance_matrix_generator <-
-  function(N_cores = NULL,
+  function(N_cores = 1,
            DATA = NULL,
            Cell_Of_Origin = NULL,
            Target_Cell_1 = NULL,
            Target_Cell_2 = NULL,
-           Perform_edge_correction = NULL,
+           Perform_edge_correction = FALSE,
            Hull_ratio = NULL,
            Distance_to_edge = NULL
   ) {

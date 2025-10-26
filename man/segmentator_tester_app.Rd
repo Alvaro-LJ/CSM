@@ -15,3 +15,25 @@ Segmentator_tester_app(Directory = NULL, Ordered_Channels = NULL)
 \code{Segmentator_tester_app()} launches an APP to interactively explore cell segmentation parameters interactively
 Parameters can then be used to feed the \code{\link[=Cell_segmentator_quantificator]{Cell_segmentator_quantificator()}}.
 }
+\examples{
+\dontrun{
+#Create temporary input directory----------------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Launch the app------------------------------------------------------------
+Segmentator_tester_app(
+    Directory = Input_Dir,
+    Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+    )
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+}
+}

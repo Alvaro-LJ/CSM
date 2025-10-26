@@ -28,12 +28,34 @@ The function writes multi-tiff images in the ouput directory.
 }
 \examples{
 |dontrun{
+#Create temporary input and output directories------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Input_Dir, recursive = TRUE)
+dir.create(Output_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniHE_test[[Image]], file.path(Input_Dir, names(CSM_MiniHE_test)[Image]))
+})
+
+#Print an example of the deconvolution parameters obtained using the App------------
+print(CSM_colordeconv_test)
+
+#Run color channel separation------------------------------------------
 Image_deconvolution_function(
-Directory = "Image_directory",
-Output_directory = "Output_directory",
-Deconvolution_parameters = Deconvolution_Parameters,
-N_cores = 1
+       Directory = Input_Dir,
+       Output_directory = Output_Dir,
+       Deconvolution_parameters = CSM_colordeconv_test,
+       N_cores = 1
 )
+
+#Check that files have been created-----------------------------------------
+list.files(Output_Dir)
+
+#Remove directories---------------------------------------------------------
+unlink(c(Input_Dir, Output_Dir), recursive = TRUE)
 }
 
 }

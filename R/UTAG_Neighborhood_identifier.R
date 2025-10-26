@@ -76,6 +76,43 @@
 #' @returns Returns a tibble with cell features and a column named 'Neighborhood_assignment' containing cell neighborhoods.
 #' If dimension reduction has been performed returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
 #'
+#' @examples
+#' \dontrun{
+#'Message_passed_cells <-
+#' UTAG_message_passing(
+#'     DATA = CSM_Arrangedcellfeaturedata_test,
+#'
+#'     Neighbor_strategy = "Distance",
+#'     Message_strategy = "Sum",
+#'     Max_dist_allowed = 50,
+#'     Weighting_Strategy = "Proximity",
+#'
+#'     N_cores = 1
+#')
+#'
+#'UTAG_Neighborhood_identifier(
+#'    DATA = Message_passed_cells,
+#'    Strategy = "Batch_K_means",
+#'    Min_Neighbors = 5,
+#'
+#'    Apply_Denoise = TRUE,
+#'    Denoising = "Otsu",
+#'
+#'    Perform_Dimension_reduction = TRUE,
+#'    Dimension_reduction = "UMAP",
+#'    Dimension_reduction_prop = 1,
+#'    Cluster_on_Reduced = TRUE,
+#'
+#'    Batch_size = 100,
+#'    Max_N_neighborhoods_Batch = 10,
+#'    Percentage_centroid_initiation = 1,
+#'    N_initiations = 10,
+#'    Max_iterations = 10
+#')
+#' }
+#'
+#'
+#'
 #' @export
 
 UTAG_Neighborhood_identifier <-
@@ -694,7 +731,7 @@ UTAG_Neighborhood_identifier <-
       )
       #Test if SOM returned an error
       if(berryFunctions::is.error(SOM_results)) {
-        stop("Data is too large for Self-Organizing Maps. Please try another strategy")
+        stop("Data is too large or too small for Self-Organizing Maps. Please try another strategy")
       }
       else{
         #Assign phenotypes to each cell

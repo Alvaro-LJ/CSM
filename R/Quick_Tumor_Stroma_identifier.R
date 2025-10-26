@@ -6,11 +6,22 @@
 #' @param Index_phenotype A character value indicating the cell phenotype to be used to calculate the tissue compartment.
 #' @param Accuracy A numeric value indicating the size of the tile. Smaller sizes give more accurate result.
 #' @param Min_cell_no A integer value indicating the minimum number of cells within a tile to consider the tile positive for a compartment.
-#' @param Image_preview A character value indicating the name of the image to be used in the preview.
+#' @param Image_preview A character value indicating the name of the image to be used in the preview. If Null a random sample will be selected.
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
-#'
 #' @returns Returns a tibble with cell features and a column named 'Compartment' containing cell location.
+#'
+#' @examples
+#' \dontrun{
+#' #' Quick_Tumor_Stroma_identifier(
+#'     DATA_Phenotypes = CSM_Phenotypecell_test,
+#'     Index_phenotype = "TUMOR",
+#'     Accuracy = 80,
+#'     Min_cell_no = 3,
+#'     Image_preview = NULL,
+#'     N_cores = 1
+#')
+#' }
 #'
 #' @export
 
@@ -20,18 +31,18 @@ Quick_Tumor_Stroma_identifier <-
            Accuracy = NULL,
            Min_cell_no = NULL,
            Image_preview = NULL,
-           N_cores = NULL){
-    #Check arguments
-    if(!all(is.character(DATA_Phenotypes), exists(DATA_Phenotypes, envir = .GlobalEnv))) stop("DATA_Phenotypes must be the name of an existing object")
-    #Import all required Data from the environment
-    DATA_Phenotypes <- get(DATA_Phenotypes, envir = globalenv())
+           N_cores = 1){
+    #Import all required Data
+    DATA_Phenotypes <- DATA_Phenotypes
 
     #Check more arguments
     if(!Index_phenotype %in% unique(DATA_Phenotypes$Phenotype)) stop(paste0("Index phenotype must be one of the following: ", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = ", ")))
     if(!all(is.numeric(Accuracy), Accuracy > 0)) stop("Accuracy must be a numeric value > 0")
     if(!all(is.numeric(Min_cell_no), Min_cell_no%%1 == 0, Min_cell_no > 0)) stop("Min_cell_no must be an integer value > 0")
+    if(is.null(Image_preview)) Image_preview <- sample(unique(DATA_Phenotypes$Subject_Names), size = 1)
     if(!Image_preview %in% unique(DATA_Phenotypes$Subject_Names)) stop(paste0(Image_preview, " not found in Subject_Names"))
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
+
 
 
 
@@ -87,6 +98,7 @@ Quick_Tumor_Stroma_identifier <-
             x_position <- (.x >= Interim$xmin) & (.x < Interim$xmax)
             y_position <- (.y >= Interim$ymin) & (.y < Interim$ymax)
             Final_pos <- any(x_position & y_position)
+            return(Final_pos)
           })) %>% dplyr::mutate(Compartment = case_when(Compartment ~ "Tumor",
                                                        !Compartment ~ "Stroma"))
           return(Final)

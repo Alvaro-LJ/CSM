@@ -6,7 +6,31 @@
 #' @param Minimum_cell_no_per_tile An integer indicating the minimum number of cells that a tile must contain. Tiles below the limit will not be included in the analysis.
 #' @param Phenotypes_included A character vector indicating the phenotype labels that will be included in the analysis.
 #'
+#' @details
+#' The winner from each tile will be reported as ABSOLUTE if there is a single neighborhood represented in each tile, SUPER if the winner has more than 50% of votes and simple if the winner has less than 50% of votes.
+#' If there are any ties, alphabetical order will break the tie.
+#'
 #' @returns A list containing image information with by-tile neighborhood counts and a tibble with a summary of the number of winner per image.
+#'
+#' @examples
+#' #Tile images with neighborhood information-----------------------------------
+#' Tiled_Images <-
+#'  Image_tiling_processing_function(
+#'     DATA = CSM_Neighborhoods_test,
+#'     Tile_width = 125,
+#'     Tile_height = 125,
+#'     Variables_to_keep = "Neighborhood_assignment",
+#'     N_cores = 1
+#' )
+#'
+#'#Celebrate elections in each tile---------------------------------------------
+#' Neighborhood_voting_function(
+#'     N_cores = 1,
+#'     Tiled_Images = Tiled_Images,
+#'     Minimum_cell_no_per_tile = 2,
+#'     Neighborhoods_included = unique(CSM_Neighborhoods_test$Neighborhood_assignment)
+#' )
+#'
 #' @export
 
 Neighborhood_voting_function <-

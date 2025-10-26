@@ -67,9 +67,43 @@
 #'
 #' Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
 #'
-#' @seealso [Clustered_Tiled_Images_renamer()], [Clustered_Tiled_Images_analyzer()], [Clustered_Tiled_Images_graphicator()]
+#' @seealso [Image_tiling_processing_function()], [Clustered_Tiled_Images_renamer()], [Clustered_Tiled_Images_analyzer()], [Clustered_Tiled_Images_graphicator()]
 #'
 #' @returns Returns a list containing the tiles with their corresponding neighborhood assignment.
+#'
+#' @examples
+#' \dontrun{
+#' #Tile images with cell phenotype information---------------------------------
+#' Tiled_Images <-
+#'  Image_tiling_processing_function(
+#'    N_cores = 1,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Tile_width = 125,
+#'    Tile_height = 125,
+#'    Variables_to_keep = "Phenotype"
+#' )
+#'
+#' #Cluster cell composition by tile to find neighborhoods---------------------
+#' Tiled_Image_Clustering_function(
+#'     Tiled_images = Tiled_Images,
+#'     Minimum_cell_no_per_tile = 4,
+#'     Minimum_valid_tiles_per_image = 4,
+#'     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+#'
+#'     Cluster_Data = "Cell_Density",
+#'
+#'     Perform_Dimension_reduction = FALSE,
+#'     Cluster_on_Reduced = FALSE,
+#'
+#'    Strategy = "Consensus_Clustering",
+#'    Max_N_Clusters = 5,
+#'    Consensus_reps = 2,
+#'    Consensus_p_Items = 1,
+#'    Consensus_Cluster_Alg = "pam",
+#'    Consensus_Distance = "euclidean",
+#'    Consensus_Name = "Consensus_clustering_test"
+#')
+#' }
 #'
 #' @export
 
@@ -640,7 +674,7 @@ Tiled_Image_Clustering_function <-
       )
       #Test if SOM returned an error
       if(berryFunctions::is.error(SOM_results)) {
-        stop("Data is too large for Self-Organizing Maps. Please try another strategy")
+        stop("Data is too large or too small for Self-Organizing Maps. Please try another strategy")
       }
       else{
         #Assign phenotypes to each cell
@@ -764,11 +798,11 @@ Tiled_Image_Clustering_function <-
       #Proceed if no error was returned
       else{
         #Assign this K means cluster to each observation
-        DATA_filter_Markers <- Tile_patterns_scaled %>%dplyr::mutate(K_means_Cl = cl$cluster)
+        DATA_filter_Markers <- tibble::as_tibble(Tile_patterns_scaled) %>% dplyr::mutate(K_means_Cl = unlist(cl$cluster))
 
         #Prepare data for Meta-Clustering
         #Create a tibble with the K means centroids and the format it for Consensus clustering
-        K_medoids <- as_tibble(cl$centers) %>%dplyr::mutate(K_means_Cl = 1:nrow(as_tibble(cl$centers)))
+        K_medoids <- as_tibble(cl$centers) %>% dplyr::mutate(K_means_Cl = 1:nrow(as_tibble(cl$centers)))
         tK_medoids <- K_medoids %>% dplyr::select(-K_means_Cl) %>% as.matrix %>% t
 
         print("Perorming Consensus Clustering")

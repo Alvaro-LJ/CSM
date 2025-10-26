@@ -8,6 +8,12 @@
 #'
 #' @returns Returns a tibble with neighborhood counts, percentages and optionally densities per image.
 #'
+#' @examples
+#' Neighborhood_Quantifier(
+#'     DATA = CSM_Neighborhoods_test,
+#'     Calculate_Density = FALSE
+#')
+#'
 #' @export
 
 Neighborhood_Quantifier <-

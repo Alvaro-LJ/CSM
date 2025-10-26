@@ -12,7 +12,7 @@ LISA_Tumor_Stroma_identifier(
   Association_Dist_max = NULL,
   Type_of_LISA_function = NULL,
   Window_type = NULL,
-  N_cores = NULL
+  N_cores = 1
 )
 }
 \arguments{
@@ -38,4 +38,18 @@ Returns a tibble with cell features and a column named 'Compartment' containing 
 \description{
 The function calculates tissue compartments (usually tumor and stroma) based on Local Indicators of Spatial Association.
 The function is based on the lisaClust::lisaClustfunction.
+}
+\examples{
+\dontrun{
+LISA_Tumor_Stroma_identifier(
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Index_phenotype = "TUMOR",
+   Association_Dist_min = 5,
+   Association_Dist_max = 50,
+   Type_of_LISA_function = "L",
+   Window_type = "convex",
+   N_cores = 1
+)
+}
+
 }

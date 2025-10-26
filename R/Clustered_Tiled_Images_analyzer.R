@@ -17,6 +17,48 @@
 #'
 #' @returns Generates a tibble containing neighborhood summary by sample and optionally heterogeneity metrics.
 #'
+#' @examples
+#'\dontrun{
+#' #Tile images with cell phenotype information---------------------------------
+#' Tiled_Images <-
+#'  Image_tiling_processing_function(
+#'    N_cores = 1,
+#'    DATA = CSM_Phenotypecell_test,
+#'    Tile_width = 125,
+#'    Tile_height = 125,
+#'    Variables_to_keep = "Phenotype"
+#' )
+#'
+#' #Cluster cell composition by tile to find neighborhoods---------------------
+#' Clustered_Tiled_Images <-
+#' Tiled_Image_Clustering_function(
+#'     Tiled_images = Tiled_Images,
+#'     Minimum_cell_no_per_tile = 4,
+#'     Minimum_valid_tiles_per_image = 4,
+#'     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+#'
+#'     Cluster_Data = "Cell_Density",
+#'
+#'     Perform_Dimension_reduction = FALSE,
+#'     Cluster_on_Reduced = FALSE,
+#'
+#'    Strategy = "Consensus_Clustering",
+#'    Max_N_Clusters = 5,
+#'    Consensus_reps = 2,
+#'    Consensus_p_Items = 1,
+#'    Consensus_Cluster_Alg = "pam",
+#'    Consensus_Distance = "euclidean",
+#'    Consensus_Name = "Consensus_clustering_test"
+#')
+#'
+#' #Run the analysis-------------------------------------------------------------
+#'Clustered_Tiled_Images_analyzer(
+#'    Tiled_images = Clustered_Tiled_Images,
+#'    Perform_heterogeneity_analysis = TRUE,
+#'    Graph_Modularity_resolution = 0.5
+#')
+#' }
+#'
 #' @export
 
 
@@ -94,7 +136,7 @@ Clustered_Tiled_Images_analyzer <-
         purrr::map_dbl(Tiled_images, function(Image){
 
           #We define the number and ID of edges of the graph
-          Graph_tibble <- as_tibble(expand.grid.unique(Image$tile_id, Image$tile_id))
+          Graph_tibble <- as_tibble(expand.grid.unique(Image$tile_id, Image$tile_id), .name_repair = "universal_quiet")
           names(Graph_tibble) <- c("from", "to")
           Graph_tibble <- Graph_tibble %>%dplyr::mutate(ID = stringr::str_c(from, to, sep = "_"))
 

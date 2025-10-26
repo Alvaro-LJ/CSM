@@ -38,7 +38,7 @@
 #' @export
 
 Cumulative_Interaction_generator <-
-  function(N_cores = NULL,
+  function(N_cores = 1,
            DATA = NULL,
            Start_from = NULL,
            Stop_at = NULL,

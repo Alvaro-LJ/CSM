@@ -14,6 +14,19 @@
 #'
 #' @returns Returns a tibble with cell features and a column named 'Compartment' containing cell location.
 #'
+#' @examples
+#' \dontrun{
+#' LISA_Tumor_Stroma_identifier(
+#'    DATA_Phenotypes = CSM_Phenotypecell_test,
+#'    Index_phenotype = "TUMOR",
+#'    Association_Dist_min = 5,
+#'    Association_Dist_max = 50,
+#'    Type_of_LISA_function = "L",
+#'    Window_type = "convex",
+#'    N_cores = 1
+#')
+#' }
+#'
 #' @export
 
 LISA_Tumor_Stroma_identifier <-
@@ -24,7 +37,7 @@ LISA_Tumor_Stroma_identifier <-
            Association_Dist_max = NULL,
            Type_of_LISA_function = NULL,
            Window_type = NULL,
-           N_cores = NULL){
+           N_cores = 1){
 
     #Check suggested packages
     {
@@ -49,15 +62,12 @@ LISA_Tumor_Stroma_identifier <-
         )
       )
     }
-
-    #Check arguments
-    if(!all(is.character(DATA_Phenotypes), exists(DATA_Phenotypes, envir = .GlobalEnv))) stop("DATA_Phenotypes must be the name of an existing object")
-
-    #Import all required Data from the environment
-    DATA_Phenotypes <- get(DATA_Phenotypes, envir = .GlobalEnv)
+    #Import all required Data
+    DATA_Phenotypes <- DATA_Phenotypes
 
     #Check more arguments
     if(!Index_phenotype %in% unique(DATA_Phenotypes$Phenotype)) stop(paste0("Index phenotype must be one of the following: ", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = ", ")))
+    if(is.null(Image_preview)) Image_preview <- sample(unique(DATA_Phenotypes$Subject_Names), size = 1)
     if(!Image_preview %in% unique(DATA_Phenotypes$Subject_Names)) stop(paste0(Image_preview, " not found in Subject_Names"))
 
     if(!all(is.numeric(Association_Dist_min), Association_Dist_min > 0)) stop("Association_Dist_min must be a numeric value > 0")
@@ -94,7 +104,7 @@ LISA_Tumor_Stroma_identifier <-
                                       lisaFunc = Type_of_LISA_function)
 
     #Add results to original data
-    For_test <- For_test %>%dplyr::mutate(Region = SummarizedExperiment::colData(Lisa_test)$region)
+    For_test <- For_test %>% dplyr::mutate(Region = SummarizedExperiment::colData(Lisa_test)$region)
 
     rm(Lisa_test)
     gc()

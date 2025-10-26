@@ -44,3 +44,57 @@ where cells within the same image share specific characteristics (like exposure 
 The model formula will look something like this: N umber of Target cells ~ Image_Metadata*Distance_COO + Density_Target + (1|Cell_Of_Origin_ID)
 The multilevel model is calculated using lme4::lmer function. The contribution of each variables to the total variance explanation is calculated using the partR2::partR2 function.
 }
+\examples{
+#Obtain the Cumulative interaction between two cells types accross the desired distance--------
+DATA_Distances <-
+Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_PhenotypeTMA_test,
+    Cell_Of_Origin = "CD8",
+    Target_Cell = "MACROPHAGE",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = FALSE
+)
+DATA_Cumulative <-
+Cumulative_Interaction_generator(
+    N_cores = 1,
+    DATA = DATA_Distances,
+    Start_from = 10,
+    Stop_at = 210,
+    Sampling_frequency = 50
+)
+
+#Obtain cell density by sample to account for density of target cells in the model-------------
+DATA_AREA <-
+ Image_size_calculator(
+    DATA = CSM_PhenotypeTMA_test,
+    Strategy = "Concave_hull",
+    Hull_ratio = 0.4
+)
+Cells_by_sample <-
+ Phenotype_quantifier(
+    CSM_PhenotypeTMA_test,
+    Calculate_Density = TRUE,
+    DATA_Area = DATA_AREA
+)
+
+#Arrange clinical data------------------------------------------------------------------------
+DATA_CLINICAL <-
+Clinical_Data_arrange_function(
+     DATA = CSM_ClinicalTMA_test,
+     Subject_Names = "Sample",
+     Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
+)
+
+#Calculate the model--------------------------------------------------------------------------
+Multi_level_modelling_function(
+    DATA_cumulative = DATA_Cumulative,
+    DATA_Clinical = DATA_CLINICAL,
+    Clinical_var = "MMRP_status",
+    DATA_Densities = Cells_by_sample,
+    Cell_Of_Origin = "CD8",
+    Target_cell = "MACROPHAGE",
+    Calculate_R2 = FALSE
+)
+
+}

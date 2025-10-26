@@ -28,6 +28,23 @@
 #'
 #' @returns A list containing pairwise cell spatial interactions by sample.
 #'
+#' @examples
+#' Interaction_counter(
+#'     DATA = CSM_Phenotypecell_test,
+#'     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+#'     N_cores = 1,
+#'
+#'     Graph_type = "knn",
+#'     K_number = 20
+#'
+#'     Method = "classic",
+#'     patch_size = 125,
+#'
+#'     Perform_significance_testing = TRUE,
+#'     N_iterations = 10,
+#'     p_threshold = 0.05
+#')
+#'
 #' @export
 
 Interaction_counter <-
@@ -72,9 +89,8 @@ Interaction_counter <-
 
     #Check arguments
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
-    if(!all(is.character(DATA), exists(DATA, envir = .GlobalEnv))) stop("DATA must be the name of an existing object")
     #Import data
-    DATA <- get(DATA, envir = .GlobalEnv)
+    DATA <- DATA
 
     if(!all(Phenotypes_included %in% unique(DATA$Phenotype))){
       stop(paste0("Phenotypes provided must be one of: ", stringr::str_c(unique(DATA$Phenotype), collapse = ", ")))

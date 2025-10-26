@@ -18,6 +18,34 @@
 #'
 #' @returns A list containing a summary of the pairwise cell-to-cell interactions by sample.
 #'
+#' @examples
+#' \dontrun{
+#' #Generate interaction data--------------------------------------------------
+#' DATA_Interaction <-
+#'  Interaction_counter(
+#'     DATA = CSM_Phenotypecell_test,
+#'     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+#'     N_cores = 1,
+#'
+#'     Graph_type = "knn",
+#'     K_number = 20
+#'
+#'     Method = "classic",
+#'     patch_size = 125,
+#'
+#'     Perform_significance_testing = TRUE,
+#'     N_iterations = 10,
+#'     p_threshold = 0.05
+#')
+#'
+#'#Analyze the results (clustering not possible due to only 2 images available)-----
+#'Interaction_analyzer(
+#'     DATA = DATA_Interaction,
+#'     Exclude_non_significant = FALSE,
+#'     Cluster = FALSE
+#')
+#' }
+#'
 #' @export
 
 Interaction_analyzer <-

@@ -34,29 +34,46 @@
 #'
 #' @examples
 #' \dontrun{
+#' #Create temporary input and output directories------------------------------
+#' Input_Dir <- tempfile(pattern = "tempdir1_Input")
+#' Output_Dir <- tempfile(pattern = "tempdir2_Output")
+#' dir.create(Input_Dir, recursive = TRUE)
+#' dir.create(Output_Dir, recursive = TRUE)
+#'
+#' #Save images in Input directory
+#' purrr::map(1:2,
+#' function(Image){
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#' })
+#'
+#' #Execute thresholding------------------------------------------------------
 #' Pixel_Threshold_calculator(
-#' N_cores = 2,
-#' Directory = "Image_directory",
-#' Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5"),
-#' Channels_to_keep = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5"),
-#' Target_channel = "Channel_1",
+#'      N_cores = 1,
+#'      Directory = Input_Dir,
+#'      Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'      Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'      Target_channel = "CK-EPCAM",
 #'
-#' Save_processed_images = TRUE,
-#' Output_Directory = "Output_directory",
+#'      Save_processed_images = TRUE,
+#'      Output_Directory = Output_Dir,
 #'
-#' Local_thresholding = FALSE,
-#' Threshold_type = "Arbitrary",
-#' Threshold_value = 0.02,
-#' Levels = 3,
+#'      Local_thresholding = FALSE,
+#'      Threshold_type = "Arbitrary",
+#'      Threshold_value = 0.02,
 #'
-#' Threshold_type_tissueMask = "Absolute",
-#' Threshold_value_tissueMask = 0.001,
-#' Blurr_tissueMask = TRUE,
-#' Sigma_tissueMask = 0.5,
-#'
-#' Blurr_target = FALSE,
-#' Sigma_target = NULL
+#'      Threshold_type_tissueMask = "Absolute",
+#'      Threshold_value_tissueMask = 0.001,
+#'      Blurr_tissueMask = TRUE,
+#'      Sigma_tissueMask = 0.5,
+#'      Blurr_target = FALSE
 #' )
+#'
+#'#Check that files have been created-----------------------------------------
+#'list.files(Output_Dir)
+#'
+#'#Remove directories---------------------------------------------------------
+#'unlink(c(Input_Dir, Output_Dir), recursive = TRUE)
+#'
 #' }
 #'
 #' @export

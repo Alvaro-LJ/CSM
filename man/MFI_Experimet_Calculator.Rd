@@ -50,33 +50,49 @@ Mask_name, Threshold_type, Threshold_value, Blurr, Sigma. These parameters shoul
 }
 \examples{
 \dontrun{
+#Create temporary input and output directories------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
 
-#Optionally generate marker masks to obtain the target MFI
-Target_mask_list <- list(
-  Marker1 = list(Mask_name = "Marker1", #Name must match a channel in the provided images
-                Threshold_type = "Arbitrary",
-                Threshold_value = 0.1,
-                Blurr = TRUE,
-                Sigma = 1),
-  Marker2 = list(Mask_name = "Marker2", #Name must match a channel in the provided images
-                Threshold_type = "Arbitrary",
-                Threshold_value = 0.001,
-                Blurr = TRUE,
-                Sigma = 2)
+#Save images in Input directory--------------------------------------------
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Optionally generate marker masks to obtain the target MFI----------------------------
+#Calculate the target in a combined CK, CD8 mask that will be overlayed to the tissue mask
+Target_mask_list <- list(CK = list(Mask_name = "CK-EPCAM",
+                                  Threshold_type = "Arbitrary",
+                                  Threshold_value = 0.1,
+                                  Blurr = TRUE,
+                                  Sigma = 1),
+                      CD8 = list(Mask_name = "CD8a",
+                                 Threshold_type = "Arbitrary",
+                                 Threshold_value = 0.001,
+                                 Blurr = TRUE,
+                                 Sigma = 1)
 )
-#Then calculate the MFI
+
+
+#Then calculate the MFI---------------------------
 MFI_Experimet_Calculator(
-N_cores = 2,
-Directory = "Image_containing_directory",
-Ordered_Channels = c("Marker1", "Marker2" ,"Marker3"),
-Channels_to_keep = c("Marker1", "Marker2" ,"Marker3"),
-Target_channel = "Marker3",
-Target_masks = Target_mask_list,
-Threshold_type_tissueMask = "Arbitrary",
-Threshold_value_tissueMask = 0.01,
-Blurr_tissueMask = TRUE,
-Sigma_tissueMask = 0.5
+   N_cores = 1,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Target_channel = "GZMB",
+
+   Target_masks = Target_mask_list,
+
+   Threshold_type_tissueMask = "Arbitrary",
+   Threshold_value_tissueMask = 0.01,
+   Blurr_tissueMask = TRUE,
+   Sigma_tissueMask = 0.5
 )
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
 }
 
 }

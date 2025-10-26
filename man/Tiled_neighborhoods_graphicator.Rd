@@ -23,3 +23,31 @@ Returns a plot with the tiles and the neighborhood elections results.
 \description{
 Generates a plot illustrating heterogeneity by tile.
 }
+\examples{
+#Tile images with neighborhood information-----------------------------------
+Tiled_Images <-
+ Image_tiling_processing_function(
+    DATA = CSM_Neighborhoods_test,
+    Tile_width = 125,
+    Tile_height = 125,
+    Variables_to_keep = "Neighborhood_assignment",
+    N_cores = 1
+)
+
+#Celebrate elections in each tile---------------------------------------------
+DATA_neighborhood_elections <-
+Neighborhood_voting_function(
+    N_cores = 1,
+    Tiled_Images = Tiled_Images,
+    Minimum_cell_no_per_tile = 2,
+    Neighborhoods_included = unique(CSM_Neighborhoods_test$Neighborhood_assignment)
+)
+
+#Graph results----------------------------------------------------------------
+Tiled_neighborhoods_graphicator(
+DATA_elections = DATA_neighborhood_elections,
+Image_name = "ABCM22001_B14_MiniCrop.tif",
+Graph_only_winner_neighborhood = FALSE
+)
+
+}

@@ -32,46 +32,34 @@
 #'
 #' @examples
 #' \dontrun{
-#' #'
-#' #If Segmentator_tester_app has been used to obtain a Parameter list
+#' #Create temporary input directory----------------------------------------
+#' Input_Dir <- tempfile(pattern = "tempdir1_Input")
+#' dir.create(Input_Dir, recursive = TRUE)
+#'
+#' #Save images in Input directory
+#' purrr::map(1:2,
+#' function(Image){
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#' })
+#'
+#' #Check a segmentation parameters list obtained using the dedicated function----------
+#' print(CSM_SegmentParams_test)
+#'
+#' #Run the cell segmentation and feature extraction process------------------
 #' Cell_segmentator_quantificator(
-#'   Directory = "Image_directory",
-#'   Parameter_list = Segmentation_Parameters,
-#'   N_cores = 2,
+#'   Directory = Input_Dir,
+#'   Parameter_list = CSM_SegmentParams_test,
+#'   N_cores = 1,
 #'   quantiles_to_calculate = c(0.05, 0.25, 0.5, 0.75, 0.95)
 #' )
 #'
-#' #Otherwise segmentation parameters can be supplied
-#' Cell_segmentator_quantificator(
-#'   Directory = "Image_directory",
-#'   N_cores = 2,
-#'   quantiles_to_calculate = c(0.05, 0.25, 0.5, 0.75, 0.95),
-#'   Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4"),
-#'   Channels_to_keep = c("Channel_1", "Channel_2", "Channel_3", "Channel_4" ),
-#'   Nuclear_marker = "Channel_1",
-#'   Cell_body_method = "discModel",
-#'   Min_pixel = 10,
-#'   Smooth_amount = 1,
-#'   Normalization = "tissueMask",
-#'   Watershed_type = "combine",
-#'   Tolerance_value = NULL,
-#'   Neighborhood_distance = 1,
-#'   Disc_size = 7,
-#'   Tissue_mask_markers = c("Channel_2", "Channel_3", "Channel_4"),
-#'   Perform_PCA = FALSE,
-#'   Perform_nuclear_channel_processing = TRUE,
-#'   Black_level = 10,
-#'   White_level = 90,
-#'   Gamma_level = 0.05,
-#'   Equalize = FALSE,
-#'   Opening_kernel_size = 1,
-#'   Closing_kernel_size = 1
-#')
-#'
+#'#Remove directories---------------------------------------------------------
+#'unlink(Input_Dir, recursive = TRUE)
 #' }
 #'
-#'
 #' @export
+
+
 Cell_segmentator_quantificator <-
   function(Directory = NULL,
            Parameter_list = NULL,

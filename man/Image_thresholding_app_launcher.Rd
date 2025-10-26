@@ -16,12 +16,25 @@ Image_thresholding_app_launcher(Directory = NULL, Ordered_Channels = NULL)
 }
 \examples{
 \dontrun{
-Image_thresholding_app_launcher(
-Directory = "Image_directory",
-Ordered_Channels = c("Channel_1", "Channel_2", "Channel_3", "Channel_4", "Channel_5")
-)
-}
+#Create temporary directory------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
 
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app----------------------------------------------
+Image_thresholding_app_launcher(
+    Directory = Input_Dir,
+    Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+}
 
 }
 \seealso{

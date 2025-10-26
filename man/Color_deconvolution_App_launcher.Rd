@@ -13,3 +13,25 @@ Color_deconvolution_App_launcher(Directory = NULL)
 \code{Color_deconvolution_App_launcher()} launches an APP to interactively explore color deconvolution parameters
 Parameters can then be used to feed the \code{\link[=Image_deconvolution_function]{Image_deconvolution_function()}}.
 }
+\examples{
+\dontrun{
+#Create temporary input and output directories------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniHE_test[[Image]], file.path(Input_Dir, names(CSM_MiniHE_test)[Image]))
+})
+
+#Launch the app------------------------------------------------------------
+Color_deconvolution_App_launcher(Directory = Input_Dir)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+
+}
+
+
+}

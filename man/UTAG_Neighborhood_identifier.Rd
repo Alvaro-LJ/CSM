@@ -163,6 +163,44 @@ K_Means_Meta_clustering first summarizes cell feature matrix observations using 
 
 Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
 }
+\examples{
+\dontrun{
+Message_passed_cells <-
+UTAG_message_passing(
+    DATA = CSM_Arrangedcellfeaturedata_test,
+
+    Neighbor_strategy = "Distance",
+    Message_strategy = "Sum",
+    Max_dist_allowed = 50,
+    Weighting_Strategy = "Proximity",
+
+    N_cores = 1
+)
+
+UTAG_Neighborhood_identifier(
+   DATA = Message_passed_cells,
+   Strategy = "Batch_K_means",
+   Min_Neighbors = 5,
+
+   Apply_Denoise = TRUE,
+   Denoising = "Otsu",
+
+   Perform_Dimension_reduction = TRUE,
+   Dimension_reduction = "UMAP",
+   Dimension_reduction_prop = 1,
+   Cluster_on_Reduced = TRUE,
+
+   Batch_size = 100,
+   Max_N_neighborhoods_Batch = 10,
+   Percentage_centroid_initiation = 1,
+   N_initiations = 10,
+   Max_iterations = 10
+)
+}
+
+
+
+}
 \seealso{
 \code{\link[=UTAG_message_passing]{UTAG_message_passing()}}, \code{\link[=DATA_neighborhoods_renamer]{DATA_neighborhoods_renamer()}}, \code{\link[=Neighborhood_Quantifier]{Neighborhood_Quantifier()}}, \code{\link[=Neighborhood_voting_function]{Neighborhood_voting_function()}}, \code{\link[=Tiled_neighborhoods_graphicator]{Tiled_neighborhoods_graphicator()}}
 }

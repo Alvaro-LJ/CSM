@@ -16,6 +16,57 @@
 #' @details If image metadata variable is a character, the function will calculate t-tests or ANOVA depending on the amount of categories.
 #' If image metadata is numeric, Pearson correlation will be calculated. For time-to event analysis, cut-off points for the image feature will be calculated using the survminer::surv_cutpoint function.
 #'
+#' @examples
+#' #Calculate the area of TMA samples-------------------------------------------
+#' DATA_AREA <-
+#'  Image_size_calculator(
+#'     DATA = CSM_PhenotypeTMA_test,
+#'     Strategy = "Concave_hull",
+#'     Hull_ratio = 0.4
+#')
+#'
+#' #Calculate the cell densities by samples-------------------------------------
+#' Cells_by_sample <-
+#'  Phenotype_quantifier(
+#'     CSM_PhenotypeTMA_test,
+#'     Calculate_Density = TRUE,
+#'     DATA_Area = DATA_AREA
+#' )
+#'
+#' #Obtain clinical data--------------------------------------------------------
+#' DATA_CLINICAL <-
+#' Clinical_Data_arrange_function(
+#'      DATA = CSM_ClinicalTMA_test,
+#'      Subject_Names = "Sample",
+#'      Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
+#' )
+#'
+#' #Analyze sample features-----------------------------------------------------
+#'Clinical_Data_analyzer(
+#'    DATA = Cells_by_sample,
+#'    DATA_var = c("Density_CD8", "Density_MACROPHAGE"),
+#'    DATA_Clinical = DATA_CLINICAL,
+#'    Clinical_var = "MMRP_status",
+#'    Perform_time_to_event = FALSE
+#')
+#'
+#'Clinical_Data_analyzer(
+#'    DATA = Cells_by_sample,
+#'    DATA_var = c("Density_CD8", "Density_MACROPHAGE"),
+#'    DATA_Clinical = DATA_CLINICAL,
+#'    Clinical_var = "AGE",
+#'    Perform_time_to_event = FALSE
+#')
+#'
+#'Clinical_Data_analyzer(
+#'    DATA = Cells_by_sample,
+#'    DATA_var = c("Density_CD8", "Density_MACROPHAGE"),
+#'    DATA_Clinical = DATA_CLINICAL,
+#'    Perform_time_to_event = TRUE,
+#'    Time_variable = "OS_m",
+#'    Event_variable = "DEATH"
+#')
+#'
 #' @export
 
 Clinical_Data_analyzer <-
@@ -28,7 +79,7 @@ Clinical_Data_analyzer <-
            Event_variable = NULL) {
 
     #Check suggested packages
-    {
+    {if(Perform_time_to_event){
       if(!requireNamespace("survival", quietly = FALSE)) stop(
         paste0("survival CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("survival")))
@@ -37,6 +88,7 @@ Clinical_Data_analyzer <-
         paste0("survminer CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("survminer")))
       )
+    }
     }
 
     #Check if Subject names is in both Data sources
@@ -177,7 +229,7 @@ Clinical_Data_analyzer <-
 
             #Plot the summary
             plot(
-              RESULTS %>% ggplot(aes(x = fct_reorder(name, Pearson_cor), y = Pearson_cor, fill = Pearson_pval)) +
+              RESULTS %>% ggplot(aes(x = forcats::fct_reorder(name, Pearson_cor), y = Pearson_cor, fill = Pearson_pval)) +
                 geom_col(width = 0.5, color = "black") +
                 cowplot::theme_cowplot() +
                 scale_x_discrete("") +
@@ -229,6 +281,7 @@ Clinical_Data_analyzer <-
             Model <- survival::survfit(survival::Surv(as.numeric(Time_variable), as.numeric(Event_variable)) ~ Target, data = Interim)
             Plot <- survminer::ggsurvplot(Model, data = Interim,
                                           pval = T, risk.table = F, conf.int = FALSE,
+                                          linewidth = 1,
                                           palette = "npg",
                                           title = names(JOINED_Cat)[Var],
                                           xlab = Time_variable,

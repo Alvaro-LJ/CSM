@@ -8,6 +8,13 @@
 #' @param Outcomes_to_keep A character vector indicating the names of the columns to be kept in the analysis.
 #' @returns Returns a tibble with image features.
 #'
+#' @examples
+#' Clinical_Data_arrange_function(
+#'      DATA = CSM_ClinicalTMA_test,
+#'      Subject_Names = "Sample",
+#'      Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
+#' )
+#'
 #' @export
 
 Clinical_Data_arrange_function <-

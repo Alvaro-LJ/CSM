@@ -4,10 +4,16 @@
 \alias{Clustered_Tiled_Images_renamer}
 \title{Modifies neighborhood labels}
 \usage{
-Clustered_Tiled_Images_renamer(Tiled_images = NULL, New_names = NULL)
+Clustered_Tiled_Images_renamer(
+  Tiled_images = NULL,
+  New_names = NULL,
+  Old_names = NULL
+)
 }
 \arguments{
 \item{New_names}{A character vector indicating the new names. The length must be equal to the number of unique neighborhood labels.}
+
+\item{Old_names}{(OPTIONAL) A character vector indicating the names to be overwritten by New_names. It must have the same length as New_names.}
 
 \item{DATA}{An object containing neighborhood labels generated using \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}} function.}
 }
@@ -16,6 +22,20 @@ Returns a list with tiles per image with the modified labels.
 }
 \description{
 The function allows the user to modify neighborhood labels. The function works with any object created using the \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}} function.
+}
+\examples{
+\dontrun{
+Clustered_Tiled_Images_renamer(
+    Tiled_images = Clustered_Tiled_Images,
+    New_names = c("Neighborhood_name_1",
+                  "Neighborhood_name_2",
+                  "Neighborhood_name_3",
+                  "Neighborhood_name_4",
+                  "Neighborhood_name_5")
+)
+}
+
+
 }
 \seealso{
 \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}}

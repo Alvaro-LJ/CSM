@@ -12,6 +12,17 @@
 #'
 #' @returns Returns a tibble with cell features and a column named 'Compartment' containing cell location.
 #'
+#'@examples
+#'\dontrun{
+#'DBSCAN_Tumor_Stroma_identifier(
+#'     DATA_Phenotypes = CSM_Phenotypecell_test,
+#'     Index_phenotype = "TUMOR",
+#'     Min_cells = 3,
+#'     Distance_radius = 50,
+#'     N_cores = 1
+#')
+#'}
+#'
 #' @export
 
 DBSCAN_Tumor_Stroma_identifier <-
@@ -20,7 +31,7 @@ DBSCAN_Tumor_Stroma_identifier <-
            Image_preview = NULL,
            Min_cells = NULL,
            Distance_radius = NULL,
-           N_cores = NULL
+           N_cores = 1
   ){
 
     #Check suggested packages
@@ -29,15 +40,13 @@ DBSCAN_Tumor_Stroma_identifier <-
              expression(install.packages("dbscan")))
     )
 
-
-    #Check arguments
-    if(!all(is.character(DATA_Phenotypes), exists(DATA_Phenotypes, envir = .GlobalEnv))) stop("DATA_Phenotypes must be the name of an existing object")
-    #Import all required Data from the environment
-    DATA_Phenotypes <- get(DATA_Phenotypes, envir = globalenv())
+    #Import all required Data
+    DATA_Phenotypes <- DATA_Phenotypes
 
     #Check more arguments
     if(!Index_phenotype %in% unique(DATA_Phenotypes$Phenotype)) stop(paste0("Index phenotype must be one of the following: ", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = ", ")))
     if(!all(is.numeric(Min_cells), Min_cells%%1 == 0, Min_cells > 0)) stop("Min_cells must be an integer value > 0")
+    if(is.null(Image_preview)) Image_preview <- sample(unique(DATA_Phenotypes$Subject_Names), size = 1)
     if(!Image_preview %in% unique(DATA_Phenotypes$Subject_Names)) stop(paste0(Image_preview, " not found in Subject_Names"))
     if(!all(is.numeric(Distance_radius), Distance_radius > 0)) stop("Distance_radius must be an integer value > 0")
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
@@ -56,7 +65,7 @@ DBSCAN_Tumor_Stroma_identifier <-
     DB_results <- dbscan::dbscan(For_test_Index[c("X", "Y")], eps = Distance_radius, minPts = Min_cells, borderPoints = FALSE)
 
     #Obtain position in the tumor and the stroma for both index cells and other cells
-    For_test_Index <- For_test_Index %>%dplyr::mutate(Cluster = as.character(DB_results$cluster)) %>%
+    For_test_Index <- For_test_Index %>% dplyr::mutate(Cluster = as.character(DB_results$cluster)) %>%
       dplyr::mutate(Cluster = dplyr::case_when(Cluster == "0" ~ "Stroma",
                                                T ~ "Tumor"))
     For_test_no_Index <- For_test_no_Index %>%
@@ -65,7 +74,7 @@ DBSCAN_Tumor_Stroma_identifier <-
                                                T ~ "Tumor"))
 
     #Obtain final result
-    Test_final <-dplyr::bind_rows(For_test_Index, For_test_no_Index) %>%dplyr::mutate(Cell_arrange = as.numeric(substr(Cell_no, start = 6, stop = nchar(Cell_no)))) %>%
+    Test_final <- dplyr::bind_rows(For_test_Index, For_test_no_Index) %>% dplyr::mutate(Cell_arrange = as.numeric(sub(".*CELL_([^_]+)__.*", "\\1", c(For_test_Index$Cell_no, For_test_no_Index$Cell_no)))) %>%
       dplyr::arrange(Cell_arrange) %>% dplyr::select(-Cell_arrange)
 
     #Obtain three plots
@@ -145,7 +154,7 @@ DBSCAN_Tumor_Stroma_identifier <-
                                                          T ~ "Tumor"))
 
           #Obtain final result
-          Test_final <-dplyr::bind_rows(For_test_Index, For_test_no_Index) %>% dplyr::mutate(Cell_arrange = as.numeric(substr(Cell_no, start = 6, stop = nchar(Cell_no)))) %>%
+          Test_final <- dplyr::bind_rows(For_test_Index, For_test_no_Index) %>% dplyr::mutate(Cell_arrange = as.numeric(sub(".*CELL_([^_]+)__.*", "\\1", c(For_test_Index$Cell_no, For_test_no_Index$Cell_no)))) %>%
             dplyr::arrange(Cell_arrange) %>% dplyr::select(-Cell_arrange)
         },
         .progress = TRUE)

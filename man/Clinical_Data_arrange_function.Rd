@@ -20,3 +20,11 @@ Returns a tibble with image features.
 \code{Clinical_Data_arrange_function()}must be run in order to format image metadata. These can be either numeric or strings. Time to event data must be coded in two separate features (one for event and other for time).
 This function is similar to \code{\link[=Data_arrange_function]{Data_arrange_function()}}, without adequate formatting, image metadata will no be able to work with \code{\link[=Clinical_Data_analyzer]{Clinical_Data_analyzer()}}
 }
+\examples{
+Clinical_Data_arrange_function(
+     DATA = CSM_ClinicalTMA_test,
+     Subject_Names = "Sample",
+     Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
+)
+
+}

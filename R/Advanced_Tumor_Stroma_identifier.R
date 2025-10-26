@@ -22,6 +22,23 @@
 #'
 #' @seealso [Compartment_Phenotype_quantifier()]
 #'
+#' @examples
+#' \dontrun{
+#' Advanced_Tumor_Stroma_identifier(
+#'     DATA_Phenotypes = CSM_Phenotypecell_test,
+#'     Index_phenotype = "TUMOR",
+#'
+#'     Filtering_Method = "DBSCAN",
+#'     Min_cell_no = 10,
+#'     Distance_radius = 100,
+#'
+#'     Hull_ratio = 0.05,
+#'     Calculate_border = TRUE,
+#'     Dist_to_border = 10
+#' )
+#' }
+#'
+#' @import dplyr
 #' @export
 
 Advanced_Tumor_Stroma_identifier <-
@@ -40,7 +57,7 @@ Advanced_Tumor_Stroma_identifier <-
            Dist_to_border = NULL,
 
            Image_preview = NULL,
-           N_cores = NULL){
+           N_cores = 1){
     #check suggested packages
     {
       if(!requireNamespace("sf", quietly = FALSE)) stop(
@@ -54,11 +71,8 @@ Advanced_Tumor_Stroma_identifier <-
         )
       }
     }
-
-    #Check arguments
-    if(!all(is.character(DATA_Phenotypes), exists(DATA_Phenotypes, envir = .GlobalEnv))) stop("DATA_Phenotypes must be the name of an existing object")
-    #Import all required Data from the environment
-    DATA_Phenotypes <- get(DATA_Phenotypes, envir = globalenv())
+    #Import all required Data
+    DATA_Phenotypes <- DATA_Phenotypes
 
     #Check more arguments
     if(!Index_phenotype %in% unique(DATA_Phenotypes$Phenotype)) stop(paste0("Index phenotype must be one of the following: ", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = ", ")))
@@ -75,6 +89,7 @@ Advanced_Tumor_Stroma_identifier <-
     if(!all(is.numeric(Hull_ratio), Hull_ratio >= 0, Hull_ratio <= 1)) stop("Hull_ratio must be a numeric value between 0 and 1")
     if(!is.logical(Calculate_border)) stop("Calculate_border must be a logical value")
     if(Calculate_border) if(!all(is.numeric(Dist_to_border), Dist_to_border > 0)) stop("Dist_to_border must be a numeric value > 0")
+    if(is.null(Image_preview)) Image_preview <- sample(unique(DATA_Phenotypes$Subject_Names), size = 1)
     if(!Image_preview %in% unique(DATA_Phenotypes$Subject_Names)) stop(paste0(Image_preview, " not found in Subject_Names"))
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
 
@@ -117,8 +132,8 @@ Advanced_Tumor_Stroma_identifier <-
       #Prepare the require objects (sf object with tumor cells, sf object with all cells, polygon object and line object)
       Tumor_cells_sf <- sf::st_as_sf(Final_tumor_cells, coords = c("X", "Y"))
       All_cells_sf <- sf::st_as_sf(For_plot, coords = c("X", "Y"))
-      Final_tumor_cells_polygon <- sf::st_cast((Tumor_cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "POLYGON")
-      Final_tumor_cells_line <- sf::st_cast((Tumor_cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
+      Final_tumor_cells_polygon <- sf::st_cast((Tumor_cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "POLYGON")
+      Final_tumor_cells_line <- sf::st_cast((Tumor_cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
 
       #Define compartments
       For_plot$Compartment <- "Stroma"
@@ -197,8 +212,8 @@ Advanced_Tumor_Stroma_identifier <-
             #Prepare the require objects (sf object with tumor cells, sf object with all cells, polygon object and line object)
             Tumor_cells_sf <- sf::st_as_sf(Final_tumor_cells, coords = c("X", "Y"))
             All_cells_sf <- sf::st_as_sf(For_plot, coords = c("X", "Y"))
-            Final_tumor_cells_polygon <- sf::st_cast((Tumor_cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "POLYGON")
-            Final_tumor_cells_line <- sf::st_cast((Tumor_cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
+            Final_tumor_cells_polygon <- sf::st_cast((Tumor_cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "POLYGON")
+            Final_tumor_cells_line <- sf::st_cast((Tumor_cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
 
             #Define compartments
             For_plot$Compartment <- "Stroma"
@@ -257,8 +272,8 @@ Advanced_Tumor_Stroma_identifier <-
       #Prepare the require objects (sf object with tumor cells, sf object with all cells, polygon object and line object)
       Tumor_cells_sf <- sf::st_as_sf(Final_tumor_cells, coords = c("X", "Y"))
       All_cells_sf <- sf::st_as_sf(For_test, coords = c("X", "Y"))
-      Final_tumor_cells_polygon <- sf::st_cast((Tumor_cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "POLYGON")
-      Final_tumor_cells_line <- sf::st_cast((Tumor_cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
+      Final_tumor_cells_polygon <- sf::st_cast((Tumor_cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "POLYGON")
+      Final_tumor_cells_line <- sf::st_cast((Tumor_cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
 
       #Define compartments
       For_test$Compartment <- "Stroma"
@@ -352,8 +367,8 @@ Advanced_Tumor_Stroma_identifier <-
             #Prepare the require objects (sf object with tumor cells, sf object with all cells, polygon object and line object)
             Tumor_cells_sf <- sf::st_as_sf(Final_tumor_cells, coords = c("X", "Y"))
             All_cells_sf <- sf::st_as_sf(For_test, coords = c("X", "Y"))
-            Final_tumor_cells_polygon <- sf::st_cast((Tumor_cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "POLYGON")
-            Final_tumor_cells_line <- sf::st_cast((Tumor_cells_sf %>%dplyr::summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
+            Final_tumor_cells_polygon <- sf::st_cast((Tumor_cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "POLYGON")
+            Final_tumor_cells_line <- sf::st_cast((Tumor_cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
 
             #Define compartments
             For_test$Compartment <- "Stroma"

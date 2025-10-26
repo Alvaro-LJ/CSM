@@ -11,6 +11,30 @@
 #'
 #' @seealso [Compartment_Phenotype_quantifier()], [Image_size_calculator()].
 #'
+#' @examples
+#' \dontrun{
+#' #Calculate tumor, stroma and border compartments----------------------------
+#' DATA_structured <-
+#' Advanced_Tumor_Stroma_identifier(
+#'     DATA_Phenotypes = CSM_Phenotypecell_test,
+#'     Index_phenotype = "TUMOR",
+#'
+#'     Filtering_Method = "DBSCAN",
+#'     Min_cell_no = 10,
+#'     Distance_radius = 100,
+#'
+#'     Hull_ratio = 0.05,
+#'     Calculate_border = TRUE,
+#'     Dist_to_border = 10
+#' )
+#'
+#' #Calculate cell percentages in each compartment-----------------------------
+#'Compartment_Phenotype_quantifier(
+#'       DATA = DATA_structured,
+#'       Calculate_Density = FALSE
+#')
+#' }
+#'
 #' @export
 
 Compartment_Phenotype_quantifier <-
@@ -26,9 +50,12 @@ Compartment_Phenotype_quantifier <-
     if(!is.logical(Calculate_Density)){
       stop("Calculate_Density must be a logical value")
     }
-    if(names(DATA_Area)[ncol(DATA_Area)] != "Area"){
-      stop("The last column of the DATA_Area must be named Area")
+    if(Calculate_Density){
+      if(names(DATA_Area)[ncol(DATA_Area)] != "Area"){
+        stop("The last column of the DATA_Area must be named Area")
+      }
     }
+
 
     #Import our DATA
     DATA_Phenotypes <- DATA[[1]]

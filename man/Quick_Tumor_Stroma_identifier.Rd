@@ -10,7 +10,7 @@ Quick_Tumor_Stroma_identifier(
   Accuracy = NULL,
   Min_cell_no = NULL,
   Image_preview = NULL,
-  N_cores = NULL
+  N_cores = 1
 )
 }
 \arguments{
@@ -20,7 +20,7 @@ Quick_Tumor_Stroma_identifier(
 
 \item{Min_cell_no}{A integer value indicating the minimum number of cells within a tile to consider the tile positive for a compartment.}
 
-\item{Image_preview}{A character value indicating the name of the image to be used in the preview.}
+\item{Image_preview}{A character value indicating the name of the image to be used in the preview. If Null a random sample will be selected.}
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 
@@ -31,4 +31,17 @@ Returns a tibble with cell features and a column named 'Compartment' containing 
 }
 \description{
 The function calculates tissue compartments (usually tumor and stroma) based on tile occupation by tumor cells.
+}
+\examples{
+\dontrun{
+#' Quick_Tumor_Stroma_identifier(
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Index_phenotype = "TUMOR",
+    Accuracy = 80,
+    Min_cell_no = 3,
+    Image_preview = NULL,
+    N_cores = 1
+)
+}
+
 }

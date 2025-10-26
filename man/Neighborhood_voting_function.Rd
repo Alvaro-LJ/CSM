@@ -24,3 +24,27 @@ A list containing image information with by-tile neighborhood counts and a tibbl
 \description{
 Given a tiled image, the function calculates neighborhood prevalence by tile. It then assigns neighborhood identity to each tile based on results.
 }
+\details{
+The winner from each tile will be reported as ABSOLUTE if there is a single neighborhood represented in each tile, SUPER if the winner has more than 50\% of votes and simple if the winner has less than 50\% of votes.
+If there are any ties, alphabetical order will break the tie.
+}
+\examples{
+#Tile images with neighborhood information-----------------------------------
+Tiled_Images <-
+ Image_tiling_processing_function(
+    DATA = CSM_Neighborhoods_test,
+    Tile_width = 125,
+    Tile_height = 125,
+    Variables_to_keep = "Neighborhood_assignment",
+    N_cores = 1
+)
+
+#Celebrate elections in each tile---------------------------------------------
+Neighborhood_voting_function(
+    N_cores = 1,
+    Tiled_Images = Tiled_Images,
+    Minimum_cell_no_per_tile = 2,
+    Neighborhoods_included = unique(CSM_Neighborhoods_test$Neighborhood_assignment)
+)
+
+}

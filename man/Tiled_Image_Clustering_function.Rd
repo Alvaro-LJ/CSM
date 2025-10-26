@@ -154,6 +154,41 @@ K_Means_Meta_clustering first summarizes cell feature matrix observations using 
 
 Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
 }
+\examples{
+\dontrun{
+#Tile images with cell phenotype information---------------------------------
+Tiled_Images <-
+ Image_tiling_processing_function(
+   N_cores = 1,
+   DATA = CSM_Phenotypecell_test,
+   Tile_width = 125,
+   Tile_height = 125,
+   Variables_to_keep = "Phenotype"
+)
+
+#Cluster cell composition by tile to find neighborhoods---------------------
+Tiled_Image_Clustering_function(
+    Tiled_images = Tiled_Images,
+    Minimum_cell_no_per_tile = 4,
+    Minimum_valid_tiles_per_image = 4,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+
+    Cluster_Data = "Cell_Density",
+
+    Perform_Dimension_reduction = FALSE,
+    Cluster_on_Reduced = FALSE,
+
+   Strategy = "Consensus_Clustering",
+   Max_N_Clusters = 5,
+   Consensus_reps = 2,
+   Consensus_p_Items = 1,
+   Consensus_Cluster_Alg = "pam",
+   Consensus_Distance = "euclidean",
+   Consensus_Name = "Consensus_clustering_test"
+)
+}
+
+}
 \seealso{
-\code{\link[=Clustered_Tiled_Images_renamer]{Clustered_Tiled_Images_renamer()}}, \code{\link[=Clustered_Tiled_Images_analyzer]{Clustered_Tiled_Images_analyzer()}}, \code{\link[=Clustered_Tiled_Images_graphicator]{Clustered_Tiled_Images_graphicator()}}
+\code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}, \code{\link[=Clustered_Tiled_Images_renamer]{Clustered_Tiled_Images_renamer()}}, \code{\link[=Clustered_Tiled_Images_analyzer]{Clustered_Tiled_Images_analyzer()}}, \code{\link[=Clustered_Tiled_Images_graphicator]{Clustered_Tiled_Images_graphicator()}}
 }

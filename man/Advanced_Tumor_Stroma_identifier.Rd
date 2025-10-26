@@ -15,7 +15,7 @@ Advanced_Tumor_Stroma_identifier(
   Calculate_border = NULL,
   Dist_to_border = NULL,
   Image_preview = NULL,
-  N_cores = NULL
+  N_cores = 1
 )
 }
 \arguments{
@@ -46,6 +46,23 @@ DBscan filtering is based on the dbscan::dbscan function.
 }
 \details{
 The function results can be used to run the \code{\link[=Compartment_Phenotype_quantifier]{Compartment_Phenotype_quantifier()}} function.
+}
+\examples{
+\dontrun{
+Advanced_Tumor_Stroma_identifier(
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Index_phenotype = "TUMOR",
+
+    Filtering_Method = "DBSCAN",
+    Min_cell_no = 10,
+    Distance_radius = 100,
+
+    Hull_ratio = 0.05,
+    Calculate_border = TRUE,
+    Dist_to_border = 10
+)
+}
+
 }
 \seealso{
 \code{\link[=Compartment_Phenotype_quantifier]{Compartment_Phenotype_quantifier()}}

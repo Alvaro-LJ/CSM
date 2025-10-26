@@ -589,7 +589,7 @@ Neighborhood_discovery_function <-
       )
       #Test if SOM returned an error
       if(berryFunctions::is.error(SOM_results)) {
-        stop("Data is too large for Self-Organizing Maps. Please try another strategy")
+        stop("Data is too large or too small for Self-Organizing Maps. Please try another strategy")
       }
       else{
         #Assign phenotypes to each cell

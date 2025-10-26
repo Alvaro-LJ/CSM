@@ -24,6 +24,31 @@ Returns tibble with information of cell percentages and (optionally) densities b
 The function calculates cell proportions and optionally cell densities in tumor and stromal compartments.
 Compartment areas must be first computed using \code{\link[=Advanced_Tumor_Stroma_identifier]{Advanced_Tumor_Stroma_identifier()}} function.
 }
+\examples{
+\dontrun{
+#Calculate tumor, stroma and border compartments----------------------------
+DATA_structured <-
+Advanced_Tumor_Stroma_identifier(
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Index_phenotype = "TUMOR",
+
+    Filtering_Method = "DBSCAN",
+    Min_cell_no = 10,
+    Distance_radius = 100,
+
+    Hull_ratio = 0.05,
+    Calculate_border = TRUE,
+    Dist_to_border = 10
+)
+
+#Calculate cell percentages in each compartment-----------------------------
+Compartment_Phenotype_quantifier(
+      DATA = DATA_structured,
+      Calculate_Density = FALSE
+)
+}
+
+}
 \seealso{
 \code{\link[=Compartment_Phenotype_quantifier]{Compartment_Phenotype_quantifier()}}, \code{\link[=Image_size_calculator]{Image_size_calculator()}}.
 }

@@ -5,7 +5,7 @@
 \title{Calculates the cumulative interaction matrix}
 \usage{
 Cumulative_Interaction_generator(
-  N_cores = NULL,
+  N_cores = 1,
   DATA = NULL,
   Start_from = NULL,
   Stop_at = NULL,

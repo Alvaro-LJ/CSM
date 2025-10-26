@@ -34,15 +34,101 @@ If processed images are saved, these can be further combined with cell position 
 }
 \examples{
 \dontrun{
-Binary_threshold_image_combinator(
-Dir1 = "Thresholded_Image_directory1",
-Dir2 = "Thresholded_Image_directory2",
-Dir2 = "Thresholded_Image_directory3",
-Save_processed_images = TRUE,
-Output_Directory = "Combined_threshold_directory",
-Operators = c("AND", "NOT"),
-N_cores = 1
+# Create temporary input and output directories------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+Output_Dir_CK <- tempfile(pattern = "tempdir2_Output")
+Output_Dir_CD8 <- tempfile(pattern = "tempdir3_Output")
+Output_Dir_GZMB <- tempfile(pattern = "tempdir4_Output")
+Output_Dir_Intersect <- tempfile(pattern = "tempdir5_Output")
+
+dir.create(Input_Dir, recursive = TRUE)
+dir.create(Output_Dir_CK, recursive = TRUE)
+dir.create(Output_Dir_CD8, recursive = TRUE)
+dir.create(Output_Dir_GZMB, recursive = TRUE)
+dir.create(Output_Dir_Intersect, recursive = TRUE)
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+#Generate binary threshold images for CK, CD8 and GZMB------------------------------
+Pixel_Threshold_calculator(N_cores = 1,
+                          Directory = Input_Dir,
+                          Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Target_channel = "CK-EPCAM",
+
+                          Save_processed_images = TRUE,
+                          Output_Directory = Output_Dir_CK,
+
+                          Local_thresholding = FALSE,
+                          Threshold_type = "Arbitrary",
+                          Threshold_value = 0.1,
+
+                          Threshold_type_tissueMask = "Absolute",
+                          Blurr_tissueMask = TRUE,
+                          Sigma_tissueMask = 0.5,
+
+                          Blurr_target = FALSE
 )
+
+Pixel_Threshold_calculator(N_cores = 1,
+                          Directory = Input_Dir,
+                          Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Target_channel = "CD8a",
+
+                          Save_processed_images = TRUE,
+                          Output_Directory = Output_Dir_CD8,
+
+                          Local_thresholding = FALSE,
+                          Threshold_type = "Arbitrary",
+                          Threshold_value = 0.1,
+
+                          Threshold_type_tissueMask = "Absolute",
+                          Blurr_tissueMask = TRUE,
+                          Sigma_tissueMask = 0.5,
+
+                          Blurr_target = FALSE
+)
+
+Pixel_Threshold_calculator(N_cores = 1,
+                          Directory = Input_Dir,
+                          Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Target_channel = "GZMB",
+
+                          Save_processed_images = TRUE,
+                          Output_Directory = Output_Dir_GZMB,
+
+                          Local_thresholding = FALSE,
+                          Threshold_type = "Arbitrary",
+                          Threshold_value = 0.1,
+
+                          Threshold_type_tissueMask = "Absolute",
+                          Blurr_tissueMask = TRUE,
+                          Sigma_tissueMask = 0.5,
+
+                          Blurr_target = FALSE
+)
+
+
+#Generate the intersects------------------------------
+Binary_threshold_image_combinator(
+    Dir1 = Output_Dir_CK,
+    Dir2 = Output_Dir_CD8,
+    Dir3 = Output_Dir_GZMB,
+    Save_processed_images = TRUE,
+    Output_Directory = Output_Dir_Intersect,
+    Operators = c("AND", "OR"),
+    N_cores = 1
+)
+
+#Check the files created-------------------------------------------------
+list.files(Output_Dir_Intersect)
+
+#Remove directories---------------------------------------------------------
+unlink(c(Input_Dir, Output_Dir_CK, Output_Dir_CD8, Output_Dir_GZMB, Output_Dir_Intersect), recursive = TRUE)
 }
 
 }

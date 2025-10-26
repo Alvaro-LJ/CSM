@@ -11,12 +11,46 @@
 #'
 #' @examples
 #' \dontrun{
-#'Image_from_tile_rebuilder(
-#' Directory = "Tiled_Image_directory",
-#' Output_directory = "Output_directory",
-#' RGB_Color_images = FALSE,
-#' N_cores = 1
+# Create temporary input and output directories------------------------------
+#' Input_Dir <- tempfile(pattern = "tempdir1_Input")
+#' Output_Dir_tiles <- tempfile(pattern = "tempdir2_Output")
+#' Output_Dir_reconstruction <- tempfile(pattern = "tempdir3_Output")
+#' dir.create(Input_Dir, recursive = TRUE)
+#' dir.create(Output_Dir_tiles, recursive = TRUE)
+#' dir.create(Output_Dir_reconstruction, recursive = TRUE)
+#'
+#' #Save images in Input directory
+#' purrr::map(1:2,
+#' function(Image){
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#' })
+#'
+#' #Divide images into tiles------------------------------------------------------
+#'Image_tile_deconstruction_function(
+#'    Directory = Input_Dir,
+#'    Output_directory = Output_Dir_tiles,
+#'    Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'    Channels_to_keep = c("DAPI", "GZMB", "CK-EPCAM", "CD8a"),
+#'    RGB_Color_images = FALSE,
+#'    Tile_pixel_size = 250,
+#'    Tile_Overlap = 0,
+#'    N_cores = 1
 #')
+#'
+#'#Rebuild images from tiles-----------------------
+#'Image_from_tile_rebuilder(
+#'    Directory = Output_Dir_tiles,
+#'    Output_directory = Output_Dir_reconstruction,
+#'    RGB_Color_images = FALSE,
+#'    N_cores = 1
+#')
+#'
+#'#Check the files created-------------------------------------------------
+#'list.files(Output_Dir_reconstruction)
+#'
+#'#Remove directories---------------------------------------------------------
+#'unlink(c(Input_Dir, Output_Dir_tiles, Output_Dir_reconstruction), recursive = TRUE)
+#'
 #' }
 #' @export
 

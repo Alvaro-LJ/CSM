@@ -52,6 +52,24 @@ can be identified in the dataset by running the \code{\link[=Interaction_analyze
 \details{
 For additional information please visit imcRtools Vignette: https://www.bioconductor.org/packages/release/bioc/vignettes/imcRtools/inst/doc/imcRtools.html#5_Spatial_analysis.
 }
+\examples{
+Interaction_counter(
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+    N_cores = 1,
+
+    Graph_type = "knn",
+    K_number = 20
+
+    Method = "classic",
+    patch_size = 125,
+
+    Perform_significance_testing = TRUE,
+    N_iterations = 10,
+    p_threshold = 0.05
+)
+
+}
 \seealso{
 \code{\link[=Interaction_analyzer]{Interaction_analyzer()}}
 }

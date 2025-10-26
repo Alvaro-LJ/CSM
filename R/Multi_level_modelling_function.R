@@ -19,6 +19,59 @@
 #'
 #' @returns A list containing two outputs: Raw_DATA contains the expected interaction probability for every distance point. Simplified_DATA cotains the AUC data by image.
 #'
+#' @examples
+#' #Obtain the Cumulative interaction between two cells types accross the desired distance--------
+#'DATA_Distances <-
+#' Distance_matrix_generator(
+#'     N_cores = 1,
+#'     DATA = CSM_PhenotypeTMA_test,
+#'     Cell_Of_Origin = "CD8",
+#'     Target_Cell = "MACROPHAGE",
+#'     Allow_Cero_Distance = FALSE,
+#'     Perform_edge_correction = FALSE
+#')
+#'DATA_Cumulative <-
+#' Cumulative_Interaction_generator(
+#'     N_cores = 1,
+#'     DATA = DATA_Distances,
+#'     Start_from = 10,
+#'     Stop_at = 210,
+#'     Sampling_frequency = 50
+#')
+#'
+#'#Obtain cell density by sample to account for density of target cells in the model-------------
+#'DATA_AREA <-
+#'  Image_size_calculator(
+#'     DATA = CSM_PhenotypeTMA_test,
+#'     Strategy = "Concave_hull",
+#'     Hull_ratio = 0.4
+#')
+#'Cells_by_sample <-
+#'  Phenotype_quantifier(
+#'     CSM_PhenotypeTMA_test,
+#'     Calculate_Density = TRUE,
+#'     DATA_Area = DATA_AREA
+#' )
+#'
+#' #Arrange clinical data------------------------------------------------------------------------
+#'DATA_CLINICAL <-
+#' Clinical_Data_arrange_function(
+#'      DATA = CSM_ClinicalTMA_test,
+#'      Subject_Names = "Sample",
+#'      Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
+#' )
+#'
+#' #Calculate the model--------------------------------------------------------------------------
+#' Multi_level_modelling_function(
+#'     DATA_cumulative = DATA_Cumulative,
+#'     DATA_Clinical = DATA_CLINICAL,
+#'     Clinical_var = "MMRP_status",
+#'     DATA_Densities = Cells_by_sample,
+#'     Cell_Of_Origin = "CD8",
+#'     Target_cell = "MACROPHAGE",
+#'     Calculate_R2 = FALSE
+#' )
+#'
 #' @export
 
 Multi_level_modelling_function <-
@@ -53,7 +106,7 @@ Multi_level_modelling_function <-
     if(is.double(DATA_Clinical[[Clinical_var]])) {
       stop("Clinical variable should be a character vector, not a double vector")
     }
-    if(!any(str_detect(names(DATA_Densities), Target_cell))){
+    if(!any(stringr::str_detect(names(DATA_Densities), Target_cell))){
       stop("Target cell density should be present in DATA_Densities")
     }
     if(!is.logical(Calculate_R2)) stop("Calculate_R2 must be a logical value")
@@ -66,7 +119,7 @@ Multi_level_modelling_function <-
     DATA_cumulative <- DATA_cumulative
     DATA_Clinical <- DATA_Clinical %>% dplyr::select(Subject_Names, all_of(Clinical_var))
     DATA_Densities <- DATA_Densities %>% dplyr::select(Subject_Names, contains("Density_")) %>% dplyr::select(Subject_Names,
-                                                                                                              contains(str_c("Density_", Target_cell, sep = "")))
+                                                                                                              contains(stringr::str_c("Density_", Target_cell, sep = "")))
 
     #First we need to create a dataframe with in an adequate format
     print("Formatting data")
@@ -97,8 +150,8 @@ Multi_level_modelling_function <-
 
     #Make predictions
     tryCatch({
-      Prediction <- expand_grid(unique(Interim$DIST),
-                                unique(Interim$Clin_Group))
+      Prediction <- tidyr::expand_grid(unique(Interim$DIST),
+                                       unique(Interim$Clin_Group))
       names(Prediction) <- c("DIST", "Clin_Group")
       Prediction$Density_Target <- 0
       Prediction$Cell_Of_Origin_ID <- unique(Interim$Cell_Of_Origin_ID)[1]
@@ -108,8 +161,8 @@ Multi_level_modelling_function <-
              ggplot(aes(x = DIST, y  = Prediction, group = Clin_Group, color = Clin_Group)) +
              geom_line(linewidth = 1.5) +
              cowplot::theme_cowplot() +
-             scale_x_continuous(str_c("Scaled Distance from ", Cell_Of_Origin, sep = "")) +
-             scale_y_continuous(str_c("Scaled number of ", Target_cell, " cells", sep = "")) +
+             scale_x_continuous(stringr::str_c("Scaled Distance from ", Cell_Of_Origin, sep = "")) +
+             scale_y_continuous(stringr::str_c("Scaled number of ", Target_cell, " cells", sep = "")) +
              scale_color_viridis_d(Clinical_var))
     },
     error = function(cond) print("Unable to calculate Multi-level model predictions. Consider subsetting samples or modifying cumulative interaction parameters.")
