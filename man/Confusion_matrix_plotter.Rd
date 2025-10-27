@@ -18,6 +18,7 @@ Generates a confusion matrix plot
 The function generates a confusion matrix between two cell labeling methods (cell phenotype or neighborhood labels for example).
 }
 \examples{
+\dontrun{
 #Generate datasets with random cell phenotype labels----------------------
 CSM_Phenotypecell_test_1 <-
  CSM_Phenotypecell_test \%>\%
@@ -37,5 +38,6 @@ Confusion_matrix_plotter(
    Random_2 = CSM_Phenotypecell_test_2,
    Variable = "Phenotype"
    )
+}
 
 }

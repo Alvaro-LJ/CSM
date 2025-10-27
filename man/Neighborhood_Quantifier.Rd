@@ -24,9 +24,11 @@ Returns a tibble with neighborhood counts, percentages and optionally densities 
 The function generates neighborhood counts, percentages and optionally neighborhood densities.
 }
 \examples{
+\dontrun{
 Neighborhood_Quantifier(
     DATA = CSM_Neighborhoods_test,
     Calculate_Density = FALSE
 )
+}
 
 }

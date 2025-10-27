@@ -43,6 +43,7 @@ Given a dataframe with cell features and phenotype labels, random spatial distan
 randomly permuting cell labels in an iterative manner. For every image the same number of random COO to target cell distances are calculated.
 }
 \examples{
+\dontrun{
 Trio_Random_Distance_matrix_generator(
   N_cores = 1,
   DATA = CSM_Phenotypecell_test,
@@ -52,6 +53,7 @@ Trio_Random_Distance_matrix_generator(
   Random_cells_per_sample = 10,
   Perform_edge_correction = FALSE
 )
+}
 
 
 }

@@ -24,7 +24,8 @@ Returns a tibble with cell counts, pertentages and optionally cell densities per
 The function generates positive cell counts, percentages and optionally cell densities according to thresholded feature data.
 }
 \examples{
-#Calculate tissue area-------------------
+\dontrun{
+#Calculate tissue area
 DATA_AREA <- Image_size_calculator(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Strategy = "Tiling",
@@ -32,7 +33,7 @@ DATA_AREA <- Image_size_calculator(
   Tile_accuracy = 60
 )
 
-#Threshold data---------------------------
+#Threshold data
 DATA_thresholded <- Thresholding_function(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Strategy = "EBI_Otsu",
@@ -44,12 +45,12 @@ DATA_thresholded <- Thresholding_function(
   Levels = 3
 )
 
-#Generate the summary tibble-------------
+#Generate the summary tibble
 Thresholding_exploration_function(
   DATA = DATA_thresholded,
   Calculate_Density = TRUE,
   DATA_Area = DATA_AREA
 )
-
+}
 
 }

@@ -8,6 +8,7 @@
 #' @param Cell_type_to_define_cluster A character value indicating which cell phenotype label should be used  to build tissue structures.
 #' @param Minimum_number_cells_cluster A integer value indicating the minimum number of cells required to be considered a structure.
 #' @param Cell_types_of_interest Cell types to be related to these structures.
+#' @param Layers_margin A numeric value indicating the number of cell layers to calculate the border.
 #' @param Simplify_result A logical value indicating if the final result should be simplified.
 #'
 #' @returns If Simplify_result is TRUE, the function returns a tibble with simplify cell location labels.
@@ -16,6 +17,7 @@
 #' @seealso [SPIAT_object_generator()].
 #'
 #' @examples
+#' \dontrun{
 #' #Generate SPIAT object list----------------------------
 #' DATA_SPIAT <-
 #' SPIAT_object_generator(
@@ -34,6 +36,7 @@
 #'     Layers_margin = 5,
 #'     Simplify_result = T
 #')
+#' }
 #'
 #' @export
 

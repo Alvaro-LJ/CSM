@@ -2,7 +2,7 @@
 #'
 #' The function calculates tissue compartments (usually tumor and stroma) based on tile occupation by tumor cells.
 #'
-#' @param DATA A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.
+#' @param DATA_Phenotypes A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.
 #' @param Index_phenotype A character value indicating the cell phenotype to be used to calculate the tissue compartment.
 #' @param Accuracy A numeric value indicating the size of the tile. Smaller sizes give more accurate result.
 #' @param Min_cell_no A integer value indicating the minimum number of cells within a tile to consider the tile positive for a compartment.

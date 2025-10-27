@@ -25,7 +25,7 @@
 #' @returns Returns a tibble with thresholded cell features. All features are thresholded using the same approach. For binary thresholding features are converted to logical vectors, for multi-level are converted to numeric vectors.
 #'
 #' @examples
-#'
+#'\dontrun{
 #' Thresholding_function(
 #'   DATA = CSM_Arrangedcellfeaturedata_test,
 #'   Strategy = "EBI_Otsu",
@@ -36,6 +36,7 @@
 #'   Defined_threshold = 0.1,
 #'   Levels = 3
 #' )
+#'}
 #'
 #' @export
 

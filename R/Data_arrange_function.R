@@ -10,6 +10,7 @@
 #' @returns Returns a tibble with cell features. The function adds a unique Cell_no to every cell in the dataset.
 #'
 #' @examples
+#' \dontrun{
 #' Data_arrange_function(
 #'   DATA = CSM_RAWcellfeaturedata_test,
 #'   X = 'm.cx',
@@ -17,6 +18,7 @@
 #'   Subject_Names = "imageID",
 #'   Markers_to_keep = c("CK-EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE")
 #' )
+#' }
 #'
 #'
 #' @export

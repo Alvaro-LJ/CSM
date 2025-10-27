@@ -9,6 +9,7 @@
 #' @param N_neighbors If strategy is Number or Both, an integer indicating the number of closest neighbors to calculate for each cell.
 #' @param Max_dist_allowed If strategy is Distance or Both, a numeric value indicating the distance from every cell to search for neighbors
 #' @param Weighting_Strategy A character value indicating the weighting strategy for message passing: "None", "Proximity", "Disregarded_minority", "Both" (see details).
+#' @param COO_weight (OPTIONAL) A numeric value between 0 and 1 stating the relative weight of the COO in the final result. If NULL, the weight will be the same as for neighbors.
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
 #' @details
@@ -25,6 +26,7 @@
 #' @seealso [UTAG_Neighborhood_identifier()]
 #'
 #' @examples
+#' \dontrun{
 #' UTAG_message_passing(
 #'     DATA = CSM_Arrangedcellfeaturedata_test,
 #'
@@ -35,7 +37,7 @@
 #'
 #'     N_cores = 1
 #')
-#'
+#' }
 #'
 #' @returns A tibble containing cell feature data that have undergone neighbor message passing.
 

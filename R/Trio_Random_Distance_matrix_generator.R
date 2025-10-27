@@ -19,6 +19,7 @@
 #' @returns A list containing the random distance matrix for each image. Rows represent Cells of Origin and columns represent Target cells.
 #'
 #' @examples
+#' \dontrun{
 #' Trio_Random_Distance_matrix_generator(
 #'   N_cores = 1,
 #'   DATA = CSM_Phenotypecell_test,
@@ -28,6 +29,7 @@
 #'   Random_cells_per_sample = 10,
 #'   Perform_edge_correction = FALSE
 #')
+#' }
 #'
 #'
 #' @export

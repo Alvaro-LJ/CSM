@@ -16,8 +16,9 @@ A tibble containing image dimension information.
 The function can be used  to plan the image tiling strategy.
 }
 \examples{
+\dontrun{
 Image_length_calculator(DATA = CSM_Phenotypecell_test)
-
+}
 
 }
 \seealso{

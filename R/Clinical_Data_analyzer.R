@@ -17,6 +17,7 @@
 #' If image metadata is numeric, Pearson correlation will be calculated. For time-to event analysis, cut-off points for the image feature will be calculated using the survminer::surv_cutpoint function.
 #'
 #' @examples
+#' \dontrun{
 #' #Calculate the area of TMA samples-------------------------------------------
 #' DATA_AREA <-
 #'  Image_size_calculator(
@@ -66,6 +67,7 @@
 #'    Time_variable = "OS_m",
 #'    Event_variable = "DEATH"
 #')
+#' }
 #'
 #' @export
 

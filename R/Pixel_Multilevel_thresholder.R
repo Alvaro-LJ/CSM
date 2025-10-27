@@ -1,15 +1,5 @@
 #' Thresholds the foreground pixels of an image according to user parameters into several levels
 #'
-#' Internal use only
-#' @param Target An EBImage type object with a single channel to be thresholded
-#' @param Tissue_mask An EBImage type object of the binary tissue mask
-#' @param Threshold_type Type of threshold method to be performed: 'Arbitrary' or 'Otsu'
-#' @param Threshold_value If Threshold_type = 'Arbitrary', the value applied to threshold the image
-#' @param Blurr A logical value indicating if blurring should be applied before thresholding
-#' @param Sigma Sigma applied to the Gaussian kernel for blurring
-#' @returns An EBImage object containing the binary thresholded image
-#' @keywords Internal
-#' Thresholds the foreground pixels of an image according to user parameters into several levels
 #'
 #' Internal use only
 #' @param Target An EBImage type object with a single channel to be thresholded

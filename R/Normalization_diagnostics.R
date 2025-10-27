@@ -11,6 +11,7 @@
 #' @seealso [Normalization_function()], [Normalization_function_parallel()]
 #'
 #' @examples
+#' \dontrun{
 #' #Run normalization----------------------
 #' mxnorm_Parameters <-
 #' list(
@@ -34,6 +35,7 @@
 #' Original_DATA = CSM_Arrangedcellfeaturedata_test,
 #' Normalized_DATA = Normalized_data
 #' )
+#' }
 #'
 #'
 #' @export

@@ -25,11 +25,12 @@ The function calculates correlation between variables and draws a correlation ma
 Therefore, checking for correlation is a good practice before proceeding with analyses.
 }
 \examples{
+\dontrun{
 Plot_correlation_matrix(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Variables_included = names(CSM_Arrangedcellfeaturedata_test)[-c(1:4)],
   Correlation_method = "pearson"
 )
-
+}
 
 }

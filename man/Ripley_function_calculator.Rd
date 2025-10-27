@@ -32,6 +32,7 @@ that can serve as a metric of spatial interaction. The function is calculated us
 (specifically the spatstat.explore::envelope). If integration fails, the user may try different Max_distance thresholds to make it work.
 }
 \examples{
+\dontrun{
 Ripley_function_calculator(
    DATA = CSM_Phenotypecell_test,
    Cell_type = "TUMOR",
@@ -39,5 +40,6 @@ Ripley_function_calculator(
    Strategy = "Ripleys_K",
    N_simulations = 10
 )
+}
 
 }

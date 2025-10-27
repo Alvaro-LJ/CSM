@@ -161,7 +161,7 @@ K_Means_Meta_clustering first summarizes cell feature matrix observations using 
 Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
 }
 \examples{
-|dontrun{
+\dontrun{
 Clustering_Phenotyper(
     DATA = CSM_Arrangedcellfeaturedata_test,
     Strategy = "GMM",

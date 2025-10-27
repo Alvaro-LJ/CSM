@@ -30,6 +30,7 @@ A tibble containing a summary of the analysis result by image.
 The function calculates cell interaction pattern based on entropy gradients. For more information see related publication: https://doi.org/10.1038/s41467-023-37822-0.
 }
 \examples{
+\dontrun{
 #Generate SPIAT object list----------------------------
 DATA_SPIAT <-
 SPIAT_object_generator(
@@ -45,6 +46,7 @@ SPIAT_entropy_gradient_generator(
     Gradient_sampling = 50,
     Phenotypes_included = c("CD8_GZMBpos", "TUMOR")
 )
+}
 
 }
 \seealso{

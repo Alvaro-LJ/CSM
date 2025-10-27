@@ -2,7 +2,7 @@
 #'
 #' The function allows the user to modify neighborhood labels. The function works with any object created using the [Tiled_Image_Clustering_function()] function.
 #'
-#' @param DATA An object containing neighborhood labels generated using [Tiled_Image_Clustering_function()] function.
+#' @param Tiled_images An object containing neighborhood labels generated using [Tiled_Image_Clustering_function()] function.
 #' @param New_names A character vector indicating the new names. The length must be equal to the number of unique neighborhood labels.
 #' @param Old_names (OPTIONAL) A character vector indicating the names to be overwritten by New_names. It must have the same length as New_names.
 #'

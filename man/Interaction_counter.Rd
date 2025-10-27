@@ -53,6 +53,7 @@ can be identified in the dataset by running the \code{\link[=Interaction_analyze
 For additional information please visit imcRtools Vignette: https://www.bioconductor.org/packages/release/bioc/vignettes/imcRtools/inst/doc/imcRtools.html#5_Spatial_analysis.
 }
 \examples{
+\dontrun{
 Interaction_counter(
     DATA = CSM_Phenotypecell_test,
     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
@@ -68,6 +69,7 @@ Interaction_counter(
     N_iterations = 10,
     p_threshold = 0.05
 )
+}
 
 }
 \seealso{

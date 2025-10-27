@@ -11,10 +11,12 @@
 #' @seealso [SPIAT_Heterogeneity_Analyzer()], [SPIAT_entropy_gradient_generator()], [SPIAT_Tissue_structuring_function()],[SPIAT_neighborhood_identifier()].
 #'
 #' @examples
+#' \dontrun{
 #' SPIAT_object_generator(
 #'     DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
 #'     DATA_Phenotypes = CSM_Phenotypecell_test
 #')
+#' }
 #'
 #' @export
 

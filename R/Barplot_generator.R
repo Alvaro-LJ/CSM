@@ -9,6 +9,7 @@
 #' @returns Generates a barplot of the phenotypes composition of every image in DATA.
 #'
 #' @examples
+#' \dontrun{
 #' #Generate cell count summary----------------------------------
 #' Phenotypes_by_Sample <-
 #' Phenotype_quantifier(
@@ -22,11 +23,13 @@
 #'     Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg"),
 #'     Ordering_phenotype = "CD8_GZMBpos"
 #')
+#' }
 #'
 #' @export
 
 Barplot_generator <-
-  function(DATA = NULL, Phenotypes_included = NULL, Ordering_phenotype = NULL) {
+  function(DATA, Phenotypes_included, Ordering_phenotype) {
+
     if(!all(Phenotypes_included %in% names(DATA))){
       stop(paste0("Phenotypes not correctly stated. Choose from ", stringr::str_c(names(DATA)[-1], collapse = ", ")))
     }

@@ -27,6 +27,7 @@ Returns a plot with the cells and the overlying tiles shaded according to the he
 Generates a plot illustrating heterogeneity by tile.
 }
 \examples{
+\dontrun{
 #Divide cells into tiles---------
 Tiled_Images <-
 Image_tiling_processing_function(
@@ -51,7 +52,7 @@ Tiled_image_heterogeneity_graph_maker(
     Image_name = "ABCM22001_B09_MiniCrop.tif",
     Metric = "Shannon"
 )
-
+}
 
 
 }

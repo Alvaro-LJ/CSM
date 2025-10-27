@@ -4,7 +4,7 @@
 #'
 #' @param ... Strings indicating the path to folders containing binary thresholded images. Images from different directories will be matched by name.
 #' @param Save_processed_images Logical value indicating if thresholded images should be written (see details).
-#' @param Output_directory Character specifying the path to the folder where  output images are written. It must be an empty folder.
+#' @param Output_Directory Character specifying the path to the folder where  output images are written. It must be an empty folder.
 #' @param Operators Character vector indicating how the provided directories should be combined. Accepted values are 'AND', 'OR', 'NOT'
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
@@ -120,10 +120,10 @@
 
 Binary_threshold_image_combinator <-
   function(...,
-           Save_processed_images = NULL, #Should thresholded images saved? These thresholded images can be used in further analyses
+           Save_processed_images = FALSE, #Should thresholded images saved? These thresholded images can be used in further analyses
            Output_Directory = NULL, #Path where output images should be stored
-           Operators = NULL,
-           N_cores = NULL){
+           Operators,
+           N_cores = 1){
 
     #Check suggested packages
     {

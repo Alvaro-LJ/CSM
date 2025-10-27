@@ -10,6 +10,8 @@ expand.grid.unique(x, y, include.equals = FALSE)
 \item{x}{A vector}
 
 \item{y}{A vector}
+
+\item{include.equals}{A logical value}
 }
 \value{
 A dataframe containing unique combinations

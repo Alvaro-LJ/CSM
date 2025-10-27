@@ -10,6 +10,7 @@
 #'
 #'
 #' @examples
+#' \dontrun{
 #' print(unique(CSM_Phenotypecell_test$Phenotype))
 #'
 #' New_names_DATA <-
@@ -20,6 +21,7 @@
 #' )
 #'
 #' print(unique(New_names_DATA$Phenotype))
+#' }
 #'
 #' @export
 

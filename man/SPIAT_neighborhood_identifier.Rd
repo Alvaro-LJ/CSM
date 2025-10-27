@@ -28,6 +28,8 @@ SPIAT_neighborhood_identifier(
 
 \item{Min_neighborhood_size}{A integer value indicating the minimum number of cells to constitute a neighborhood.}
 
+\item{K_phenograph}{Currently NULL by lack of SPIAT package usage. Will be employed when the phenograph strategy is available in SPIAT.}
+
 \item{No_Phenotype_name}{(OPTIONAL) A character value indicating the cell phenotype label corresponding to non-phenotyped cells.}
 }
 \value{
@@ -37,6 +39,7 @@ A tibble containing a summary of the analysis result by image.
 The function identifies cell neighborhoods using the SPIAT::identify_neighborhoods function.
 }
 \examples{
+\dontrun{
 #Generate SPIAT object list----------------------------
 DATA_SPIAT <-
 SPIAT_object_generator(
@@ -54,6 +57,7 @@ SPIAT_neighborhood_identifier(
     Min_neighborhood_size = 10,
     No_Phenotype_name = NULL
 )
+}
 
 
 }

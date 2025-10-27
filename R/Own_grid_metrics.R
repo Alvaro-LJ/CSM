@@ -2,6 +2,11 @@
 #'
 #' Intended for internal use only
 #'
+#' @param spe_object Argument
+#' @param FUN Argument
+#' @param n_split Argument
+#' @param ... Argument
+#'
 #' @details
 #' Used in [SPIAT_Heterogeneity_Analyzer()]
 #'

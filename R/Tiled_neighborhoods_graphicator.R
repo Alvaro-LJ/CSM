@@ -7,6 +7,7 @@
 #' @returns Returns a plot with the tiles and the neighborhood elections results.
 #'
 #' @examples
+#' \dontrun{
 #' #Tile images with neighborhood information-----------------------------------
 #' Tiled_Images <-
 #'  Image_tiling_processing_function(
@@ -32,6 +33,7 @@
 #'Image_name = "ABCM22001_B14_MiniCrop.tif",
 #'Graph_only_winner_neighborhood = FALSE
 #')
+#' }
 #'
 #' @export
 

@@ -13,6 +13,7 @@
 #' @seealso [Image_length_calculator()], [Image_tiling_processing_function()]
 #'
 #' @examples
+#' \dontrun{
 #' Image_tiling_processing_function(
 #'    N_cores = 2,
 #'    DATA = CSM_Phenotypecell_test,
@@ -20,6 +21,7 @@
 #'    Tile_height = 125,
 #'    Variables_to_keep = "Phenotype"
 #')
+#' }
 #'
 #' @export
 

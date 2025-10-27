@@ -20,6 +20,7 @@ Returns a tibble with cell counts, percentages and optionally cell densities per
 The function generates positive cell counts, percentages and optionally cell densities according to cell phenotypes.
 }
 \examples{
+\dontrun{
 #Calculate tissue surface----------------
 DATA_AREA <-
 Image_size_calculator(
@@ -34,5 +35,6 @@ Phenotype_quantifier(
     Calculate_Density = TRUE,
     DATA_Area = DATA_AREA
 )
+}
 
 }

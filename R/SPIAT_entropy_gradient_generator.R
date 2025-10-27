@@ -13,6 +13,7 @@
 #' @seealso [SPIAT_object_generator()].
 #'
 #' @examples
+#' \dontrun{
 #' #Generate SPIAT object list----------------------------
 #' DATA_SPIAT <-
 #' SPIAT_object_generator(
@@ -28,6 +29,7 @@
 #'     Gradient_sampling = 50,
 #'     Phenotypes_included = c("CD8_GZMBpos", "TUMOR")
 #' )
+#' }
 #'
 #' @export
 

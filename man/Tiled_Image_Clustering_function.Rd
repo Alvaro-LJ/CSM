@@ -111,6 +111,8 @@ Tiled_Image_Clustering_function(
 
 \item{Max_N_Clusters_Batch}{If strategy is Batch_K_means: Number of maximum Clusters that can be identified.}
 
+\item{Percentage_centroid_initiation}{If strategy is Batch_K_means: A numeric value between 0 and 1 indicating the \% of cells used in initial centroid stimation.}
+
 \item{N_initiations}{If strategy is Batch_K_means: Number of times the algorithm is going to be tried to find the best clustering result.}
 
 \item{Max_iterations}{If strategy is Batch_K_means: Max number of iterations in each try.}

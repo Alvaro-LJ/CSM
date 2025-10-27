@@ -34,7 +34,6 @@ Neighborhood_discovery_function(
   Consensus_Name_Meta = NULL,
   Batch_size = NULL,
   Max_N_neighborhoods_Batch = NULL,
-  Percentage_centroid_initiation = NULL,
   N_initiations = NULL,
   Max_iterations = NULL,
   Quality_metric = NULL,
@@ -82,11 +81,15 @@ Neighborhood_discovery_function(
 
 \item{Max_SOM_neighborhoods}{If Strategy is SOM: umber of maximum neighborhoods that can be identified.}
 
+\item{Graph_type}{If Strategy is Graph_Based: A character value indicating the type of graph to build. Either "Complete" or "SNN" (nearest neighbors).}
+
 \item{Graph_Method}{If strategy is Graph_Based: One of Louvain, Leiden, Greedy, WalkTrap, Spinglass, Leading_Eigen or Edge_Betweenness.}
 
 \item{Nearest_neighbors_for_graph}{If strategy is Graph_Based: The number of closest neighbors to calculate the graph.}
 
 \item{Graph_Resolution}{If strategy is Graph_Based: Used for Louvain and Leiden. 1 is default. The smaller the value, the larger the clusters will be.}
+
+\item{Graph_Distance_method}{If strategy is Graph_Based and Graph_type is complete, a character value indicating the distance method used to build the graph. One of the following: "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski".}
 
 \item{N_steps}{If strategy is Graph_Based: Number of steps given in the WalkTrap algorithm.}
 

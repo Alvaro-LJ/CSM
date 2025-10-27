@@ -16,6 +16,7 @@ A message indicating potential issues in cell feature dataset.
 \code{Data_QC_Check_function()} checks that there are no missing values in the cell feature dataset and that there are no constant value variables.
 }
 \examples{
+\dontrun{
 #No QC flags-------------------------
 Data_QC_Check_function(
 DATA = CSM_Arrangedcellfeaturedata_test
@@ -30,5 +31,6 @@ DATA = CSM_Arrangedcellfeaturedata_test \%>\% dplyr::mutate(Constant_variable = 
 Data_QC_Check_function(
 DATA = CSM_Arrangedcellfeaturedata_test \%>\% dplyr::mutate(Missing_variable = NA)
 )
+}
 
 }

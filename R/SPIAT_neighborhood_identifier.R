@@ -8,6 +8,7 @@
 #' @param Cell_types_of_interest A character vector indicating the cell phenotype labels included in the analysis.
 #' @param Radius A numeric value indicating the distance radius used to calculate neighborhoods.
 #' @param Min_neighborhood_size A integer value indicating the minimum number of cells to constitute a neighborhood.
+#' @param K_phenograph Currently NULL by lack of SPIAT package usage. Will be employed when the phenograph strategy is available in SPIAT.
 #' @param No_Phenotype_name (OPTIONAL) A character value indicating the cell phenotype label corresponding to non-phenotyped cells.
 #'
 #' @returns A tibble containing a summary of the analysis result by image.
@@ -15,6 +16,7 @@
 #' @seealso [SPIAT_object_generator()].
 #'
 #' @examples
+#' \dontrun{
 #' #Generate SPIAT object list----------------------------
 #' DATA_SPIAT <-
 #' SPIAT_object_generator(
@@ -32,6 +34,7 @@
 #'     Min_neighborhood_size = 10,
 #'     No_Phenotype_name = NULL
 #' )
+#' }
 #'
 #'
 #' @export

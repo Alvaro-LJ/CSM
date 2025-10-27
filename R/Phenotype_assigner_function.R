@@ -11,7 +11,8 @@
 #' @seealso [Thresholding_function()], [Thresholding_function_tailored()], [Marker_combinator_generator()]
 #'
 #' @examples
-#' #Threshold data-------------------------------------
+#' \dontrun{
+#' #Threshold data
 #'DATA_thresholded <- Thresholding_function(
 #'   DATA = CSM_Arrangedcellfeaturedata_test,
 #'   Strategy = "EBI_Otsu",
@@ -22,20 +23,20 @@
 #'   Defined_threshold = 0.1,
 #'   Levels = 3
 #' )
-#' #Find unique feature positivity combinations----------
+#' #Find unique feature positivity combinations
 #'Phenotype_possibilities <- Marker_combinator_generator(
 #'   DATA = DATA_thresholded,
 #'   Markers = names(DATA_thresholded)[-c(1:4)]
 #')
-#'#Assign a phenotype to each combination------------
+#'#Assign a phenotype to each combination
 #'Phenotype_possibilities$Phenotype <- c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
 #'
-#'#Perform phenotyping-------------------------------
+#'#Perform phenotyping
 #'Phenotype_assigner_function(
 #'   DATA = DATA_thresholded,
 #'   Phenotype_possibilities = Phenotype_possibilities
 #')
-#'
+#' }
 #'
 #' @export
 

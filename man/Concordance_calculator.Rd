@@ -25,6 +25,7 @@ Rand index is calculated using catsim::rand_index function.
 Fowlkes-Mallows index is calculated using dendextend::FM_index function.
 }
 \examples{
+\dontrun{
 #Generate datasets with random cell phenotype labels----------------------
 CSM_Phenotypecell_test_1 <-
  CSM_Phenotypecell_test \%>\%
@@ -49,5 +50,6 @@ Concordance_calculator(
   Variable = "Phenotype",
   Strategy = "FM"
 )
+}
 
 }

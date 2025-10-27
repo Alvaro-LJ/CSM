@@ -37,7 +37,6 @@ UTAG_Neighborhood_identifier(
   Consensus_Name_Meta = NULL,
   Batch_size = NULL,
   Max_N_neighborhoods_Batch = NULL,
-  Percentage_centroid_initiation = NULL,
   N_initiations = NULL,
   Max_iterations = NULL,
   Quality_metric = NULL,
@@ -123,6 +122,8 @@ UTAG_Neighborhood_identifier(
 
 \item{Quality_metric}{If strategy is GMM:T he quality measure used to test the number of clusters ("AIC" or "BIC").}
 
+\item{Max_N_neighborhoods_GMM}{If strategy is GMM: Number of maximum neighborhoods that can be identified.}
+
 \item{Max_iterations_km}{If strategy is GMM: Number of max iterations in the K means clustering performed.}
 
 \item{Max_iterations_em}{If strategy is GMM: Number of max iterations in the Expectation Maximization algorithm.}
@@ -138,8 +139,6 @@ UTAG_Neighborhood_identifier(
 \item{Distance_CLARA}{If strategy is CLARA_clustering: Distance metric used in the model (euclidean, manhattan, chebyshev, canberra, braycurtis, pearson_correlation, simple_matching_coefficient, minkowski, hamming, jaccard_coefficient, Rao_coefficient, mahalanobis, cosine)}
 
 \item{N_cores}{If strategy is CLARA_clustering: Number of cores to parallelize your computation}
-
-\item{Max_N_phenotypes_GMM}{If strategy is GMM: Number of maximum phenotypes that can be identified.}
 }
 \value{
 Returns a tibble with cell features and a column named 'Neighborhood_assignment' containing cell neighborhoods.
@@ -192,13 +191,10 @@ UTAG_Neighborhood_identifier(
 
    Batch_size = 100,
    Max_N_neighborhoods_Batch = 10,
-   Percentage_centroid_initiation = 1,
    N_initiations = 10,
    Max_iterations = 10
 )
 }
-
-
 
 }
 \seealso{

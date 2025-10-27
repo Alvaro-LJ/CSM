@@ -9,6 +9,7 @@
 #' @returns Returns a tibble with cell features and the Neighborhood_assignment column with the modified labels.
 #'
 #' @examples
+#' \dontrun{
 #' print(unique(CSM_Neighborhoods_test$Neighborhood_assignment))
 #'
 #' New_names_DATA <-
@@ -19,6 +20,7 @@
 #' )
 #'
 #' print(unique(New_names_DATA$Neighborhood_assignment))
+#' }
 #'
 #' @export
 

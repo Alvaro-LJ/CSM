@@ -78,7 +78,7 @@
 #' If dimension reduction has been performed returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
 #'
 #' @examples
-#' |dontrun{
+#' \dontrun{
 #' Clustering_Phenotyper(
 #'     DATA = CSM_Arrangedcellfeaturedata_test,
 #'     Strategy = "GMM",

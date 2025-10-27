@@ -40,6 +40,7 @@ The function calculates the Euclidean distance between three cell phenotypes. On
 The COO and one of the target cells can be the same cell type.
 }
 \examples{
+\dontrun{
 Trio_Distance_matrix_generator(
     N_cores = 1,
     DATA = CSM_Phenotypecell_test,
@@ -48,7 +49,7 @@ Trio_Distance_matrix_generator(
     Target_Cell_2 = "CD8_GZMBpos",
     Perform_edge_correction = FALSE
 )
-
+}
 
 }
 \seealso{

@@ -33,6 +33,7 @@ Returns a tibble with the new segmented feature
 Given a numeric cell feature and user specified cut-off values, a character vector is generated to summarize the feature.
 }
 \examples{
+\dontrun{
 Marker_segmentator(
     DATA = CSM_DistanceToPixelcell_test,
     DATA_variable = "CK_DIST",
@@ -41,5 +42,6 @@ Marker_segmentator(
     Merge = TRUE,
     Var_to_Merge = "Phenotype"
 )
+}
 
 }

@@ -18,7 +18,8 @@ Returns a tibble with cut-off values and generates summary plots.
 Given the original and thresholded dataset, the function calculates cut-off values and generates summary graphs.
 }
 \examples{
-Threshold data---------------------------
+\dontrun{
+#Threshold data
 DATA_thresholded <- Thresholding_function(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Strategy = "EBI_Otsu",
@@ -35,6 +36,7 @@ Thresholding_summary_function(
    DATA = CSM_Arrangedcellfeaturedata_test,
    DATA_thresholded = DATA_thresholded
 )
+}
 
 
 }

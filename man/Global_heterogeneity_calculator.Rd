@@ -29,9 +29,11 @@ First '_Sample' indexes compare the observed cell composition against an homogen
 Second '_Experiment' indexes compare the observed cell composition against the cell distribution observed in all the cells from DATA.
 }
 \examples{
+\dontrun{
 Global_heterogeneity_calculator(
     DATA = CSM_Phenotypecell_test,
     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype)
 )
+}
 
 }

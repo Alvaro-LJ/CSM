@@ -24,8 +24,10 @@
 #'
 #' @param Max_SOM_neighborhoods If Strategy is SOM: umber of maximum neighborhoods that can be identified.
 #'
+#' @param Graph_type If Strategy is Graph_Based: A character value indicating the type of graph to build. Either "Complete" or "SNN" (nearest neighbors).
 #' @param Nearest_neighbors_for_graph If strategy is Graph_Based: The number of closest neighbors to calculate the graph.
 #' @param Graph_Method If strategy is Graph_Based: One of Louvain, Leiden, Greedy, WalkTrap, Spinglass, Leading_Eigen or Edge_Betweenness.
+#' @param Graph_Distance_method If strategy is Graph_Based and Graph_type is complete, a character value indicating the distance method used to build the graph. One of the following: "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski".
 #' @param Graph_Resolution If strategy is Graph_Based: Used for Louvain and Leiden. 1 is default. The smaller the value, the larger the clusters will be.
 #' @param N_steps If strategy is Graph_Based: Number of steps given in the WalkTrap algorithm.
 #'
@@ -152,7 +154,6 @@ Neighborhood_discovery_function <-
            #Parameters for Batched K means
            Batch_size = NULL, #The number of cells to be included in each random batch
            Max_N_neighborhoods_Batch = NULL, #Number of maximum clusters (neighborhoods) that you desire to find
-           Percentage_centroid_initiation = NULL,
            N_initiations = NULL, #Number of times the algorithm is going to be tried to find the best clustering result
            Max_iterations = NULL, #Max number of iterations in each try
 

@@ -33,6 +33,7 @@ Gini index is calculated using the DescTools::Gini function.
 Kullback_Leibler and Jensen_Shannon indexes are calculated using the philentropy package. They compare the observed cell composition within each tile against the global cell composition of the sample.
 }
 \examples{
+\dontrun{
 #Divide cells into tiles---------
 Tiled_Images <-
 Image_tiling_processing_function(
@@ -49,5 +50,6 @@ Tiled_image_heterogeneity_calculator(
     Minimum_cell_no_per_tile = 3,
     Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
 )
+}
 
 }

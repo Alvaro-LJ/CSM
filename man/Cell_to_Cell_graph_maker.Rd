@@ -34,6 +34,7 @@ The function generates a summary plot of the spatial interaction between two cel
 It can graph results for average, min and max distance as well as cell in radius analyses.
 }
 \examples{
+\dontrun{
 #Generate distance matrix----------------------------------------------------
 DATA_Distances <-
 Distance_matrix_generator(
@@ -69,6 +70,7 @@ Cell_to_Cell_graph_maker(
    DATA_Cumulative = DATA_Cumulative,
    Radius = 50
 )
+}
 
 }
 \seealso{

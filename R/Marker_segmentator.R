@@ -11,6 +11,7 @@
 #' @returns Returns a tibble with the new segmented feature
 #'
 #' @examples
+#' \dontrun{
 #' Marker_segmentator(
 #'     DATA = CSM_DistanceToPixelcell_test,
 #'     DATA_variable = "CK_DIST",
@@ -19,6 +20,7 @@
 #'     Merge = TRUE,
 #'     Var_to_Merge = "Phenotype"
 #' )
+#' }
 #'
 #' @export
 

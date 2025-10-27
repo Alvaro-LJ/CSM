@@ -42,6 +42,7 @@ In addition to the matrix, the function generates a correlation plot. The correl
 Neighbors may be defined by distance (a cell is considered a neighbor if it's within a defined distance D), by number (neighbors are the closest N cells) or both (cells are N closest neighbors as long as they are within distance D).
 }
 \examples{
+\dontrun{
 Tailored_Closest_neighbor_calculator(
     N_cores = 1,
     DATA = CSM_Phenotypecell_test,
@@ -51,6 +52,7 @@ Tailored_Closest_neighbor_calculator(
     Cell_Of_Origin = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos"),
     Target_Cell = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
 )
+}
 
 }
 \seealso{

@@ -16,6 +16,7 @@
 #' @returns A tibble containing a summary by sample of spatial interactions.
 #'
 #' @examples
+#' \dontrun{
 #'#Generate distance matrix and random distance matrix------------
 #'TRIO_Distance <-
 #' Trio_Distance_matrix_generator(
@@ -65,6 +66,7 @@
 #'   Include_Random = TRUE,
 #'   By_Sample_Random = TRUE
 #')
+#' }
 #'
 #' @export
 

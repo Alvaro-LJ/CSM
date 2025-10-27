@@ -27,13 +27,19 @@ Advanced_Tumor_Stroma_identifier(
 
 \item{Accuracy}{If Filtering_Method is 'Tiling': A numeric value indicating the size of the tile. Smaller sizes give more accurate result.}
 
+\item{Min_cell_no}{If Filtering_Method is 'DBSCAN': A integer value indicating the minimum number of cells required to be a cluster.}
+
 \item{Distance_radius}{If Filtering_Method is 'DBSCAN': A numeric value indicating the distance to be sampled.}
+
+\item{Hull_ratio}{A numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.}
+
+\item{Calculate_border}{A logical value indicating if border to tissue estructure should be computed.}
+
+\item{Dist_to_border}{A numeric value indicating the distance to the border to consider a cell to be in the border}
 
 \item{Image_preview}{A character value indicating the name of the image to be used in the preview.}
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
-
-\item{Min_cells}{If Filtering_Method is 'DBSCAN': A integer value indicating the minimum number of cells required to be a cluster.}
 }
 \value{
 Returns a list with a tibble with cell features including a column named 'Compartment' containing cell location and a tibble with tumor compartment area.

@@ -41,6 +41,7 @@ Steep rise in probability as distance increases means high chances of spatial in
 (specifically the spatstat.explore::Gcross function). The Area Under the Curve (AUC) of the resulting function can be used as a metric of spatial association.
 }
 \examples{
+\dontrun{
 Gcross_calculator(
    DATA = CSM_Phenotypecell_test,
    Cell_Of_Origin = "CD8_GZMBneg",
@@ -49,5 +50,6 @@ Gcross_calculator(
    Sampling_frequency = 10,
    Use_Clinical = FALSE
 )
+}
 
 }

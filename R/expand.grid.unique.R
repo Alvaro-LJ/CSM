@@ -4,6 +4,7 @@
 #'
 #' @param x A vector
 #' @param y A vector
+#' @param include.equals A logical value
 #'
 #' @details
 #' Used in [Concordance_calculator()], [Neighborhood_discovery_function()], [Tiled_Image_Clustering_function()], [Clustered_Tiled_Images_analyzer()]

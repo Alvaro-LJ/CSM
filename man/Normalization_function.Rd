@@ -38,6 +38,7 @@ method ("trim99", "minMax"),
 cores (Irrelevant argument. If parallelization is required use N_cores argument and \code{\link[=Normalization_function_parallel]{Normalization_function_parallel()}} function).
 }
 \examples{
+\dontrun{
 #Set normalization parameters-----------
 mxnorm_Parameters <-
 list(
@@ -83,6 +84,7 @@ Normalization_function(
   Strategy = "simpleSeg",
   Parameters = simpleSeg_Parameters
 )
+}
 
 }
 \seealso{

@@ -31,7 +31,8 @@ The cumulative interaction matrix contains information regarding the total poten
 the number of target cells present from every COO is calculated.
 }
 \examples{
-#Generate a data distance or random distance matrix--------------------------
+\dontrun{
+#' #Generate a data distance or random distance matrix--------------------------
 DATA_Distances <-
 Distance_matrix_generator(
     N_cores = 1,
@@ -50,6 +51,7 @@ Cumulative_Interaction_generator(
    Stop_at = 100,
    Sampling_frequency = 25
 )
+}
 
 }
 \seealso{

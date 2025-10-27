@@ -12,11 +12,13 @@ Neighborhood_voting_function(
 )
 }
 \arguments{
+\item{N_cores}{Integer. Number of cores to parallelize your computation.}
+
+\item{Tiled_Images}{A list containing tiled images obtained using \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}} with neighborhood information.}
+
 \item{Minimum_cell_no_per_tile}{An integer indicating the minimum number of cells that a tile must contain. Tiles below the limit will not be included in the analysis.}
 
-\item{Tiled_images}{A list containing tiled images obtained using \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}} with neighborhood information.}
-
-\item{Phenotypes_included}{A character vector indicating the phenotype labels that will be included in the analysis.}
+\item{Neighborhoods_included}{A character vector indicating the neighborhood labels that will be included in the analysis.}
 }
 \value{
 A list containing image information with by-tile neighborhood counts and a tibble with a summary of the number of winner per image.
@@ -29,6 +31,7 @@ The winner from each tile will be reported as ABSOLUTE if there is a single neig
 If there are any ties, alphabetical order will break the tie.
 }
 \examples{
+\dontrun{
 #Tile images with neighborhood information-----------------------------------
 Tiled_Images <-
  Image_tiling_processing_function(
@@ -46,5 +49,6 @@ Neighborhood_voting_function(
     Minimum_cell_no_per_tile = 2,
     Neighborhoods_included = unique(CSM_Neighborhoods_test$Neighborhood_assignment)
 )
+}
 
 }

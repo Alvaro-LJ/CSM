@@ -45,7 +45,7 @@
 #' @param Max_iterations If strategy is Batch_K_means: Max number of iterations in each try.
 #'
 #' @param Quality_metric If strategy is GMM:T he quality measure used to test the number of clusters ("AIC" or "BIC").
-#' @param Max_N_phenotypes_GMM If strategy is GMM: Number of maximum phenotypes that can be identified.
+#' @param Max_N_neighborhoods_GMM If strategy is GMM: Number of maximum neighborhoods that can be identified.
 #' @param Max_iterations_km If strategy is GMM: Number of max iterations in the K means clustering performed.
 #' @param Max_iterations_em If strategy is GMM: Number of max iterations in the Expectation Maximization algorithm.
 #' @param GMM_Distance If strategy is GMM: Distance metric used in the model ("eucl_dist" or "maha_dist").
@@ -105,13 +105,10 @@
 #'
 #'    Batch_size = 100,
 #'    Max_N_neighborhoods_Batch = 10,
-#'    Percentage_centroid_initiation = 1,
 #'    N_initiations = 10,
 #'    Max_iterations = 10
 #')
 #' }
-#'
-#'
 #'
 #' @export
 
@@ -162,7 +159,6 @@ UTAG_Neighborhood_identifier <-
            #Parameters for Batched K means
            Batch_size = NULL, #The number of cells to be included in each random batch
            Max_N_neighborhoods_Batch = NULL, #Number of maximum clusters (neighborhoods) that you desire to find
-           Percentage_centroid_initiation = NULL,
            N_initiations = NULL, #Number of times the algorithm is going to be tried to find the best clustering result
            Max_iterations = NULL, #Max number of iterations in each try
 

@@ -22,14 +22,8 @@ Pixel_Multilevel_thresholder(
 \item{Blurr}{A logical value indicating if blurring should be applied before thresholding}
 
 \item{Sigma}{Sigma applied to the Gaussian kernel for blurring}
-
-\item{Threshold_type}{Type of threshold method to be performed: 'Arbitrary' or 'Otsu'}
-
-\item{Threshold_value}{If Threshold_type = 'Arbitrary', the value applied to threshold the image}
 }
 \value{
-An EBImage object containing the binary thresholded image
-
 An EBImage object containing the multi-level thresholded image
 }
 \description{
@@ -39,19 +33,3 @@ Internal use only
 Used in \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}, \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}
 }
 \keyword{Internal}
-\keyword{Thresholds}
-\keyword{according}
-\keyword{an}
-\keyword{foreground}
-\keyword{image}
-\keyword{into}
-\keyword{levels}
-\keyword{of}
-\keyword{only}
-\keyword{parameters}
-\keyword{pixels}
-\keyword{several}
-\keyword{the}
-\keyword{to}
-\keyword{use}
-\keyword{user}

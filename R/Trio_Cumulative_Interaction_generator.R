@@ -14,6 +14,7 @@
 #' @returns A list containing the cumulative interaction matrix for every image as well as the trio interaction score.
 #'
 #' @examples
+#' \dontrun{
 #' #Generate a data distance or random distance matrix--------------------------
 #' TRIO_Distance <-
 #' Trio_Distance_matrix_generator(
@@ -32,6 +33,7 @@
 #'   Stop_at = 100,
 #'   Sampling_frequency = 25
 #')
+#' }
 #'
 #' @export
 

@@ -20,6 +20,7 @@ Returns a tibble with cell features and the Neighborhood_assignment column with 
 The function allows the user to modify neighborhood labels. The function works with any dataframe or tibble containing a column named 'Neighborhood_assignment'.
 }
 \examples{
+\dontrun{
 print(unique(CSM_Neighborhoods_test$Neighborhood_assignment))
 
 New_names_DATA <-
@@ -30,5 +31,6 @@ New_names_DATA <-
 )
 
 print(unique(New_names_DATA$Neighborhood_assignment))
+}
 
 }

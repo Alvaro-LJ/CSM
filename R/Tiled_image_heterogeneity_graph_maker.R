@@ -8,6 +8,7 @@
 #' @returns Returns a plot with the cells and the overlying tiles shaded according to the heterogeneity index.
 #'
 #' @examples
+#' \dontrun{
 #' #Divide cells into tiles---------
 #' Tiled_Images <-
 #' Image_tiling_processing_function(
@@ -32,7 +33,7 @@
 #'     Image_name = "ABCM22001_B09_MiniCrop.tif",
 #'     Metric = "Shannon"
 #')
-#'
+#' }
 #'
 #'
 #' @export

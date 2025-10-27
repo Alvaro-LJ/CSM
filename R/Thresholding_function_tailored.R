@@ -19,6 +19,7 @@
 #' @returns Returns a tibble with thresholded cell features. Every feature is thresholded using specific parameters. For binary thresholding features are converted to logical vectors, for multi-level are converted to numeric vectors.
 #'
 #' @examples
+#' \dontrun{
 #' #Generate strategy tibble---------------
 #' Thresholding_strategy_tibble <-
 #' tibble(
@@ -37,6 +38,7 @@
 #'   DATA = CSM_Arrangedcellfeaturedata_test,
 #'   Variables_tibble = Thresholding_strategy_tibble
 #' )
+#' }
 #'
 #' @export
 

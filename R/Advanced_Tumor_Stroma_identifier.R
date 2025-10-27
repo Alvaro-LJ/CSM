@@ -15,9 +15,9 @@
 #' @param Min_cell_no If Filtering_Method is 'DBSCAN': A integer value indicating the minimum number of cells required to be a cluster.
 #' @param Distance_radius If Filtering_Method is 'DBSCAN': A numeric value indicating the distance to be sampled.
 #'
-#' @param Hull_ratio
-#' @param Calculate_border
-#' @param Dist_to_border
+#' @param Hull_ratio A numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.
+#' @param Calculate_border A logical value indicating if border to tissue estructure should be computed.
+#' @param Dist_to_border A numeric value indicating the distance to the border to consider a cell to be in the border
 #'
 #' @param Image_preview A character value indicating the name of the image to be used in the preview.
 #' @param N_cores Integer. Number of cores to parallelize your computation.
@@ -46,9 +46,9 @@
 #' @export
 
 Advanced_Tumor_Stroma_identifier <-
-  function(DATA_Phenotypes = NULL,
-           Index_phenotype = NULL,
-           Filtering_Method = NULL,
+  function(DATA_Phenotypes,
+           Index_phenotype,
+           Filtering_Method,
 
            Accuracy = NULL,
            Min_cell_no = NULL,
@@ -73,6 +73,7 @@ Advanced_Tumor_Stroma_identifier <-
         )
       }
     }
+
     #Import all required Data
     DATA_Phenotypes <- DATA_Phenotypes
 

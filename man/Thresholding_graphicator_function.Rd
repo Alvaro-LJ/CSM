@@ -27,7 +27,8 @@ Plots individual cells feature expression values and cells that are above thresh
 The function generates plots comparing feature expression values and thresholding results for individual images.
 }
 \examples{
-#Threshold data---------------------------
+\dontrun{
+#Threshold data
 DATA_thresholded <- Thresholding_function(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Strategy = "EBI_Otsu",
@@ -39,13 +40,14 @@ DATA_thresholded <- Thresholding_function(
   Levels = 3
 )
 
-#Plot results---------------------------
+#Plot results
 Thresholding_graphicator_function(
   DATA = CSM_Arrangedcellfeaturedata_test,
   DATA_thresholded = DATA_thresholded,
   Marker_names = names(DATA_thresholded)[-c(1:4)],
   Image_name = "ABCM22001_B09_MiniCrop.tif"
 )
+}
 
 
 }

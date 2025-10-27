@@ -28,6 +28,7 @@
 #' @seealso [Normalization_function_parallel()], [Normalization_diagnostics()]
 #'
 #' @examples
+#' \dontrun{
 #' #Set normalization parameters-----------
 #'mxnorm_Parameters <-
 #' list(
@@ -73,6 +74,7 @@
 #'   Strategy = "simpleSeg",
 #'   Parameters = simpleSeg_Parameters
 #' )
+#' }
 #'
 #' @export
 

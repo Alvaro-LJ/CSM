@@ -20,6 +20,7 @@
 #' @returns A list containing two tibbles. Percentage: A tibble containing the neighbor matrix expressed as percentages. Absolute: A tibble containing the neighbor matrix expressed as cell counts.
 #'
 #' @examples
+#' \dontrun{
 #' Tailored_Closest_neighbor_calculator(
 #'     N_cores = 1,
 #'     DATA = CSM_Phenotypecell_test,
@@ -29,6 +30,7 @@
 #'     Cell_Of_Origin = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos"),
 #'     Target_Cell = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
 #')
+#' }
 #'
 #' @export
 

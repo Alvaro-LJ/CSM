@@ -37,6 +37,7 @@ The function divides the images into tiles, calculates entropy within tile and t
 Results may be similar to those obtained using \code{\link[=Tiled_image_heterogeneity_analyzer]{Tiled_image_heterogeneity_analyzer()}}.
 }
 \examples{
+\dontrun{
 #Generate SPIAT object list----------------------------
 DATA_SPIAT <-
 SPIAT_object_generator(
@@ -54,6 +55,7 @@ SPIAT_Heterogeneity_Analyzer(
     Entropy_threshold = 0.5,
     Autocorrelation_metric = "globalmoran"
 )
+}
 
 
 }

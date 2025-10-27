@@ -31,6 +31,7 @@ The cumulative interaction matrix contains information regarding the total poten
 the number of target cells present from every COO is calculated. The trio score is calculated as √(N Target Cell1*N Target cell 2).
 }
 \examples{
+\dontrun{
 #Generate a data distance or random distance matrix--------------------------
 TRIO_Distance <-
 Trio_Distance_matrix_generator(
@@ -49,6 +50,7 @@ Trio_Cumulative_Interaction_generator(
   Stop_at = 100,
   Sampling_frequency = 25
 )
+}
 
 }
 \seealso{

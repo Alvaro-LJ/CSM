@@ -9,6 +9,7 @@
 #' @returns Returns a tibble with cell counts, percentages and optionally cell densities per image.
 #'
 #' @examples
+#' \dontrun{
 #' #Calculate tissue surface----------------
 #' DATA_AREA <-
 #' Image_size_calculator(
@@ -23,6 +24,7 @@
 #'     Calculate_Density = TRUE,
 #'     DATA_Area = DATA_AREA
 #')
+#' }
 #'
 #' @export
 

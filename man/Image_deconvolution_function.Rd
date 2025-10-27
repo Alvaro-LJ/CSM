@@ -27,7 +27,7 @@ The function writes multi-tiff images in the ouput directory.
 \code{Image_deconvolution_function()} generates multi-channel tiff images according to color deconvolution parameters.
 }
 \examples{
-|dontrun{
+\dontrun{
 #Create temporary input and output directories------------------------------
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 Output_Dir <- tempfile(pattern = "tempdir2_Output")

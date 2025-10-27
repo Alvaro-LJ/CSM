@@ -9,11 +9,13 @@
 #' @returns Returns a tibble with image features.
 #'
 #' @examples
+#' \dontrun{
 #' Clinical_Data_arrange_function(
 #'      DATA = CSM_ClinicalTMA_test,
 #'      Subject_Names = "Sample",
 #'      Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
 #' )
+#' }
 #'
 #' @export
 

@@ -21,10 +21,12 @@ Returns a tibble with image features.
 This function is similar to \code{\link[=Data_arrange_function]{Data_arrange_function()}}, without adequate formatting, image metadata will no be able to work with \code{\link[=Clinical_Data_analyzer]{Clinical_Data_analyzer()}}
 }
 \examples{
+\dontrun{
 Clinical_Data_arrange_function(
      DATA = CSM_ClinicalTMA_test,
      Subject_Names = "Sample",
      Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
 )
+}
 
 }

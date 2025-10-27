@@ -13,6 +13,8 @@ A list containing information regarding CPU, RAM, R version being used and Opera
 The function returns CPU characteristics like processor model and number of cores. It will also return the OS and R version.
 }
 \examples{
+\dontrun{
 Describe_my_computing_unit()
+}
 
 }

@@ -32,6 +32,7 @@ Quantify_by_Threshold counts the number of tiles above the arbitrary threshold a
 Overall_summary quantifies the central tendency and dispersion metrics of the tile heterogeneity metrics and their spatial autocorrelation.
 }
 \examples{
+\dontrun{
 #Divide cells into tiles---------
 Tiled_Images <-
 Image_tiling_processing_function(
@@ -56,5 +57,6 @@ Tiled_image_heterogeneity_analyzer(
     Metric = "Shannon",
     Threshold = 0.5
 )
+}
 
 }

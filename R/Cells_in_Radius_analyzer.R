@@ -17,6 +17,7 @@
 #' @returns A tibble containing a summary by sample of spatial interactions.
 #'
 #' @examples
+#' \dontrun{
 #' #Generate distance matrix and random distance matrix------------
 #'DATA_Distances <-
 #' Distance_matrix_generator(
@@ -64,8 +65,7 @@
 #'    Include_Random = T,
 #'    By_Sample_Random = T
 #')
-#'
-#'
+#' }
 #'
 #' @export
 

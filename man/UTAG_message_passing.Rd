@@ -31,6 +31,8 @@ UTAG_message_passing(
 
 \item{Weighting_Strategy}{A character value indicating the weighting strategy for message passing: "None", "Proximity", "Disregarded_minority", "Both" (see details).}
 
+\item{COO_weight}{(OPTIONAL) A numeric value between 0 and 1 stating the relative weight of the COO in the final result. If NULL, the weight will be the same as for neighbors.}
+
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 }
 \value{
@@ -51,6 +53,7 @@ Proximity weighting is available for averaging and sum message passing strategie
 The function is based on the original UTAG pipeline described in the following reference: https://doi.org/10.1038/s41592-022-01657-2 and https://github.com/ElementoLab/utag.
 }
 \examples{
+\dontrun{
 UTAG_message_passing(
     DATA = CSM_Arrangedcellfeaturedata_test,
 
@@ -61,7 +64,7 @@ UTAG_message_passing(
 
     N_cores = 1
 )
-
+}
 
 }
 \seealso{

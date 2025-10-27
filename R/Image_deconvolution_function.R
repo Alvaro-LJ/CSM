@@ -9,7 +9,7 @@
 #' @seealso [Color_deconvolution_App_launcher()]
 #'
 #' @examples
-#' |dontrun{
+#' \dontrun{
 #' #Create temporary input and output directories------------------------------
 #' Input_Dir <- tempfile(pattern = "tempdir1_Input")
 #' Output_Dir <- tempfile(pattern = "tempdir2_Output")

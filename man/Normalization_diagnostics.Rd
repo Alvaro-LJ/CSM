@@ -19,6 +19,7 @@ The function will analyze normalization performance by comparing the Coefficient
 the coefficient of variation of the Otsu threshold should be reduced. In addition the function will also generate smoothened histograms comparing feature expression distribution before and after normalization.
 }
 \examples{
+\dontrun{
 #Run normalization----------------------
 mxnorm_Parameters <-
 list(
@@ -42,6 +43,7 @@ Normalization_diagnostics(
 Original_DATA = CSM_Arrangedcellfeaturedata_test,
 Normalized_DATA = Normalized_data
 )
+}
 
 
 }

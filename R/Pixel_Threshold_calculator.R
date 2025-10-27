@@ -7,7 +7,7 @@
 #' @param Channels_to_keep Character vector indicating channels used in tissue mask generation.
 #' @param Target_channel Character value indicating the target channel to be thresholded.
 #' @param Save_processed_images Logical value indicating if thresholded images should be written (see details).
-#' @param Output_directory Character specifying the path to the folder where  output images are written. It must be an empty folder.
+#' @param Output_Directory Character specifying the path to the folder where  output images are written. It must be an empty folder.
 #'
 #' @param Local_thresholding A logical value indicating if local (per image) threshold should be calculated (see details).
 #' @param Threshold_type Type of threshold should be one of the following: 'Arbitrary', 'Otsu' or 'Multilevel' (see details).

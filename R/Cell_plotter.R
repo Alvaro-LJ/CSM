@@ -11,11 +11,13 @@
 #' @seealso [Cell_image_plot_generator()]
 #'
 #' @examples
-#' Cell_plotter(
+#' \dontrun{
+#'Cell_plotter(
 #'    DATA = CSM_Phenotypecell_test,
 #'    Image_name = "ABCM22001_B14_MiniCrop.tif",
 #'    Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg")
 #' )
+#' }
 #'
 #'
 #' @export

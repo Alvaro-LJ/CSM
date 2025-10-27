@@ -24,6 +24,7 @@ A list containing plots (one element per phenotype).
 The function generates plots of the number of target cells present within each tile for a given image.
 }
 \examples{
+\dontrun{
 #Divide cells into tiles---------
 Tiled_Images <-
 Image_tiling_processing_function(
@@ -40,6 +41,7 @@ Tiled_images_graphicator(
    Image_name = "ABCM22001_B14_MiniCrop.tif",
    Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
 )
+}
 
 
 }

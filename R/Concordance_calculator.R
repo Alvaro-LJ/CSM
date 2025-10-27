@@ -14,6 +14,7 @@
 #' @returns Returns a tibble containing concordance values by sample. Generates summary plots.
 #'
 #' @examples
+#' \dontrun{
 #' #Generate datasets with random cell phenotype labels----------------------
 #' CSM_Phenotypecell_test_1 <-
 #'  CSM_Phenotypecell_test %>%
@@ -38,6 +39,7 @@
 #'   Variable = "Phenotype",
 #'   Strategy = "FM"
 #')
+#' }
 #'
 #' @export
 

@@ -17,11 +17,11 @@ Binary_threshold_image_combinator(
 
 \item{Save_processed_images}{Logical value indicating if thresholded images should be written (see details).}
 
+\item{Output_Directory}{Character specifying the path to the folder where  output images are written. It must be an empty folder.}
+
 \item{Operators}{Character vector indicating how the provided directories should be combined. Accepted values are 'AND', 'OR', 'NOT'}
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
-
-\item{Output_directory}{Character specifying the path to the folder where  output images are written. It must be an empty folder.}
 }
 \value{
 Returns a tibble with the total positive pixels per image after combining binary thresholded images

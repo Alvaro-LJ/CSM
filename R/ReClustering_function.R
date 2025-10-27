@@ -33,6 +33,7 @@
 #' @returns A tibble containing cell features and the new column with labels after re-clusterization process.
 #'
 #' @examples
+#' \dontrun{
 #' #OPTIONAL, set aside any features that will not be used in the initial phenotyping process----------------
 #' DATA_list <- Data_set_aside(
 #'    DATA = CSM_Arrangedcellfeaturedata_test,
@@ -71,6 +72,7 @@
 #'     Strategy = "Multilevel",
 #'     Levels = 3
 #'     )
+#' }
 #'
 #' @export
 

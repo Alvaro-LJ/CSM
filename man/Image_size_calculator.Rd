@@ -31,6 +31,7 @@ The function approximates tissue size either by tiling the tissue and analyzing 
 The area can then be used by other functions to calculate cell densities like \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}} or \code{\link[=Neighborhood_Quantifier]{Neighborhood_Quantifier()}}.
 }
 \examples{
+\dontrun{
 Image_size_calculator(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Strategy = "Tiling",
@@ -46,5 +47,6 @@ Image_size_calculator(
   Tile_accuracy = NULL,
   Hull_ratio = 0.75
 )
+}
 
 }

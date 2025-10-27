@@ -33,6 +33,7 @@ The function calculates the average number of target cells within a user defined
 If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
 }
 \examples{
+\dontrun{
 #Generate distance matrix and random distance matrix------------
 DATA_Distances <-
 Distance_matrix_generator(
@@ -80,8 +81,7 @@ Cells_in_Radius_analyzer(
    Include_Random = T,
    By_Sample_Random = T
 )
-
-
+}
 
 }
 \seealso{

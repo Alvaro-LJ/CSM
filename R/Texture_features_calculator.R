@@ -12,7 +12,8 @@
 #' @returns A tibble containing averaged texture features by image.
 #'
 #' @examples
-#' #'#Divide cells into tiles-------------------------------------
+#' \dontrun{
+#' #Divide cells into tiles-------------------------------------
 #' Tiled_Images <-
 #' Image_tiling_processing_function(
 #'    N_cores = 2,
@@ -27,6 +28,7 @@
 #'     Tiled_images = Tiled_Images,
 #'     Phenotype_included = "CD8_GZMBneg"
 #')
+#' }
 #'
 #' @export
 

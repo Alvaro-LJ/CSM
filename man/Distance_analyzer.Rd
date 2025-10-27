@@ -39,6 +39,7 @@ the maximum distance between COO and target cells.
 If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
 }
 \examples{
+\dontrun{
 #Generate distance matrix and random distance matrix------------
 DATA_Distances <-
 Distance_matrix_generator(
@@ -70,6 +71,7 @@ Distance_analyzer(
    Include_Random = TRUE,
    By_Sample_Random = TRUE
 )
+}
 
 }
 \seealso{

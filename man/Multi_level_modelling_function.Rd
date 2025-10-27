@@ -45,6 +45,8 @@ The model formula will look something like this: N umber of Target cells ~ Image
 The multilevel model is calculated using lme4::lmer function. The contribution of each variables to the total variance explanation is calculated using the partR2::partR2 function.
 }
 \examples{
+
+\dontrun{
 #Obtain the Cumulative interaction between two cells types accross the desired distance--------
 DATA_Distances <-
 Distance_matrix_generator(
@@ -96,5 +98,6 @@ Multi_level_modelling_function(
     Target_cell = "MACROPHAGE",
     Calculate_R2 = FALSE
 )
+}
 
 }

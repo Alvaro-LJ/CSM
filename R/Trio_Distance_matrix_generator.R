@@ -17,6 +17,7 @@
 #' @returns A list containing the distance matrix for each image. Rows represent Cells of Origin and columns represent Target cells.
 #'
 #' @examples
+#' \dontrun{
 #' Trio_Distance_matrix_generator(
 #'     N_cores = 1,
 #'     DATA = CSM_Phenotypecell_test,
@@ -25,7 +26,7 @@
 #'     Target_Cell_2 = "CD8_GZMBpos",
 #'     Perform_edge_correction = FALSE
 #' )
-#'
+#' }
 #'
 #' @import dplyr
 #'

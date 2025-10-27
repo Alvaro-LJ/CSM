@@ -20,6 +20,8 @@
 #' @returns A list containing two outputs: Raw_DATA contains the expected interaction probability for every distance point. Simplified_DATA cotains the AUC data by image.
 #'
 #' @examples
+#'
+#' \dontrun{
 #' #Obtain the Cumulative interaction between two cells types accross the desired distance--------
 #'DATA_Distances <-
 #' Distance_matrix_generator(
@@ -71,6 +73,7 @@
 #'     Target_cell = "MACROPHAGE",
 #'     Calculate_R2 = FALSE
 #' )
+#' }
 #'
 #' @export
 

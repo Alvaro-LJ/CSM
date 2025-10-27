@@ -13,6 +13,7 @@
 #' @returns A tibble containing results by image.
 #'
 #' @examples
+#' \dontrun{
 #'Ripley_function_calculator(
 #'    DATA = CSM_Phenotypecell_test,
 #'    Cell_type = "TUMOR",
@@ -20,6 +21,7 @@
 #'    Strategy = "Ripleys_K",
 #'    N_simulations = 10
 #')
+#' }
 #'
 #' @export
 

@@ -18,6 +18,7 @@
 #'
 #'
 #' @examples
+#' \dontrun{
 #' #Generate SPIAT object list----------------------------
 #' DATA_SPIAT <-
 #' SPIAT_object_generator(
@@ -35,6 +36,7 @@
 #'     Entropy_threshold = 0.5,
 #'     Autocorrelation_metric = "globalmoran"
 #' )
+#' }
 #'
 #'
 #' @export

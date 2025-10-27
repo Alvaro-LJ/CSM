@@ -9,12 +9,13 @@
 #' @returns Generates a correlation matrix plot
 #'
 #' @examples
+#' \dontrun{
 #' Plot_correlation_matrix(
 #'   DATA = CSM_Arrangedcellfeaturedata_test,
 #'   Variables_included = names(CSM_Arrangedcellfeaturedata_test)[-c(1:4)],
 #'   Correlation_method = "pearson"
 #' )
-#'
+#' }
 #'
 #' @export
 

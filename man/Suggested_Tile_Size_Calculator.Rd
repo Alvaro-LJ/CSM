@@ -31,6 +31,7 @@ The function can be used  to plan the image tiling strategy. The function calcul
 The calculation can be performed using the smallest or largest image from the dataset.
 }
 \examples{
+\dontrun{
 Suggested_Tile_Size_Calculator(
    CSM_Phenotypecell_test,
    N_cols = 4,
@@ -38,6 +39,7 @@ Suggested_Tile_Size_Calculator(
    Based_on_smaller = TRUE,
    Draw_preview = TRUE
 )
+}
 
 }
 \seealso{

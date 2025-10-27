@@ -28,6 +28,8 @@ SPIAT_Tissue_structuring_function(
 
 \item{Cell_types_of_interest}{Cell types to be related to these structures.}
 
+\item{Layers_margin}{A numeric value indicating the number of cell layers to calculate the border.}
+
 \item{Simplify_result}{A logical value indicating if the final result should be simplified.}
 }
 \value{
@@ -38,6 +40,7 @@ If Simplify_result is FALSE, the function returns a list containing cell locatio
 The function generates tissue structure according to a cell phenotype label (usually tumor cells). Then all the cells are asigned a label according to their distance to the tissue structures.
 }
 \examples{
+\dontrun{
 #Generate SPIAT object list----------------------------
 DATA_SPIAT <-
 SPIAT_object_generator(
@@ -56,6 +59,7 @@ SPIAT_Tissue_structuring_function(
     Layers_margin = 5,
     Simplify_result = T
 )
+}
 
 }
 \seealso{

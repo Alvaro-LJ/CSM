@@ -27,6 +27,7 @@ Autothreshold calculates thresholds using the autothresholdr::auto_thresh_mask. 
 Multi_level thresholds are calculated using imagerExtra::ThresholdML function.
 }
 \examples{
+\dontrun{
 #Generate strategy tibble---------------
 Thresholding_strategy_tibble <-
 tibble(
@@ -45,6 +46,7 @@ Thresholding_function_tailored(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Variables_tibble = Thresholding_strategy_tibble
 )
+}
 
 }
 \seealso{

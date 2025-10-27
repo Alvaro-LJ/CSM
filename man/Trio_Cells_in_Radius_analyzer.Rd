@@ -33,6 +33,7 @@ The function calculates the average TRIO score for every image given a radius si
 If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
 }
 \examples{
+\dontrun{
 #Generate distance matrix and random distance matrix------------
 TRIO_Distance <-
 Trio_Distance_matrix_generator(
@@ -82,6 +83,7 @@ Trio_Cells_in_Radius_analyzer(
   Include_Random = TRUE,
   By_Sample_Random = TRUE
 )
+}
 
 }
 \seealso{

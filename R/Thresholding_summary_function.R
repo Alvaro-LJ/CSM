@@ -8,7 +8,8 @@
 #' @returns Returns a tibble with cut-off values and generates summary plots.
 #'
 #' @examples
-#' Threshold data---------------------------
+#' \dontrun{
+#' #Threshold data
 #'DATA_thresholded <- Thresholding_function(
 #'   DATA = CSM_Arrangedcellfeaturedata_test,
 #'   Strategy = "EBI_Otsu",
@@ -25,6 +26,7 @@
 #'    DATA = CSM_Arrangedcellfeaturedata_test,
 #'    DATA_thresholded = DATA_thresholded
 #' )
+#' }
 #'
 #'
 #' @export

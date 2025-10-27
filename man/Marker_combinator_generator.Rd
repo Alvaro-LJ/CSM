@@ -19,6 +19,7 @@ Given a thresholded cell feature dataset, the function will find all unique comb
 The result can then be used to feed the \code{\link[=Phenotype_assigner_function]{Phenotype_assigner_function()}} to obtain cell phenotypes.
 }
 \examples{
+\dontrun{
 #Threshold data-------------------------------------
 DATA_thresholded <- Thresholding_function(
   DATA = CSM_Arrangedcellfeaturedata_test,
@@ -43,6 +44,7 @@ Phenotype_assigner_function(
   DATA = DATA_thresholded,
   Phenotype_possibilities = Phenotype_possibilities
 )
+}
 
 }
 \seealso{

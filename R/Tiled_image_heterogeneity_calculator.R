@@ -18,6 +18,7 @@
 #' @returns A list containing image information with by-tile heterogeneity metrics.
 #'
 #' @examples
+#' \dontrun{
 #' #Divide cells into tiles---------
 #' Tiled_Images <-
 #' Image_tiling_processing_function(
@@ -34,6 +35,7 @@
 #'     Minimum_cell_no_per_tile = 3,
 #'     Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
 #')
+#' }
 #'
 #' @export
 

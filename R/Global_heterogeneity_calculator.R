@@ -20,10 +20,12 @@
 #' @returns Generates a tibble containing heterogeneity metrics by image.
 #'
 #' @examples
+#' \dontrun{
 #' Global_heterogeneity_calculator(
 #'     DATA = CSM_Phenotypecell_test,
 #'     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype)
 #' )
+#' }
 #'
 #' @export
 

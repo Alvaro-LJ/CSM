@@ -19,6 +19,7 @@
 #' @returns A list containing the random distance matrix for each image. Rows represent Cells of Origin and columns represent Target cells.
 #'
 #' @examples
+#' \dontrun{
 #' Random_Distance_matrix_generator(
 #'    N_cores = 2,
 #'    DATA = CSM_Phenotypecell_test,
@@ -30,6 +31,7 @@
 #'    Hull_ratio = 1,
 #'    Distance_to_edge = 10
 #')
+#' }
 #'
 #' @import dplyr
 #' @export

@@ -11,6 +11,7 @@
 #' @seealso [Thresholding_function()], [Thresholding_function_tailored()] [Phenotype_assigner_function()]
 #'
 #' @examples
+#' \dontrun{
 #' #Threshold data-------------------------------------
 #'DATA_thresholded <- Thresholding_function(
 #'   DATA = CSM_Arrangedcellfeaturedata_test,
@@ -35,6 +36,8 @@
 #'   DATA = DATA_thresholded,
 #'   Phenotype_possibilities = Phenotype_possibilities
 #')
+#' }
+
 #'
 #' @export
 

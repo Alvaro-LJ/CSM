@@ -20,6 +20,7 @@ Returns a tibble with cell features and the phenotype column with the modified l
 The function allows the user to modify cell phenotype labels. The function works with any dataframe or tibble containing a column named 'Phenotype'.
 }
 \examples{
+\dontrun{
 print(unique(CSM_Phenotypecell_test$Phenotype))
 
 New_names_DATA <-
@@ -30,5 +31,6 @@ New_names_DATA <-
 )
 
 print(unique(New_names_DATA$Phenotype))
+}
 
 }

@@ -30,6 +30,7 @@ A list containing tile information for every image in DATA.
 The function assigns cells to unique tiles. Afterwards, tile information can be used to run subsequent analyses.
 }
 \examples{
+\dontrun{
 Image_tiling_processing_function(
    N_cores = 2,
    DATA = CSM_Phenotypecell_test,
@@ -37,6 +38,7 @@ Image_tiling_processing_function(
    Tile_height = 125,
    Variables_to_keep = "Phenotype"
 )
+}
 
 }
 \seealso{

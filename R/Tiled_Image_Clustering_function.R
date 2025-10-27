@@ -39,6 +39,7 @@
 #'
 #' @param Batch_size If strategy is Batch_K_means: Number of cells to be included in each random batch.
 #' @param Max_N_Clusters_Batch If strategy is Batch_K_means: Number of maximum Clusters that can be identified.
+#' @param Percentage_centroid_initiation If strategy is Batch_K_means: A numeric value between 0 and 1 indicating the % of cells used in initial centroid stimation.
 #' @param N_initiations If strategy is Batch_K_means: Number of times the algorithm is going to be tried to find the best clustering result.
 #' @param Max_iterations If strategy is Batch_K_means: Max number of iterations in each try.
 #'

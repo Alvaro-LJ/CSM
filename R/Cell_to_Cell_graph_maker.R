@@ -15,6 +15,7 @@
 #' @returns A graph summarizing spatial interactions for the indicated image.
 #'
 #' @examples
+#' \dontrun{
 #' #Generate distance matrix----------------------------------------------------
 #'DATA_Distances <-
 #' Distance_matrix_generator(
@@ -51,6 +52,7 @@
 #'    DATA_Cumulative = DATA_Cumulative,
 #'    Radius = 50
 #')
+#' }
 #'
 #' @export
 

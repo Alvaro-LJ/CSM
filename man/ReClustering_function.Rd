@@ -70,6 +70,7 @@ Self Organizing Maps clustering is performed using the FlowSOM::FlowSOM function
 Batch K-means and Gaussian Mixture Models are all based on the ClusterR package.
 }
 \examples{
+\dontrun{
 #OPTIONAL, set aside any features that will not be used in the initial phenotyping process----------------
 DATA_list <- Data_set_aside(
    DATA = CSM_Arrangedcellfeaturedata_test,
@@ -108,5 +109,6 @@ ReClustering_function(
     Strategy = "Multilevel",
     Levels = 3
     )
+}
 
 }

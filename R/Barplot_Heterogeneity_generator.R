@@ -8,6 +8,7 @@
 #' @returns Generates a barplot of the heterogeneity of every image in DATA.
 #'
 #' @examples
+#' \dontrun{
 #' #Calculate the global heterogeneity by sample----------------------------
 #'Global_Heterogeneity_by_sample <-
 #'  Global_heterogeneity_calculator(
@@ -20,12 +21,13 @@
 #'    DATA = Global_Heterogeneity_by_sample,
 #'    Metric = "Gini"
 #')
+#' }
 #'
 #' @export
 
 Barplot_Heterogeneity_generator <-
-  function(DATA = NULL,
-           Metric = NULL) {
+  function(DATA,
+           Metric) {
     if(!(Metric %in% names(DATA))){
       stop(paste0("Metrics not correctly stated. Choose from: ", stringr::str_c(names(DATA)[-1], collapse = ", ")))
     }

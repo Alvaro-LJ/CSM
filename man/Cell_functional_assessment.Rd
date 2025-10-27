@@ -37,7 +37,8 @@ These features can be set aside with \code{\link[=Data_set_aside]{Data_set_aside
 Multilevel thresholding is calculated using imagerExtra::ThresholdML function
 }
 \examples{
-#' Set aside any features that will not be used in the initial phenotyping process----------------
+\dontrun{
+#Set aside any features that will not be used in the initial phenotyping process----------------
 DATA_list <- Data_set_aside(
    DATA = CSM_Arrangedcellfeaturedata_test,
    Markers_to_set = "GZMB_AVERAGE"
@@ -73,5 +74,6 @@ Cell_functional_assessment(
     DATA_Aside = DATA_list$Aside,
     Threshold_functional_Markers = FALSE
 )
+}
 
 }

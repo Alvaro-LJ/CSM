@@ -2,9 +2,10 @@
 #'
 #' Given a tiled image, the function calculates neighborhood prevalence by tile. It then assigns neighborhood identity to each tile based on results.
 #'
-#' @param Tiled_images A list containing tiled images obtained using [Image_tiling_processing_function()] with neighborhood information.
+#' @param N_cores Integer. Number of cores to parallelize your computation.
+#' @param Tiled_Images A list containing tiled images obtained using [Image_tiling_processing_function()] with neighborhood information.
 #' @param Minimum_cell_no_per_tile An integer indicating the minimum number of cells that a tile must contain. Tiles below the limit will not be included in the analysis.
-#' @param Phenotypes_included A character vector indicating the phenotype labels that will be included in the analysis.
+#' @param Neighborhoods_included A character vector indicating the neighborhood labels that will be included in the analysis.
 #'
 #' @details
 #' The winner from each tile will be reported as ABSOLUTE if there is a single neighborhood represented in each tile, SUPER if the winner has more than 50% of votes and simple if the winner has less than 50% of votes.
@@ -13,6 +14,7 @@
 #' @returns A list containing image information with by-tile neighborhood counts and a tibble with a summary of the number of winner per image.
 #'
 #' @examples
+#' \dontrun{
 #' #Tile images with neighborhood information-----------------------------------
 #' Tiled_Images <-
 #'  Image_tiling_processing_function(
@@ -30,6 +32,7 @@
 #'     Minimum_cell_no_per_tile = 2,
 #'     Neighborhoods_included = unique(CSM_Neighborhoods_test$Neighborhood_assignment)
 #' )
+#' }
 #'
 #' @export
 

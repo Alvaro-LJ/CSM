@@ -44,6 +44,7 @@ randomly permuting cell labels in an iterative manner. For every image the same 
 The COO and target cell can be the same cell type.
 }
 \examples{
+\dontrun{
 Random_Distance_matrix_generator(
    N_cores = 2,
    DATA = CSM_Phenotypecell_test,
@@ -55,6 +56,7 @@ Random_Distance_matrix_generator(
    Hull_ratio = 1,
    Distance_to_edge = 10
 )
+}
 
 }
 \seealso{

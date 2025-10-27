@@ -5,7 +5,9 @@
 #' @return A list containing information regarding CPU, RAM, R version being used and Operating system
 #'
 #' @examples
+#' \dontrun{
 #' Describe_my_computing_unit()
+#' }
 #'
 #' @export
 

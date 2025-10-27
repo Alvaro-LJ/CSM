@@ -41,8 +41,8 @@
 #' @export
 
 CELESTA_phenotyper <-
-  function(DATA = NULL,
-           Template_path = NULL,
+  function(DATA,
+           Template_path,
            Alternative_CSV_locale = FALSE,
            N_cores = 1,
 

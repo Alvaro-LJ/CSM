@@ -2,6 +2,8 @@
 #'
 #' Intended for internal use only
 #'
+#' @param x Argument
+#'
 #' @details
 #' Used in [Own_grid_metrics()], [SPIAT_Heterogeneity_Analyzer()]
 #'

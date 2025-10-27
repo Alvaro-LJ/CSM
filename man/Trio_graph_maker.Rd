@@ -22,9 +22,9 @@ Trio_graph_maker(
 
 \item{TRIO_Distances}{If Strategy is Min_Distance, a trio distance matrix list generated using \code{\link[=Trio_Distance_matrix_generator]{Trio_Distance_matrix_generator()}} function.}
 
-\item{Radius}{If strategy is TRIO_in_Radius, a numeric value indicating the radius to be plotted. It must have been computed during the generation of the cumulative interaction matrix.}
+\item{TRIO_Cumulative}{If Strategy is TRIO_in_Radius, a trio cumulative interaction matrix list generated using \code{\link[=Trio_Cumulative_Interaction_generator]{Trio_Cumulative_Interaction_generator()}} function.}
 
-\item{Trio_Cumulative}{If Strategy is TRIO_in_Radius, a trio cumulative interaction matrix list generated using \code{\link[=Trio_Cumulative_Interaction_generator]{Trio_Cumulative_Interaction_generator()}} function.}
+\item{Radius}{If strategy is TRIO_in_Radius, a numeric value indicating the radius to be plotted. It must have been computed during the generation of the cumulative interaction matrix.}
 }
 \value{
 A graph summarizing spatial interactions for the indicated image.
@@ -33,6 +33,7 @@ A graph summarizing spatial interactions for the indicated image.
 The function generates a summary plot of TRIO spatial interactions. It can graph results for min dist to TRIO and TRIO score within radius approaches
 }
 \examples{
+\dontrun{
 #Generate distance matrix-----------------------------------
 TRIO_Distance <-
 Trio_Distance_matrix_generator(
@@ -69,6 +70,7 @@ Trio_graph_maker(
    TRIO_Cumulative = TRIO_Cumulative,
    Radius = 50
 )
+}
 
 }
 \seealso{

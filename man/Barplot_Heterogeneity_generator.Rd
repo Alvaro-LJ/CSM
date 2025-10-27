@@ -18,6 +18,7 @@ Generates a barplot of the heterogeneity of every image in DATA.
 After quantifying heterogeneity for every image using \code{\link[=Global_heterogeneity_calculator]{Global_heterogeneity_calculator()}}, the user can plot the results using this function.
 }
 \examples{
+\dontrun{
 #Calculate the global heterogeneity by sample----------------------------
 Global_Heterogeneity_by_sample <-
  Global_heterogeneity_calculator(
@@ -30,5 +31,6 @@ Barplot_Heterogeneity_generator(
    DATA = Global_Heterogeneity_by_sample,
    Metric = "Gini"
 )
+}
 
 }

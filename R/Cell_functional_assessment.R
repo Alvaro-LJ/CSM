@@ -16,7 +16,8 @@
 #' @returns A list containing cell feature information and a summary of feature expression in target cells. Also generates summary plots.
 #'
 #' @examples
-#' #' Set aside any features that will not be used in the initial phenotyping process----------------
+#' \dontrun{
+#' #Set aside any features that will not be used in the initial phenotyping process----------------
 #' DATA_list <- Data_set_aside(
 #'    DATA = CSM_Arrangedcellfeaturedata_test,
 #'    Markers_to_set = "GZMB_AVERAGE"
@@ -52,15 +53,16 @@
 #'     DATA_Aside = DATA_list$Aside,
 #'     Threshold_functional_Markers = FALSE
 #' )
+#' }
 #'
 #' @export
 
 Cell_functional_assessment <-
-  function(DATA = NULL,
-           Target_Variable = NULL,
-           Targets_Included = NULL,
-           DATA_Aside = NULL,
-           Threshold_functional_Markers = NULL,
+  function(DATA,
+           Target_Variable,
+           Targets_Included,
+           DATA_Aside,
+           Threshold_functional_Markers = FALSE,
            Levels = NULL){
 
     #Check suggested packages

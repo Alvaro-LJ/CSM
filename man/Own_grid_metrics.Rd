@@ -6,6 +6,15 @@
 \usage{
 Own_grid_metrics(spe_object, FUN, n_split, ...)
 }
+\arguments{
+\item{spe_object}{Argument}
+
+\item{FUN}{Argument}
+
+\item{n_split}{Argument}
+
+\item{...}{Argument}
+}
 \description{
 Intended for internal use only
 }

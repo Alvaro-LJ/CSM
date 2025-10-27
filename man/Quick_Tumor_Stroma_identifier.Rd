@@ -14,6 +14,8 @@ Quick_Tumor_Stroma_identifier(
 )
 }
 \arguments{
+\item{DATA_Phenotypes}{A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.}
+
 \item{Index_phenotype}{A character value indicating the cell phenotype to be used to calculate the tissue compartment.}
 
 \item{Accuracy}{A numeric value indicating the size of the tile. Smaller sizes give more accurate result.}
@@ -23,8 +25,6 @@ Quick_Tumor_Stroma_identifier(
 \item{Image_preview}{A character value indicating the name of the image to be used in the preview. If Null a random sample will be selected.}
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
-
-\item{DATA}{A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.}
 }
 \value{
 Returns a tibble with cell features and a column named 'Compartment' containing cell location.

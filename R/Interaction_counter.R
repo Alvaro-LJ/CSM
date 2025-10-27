@@ -29,6 +29,7 @@
 #' @returns A list containing pairwise cell spatial interactions by sample.
 #'
 #' @examples
+#' \dontrun{
 #' Interaction_counter(
 #'     DATA = CSM_Phenotypecell_test,
 #'     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
@@ -44,6 +45,7 @@
 #'     N_iterations = 10,
 #'     p_threshold = 0.05
 #')
+#' }
 #'
 #' @export
 

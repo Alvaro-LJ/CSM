@@ -5,6 +5,7 @@
 #' @returns A message indicating potential issues in cell feature dataset.
 #'
 #' @examples
+#' \dontrun{
 #' #No QC flags-------------------------
 #' Data_QC_Check_function(
 #' DATA = CSM_Arrangedcellfeaturedata_test
@@ -19,6 +20,7 @@
 #' Data_QC_Check_function(
 #' DATA = CSM_Arrangedcellfeaturedata_test %>% dplyr::mutate(Missing_variable = NA)
 #' )
+#' }
 #'
 #' @export
 

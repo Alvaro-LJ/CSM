@@ -24,6 +24,7 @@ Generates a barplot of the phenotypes composition of every image in DATA.
 After quantifying cell phenotypes in every image using \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}} function, the user can plot the results using this function.
 }
 \examples{
+\dontrun{
 #Generate cell count summary----------------------------------
 Phenotypes_by_Sample <-
 Phenotype_quantifier(
@@ -37,5 +38,6 @@ Barplot_generator(
     Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg"),
     Ordering_phenotype = "CD8_GZMBpos"
 )
+}
 
 }

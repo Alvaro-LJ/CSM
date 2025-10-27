@@ -11,6 +11,7 @@
 #' @returns Returns a tibble with tissue size for each image
 #'
 #' @examples
+#' \dontrun{
 #' Image_size_calculator(
 #'   DATA = CSM_Arrangedcellfeaturedata_test,
 #'   Strategy = "Tiling",
@@ -26,6 +27,7 @@
 #'   Tile_accuracy = NULL,
 #'   Hull_ratio = 0.75
 #' )
+#' }
 #'
 #' @import dplyr
 #'

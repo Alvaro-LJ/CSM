@@ -13,6 +13,7 @@
 #' @returns A tibble containing the summary of the analysis
 #'
 #' @examples
+#' \dontrun{
 #' #Divide cells into tiles---------
 #' Tiled_Images <-
 #' Image_tiling_processing_function(
@@ -37,6 +38,7 @@
 #'     Metric = "Shannon",
 #'     Threshold = 0.5
 #')
+#' }
 #'
 #' @export
 

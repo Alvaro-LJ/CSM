@@ -19,7 +19,8 @@ The function takes a thresholded cell feature matrix and a tibble obtained using
 must have a new column named 'Phenotype' where the user specifies the name of the phenotype according to the feature positivity pattern. The function uses this information to assign cell phenotypes to all cells in DATA.
 }
 \examples{
-#Threshold data-------------------------------------
+\dontrun{
+#Threshold data
 DATA_thresholded <- Thresholding_function(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Strategy = "EBI_Otsu",
@@ -30,20 +31,20 @@ DATA_thresholded <- Thresholding_function(
   Defined_threshold = 0.1,
   Levels = 3
 )
-#Find unique feature positivity combinations----------
+#Find unique feature positivity combinations
 Phenotype_possibilities <- Marker_combinator_generator(
   DATA = DATA_thresholded,
   Markers = names(DATA_thresholded)[-c(1:4)]
 )
-#Assign a phenotype to each combination------------
+#Assign a phenotype to each combination
 Phenotype_possibilities$Phenotype <- c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
 
-#Perform phenotyping-------------------------------
+#Perform phenotyping
 Phenotype_assigner_function(
   DATA = DATA_thresholded,
   Phenotype_possibilities = Phenotype_possibilities
 )
-
+}
 
 }
 \seealso{

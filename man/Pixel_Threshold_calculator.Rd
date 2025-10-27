@@ -37,6 +37,8 @@ Pixel_Threshold_calculator(
 
 \item{Save_processed_images}{Logical value indicating if thresholded images should be written (see details).}
 
+\item{Output_Directory}{Character specifying the path to the folder where  output images are written. It must be an empty folder.}
+
 \item{Local_thresholding}{A logical value indicating if local (per image) threshold should be calculated (see details).}
 
 \item{Threshold_type}{Type of threshold should be one of the following: 'Arbitrary', 'Otsu' or 'Multilevel' (see details).}
@@ -56,8 +58,6 @@ Pixel_Threshold_calculator(
 \item{Blurr_target}{Logical value indicating if image blurring be performed before target thresholding}
 
 \item{Sigma_target}{Numeric value indicating the sigma value to perform Gaussian blurring}
-
-\item{Output_directory}{Character specifying the path to the folder where  output images are written. It must be an empty folder.}
 }
 \value{
 Returns a tibble with the total foreground pixels and pixels above threshold per image

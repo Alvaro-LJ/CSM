@@ -23,9 +23,9 @@
 #' @export
 
 CELESTA_template_generator <-
-  function(DATA = NULL,
-           Markers_to_keep = NULL,
-           Template_name = NULL){
+  function(DATA,
+           Markers_to_keep,
+           Template_name){
     #Check required packages
     if(!requireNamespace("readr", quietly = FALSE)) stop(
       paste0("readr CRAN package is required to execute the function. Please install using the following code: ",

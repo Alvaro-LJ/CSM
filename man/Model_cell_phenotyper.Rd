@@ -18,6 +18,7 @@ Given a cell feature dataset and a cell phenotype label prediction model, the fu
 The model must have been fitted using \code{\link[=Image_based_phenotyper_App_launcher]{Image_based_phenotyper_App_launcher()}}.
 }
 \examples{
+\dontrun{
 #Check the model generated using the dedicated app
 print(CSM_ModelParam_test)
 
@@ -27,7 +28,7 @@ Model_cell_phenotyper(
  Model_parameters = CSM_ModelParam_test,
  N_cores = 1
 )
-
+}
 
 }
 \seealso{

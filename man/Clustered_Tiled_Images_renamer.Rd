@@ -11,11 +11,11 @@ Clustered_Tiled_Images_renamer(
 )
 }
 \arguments{
+\item{Tiled_images}{An object containing neighborhood labels generated using \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}} function.}
+
 \item{New_names}{A character vector indicating the new names. The length must be equal to the number of unique neighborhood labels.}
 
 \item{Old_names}{(OPTIONAL) A character vector indicating the names to be overwritten by New_names. It must have the same length as New_names.}
-
-\item{DATA}{An object containing neighborhood labels generated using \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}} function.}
 }
 \value{
 Returns a list with tiles per image with the modified labels.

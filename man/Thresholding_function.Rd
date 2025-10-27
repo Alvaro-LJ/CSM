@@ -48,7 +48,7 @@ Autothreshold calculates thresholds using the autothresholdr::auto_thresh_mask. 
 Multi_level thresholds are calculated using imagerExtra::ThresholdML function.
 }
 \examples{
-
+\dontrun{
 Thresholding_function(
   DATA = CSM_Arrangedcellfeaturedata_test,
   Strategy = "EBI_Otsu",
@@ -59,6 +59,7 @@ Thresholding_function(
   Defined_threshold = 0.1,
   Levels = 3
 )
+}
 
 }
 \seealso{

@@ -6,6 +6,9 @@
 \usage{
 quiet_basic(x)
 }
+\arguments{
+\item{x}{Argument}
+}
 \description{
 Intended for internal use only
 }

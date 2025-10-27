@@ -8,6 +8,7 @@
 #' @returns Generates a confusion matrix plot
 #'
 #' @examples
+#' \dontrun{
 #' #Generate datasets with random cell phenotype labels----------------------
 #' CSM_Phenotypecell_test_1 <-
 #'  CSM_Phenotypecell_test %>%
@@ -27,6 +28,7 @@
 #'    Random_2 = CSM_Phenotypecell_test_2,
 #'    Variable = "Phenotype"
 #'    )
+#' }
 #'
 #' @export
 

@@ -10,6 +10,7 @@
 #' @seealso [Image_based_phenotyper_App_launcher()]
 #'
 #' @examples
+#' \dontrun{
 #' #Check the model generated using the dedicated app
 #' print(CSM_ModelParam_test)
 #'
@@ -19,8 +20,7 @@
 #'  Model_parameters = CSM_ModelParam_test,
 #'  N_cores = 1
 #')
-#
-#'
+#' }
 #'
 #' @export
 
