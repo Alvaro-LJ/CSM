@@ -2,8 +2,31 @@
 #'
 #' `Segmentator_tester_app()` launches an APP to interactively explore cell segmentation parameters interactively
 #' Parameters can then be used to feed the [Cell_segmentator_quantificator()].
+#'
 #' @param Directory Character specifying the path to the folder where images to be segmented are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
+#'
+#' @seealso [Cell_segmentator_quantificator()]
+#'
+#' @details
+#' Control panel controls the image display settings. If Pre process is active (default) image pre-processing will be applied to the nuclear channels before running segmentation (this can enhance results in some scenarios).
+#'
+#' Relevant buttons:
+#' \itemize{
+#' \item{GO!: Runs the cell segmentation and feature extraction algorithm with the current setting using the current image.}
+#' \item{Download Parameters: Saves parameters in the Global environment.}
+#' }
+#'
+#' The lower panel of the control panel shows the current active parameters.
+#'
+#' 4 main panels:
+#' \itemize{
+#' \item{Upper left: Displays the image (use it to zoom in and out).}
+#' \item{Upper right: Cell boundaries are displayed.}
+#' \item{Lower left: Nucleus are depicted}
+#' \item{Lower right: Heatmap of marker expression by cell. If image is zoomed in, only cells in the field are shown.}
+#' }
+#'
 #'
 #' @examples
 #' \dontrun{

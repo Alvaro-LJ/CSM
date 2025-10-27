@@ -16,6 +16,47 @@ Thresholding_tester_app(DATA = NULL, Directory = NULL, Ordered_Channels = NULL)
 \description{
 \code{Thresholding_tester_app()} launches an APP to interactively explore thresholding methods interactively. Parameters can then be used in the \code{\link[=Thresholding_function]{Thresholding_function()}} or \code{\link[=Thresholding_function_tailored]{Thresholding_function_tailored()}} functions.
 }
+\details{
+Image setting in the control panel allow the user to control the image channel display.
+
+Thresholding methods and type of thresholding (GLOBAL or LOCAL) can be toggled using the control panel.
+
+The reset button removes any currently selected cell.
+
+Active results are shown in the lower area of the control panel.
+
+4 results panel
+\itemize{
+\item{Upper left: Displays the image (use it to zoom in and out).}
+\item{Upper right: Feature expression by cell. Cells can be selected to explore the \% of positive cells from selection.}
+\item{Lower left: Cells above threshold for the current selected image. Cells can be selected to explore the \% of positive cells from selection.}
+\item{Lower right: Sample feature expression histogram with the active trheshold depicted.}
+}
+}
+\examples{
+\dontrun{
+#Create temporary directory------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app----------------------------------------------
+Thresholding_tester_app(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+}
+
+}
 \seealso{
 \code{\link[=Thresholding_function]{Thresholding_function()}}, \code{\link[=Thresholding_function_tailored]{Thresholding_function_tailored()}}
 }

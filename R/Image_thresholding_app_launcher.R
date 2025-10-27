@@ -3,7 +3,27 @@
 #' `Image_thresholding_app_launcher()` launches an APP to interactively explore image pixel segmentation parameters interactively.
 #' @param Directory Character specifying the path to the folder where images to be thresholded are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
+#'
 #' @seealso [Pixel_Threshold_calculator()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
+#'
+#' @details
+#' Image parameters control the image and channel to be displayed.
+#'
+#'Tissue mask parameters allow customizing how the tissue mask will be computed (decide foreground / background pixels).
+#'
+#'Tissue thresholding parameters control the tresholding process. If arbitrary, the "value" box is used to write the desired threshold value.
+#'If Multilevel, the "value" box can be used to write a vector with the thresholds (for example "c(0.1, 0.5, 0.9)") or the number of levels
+#'can be specified with the Levels box. If "value" is not provided, the app will calculate threshold values using the imagerExtra::ThresholdML function.
+#'
+#'The GO! button executes the thresholding according to active parameters.
+#'
+#'Image Panels:
+#'\itemize{
+#' \item{Upper left: Image being thresholded. Use it to zoom in.}
+#' \item{Upper right: Tissue mask. Shows the tissue mask generated.}
+#' \item{Lower left: Pixels above the threshold included in the tissue mask.}
+#' \item{Lower right: Final result after applying blurring (if required).}
+#' }
 #'
 #' @examples
 #' \dontrun{

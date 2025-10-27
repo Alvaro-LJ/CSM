@@ -5,7 +5,50 @@
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Directory Character specifying the path to the folder where images are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
+#'
 #' @seealso [Thresholding_function()], [Thresholding_function_tailored()]
+#'
+#' @details
+#' Image setting in the control panel allow the user to control the image channel display.
+#'
+#' Thresholding methods and type of thresholding (GLOBAL or LOCAL) can be toggled using the control panel.
+#'
+#' The reset button removes any currently selected cell.
+#'
+#' Active results are shown in the lower area of the control panel.
+#'
+#' 4 results panel
+#' \itemize{
+#' \item{Upper left: Displays the image (use it to zoom in and out).}
+#' \item{Upper right: Feature expression by cell. Cells can be selected to explore the % of positive cells from selection.}
+#' \item{Lower left: Cells above threshold for the current selected image. Cells can be selected to explore the % of positive cells from selection.}
+#' \item{Lower right: Sample feature expression histogram with the active trheshold depicted.}
+#' }
+#'
+#'
+#' @examples
+#' \dontrun{
+#' #Create temporary directory------------------------------
+#' Input_Dir <- tempfile(pattern = "tempdir1_Input")
+#' dir.create(Input_Dir, recursive = TRUE)
+#'
+#' #Save images in Input directory
+#' purrr::map(1:2,
+#' function(Image){
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#' })
+#'
+#' #Deploy app----------------------------------------------
+#'Thresholding_tester_app(
+#'    DATA = CSM_Arrangedcellfeaturedata_test,
+#'    Directory = Input_Dir,
+#'    Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+#')
+#'
+#'#Remove directories---------------------------------------------------------
+#' unlink(Input_Dir, recursive = TRUE)
+#' }
+#'
 #' @export
 
 Thresholding_tester_app <-

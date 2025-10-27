@@ -13,6 +13,38 @@ Color_deconvolution_App_launcher(Directory = NULL)
 \code{Color_deconvolution_App_launcher()} launches an APP to interactively explore color deconvolution parameters
 Parameters can then be used to feed the \code{\link[=Image_deconvolution_function]{Image_deconvolution_function()}}.
 }
+\details{
+Control panel controls the image display settings. Channel name box allows the user to specify the name of the channel to be extracted.
+The "+Add" button adds the channel extraction parameters to the parameters.
+The "-Remove" button removes any channel parameters that match the "Channel name" box.
+
+Initial Pre-processing allows the initial modification of the image to improve results. The colors option allows the user to limit the maximum amount of different colors used in the image.
+
+Color targeting allows different options:
+\itemize{
+\item{Color: The user can select the target color by it's HEX code.}
+\item{RED GREEN BLUE: The user can select the target color by providing RGB values.}
+\item{Upper right panel: The user can select the target color by clicking on the desired target pixel color value.}
+}
+
+Tolerance values are key to extract the color adequately:
+\itemize{
+\item{Individual tolerance: Allows the user to specify the flexibility of individual color channel extraction.}
+\item{End tolerance: After the individual RGB channels have been extracted and merged, individual tolerance regulates flexibility of pixel values with respect to the color target.}
+}
+
+Final processing stablishes how the image is going to be modified after color channel extraction.
+
+"Download Parameters" button saves parameters in the Global Environment.
+
+Image Panels:
+\itemize{
+\item{Upper left: Image being color processed. Initial Pre-processing steps will be applied. Use it to zoom in.}
+\item{Upper right: Pixel selector. Initial Pre-processing steps will be applied.}
+\item{Lower left: Initial color extracted according to active parameters.}
+\item{Lower right: Final channel result after Final processing steps.}
+}
+}
 \examples{
 \dontrun{
 #Create temporary input and output directories------------------------------

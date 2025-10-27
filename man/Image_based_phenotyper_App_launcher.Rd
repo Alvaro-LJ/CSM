@@ -24,6 +24,63 @@ Image_based_phenotyper_App_launcher(
 Launches an APP to interactively explore cell segmented images. The user can manually assign cell phenotype labels to cells and train a model.
 The model can then be used in \code{\link[=Model_cell_phenotyper]{Model_cell_phenotyper()}} function to generalize it to all the cells in a dataset.
 }
+\details{
+Image setting allow the user to control the image channel display
+
+Cell label assigner has several buttons:
+\itemize{
+\item{Number of selected cells: Number of currently selected cells is shown. Cells can be selected or deselected using the upper or bottom right panels.}
+\item{-Remove selected cells: Eliminates currently selected cells from the training dataset.}
+\item{-Remove all cells: Eliminates all cells from the dataset.}
+\item{Cell label: Entry box that allows the user to type a cell label.}
+\item{+Assign labels: Assigns the label in the "Cell label" box to the currently selected cells and sends the cells to the training dataset.}
+\item{Remove labels: Removes any cells from the training dataset matching the label in the "Cell label" box.}
+}
+
+Model settings allows the user to control how the model will be calculated. If spatial interaction features are required the user must
+specify how neighbors are defined.
+
+Relevan buttons in the lower area of the control panel
+\itemize{
+\item{Fit button computes the model with the current model settings and test dataset}
+\item{Test button tests the model in the current displayed image}
+\item{Download button saves the current active model in the Global environment}
+}
+
+Upper left panel: Displays the image (use it to zoom in and out)
+
+Upper right panel: Allows assigning cells for the training dataset. Select cells by clicking or use the area selection tools provided. Cell labels will be updated as they are assigned.
+
+Lower left: Shows features of the training dataset and the results of the test dataset if tests have been performed.
+
+Lower right: If a test has been performed, it shows the model results. Missclassified cells can be selected and labels can be re-assigned to refine the model.
+}
+\examples{
+\dontrun{
+#Create temporary directory------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app----------------------------------------------
+Image_based_phenotyper_App_launcher(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+}
+
+
+}
 \seealso{
 \code{\link[=Model_cell_phenotyper]{Model_cell_phenotyper()}}
 }
