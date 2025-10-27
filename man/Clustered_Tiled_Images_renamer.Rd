@@ -4,11 +4,7 @@
 \alias{Clustered_Tiled_Images_renamer}
 \title{Modifies neighborhood labels}
 \usage{
-Clustered_Tiled_Images_renamer(
-  Tiled_images = NULL,
-  New_names = NULL,
-  Old_names = NULL
-)
+Clustered_Tiled_Images_renamer(Tiled_images, New_names, Old_names = NULL)
 }
 \arguments{
 \item{Tiled_images}{An object containing neighborhood labels generated using \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}} function.}

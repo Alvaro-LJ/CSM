@@ -5,8 +5,8 @@
 \title{Assigns phenotype labels using CELESTA algorithm}
 \usage{
 CELESTA_phenotyper(
-  DATA = NULL,
-  Template_path = NULL,
+  DATA,
+  Template_path,
   Alternative_CSV_locale = FALSE,
   N_cores = 1,
   Apply_filters = FALSE,

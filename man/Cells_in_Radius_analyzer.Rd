@@ -5,10 +5,10 @@
 \title{Calculates the average target cells within a distance from Cell of Origin for every image}
 \usage{
 Cells_in_Radius_analyzer(
-  DATA = NULL,
+  DATA,
   DATA_RANDOM = NULL,
-  Radius = NULL,
-  Include_Random = NULL,
+  Radius,
+  Include_Random = FALSE,
   By_Sample_Random = NULL
 )
 }

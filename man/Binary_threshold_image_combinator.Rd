@@ -6,10 +6,10 @@
 \usage{
 Binary_threshold_image_combinator(
   ...,
-  Save_processed_images = NULL,
+  Save_processed_images = FALSE,
   Output_Directory = NULL,
-  Operators = NULL,
-  N_cores = NULL
+  Operators,
+  N_cores = 1
 )
 }
 \arguments{

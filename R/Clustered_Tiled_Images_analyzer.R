@@ -65,8 +65,8 @@
 
 
 Clustered_Tiled_Images_analyzer <-
-  function(Tiled_images = NULL,
-           Perform_heterogeneity_analysis = NULL,
+  function(Tiled_images,
+           Perform_heterogeneity_analysis = FALSE,
            Graph_Modularity_resolution = NULL) {
 
     #Check suggested packages

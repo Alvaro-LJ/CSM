@@ -4,7 +4,7 @@
 \alias{Clustered_Tiled_Images_graphicator}
 \title{Generates plots of tiled neighborhood identity}
 \usage{
-Clustered_Tiled_Images_graphicator(Tiled_images = NULL, Image_name = NULL)
+Clustered_Tiled_Images_graphicator(Tiled_images, Image_name)
 }
 \arguments{
 \item{Tiled_images}{A list containing tiled images obtained using \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}}.}

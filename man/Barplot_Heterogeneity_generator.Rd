@@ -4,7 +4,7 @@
 \alias{Barplot_Heterogeneity_generator}
 \title{Generate a summary plot of global heterogeneity across images.}
 \usage{
-Barplot_Heterogeneity_generator(DATA = NULL, Metric = NULL)
+Barplot_Heterogeneity_generator(DATA, Metric)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing a summary of global heterogeneity by sample like the one obtained after running Global_heterogeneity_calculator()].}

@@ -4,7 +4,7 @@
 \alias{Concordance_calculator}
 \title{Calculates concordance between different methods.}
 \usage{
-Concordance_calculator(..., Variable = NULL, Strategy = NULL)
+Concordance_calculator(..., Variable, Strategy)
 }
 \arguments{
 \item{...}{Two or more dataframes or tibbles containing a column with cell labels. A name must be provided for every tibble.}

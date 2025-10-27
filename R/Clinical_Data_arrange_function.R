@@ -20,7 +20,9 @@
 #' @export
 
 Clinical_Data_arrange_function <-
-  function(DATA, Subject_Names, Outcomes_to_keep) {
+  function(DATA,
+           Subject_Names,
+           Outcomes_to_keep) {
     #Check arguments
     if(!all(c(Subject_Names, Outcomes_to_keep) %in% names(DATA))) {
       Missing_arguments <- c(Subject_Names, Outcomes_to_keep)[!c(Subject_Names, Outcomes_to_keep) %in% names(DATA)]

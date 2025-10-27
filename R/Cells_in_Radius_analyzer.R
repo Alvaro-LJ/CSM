@@ -70,10 +70,10 @@
 #' @export
 
 Cells_in_Radius_analyzer <-
-  function(DATA = NULL,
+  function(DATA,
            DATA_RANDOM = NULL,
-           Radius = NULL,
-           Include_Random = NULL,
+           Radius,
+           Include_Random = FALSE,
            By_Sample_Random = NULL) {
     #Check arguments
     if(!is.logical(Include_Random)) stop("Include_Random should be a logical value")

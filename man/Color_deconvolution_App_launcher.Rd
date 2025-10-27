@@ -4,7 +4,7 @@
 \alias{Color_deconvolution_App_launcher}
 \title{Launches a shiny APP to explore color deconvolution parameters}
 \usage{
-Color_deconvolution_App_launcher(Directory = NULL)
+Color_deconvolution_App_launcher(Directory)
 }
 \arguments{
 \item{Directory}{Character string specifying the path to the folder where RGB color images are present.}

@@ -52,8 +52,8 @@
 #' @export
 
 Clustered_Tiled_Images_graphicator <-
-  function(Tiled_images = NULL,
-           Image_name = NULL){
+  function(Tiled_images,
+           Image_name){
     #Check arguments
     if(!Image_name %in% names(Tiled_images)) stop(paste0(Image_name, " not found in Tiled_images"))
 

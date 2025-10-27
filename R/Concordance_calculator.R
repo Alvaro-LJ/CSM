@@ -45,8 +45,8 @@
 
 Concordance_calculator <-
   function(...,
-           Variable = NULL,
-           Strategy = NULL){
+           Variable,
+           Strategy){
     #Check suggested packages
     {
       if(Strategy == "Rand"){

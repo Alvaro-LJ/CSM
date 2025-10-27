@@ -5,11 +5,11 @@
 \title{Calculates association between image feature data and image metadata}
 \usage{
 Clinical_Data_analyzer(
-  DATA = NULL,
-  DATA_var = NULL,
-  DATA_Clinical = NULL,
-  Clinical_var = NULL,
-  Perform_time_to_event = NULL,
+  DATA,
+  DATA_var,
+  DATA_Clinical,
+  Clinical_var,
+  Perform_time_to_event = FALSE,
   Time_variable = NULL,
   Event_variable = NULL
 )

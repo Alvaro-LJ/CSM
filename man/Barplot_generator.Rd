@@ -4,11 +4,7 @@
 \alias{Barplot_generator}
 \title{Generate a summary plot of phenotype composition across images.}
 \usage{
-Barplot_generator(
-  DATA = NULL,
-  Phenotypes_included = NULL,
-  Ordering_phenotype = NULL
-)
+Barplot_generator(DATA, Phenotypes_included, Ordering_phenotype)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing a summary of phenotypes by sample like the one obtained after running \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}}.}

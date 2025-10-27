@@ -5,8 +5,8 @@
 \title{Quantifies cell proportions and cell densities by compartment}
 \usage{
 Compartment_Phenotype_quantifier(
-  DATA = NULL,
-  Calculate_Density = NULL,
+  DATA,
+  Calculate_Density = FALSE,
   DATA_Area = NULL
 )
 }

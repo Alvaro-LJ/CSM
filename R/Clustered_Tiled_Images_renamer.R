@@ -26,8 +26,8 @@
 #' @export
 
 Clustered_Tiled_Images_renamer <-
-  function(Tiled_images = NULL,
-           New_names = NULL,
+  function(Tiled_images,
+           New_names,
            Old_names = NULL) {
 
     #If New names need to be assigned from scratch

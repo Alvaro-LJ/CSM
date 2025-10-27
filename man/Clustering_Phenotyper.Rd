@@ -5,16 +5,16 @@
 \title{Performs phenotype assignment using clustering approaches}
 \usage{
 Clustering_Phenotyper(
-  DATA = NULL,
-  Strategy = NULL,
-  Apply_Denoise = NULL,
+  DATA,
+  Strategy,
+  Apply_Denoise = FALSE,
   Denoising = NULL,
   Percentile = NULL,
   N_Standard_Deviations = NULL,
   Selected_threshold = NULL,
   Min_cell_no = NULL,
   Distance_radius = NULL,
-  Perform_Dimension_reduction = NULL,
+  Perform_Dimension_reduction = FALSE,
   Dimension_reduction = NULL,
   Dimension_reduction_prop = NULL,
   Cluster_on_Reduced = NULL,

@@ -23,9 +23,9 @@
 #' @export
 
 Cell_plotter <-
-  function(DATA = NULL,
-           Image_name = NULL,
-           Phenotypes_included = NULL) {
+  function(DATA,
+           Image_name,
+           Phenotypes_included) {
     #Check arguments
     if(!Image_name %in% DATA$Subject_Names){
       stop("Image_name not present in Subject_Names")

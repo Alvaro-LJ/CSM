@@ -6,12 +6,12 @@
 \usage{
 Consensus_phenotype_assigner(
   ...,
-  Win_strategy = NULL,
+  Win_strategy,
   Arbitrary_threshold = NULL,
   Weights = NULL,
   No_consensus_value = NA_character_,
   Tie_break_method = NULL,
-  N_cores = NULL
+  N_cores = 1
 )
 }
 \arguments{

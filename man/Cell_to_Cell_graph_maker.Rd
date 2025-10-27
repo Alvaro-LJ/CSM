@@ -5,9 +5,9 @@
 \title{Generates a plot of the spatial interaction for a single image}
 \usage{
 Cell_to_Cell_graph_maker(
-  Image_name = NULL,
-  DATA_Phenotypes = NULL,
-  Strategy = NULL,
+  Image_name,
+  DATA_Phenotypes,
+  Strategy,
   DATA_Distances = NULL,
   DATA_Cumulative = NULL,
   Radius = NULL

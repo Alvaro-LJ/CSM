@@ -5,9 +5,9 @@
 \title{Calculates tumor and stromal compartment based on concave hull}
 \usage{
 Advanced_Tumor_Stroma_identifier(
-  DATA_Phenotypes = NULL,
-  Index_phenotype = NULL,
-  Filtering_Method = NULL,
+  DATA_Phenotypes,
+  Index_phenotype,
+  Filtering_Method,
   Accuracy = NULL,
   Min_cell_no = NULL,
   Distance_radius = NULL,

@@ -5,17 +5,17 @@
 \title{Plot an image with a cell overlay.}
 \usage{
 Cell_image_plot_generator(
-  Image_directory = NULL,
-  Channel_to_display = NULL,
-  Image_rotate = NULL,
+  Image_directory,
+  Channel_to_display = 1,
+  Image_rotate = 0,
   Image_x_flip = FALSE,
   Image_y_flip = FALSE,
   Gamma_level = 0,
   Equalize = FALSE,
   Black_level = 0,
   White_level = 100,
-  DATA = NULL,
-  Image_name = NULL,
+  DATA,
+  Image_name,
   Color_by = NULL,
   Point_size = 1,
   Pixel_distance_ratio = NULL

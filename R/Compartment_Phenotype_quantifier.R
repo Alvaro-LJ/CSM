@@ -38,8 +38,8 @@
 #' @export
 
 Compartment_Phenotype_quantifier <-
-  function(DATA = NULL,
-           Calculate_Density = NULL,
+  function(DATA,
+           Calculate_Density = FALSE,
            DATA_Area = NULL){
     DATA <- DATA
     #Check that DATA has been created with the advanced tumor stroma identifier

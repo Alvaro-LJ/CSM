@@ -22,8 +22,13 @@
 #'
 #'
 #' @export
+
 Data_arrange_function <-
-  function(DATA, X, Y, Subject_Names, Markers_to_keep) {
+  function(DATA,
+           X,
+           Y,
+           Subject_Names,
+           Markers_to_keep) {
 
   #Check arguments by generating a argument check vector and message vector
   if(!all(c(X, Y, Subject_Names, Markers_to_keep) %in% names(DATA))) {

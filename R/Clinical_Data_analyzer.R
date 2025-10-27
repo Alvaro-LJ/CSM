@@ -72,11 +72,11 @@
 #' @export
 
 Clinical_Data_analyzer <-
-  function(DATA = NULL,
-           DATA_var = NULL,
-           DATA_Clinical = NULL,
-           Clinical_var = NULL,
-           Perform_time_to_event = NULL,
+  function(DATA,
+           DATA_var,
+           DATA_Clinical,
+           Clinical_var,
+           Perform_time_to_event = FALSE,
            Time_variable = NULL,
            Event_variable = NULL) {
 

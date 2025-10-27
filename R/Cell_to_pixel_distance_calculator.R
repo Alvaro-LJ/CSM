@@ -34,13 +34,13 @@
 #' @export
 
 Cell_to_pixel_distance_calculator <-
-    function(N_cores = NULL,
-             Directory = NULL,
-             Image_rotate = NULL,
-             Image_x_flip = NULL,
-             Image_y_flip = NULL,
-             DATA = NULL,
-             Phenotypes_included = NULL,
+    function(N_cores = 1,
+             Directory,
+             Image_rotate = FALSE,
+             Image_x_flip = FALSE,
+             Image_y_flip = FALSE,
+             DATA,
+             Phenotypes_included,
              Pixel_distance_ratio = NULL){
 
       #Check suggested packages

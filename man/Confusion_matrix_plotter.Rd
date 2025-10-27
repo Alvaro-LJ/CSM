@@ -4,7 +4,7 @@
 \alias{Confusion_matrix_plotter}
 \title{Generates a confusion matrix between two methods used to label cells.}
 \usage{
-Confusion_matrix_plotter(..., Variable = NULL)
+Confusion_matrix_plotter(..., Variable)
 }
 \arguments{
 \item{...}{Two dataframes or tibbles containing a column with cell labels.}

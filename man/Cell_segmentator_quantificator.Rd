@@ -5,7 +5,7 @@
 \title{Performs cell segmentation and obtains cell feature matrix}
 \usage{
 Cell_segmentator_quantificator(
-  Directory = NULL,
+  Directory,
   Parameter_list = NULL,
   Ordered_Channels = NULL,
   Channels_to_keep = NULL,

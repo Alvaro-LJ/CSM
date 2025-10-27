@@ -5,8 +5,8 @@
 \title{Generates a summary of neighborhood analysis based on clustering of tiles.}
 \usage{
 Clustered_Tiled_Images_analyzer(
-  Tiled_images = NULL,
-  Perform_heterogeneity_analysis = NULL,
+  Tiled_images,
+  Perform_heterogeneity_analysis = FALSE,
   Graph_Modularity_resolution = NULL
 )
 }

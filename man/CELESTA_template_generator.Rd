@@ -4,11 +4,7 @@
 \alias{CELESTA_template_generator}
 \title{Generates a CELESTA cell phenotype template}
 \usage{
-CELESTA_template_generator(
-  DATA = NULL,
-  Markers_to_keep = NULL,
-  Template_name = NULL
-)
+CELESTA_template_generator(DATA, Markers_to_keep, Template_name)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

@@ -61,7 +61,7 @@
 #' @export
 
 Color_deconvolution_App_launcher <-
-  function(Directory = NULL){
+  function(Directory){
     #Check suggested packages
     {
       if(!requireNamespace("EBImage", quietly = TRUE)) stop(

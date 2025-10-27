@@ -5,11 +5,11 @@
 \title{Analyzes the expression of features within a cell category}
 \usage{
 Cell_functional_assessment(
-  DATA = NULL,
-  Target_Variable = NULL,
-  Targets_Included = NULL,
-  DATA_Aside = NULL,
-  Threshold_functional_Markers = NULL,
+  DATA,
+  Target_Variable,
+  Targets_Included,
+  DATA_Aside,
+  Threshold_functional_Markers = FALSE,
   Levels = NULL
 )
 }

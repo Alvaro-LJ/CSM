@@ -57,9 +57,9 @@
 #' @export
 
 Cell_to_Cell_graph_maker <-
-  function(Image_name = NULL,
-           DATA_Phenotypes = NULL,
-           Strategy = NULL,
+  function(Image_name,
+           DATA_Phenotypes,
+           Strategy,
            DATA_Distances = NULL,
            DATA_Cumulative = NULL,
            Radius = NULL){

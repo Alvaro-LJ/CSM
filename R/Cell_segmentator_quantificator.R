@@ -61,7 +61,7 @@
 
 
 Cell_segmentator_quantificator <-
-  function(Directory = NULL,
+  function(Directory,
            Parameter_list = NULL,
            Ordered_Channels = NULL,
            Channels_to_keep = NULL,

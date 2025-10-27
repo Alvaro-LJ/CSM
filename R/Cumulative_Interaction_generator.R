@@ -41,10 +41,10 @@
 
 Cumulative_Interaction_generator <-
   function(N_cores = 1,
-           DATA = NULL,
-           Start_from = NULL,
-           Stop_at = NULL,
-           Sampling_frequency = NULL) {
+           DATA,
+           Start_from,
+           Stop_at,
+           Sampling_frequency) {
     #Check arguments
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
     if(!all(is.numeric(Start_from), is.numeric(Stop_at), is.numeric(Sampling_frequency), Start_from < Stop_at, Sampling_frequency < (Stop_at - Start_from))) {

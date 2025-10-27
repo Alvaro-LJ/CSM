@@ -4,7 +4,7 @@
 \alias{Cell_plotter}
 \title{Plot the cells of a single image}
 \usage{
-Cell_plotter(DATA = NULL, Image_name = NULL, Phenotypes_included = NULL)
+Cell_plotter(DATA, Image_name, Phenotypes_included)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.}

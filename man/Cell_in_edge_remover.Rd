@@ -6,9 +6,9 @@
 \usage{
 Cell_in_edge_remover(
   N_cores = 1,
-  DATA = NULL,
-  Hull_ratio = NULL,
-  Distance_to_edge = NULL,
+  DATA,
+  Hull_ratio,
+  Distance_to_edge,
   Image_preview = NULL
 )
 }

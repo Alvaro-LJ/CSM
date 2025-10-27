@@ -34,7 +34,7 @@
 
 Confusion_matrix_plotter <-
   function(...,
-           Variable = NULL){
+           Variable){
 
     DATA_list <- list(...)
 
