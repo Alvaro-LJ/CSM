@@ -12,8 +12,12 @@
 #' @param Filtering_Method A character value indicating the filtering method type. Either "Tiling" or "DBSCAN".
 #'
 #' @param Accuracy If Filtering_Method is 'Tiling': A numeric value indicating the size of the tile. Smaller sizes give more accurate result.
-#' @param Min_cells If Filtering_Method is 'DBSCAN': A integer value indicating the minimum number of cells required to be a cluster.
+#' @param Min_cell_no If Filtering_Method is 'DBSCAN': A integer value indicating the minimum number of cells required to be a cluster.
 #' @param Distance_radius If Filtering_Method is 'DBSCAN': A numeric value indicating the distance to be sampled.
+#'
+#' @param Hull_ratio
+#' @param Calculate_border
+#' @param Dist_to_border
 #'
 #' @param Image_preview A character value indicating the name of the image to be used in the preview.
 #' @param N_cores Integer. Number of cores to parallelize your computation.
@@ -49,8 +53,6 @@ Advanced_Tumor_Stroma_identifier <-
            Accuracy = NULL,
            Min_cell_no = NULL,
            Distance_radius = NULL,
-
-
 
            Hull_ratio = NULL,
            Calculate_border = NULL,

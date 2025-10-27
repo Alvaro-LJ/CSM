@@ -22,7 +22,7 @@
 #' \item{Upper left: Image being thresholded. Use it to zoom in.}
 #' \item{Upper right: Tissue mask. Shows the tissue mask generated.}
 #' \item{Lower left: Pixels above the threshold included in the tissue mask.}
-#' \item{Lower right: Final result after applying blurring (if required).}
+#' \item{Lower right: Final result after applying blurring to the target (if required).}
 #' }
 #'
 #' @examples

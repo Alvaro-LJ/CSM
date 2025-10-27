@@ -24,9 +24,20 @@
 #'
 #' @examples
 #' \dontrun{
+#' #Create temporary directory------------------------------
+#' Input_Dir <- tempfile(pattern = "tempdir1_Input")
+#' dir.create(Input_Dir, recursive = TRUE)
+#'
+#' #Save images in Input directory
+#' purrr::map(1:2,
+#' function(Image){
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#' })
+#'
+#' #Draw the plot
 #' Cell_image_plot_generator(
-#'     Image_directory = "Directory_to_image/ABCM22001_B14_MiniCrop.tif",
-#'     Channel_to_display = 1,
+#'     Image_directory = dir(Input_Dir, full.names = TRUE)[2],
+#'     Channel_to_display = 5,
 #'     Image_rotate = NULL,
 #'     Image_x_flip = FALSE,
 #'     Image_y_flip = TRUE,
@@ -41,6 +52,9 @@
 #'     Point_size = 2,
 #'     Pixel_distance_ratio = NULL
 #')
+#'
+#' #Remove directories---------------------------------------------------------
+#' unlink(Input_Dir, recursive = TRUE)
 #' }
 #'
 #'

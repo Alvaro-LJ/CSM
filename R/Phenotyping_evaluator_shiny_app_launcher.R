@@ -7,6 +7,43 @@
 #' @param Directory Character specifying the path to the folder where images are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #'
+#' @details
+#' Image parameters control the image and channel to be displayed.
+#' Sample summary table is depicted at the bottom of the control panel.
+#'
+#'Image Panels:
+#'\itemize{
+#' \item{Upper left: Image being explored. Use it to zoom in.}
+#' \item{Upper right: Cell phenotype labels overlayed. Cells of interest can be selected by clicking or by the area selection tools.}
+#' \item{Lower left: Cell selection summary. If any cells are selected, the resulting cell phenotype counts be displayed here.}
+#' \item{Lower right: Heatmap. If any cells are selected, a heatmap of the relative feature expression will be generated.}
+#' }
+#'
+#'
+#' @examples
+#' \dontrun{
+#' #Create temporary directory------------------------------
+#' Input_Dir <- tempfile(pattern = "tempdir1_Input")
+#' dir.create(Input_Dir, recursive = TRUE)
+#'
+#' #Save images in Input directory
+#' purrr::map(1:2,
+#' function(Image){
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#' })
+#'
+#' #Deploy app----------------------------------------------
+#' Phenotyping_evaluator_shiny_app_launcher(
+#'     DATA = CSM_Phenotypecell_test,
+#'     Directory = Input_Dir,
+#'     Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+#')
+#'
+#' #Remove directories---------------------------------------------------------
+#' unlink(Input_Dir, recursive = TRUE)
+#' }
+#'
+#'
 #' @export
 
 Phenotyping_evaluator_shiny_app_launcher <-
