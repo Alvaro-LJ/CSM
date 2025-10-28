@@ -16,7 +16,7 @@
 * CSM provides several datasets to test function capabilities.
 * You can install CSM in R using
 ```diff
-`devtools::install_github(Alvaro-LJ/CSM)`
+devtools::install_github(Alvaro-LJ/CSM)
 ```
 
 ## Main outline of CSM
