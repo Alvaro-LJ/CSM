@@ -46,7 +46,8 @@
 #' #Save images in Input directory
 #' purrr::map(1:2,
 #' function(Image){
-#'    EBImage::writeImage(CSM_MiniHE_test[[Image]], file.path(Input_Dir, names(CSM_MiniHE_test)[Image]))
+#'    EBImage::writeImage(CSM_MiniHE_test[[Image]],
+#'    file.path(Input_Dir, names(CSM_MiniHE_test)[Image]))
 #' })
 #'
 #'#Launch the app------------------------------------------------------------

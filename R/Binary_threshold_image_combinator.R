@@ -33,14 +33,17 @@
 #' #Save images in Input directory
 #' purrr::map(1:2,
 #' function(Image){
-#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+#'    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 #' })
 
 #' #Generate binary threshold images for CK, CD8 and GZMB------------------------------
 #' Pixel_Threshold_calculator(N_cores = 1,
 #'                           Directory = Input_Dir,
-#'                           Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
-#'                           Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'                           Ordered_Channels =
+#'                             c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'                           Channels_to_keep =
+#'                             c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
 #'                           Target_channel = "CK-EPCAM",
 #'
 #'                           Save_processed_images = TRUE,
@@ -59,8 +62,10 @@
 #'
 #'Pixel_Threshold_calculator(N_cores = 1,
 #'                           Directory = Input_Dir,
-#'                           Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
-#'                           Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'                           Ordered_Channels =
+#'                             c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'                           Channels_to_keep =
+#'                             c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
 #'                           Target_channel = "CD8a",
 #'
 #'                           Save_processed_images = TRUE,
@@ -79,8 +84,10 @@
 #'
 #'Pixel_Threshold_calculator(N_cores = 1,
 #'                           Directory = Input_Dir,
-#'                           Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
-#'                           Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'                           Ordered_Channels =
+#'                             c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'                           Channels_to_keep =
+#'                             c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
 #'                           Target_channel = "GZMB",
 #'
 #'                           Save_processed_images = TRUE,
@@ -113,7 +120,8 @@
 #'list.files(Output_Dir_Intersect)
 #'
 #'#Remove directories---------------------------------------------------------
-#'unlink(c(Input_Dir, Output_Dir_CK, Output_Dir_CD8, Output_Dir_GZMB, Output_Dir_Intersect), recursive = TRUE)
+#'unlink(c(Input_Dir, Output_Dir_CK, Output_Dir_CD8, Output_Dir_GZMB, Output_Dir_Intersect),
+#' recursive = TRUE)
 #' }
 #'
 #' @export

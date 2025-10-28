@@ -36,8 +36,6 @@
 #')
 #' }
 #'
-#'
-#'
 #' @export
 
 CELESTA_phenotyper <-
@@ -141,6 +139,7 @@ CELESTA_phenotyper <-
 
     Phenotyping_result <- suppressMessages({
       furrr::future_map(unique(DATA$Subject_Names), function(Index){
+
         library(zeallot)
         library(Rmixmod)
         library(spdep)
@@ -167,9 +166,9 @@ CELESTA_phenotyper <-
                                                save_result = FALSE)
 
         #Obtain final result, link it to original data and exit
-        Phenotype_tibble <- as_tibble(Celesta_object@final_cell_type_assignment)$'Final cell type'
-        Phenotype_tibble <- tibble(Phenotype = Phenotype_tibble)
-        FINAL <-dplyr::bind_cols(DATA, Phenotype_tibble)
+        Phenotype_tibble <- tibble::as_tibble(Celesta_object@final_cell_type_assignment)$'Final cell type'
+        Phenotype_tibble <- tibble::tibble(Phenotype = Phenotype_tibble)
+        FINAL <- dplyr::bind_cols(DATA, Phenotype_tibble)
         return(FINAL)
       }, .progress = TRUE)
     })
