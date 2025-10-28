@@ -15,11 +15,13 @@ knitr::opts_chunk$set(
 
 # CSM
 
+![Mi logo](images
+
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-The goal of CSM is to provide the user with tools to analyze tissue data with spatial context.
+CSM is a R developed toolbox to analyze spatially resolved tissue data. To see a demo of CSM capabilities please see related [publication](publicationURL).
 
 ## Installation
 
