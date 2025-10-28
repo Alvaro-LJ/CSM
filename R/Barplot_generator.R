@@ -28,7 +28,9 @@
 #' @export
 
 Barplot_generator <-
-  function(DATA, Phenotypes_included, Ordering_phenotype) {
+  function(DATA,
+           Phenotypes_included,
+           Ordering_phenotype) {
 
     if(!all(Phenotypes_included %in% names(DATA))){
       stop(paste0("Phenotypes not correctly stated. Choose from ", stringr::str_c(names(DATA)[-1], collapse = ", ")))
