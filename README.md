@@ -7,7 +7,7 @@
 + [Main outline of CSM](#Main-outline-of-CSMs) 
 + [Publication and associated datasets](#Publication) 
 + [Citation](#Images) 
-+ [Reporting Bugs](#Reporting-Bugs)
++ [Reporting Bugs](#🐛-Reporting-Bugs)
 
 ## Main features and requirements
 * CSM was developed using R version > 4.3
