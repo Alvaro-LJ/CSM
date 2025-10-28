@@ -14,7 +14,10 @@
 * CSM depends on many packages to work. However not all suggested packages are required to perform specific tasks.
 * CSM includes >100 functions organized in 6+1 modules.
 * CSM provides several datasets to test function capabilities.
-* You can install CSM in R using `devtools::install_github(Alvaro-LJ/CSM)`.
+* You can install CSM in R using
+```diff
+`devtools::install_github(Alvaro-LJ/CSM)`
+```
 
 ## Main outline of CSM
 <img src="man/figures/CSM_OUTLINE.png" width="750" style = "align-items: center">
