@@ -53,8 +53,8 @@
 #' @export
 
 Segmentator_tester_app <-
-  function(Directory = NULL,
-           Ordered_Channels = NULL){
+  function(Directory,
+           Ordered_Channels){
 
     #Check suggested packages
     {
