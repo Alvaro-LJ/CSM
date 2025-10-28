@@ -6,7 +6,7 @@
 \alias{CSM-package}
 \title{CSM: Toolbox to analyze tissue images with spatial resolution}
 \description{
-Contains functions to perform tissue spatial analysis. Functions are organized in 7 modules. STEP0 Generates cell and pixel level information and formats data. STEP1 normalizes cell features. STEP2 thresholds features. STEP3 performs cell phenotyping. STEP4 analyzes heterogeneity. STEP5 performs cell-to-cell spatial interaction analysis. STEP6 performs neighborhood analysis.
+Contains functions to perform tissue spatial analysis. Functions are organized in 7 modules. MODULE0 Generates cell and pixel level information and formats data. MODULE1 normalizes cell features. MODULE2 thresholds features. MODULE3 performs cell phenotyping. MODULE4 analyzes heterogeneity. MODULE5 performs cell-to-cell spatial interaction analysis. MODULE6 performs neighborhood analysis.
 }
 \author{
 \strong{Maintainer}: Alvaro Lopez-Janeiro \email{alopezj@unav.es} (\href{https://orcid.org/0000-0002-5744-3115}{ORCID})
