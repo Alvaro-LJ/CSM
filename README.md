@@ -7,7 +7,7 @@
 + [Main outline of CSM](#Main-outline-of-CSMs) 
 + [Publication and associated datasets](#Publication) 
 + [Citation](#Images) 
-+ [Reporting Bugs](#🐛-Reporting-Bugs)
++ [Reporting Bugs](#Reporting-Bugs)
 
 ## Main features and requirements
 * CSM was developed using R version > 4.3
@@ -70,15 +70,14 @@ Please cite this paper in case our method or parts of it were helpful in your wo
 }
 ```
 
-## 🐛 Reporting Bugs
+## Reporting Bugs
 
 If you encounter any bugs or unexpected behavior, please help us improve by reporting them! <br />
 
 You can report issues directly through the [GitHub Issues page](https://github.com/Alvaro-LJ). When submitting a bug report, please include:
 
 - A clear description of the problem
-- Steps to reproduce the issue
-- Screenshots or logs if applicable
+- A Min-Reprex demonstrating the abnormal behavior
 - Your environment (OS, Rversion)
 
 We appreciate your feedback and contributions!
