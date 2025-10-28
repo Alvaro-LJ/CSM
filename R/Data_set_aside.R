@@ -19,8 +19,8 @@
 #' @export
 
 Data_set_aside <-
-  function(DATA = NULL,
-           Markers_to_set = NULL) {
+  function(DATA,
+           Markers_to_set) {
 
     if(!identical(c("Cell_no", "X", "Y", "Subject_Names"), names(DATA)[c(1:4)])) {
       stop("Your data does not contain adequate format (Cell_no, X, Y, Subject_Names). Please format using the Data_arrange_function.")

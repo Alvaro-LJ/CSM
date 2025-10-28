@@ -26,11 +26,11 @@
 #' @export
 
 DBSCAN_Tumor_Stroma_identifier <-
-  function(DATA_Phenotypes = NULL,
-           Index_phenotype = NULL,
+  function(DATA_Phenotypes,
+           Index_phenotype,
            Image_preview = NULL,
-           Min_cells = NULL,
-           Distance_radius = NULL,
+           Min_cells,
+           Distance_radius,
            N_cores = 1
   ){
 

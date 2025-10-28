@@ -79,9 +79,9 @@
 #' @export
 
 Normalization_function <-
-  function(DATA = NULL,
-           Strategy = NULL,
-           Parameters = NULL) {
+  function(DATA,
+           Strategy,
+           Parameters) {
 
     #Check suggested packages
     {

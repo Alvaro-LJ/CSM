@@ -25,8 +25,8 @@
 #' @export
 
 DATA_neighborhoods_renamer <-
-  function(DATA = NULL,
-           New_names = NULL,
+  function(DATA,
+           New_names,
            Old_names = NULL) {
     #Check that DATA has a neighborhood_assignment variable
     if(!"Neighborhood_assignment" %in% names(DATA)) stop("DATA must be generated using Neighborhood_discovery_function or UTAG_Neighborhood_identifier")

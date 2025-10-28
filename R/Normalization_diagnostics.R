@@ -41,8 +41,8 @@
 #' @export
 
 Normalization_diagnostics <-
-  function(Original_DATA = NULL,
-           Normalized_DATA = NULL){
+  function(Original_DATA,
+           Normalized_DATA){
     #Check suggested packages
     if(!requireNamespace("EBImage", quietly = TRUE)) stop(
       paste0("EBImage Bioconductor package is required to execute the function. Please install using the following code: ",

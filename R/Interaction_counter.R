@@ -50,20 +50,20 @@
 #' @export
 
 Interaction_counter <-
-  function(DATA = NULL,
-           Phenotypes_included = NULL,
-           N_cores = NULL,
+  function(DATA,
+           Phenotypes_included,
+           N_cores = 1,
 
-           Graph_type = NULL,
+           Graph_type,
            K_number = NULL,
            Dist_threshold = NULL,
 
-           Method = NULL,
+           Method,
            patch_size = NULL,
 
-           Perform_significance_testing = NULL,
-           N_iterations = NULL,
-           p_threshold = NULL){
+           Perform_significance_testing = TRUE,
+           N_iterations = 10,
+           p_threshold = 0.05){
 
     #Check suggested packages
     {

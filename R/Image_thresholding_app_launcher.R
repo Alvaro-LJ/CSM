@@ -34,7 +34,8 @@
 #' #Save images in Input directory
 #' purrr::map(1:2,
 #' function(Image){
-#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+#'    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 #' })
 #'
 #' #Deploy app----------------------------------------------
@@ -50,8 +51,8 @@
 #' @export
 
 Image_thresholding_app_launcher <-
-  function(Directory = NULL,
-           Ordered_Channels = NULL){
+  function(Directory,
+           Ordered_Channels){
 
     #Check suggested packages
     {

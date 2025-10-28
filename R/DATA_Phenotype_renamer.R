@@ -26,8 +26,8 @@
 #' @export
 
 DATA_Phenotype_renamer <-
-  function(DATA = NULL,
-           New_names = NULL,
+  function(DATA,
+           New_names,
            Old_names = NULL) {
 
     #If all names need to be replaced then apply as usual

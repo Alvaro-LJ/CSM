@@ -30,8 +30,8 @@
 #' @export
 
 Global_heterogeneity_calculator <-
-  function(DATA = NULL,
-           Phenotypes_included = NULL){
+  function(DATA,
+           Phenotypes_included){
     #Check suggested packages
     {
       if(!requireNamespace("picante", quietly = FALSE)) stop(

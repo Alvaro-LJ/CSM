@@ -30,12 +30,12 @@
 #' @export
 
 Gcross_calculator <-
-  function(DATA = NULL,
-           Cell_Of_Origin = NULL,
-           Target_Cell = NULL,
-           Stop_at = NULL, #Final distance where cumulative interaction analysis will stop
-           Sampling_frequency = NULL, #Sampling distance interval
-           Use_Clinical = NULL,
+  function(DATA,
+           Cell_Of_Origin,
+           Target_Cell,
+           Stop_at,
+           Sampling_frequency,
+           Use_Clinical = FALSE,
            DATA_Clinical = NULL,
            Clinical_var = NULL
   ) {

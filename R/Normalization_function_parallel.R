@@ -32,10 +32,10 @@
 #' @export
 
 Normalization_function_parallel <-
-  function(DATA = NULL,
-           Strategy = NULL,
-           Parameters = NULL,
-           N_cores = NULL) {
+  function(DATA,
+           Strategy,
+           Parameters,
+           N_cores = 1) {
 
     #Check suggested packages
     {

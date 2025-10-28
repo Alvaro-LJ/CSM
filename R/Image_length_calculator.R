@@ -16,8 +16,8 @@
 #' @export
 
 Image_length_calculator <-
-  function(DATA = NULL) {
-    DF <-dplyr::bind_cols(unique(DATA$Subject_Names),
+  function(DATA) {
+    DF <- dplyr::bind_cols(unique(DATA$Subject_Names),
                           purrr::map_dfr(unique(DATA$Subject_Names), function(Image) {
                             Interim <- DATA %>% dplyr::filter(Subject_Names == Image)
                             c(Width = max(Interim$X)- min(Interim$X),

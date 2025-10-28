@@ -49,10 +49,10 @@
 #' @export
 
 Interaction_analyzer <-
-  function(DATA = NULL,
-           Exclude_non_significant = NULL,
+  function(DATA,
+           Exclude_non_significant = FALSE,
 
-           Cluster = TRUE,
+           Cluster = FALSE,
            Max_N_Clusters = NULL,
            Consensus_reps = NULL,
            Consensus_p_Items = NULL,

@@ -78,13 +78,13 @@
 #' @export
 
 Multi_level_modelling_function <-
-  function(DATA_cumulative = NULL,
-           DATA_Clinical = NULL,
-           Clinical_var = NULL,
-           DATA_Densities = NULL,
-           Cell_Of_Origin = NULL,
-           Target_cell = NULL,
-           Calculate_R2 = NULL,
+  function(DATA_cumulative,
+           DATA_Clinical,
+           Clinical_var,
+           DATA_Densities,
+           Cell_Of_Origin,
+           Target_cell,
+           Calculate_R2 = FALSE,
            N_bootstrap = NULL) {
 
     #Check suggested packages

@@ -58,11 +58,11 @@
 #' @export
 
 Distance_analyzer <-
-  function(N_cores = NULL,
-           DATA = NULL,
+  function(N_cores = 1,
+           DATA,
            DATA_RANDOM = NULL,
-           Metric = NULL,
-           Include_Random = NULL,
+           Metric,
+           Include_Random = FALSE,
            By_Sample_Random = NULL) {
     #Check arguments
     if(!is.logical(Include_Random)) stop("Include_Random should be a logical value")

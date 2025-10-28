@@ -37,10 +37,10 @@
 #' @export
 
 Neighborhood_voting_function <-
-  function(N_cores = NULL,
-           Tiled_Images = NULL,
-           Minimum_cell_no_per_tile = NULL,
-           Neighborhoods_included = NULL) {
+  function(N_cores = 1,
+           Tiled_Images,
+           Minimum_cell_no_per_tile = 1,
+           Neighborhoods_included) {
     #Import data from a Tiled_Images list
     Tiled_Images <- Tiled_Images
 

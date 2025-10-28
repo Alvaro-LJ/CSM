@@ -22,7 +22,8 @@
 #' #Save images in Input directory
 #' purrr::map(1:2,
 #' function(Image){
-#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+#'    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 #' })
 #'
 #' #Divide images into tiles------------------------------------------------------
@@ -55,8 +56,8 @@
 #' @export
 
 Image_from_tile_rebuilder <-
-  function(Directory = NULL,
-           Output_directory = NULL,
+  function(Directory,
+           Output_directory,
            RGB_Color_images = FALSE,
            N_cores = 1){
 

@@ -30,13 +30,13 @@
 #' @export
 
 LISA_Tumor_Stroma_identifier <-
-  function(DATA_Phenotypes = NULL,
-           Index_phenotype = NULL,
+  function(DATA_Phenotypes,
+           Index_phenotype,
            Image_preview = NULL,
-           Association_Dist_min = NULL,
-           Association_Dist_max = NULL,
-           Type_of_LISA_function = NULL,
-           Window_type = NULL,
+           Association_Dist_min,
+           Association_Dist_max,
+           Type_of_LISA_function,
+           Window_type,
            N_cores = 1){
 
     #Check suggested packages

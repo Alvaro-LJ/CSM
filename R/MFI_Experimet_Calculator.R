@@ -32,7 +32,8 @@
 #' #Save images in Input directory--------------------------------------------
 #' purrr::map(1:2,
 #' function(Image){
-#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+#'    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 #' })
 #'
 #' #Optionally generate marker masks to obtain the target MFI----------------------------
@@ -74,16 +75,16 @@
 
 MFI_Experimet_Calculator <-
   function(N_cores = 1,
-           Directory = NULL,
-           Ordered_Channels = NULL,
-           Channels_to_keep =NULL,
-           Target_channel = NULL,
+           Directory,
+           Ordered_Channels,
+           Channels_to_keep,
+           Target_channel,
 
-           Target_masks = NULL, #This will be a list of lists features where each item will be a target mask
+           Target_masks = NULL,
 
-           Threshold_type_tissueMask = NULL,
+           Threshold_type_tissueMask,
            Threshold_value_tissueMask = NULL,
-           Blurr_tissueMask = NULL,
+           Blurr_tissueMask = FALSE,
            Sigma_tissueMask = NULL
   ){
 

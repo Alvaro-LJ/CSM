@@ -34,8 +34,8 @@
 #' @export
 
 Image_size_calculator <-
-  function(DATA = NULL,
-           Strategy = NULL,
+  function(DATA,
+           Strategy,
            Image_to_plot = NULL,
 
            Tile_accuracy = NULL,

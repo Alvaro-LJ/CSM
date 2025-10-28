@@ -29,7 +29,8 @@
 #'   Markers = names(DATA_thresholded)[-c(1:4)]
 #')
 #'#Assign a phenotype to each combination------------
-#'Phenotype_possibilities$Phenotype <- c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
+#'Phenotype_possibilities$Phenotype <-
+#'   c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
 #'
 #'#Perform phenotyping-------------------------------
 #'Phenotype_assigner_function(
@@ -42,7 +43,8 @@
 #' @export
 
 Marker_combinator_generator <-
-  function(DATA = NULL, Markers = NULL) {
+  function(DATA,
+           Markers) {
 
     #Check arguments
     if(!identical(names(DATA)[1:4], c("Cell_no", "X", "Y", "Subject_Names"))){

@@ -110,20 +110,20 @@
 #' @export
 
 Neighborhood_discovery_function <-
-  function(DATA = NULL,
+  function(DATA,
 
-           Allowed_max_Dist = NULL,
-           Allowed_avg_Dist = NULL,
-           Allowed_median_Dist = NULL,
+           Allowed_max_Dist,
+           Allowed_avg_Dist,
+           Allowed_median_Dist,
 
            #Dimension reduction
-           Perform_Dimension_reduction = NULL,
+           Perform_Dimension_reduction = FALSE,
            Dimension_reduction = NULL,
            Dimension_reduction_prop = NULL,
            Cluster_on_Reduced = NULL,
 
            #Strategy for clustering
-           Strategy = NULL,
+           Strategy,
 
            #Parameters for Consensus Clustering
            Max_N_neighborhoods = NULL,

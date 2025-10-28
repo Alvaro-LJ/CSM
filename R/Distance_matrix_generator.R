@@ -36,9 +36,9 @@
 
 Distance_matrix_generator <-
   function(N_cores = 1,
-           DATA = NULL,
-           Cell_Of_Origin = NULL,
-           Target_Cell = NULL,
+           DATA,
+           Cell_Of_Origin,
+           Target_Cell,
            Allow_Cero_Distance = FALSE,
            Perform_edge_correction = FALSE,
            Hull_ratio = NULL,

@@ -25,11 +25,11 @@
 #' @export
 
 Marker_segmentator <-
-  function(DATA = NULL,
-           DATA_variable = NULL,
-           DATA_cutoff = NULL,
-           New_labels = NULL,
-           Merge = NULL,
+  function(DATA,
+           DATA_variable,
+           DATA_cutoff,
+           New_labels,
+           Merge = FALSE,
            Var_to_Merge = NULL){
 
     #Check arguments

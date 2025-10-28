@@ -33,7 +33,8 @@
 #' #Save images in Input directory
 #' purrr::map(1:2,
 #' function(Image){
-#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+#'    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 #' })
 #'
 #' #Perform tiling---------------------------------------------------
@@ -54,15 +55,16 @@
 #'#Remove directories---------------------------------------------------------
 #'unlink(c(Input_Dir, Output_Dir), recursive = TRUE)
 #' }
+#'
 #' @export
 
 Image_tile_deconstruction_function <-
-  function(Directory = NULL,
-           Output_directory = NULL,
+  function(Directory,
+           Output_directory,
            RGB_Color_images = FALSE,
            Ordered_Channels = NULL,
            Channels_to_keep = NULL,
-           Tile_pixel_size = NULL,
+           Tile_pixel_size,
            Tile_Overlap = 0,
            N_cores = 1){
 
@@ -306,8 +308,7 @@ Image_tile_deconstruction_function <-
         options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
         furrr::furrr_options(scheduling = Inf)
         furrr::future_map(1:nrow(Tile_Position_tibble), function(Tile_index){
-          library(RBioFormats)
-          library(rJava)
+
           #Generate a name for every tile
           Tile_Image_name <- stringr::str_c(sub("(.*)\\.[^.]+$", "\\1", Image_name),
                                             "(",
@@ -366,7 +367,6 @@ Image_tile_deconstruction_function <-
 
       #if a single slide is required then run a simple code
       if(Image_info$Approx_n_tiles[Tibble_row] == 1){
-        library(RBioFormats)
 
         Tile_Image_name <- stringr::str_c(sub("(.*)\\.[^.]+$", "\\1", Image_name),
                                           "(",

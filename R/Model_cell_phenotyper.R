@@ -22,12 +22,13 @@
 #')
 #' }
 #'
+#'
 #' @export
 
 Model_cell_phenotyper <-
-  function(DATA = NULL,
-           Model_parameters = NULL,
-           N_cores = NULL){
+  function(DATA,
+           Model_parameters,
+           N_cores = 1){
 
     #Check suggested packages
     {
@@ -98,16 +99,12 @@ Model_cell_phenotyper <-
       furrr::furrr_options(scheduling = Inf)
       PREDICTIONS <-
         furrr::future_map_dfr(Features_DATA_list, function(Image_features){
-          #Load tidymodels to solve method dispatch issues
-          suppressMessages(
-            library(tidymodels)
-          )
           #Generate the predictions
           Predictions <- predict(Model, new_data = Image_features, type = "prob")
           #Obtain the label with the highest probability
           Col_index <- max.col(Predictions, ties.method = "random")
           Predictions <- tibble(Label = colnames(Predictions)[Col_index],
-                                Probability =purrr::map2_dbl(.x = 1:nrow(Predictions), .y = Col_index, function(.x, .y) Predictions[[.x, .y]]))
+                                Probability = purrr::map2_dbl(.x = 1:nrow(Predictions), .y = Col_index, function(.x, .y) Predictions[[.x, .y]]))
           Predictions$Label <- substr(Predictions$Label, start = 7, stop = nchar(Predictions$Label))
           names(Predictions)[1] <- "Phenotype"
 
