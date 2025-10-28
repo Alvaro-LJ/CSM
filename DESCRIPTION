@@ -8,11 +8,11 @@ Authors@R: c(
     person(given = "Raluca", family = "Alexandru", email = "ralexandru@unav.es", role = "ctb"),
     person(given = "Carlos E.", family = "de Andrea",email = "ceandrea@unav.es", role = "ctb"))
 Description: Contains functions to perform tissue spatial analysis. 
-    Functions are organized in 7 modules. STEP0 Generates cell and pixel level
-    information and formats data. STEP1 normalizes cell features. STEP2
-    thresholds features. STEP3 performs cell phenotyping. STEP4 analyzes 
-    heterogeneity. STEP5 performs cell-to-cell spatial interaction analysis.
-    STEP6 performs neighborhood analysis.
+    Functions are organized in 7 modules. MODULE0 Generates cell and pixel level
+    information and formats data. MODULE1 normalizes cell features. MODULE2
+    thresholds features. MODULE3 performs cell phenotyping. MODULE4 analyzes 
+    heterogeneity. MODULE5 performs cell-to-cell spatial interaction analysis.
+    MODULE6 performs neighborhood analysis.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -16,8 +16,20 @@
 * You can install CSM in R using `devtools::install_github(Alvaro-LJ/CSM)`.
 
 ## Main outline of CSM
-<img src="man/figures/CSM_OUTLINE.png" width="1000" style = "align-items: center">
+<img src="man/figures/CSM_OUTLINE.png" width="750" style = "align-items: center">
 
+- MODULE 0: Data generation and formatting. Includes functions to perform the following tasks:
+  - Divide large images into tiles. Useful to work with whole slide tissue samples.
+  - Perform pixel thresholding and quantification. Used to work with extra-cellular biomolecules.
+  - Extract color channels from RGB images. May be required to work with HE, IHC or other histochemical staining techniques.
+  - Perform cell segmentation and feature extraction from images.
+  - Arrange cell feature matrices into an adequate format.
+  - Arrange image metadata into an adequate format.
+  - Perform general quality checks and check computational resources available.
+- MODULE 1: Data normalization. Includes functions to perform the following tasks:
+  - Normalize cell feature expression data according to image and slide belonging.
+- MODULE 2: Data thresholding. Includes functions to perform the following tasks:
+  - Define positive thresholds for features of interest. Thresholded data can be used to assign cell labels.
 
 ## Publication
 This folder contains the CSM scripts and datasets to replicate the results of our [*publication*](publicationURL).
