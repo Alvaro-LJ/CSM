@@ -44,9 +44,9 @@
 
 
 Tiled_image_heterogeneity_analyzer <-
-  function(Tiled_heterogeneity_DATA = NULL,
-           Strategy = NULL,
-           Metric = NULL,
+  function(Tiled_heterogeneity_DATA,
+           Strategy,
+           Metric,
            Threshold = NULL) {
 
     #Check required packages

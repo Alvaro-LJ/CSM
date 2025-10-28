@@ -38,17 +38,18 @@
 #')
 #' }
 #'
+#'
 #' @export
 
 SPIAT_Tissue_structuring_function <-
-  function(N_cores = NULL,
-           DATA_SPIAT = NULL,
-           DATA_Phenotypes = NULL,
-           Cell_type_to_define_cluster = NULL,
-           Minimum_number_cells_cluster = NULL,
-           Cell_types_of_interest = NULL,
-           Layers_margin = NULL,
-           Simplify_result = NULL
+  function(N_cores = 1,
+           DATA_SPIAT,
+           DATA_Phenotypes,
+           Cell_type_to_define_cluster,
+           Minimum_number_cells_cluster = 1,
+           Cell_types_of_interest,
+           Layers_margin,
+           Simplify_result = TRUE
   ){
 
     {
@@ -109,50 +110,48 @@ SPIAT_Tissue_structuring_function <-
     RESULTS <-
       suppressMessages(
         furrr::future_map(seq_along(1:length(DATA_SPIAT)), function(Image) {
-          library(SPIAT)
 
-
-          pdf(NULL) #Avoids anoying PDF generation
+          pdf(NULL) #Avoids annoying PDF generation
 
 
           Formatted_image <- DATA_SPIAT[[Image]] #Get formatted image
 
           #Calculate the ratio of target cells that are in a border
-          Border_Ratio <- R_BC(Formatted_image,
-                               cell_type_of_interest = Cell_type_to_define_cluster, #Cell type that defines the tumor
-                               feature_colname = "Phenotype")
+          Border_Ratio <- SPIAT::R_BC(Formatted_image,
+                                      cell_type_of_interest = Cell_type_to_define_cluster, #Cell type that defines the tumor
+                                      feature_colname = "Phenotype")
 
           #Calculate the clusters
-          formatted_border <- identify_bordering_cells(Formatted_image,
-                                                       reference_cell = Cell_type_to_define_cluster,
-                                                       feature_colname = "Phenotype",
-                                                       ahull_alpha = NULL, #Controls the size of cell clusters
-                                                       n_to_exclude = Minimum_number_cells_cluster, #Controls the minimum amount of cells to be a cluster
-                                                       plot_final_border = FALSE)
+          formatted_border <- SPIAT::identify_bordering_cells(Formatted_image,
+                                                              reference_cell = Cell_type_to_define_cluster,
+                                                              feature_colname = "Phenotype",
+                                                              ahull_alpha = NULL, #Controls the size of cell clusters
+                                                              n_to_exclude = Minimum_number_cells_cluster, #Controls the minimum amount of cells to be a cluster
+                                                              plot_final_border = FALSE)
 
           #Calculate the number of cluster islands found in the image
           N_tumor_clusters <- attr(formatted_border, "n_of_clusters")
 
           #Now we calculate distances to this borders defined previously
-          formatted_distance <- calculate_distance_to_margin(formatted_border)
+          formatted_distance <- SPIAT::calculate_distance_to_margin(formatted_border)
 
           #Assign a structure to the tissue
-          formatted_structure <- define_structure(formatted_distance,
-                                                  cell_types_of_interest = Cell_types_of_interest, #Select our cell types of interest
-                                                  feature_colname = "Phenotype",
-                                                  n_margin_layers = Layers_margin #Layers of cells that define the internal and external border of the tumor margin
+          formatted_structure <- SPIAT::define_structure(formatted_distance,
+                                                         cell_types_of_interest = Cell_types_of_interest, #Select our cell types of interest
+                                                         feature_colname = "Phenotype",
+                                                         n_margin_layers = Layers_margin #Layers of cells that define the internal and external border of the tumor margin
           )
           categories <- unique(formatted_structure$Structure)
 
 
           #Calculate proportions of cells in each structure
-          immune_proportions <- calculate_proportions_of_cells_in_structure(
+          immune_proportions <- SPIAT::calculate_proportions_of_cells_in_structure(
             spe_object = formatted_structure,
             cell_types_of_interest = Cell_types_of_interest,
             feature_colname = "Phenotype")
 
           #Calculate distances
-          immune_distances <- calculate_summary_distances_of_cells_to_borders(
+          immune_distances <- SPIAT::calculate_summary_distances_of_cells_to_borders(
             spe_object = formatted_structure,
             cell_types_of_interest = Cell_types_of_interest,
             feature_colname = "Phenotype")

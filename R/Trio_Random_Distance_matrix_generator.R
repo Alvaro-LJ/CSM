@@ -35,13 +35,13 @@
 #' @export
 
 Trio_Random_Distance_matrix_generator <-
-  function(N_cores = NULL,
-           DATA = NULL,
-           Cell_Of_Origin = NULL,
-           Target_Cell_1 = NULL,
-           Target_Cell_2 = NULL,
-           Random_cells_per_sample = NULL,
-           Perform_edge_correction = NULL,
+  function(N_cores = 1,
+           DATA,
+           Cell_Of_Origin,
+           Target_Cell_1,
+           Target_Cell_2,
+           Random_cells_per_sample,
+           Perform_edge_correction = FALSE,
            Hull_ratio = NULL,
            Distance_to_edge = NULL
   ) {

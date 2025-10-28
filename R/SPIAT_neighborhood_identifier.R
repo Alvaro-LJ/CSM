@@ -36,18 +36,17 @@
 #' )
 #' }
 #'
-#'
 #' @export
 
 SPIAT_neighborhood_identifier <-
-  function(N_cores = NULL,
-           DATA_SPIAT = NULL,
-           Strategy = NULL,
-           Cell_types_of_interest = NULL,
-           Radius = NULL,
-           Min_neighborhood_size = NULL,
+  function(N_cores = 1,
+           DATA_SPIAT,
+           Strategy,
+           Cell_types_of_interest,
+           Radius,
+           Min_neighborhood_size,
            K_phenograph = NULL, #Still under development
-           No_Phenotype_name = NULL) {
+           No_Phenotype_name) {
 
     #Check suggested packages
     if(!requireNamespace("SPIAT", quietly = TRUE)) stop(
@@ -92,12 +91,11 @@ SPIAT_neighborhood_identifier <-
     RESULTS <-
       suppressMessages(
         furrr::future_map(DATA_SPIAT, function(Image){
-          library(SPIAT)
 
           pdf(NULL) #Avoids anoying PDF generation
 
           #First calculate the neighborhood
-          SPIAT_neighborhoods <-  identify_neighborhoods(
+          SPIAT_neighborhoods <-  SPIAT::identify_neighborhoods(
             Image,
             method = Strategy, #Method to be implemented
             cell_types_of_interest = Cell_types_of_interest, #Cell types of interest to find the neighbors
@@ -109,20 +107,20 @@ SPIAT_neighborhood_identifier <-
           )
 
           #We analyze neighborhood composition
-          SPIAT_neighborhoods_Composition <- composition_of_neighborhoods(SPIAT_neighborhoods,
-                                                                          feature_colname = "Phenotype")
+          SPIAT_neighborhoods_Composition <- SPIAT::composition_of_neighborhoods(SPIAT_neighborhoods,
+                                                                                 feature_colname = "Phenotype")
 
           #We plot neighborhood composition
-          plot_composition_heatmap(SPIAT_neighborhoods_Composition,
-                                   feature_colname = "Phenotype",
-                                   log_values = T)
+          SPIAT::plot_composition_heatmap(SPIAT_neighborhoods_Composition,
+                                          feature_colname = "Phenotype",
+                                          log_values = T)
 
           #We calculate the Average_Nearest_Neighbour_Index ANN_index by each cluster
           Cluster_Interaction_analysis <-purrr::map_dfr(stringr::str_subset(unique(SPIAT_neighborhoods$Neighborhood), "Cluster"), function(Cluster) {
-            Results <- average_nearest_neighbor_index(SPIAT_neighborhoods,
-                                                      reference_celltypes = Cluster,
-                                                      feature_colname = "Neighborhood",
-                                                      p_val = 0.05 #select threshold p value
+            Results <- SPIAT::average_nearest_neighbor_index(SPIAT_neighborhoods,
+                                                             reference_celltypes = Cluster,
+                                                             feature_colname = "Neighborhood",
+                                                             p_val = 0.05 #select threshold p value
             )
             return(c(Cluster = Cluster,
                      ANN_index = Results$ANN_index,
@@ -136,9 +134,9 @@ SPIAT_neighborhood_identifier <-
           #We list our results
           return(list(Neighborhoods = SPIAT_neighborhoods,
                       Neighborhoods_Composition = SPIAT_neighborhoods_Composition,
-                      Neighborhoods_Composition_plot = plot_composition_heatmap(SPIAT_neighborhoods_Composition,
-                                                                                feature_colname = "Phenotype",
-                                                                                log_values = T),
+                      Neighborhoods_Composition_plot = SPIAT::plot_composition_heatmap(SPIAT_neighborhoods_Composition,
+                                                                                       feature_colname = "Phenotype",
+                                                                                       log_values = T),
                       Average_Nearest_Neighbour_Index <- Cluster_Interaction_analysis
           ))
         },

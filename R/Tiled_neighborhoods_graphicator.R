@@ -38,9 +38,9 @@
 #' @export
 
 Tiled_neighborhoods_graphicator <-
-  function(DATA_elections = NULL,
-           Image_name = NULL,
-           Graph_only_winner_neighborhood = NULL) {
+  function(DATA_elections,
+           Image_name,
+           Graph_only_winner_neighborhood = FALSE) {
     #Check arguments
     if(!is.logical(Graph_only_winner_neighborhood)) stop("Graph_only_winner_neighborhood must be a logical value")
     if(!Image_name %in% names(DATA_elections$Images)) stop("Image_name not present in DATA_elections")

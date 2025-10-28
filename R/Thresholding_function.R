@@ -41,8 +41,8 @@
 #' @export
 
 Thresholding_function <-
-  function(DATA = NULL,
-           Strategy = NULL,
+  function(DATA,
+           Strategy,
            Local_thresholding = FALSE,
            Method_autothreshold = "Otsu",
            number_iterations_TriClass = 20,

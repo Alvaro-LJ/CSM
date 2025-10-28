@@ -40,9 +40,9 @@
 #' @export
 
 Tiled_image_heterogeneity_calculator <-
-  function(Tiled_images = NULL,
-           Minimum_cell_no_per_tile = NULL,
-           Phenotypes_included = NULL) {
+  function(Tiled_images,
+           Minimum_cell_no_per_tile = 1,
+           Phenotypes_included) {
 
     #Check suggested packages
     {

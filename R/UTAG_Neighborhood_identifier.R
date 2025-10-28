@@ -113,12 +113,12 @@
 #' @export
 
 UTAG_Neighborhood_identifier <-
-  function(DATA = NULL,
-           Strategy = NULL,
-           Min_Neighbors = NULL,
+  function(DATA,
+           Strategy,
+           Min_Neighbors = 0,
 
            #Denoising parameters
-           Apply_Denoise = NULL, #Specify if a denoising filtering is required before clustering
+           Apply_Denoise = FALSE, #Specify if a denoising filtering is required before clustering
            Denoising = NULL, #Select denoising strategy from: Quantile, Standard_Deviation, Threshold, Otsu or DimRed_DBscan
            Percentile = NULL, #Select the adequate percentile for quantile threshold
            N_Standard_Deviations = NULL, #Select the number of standard deviations from mean for Standard_Deviation method
@@ -127,7 +127,7 @@ UTAG_Neighborhood_identifier <-
            Distance_radius = NULL, #Parameter for DBscan
 
            #Dimension reduction
-           Perform_Dimension_reduction = NULL,
+           Perform_Dimension_reduction = FALSE,
            Dimension_reduction = NULL,
            Dimension_reduction_prop = NULL,
            Cluster_on_Reduced = NULL,

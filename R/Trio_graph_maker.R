@@ -56,9 +56,9 @@
 #' @export
 
 Trio_graph_maker <-
-  function(Image_name = NULL,
-           DATA_Phenotypes = NULL,
-           Strategy = NULL,
+  function(Image_name,
+           DATA_Phenotypes,
+           Strategy,
            TRIO_Distances = NULL,
            TRIO_Cumulative = NULL,
            Radius = NULL

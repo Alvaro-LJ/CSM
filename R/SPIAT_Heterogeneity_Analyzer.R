@@ -38,17 +38,16 @@
 #' )
 #' }
 #'
-#'
 #' @export
 
 SPIAT_Heterogeneity_Analyzer <-
-  function(N_cores = NULL,
-           DATA_SPIAT = NULL,
-           DATA_Phenotypes = NULL,
-           Tile_size = NULL,
-           Phenotypes_included = NULL,
-           Autocorrelation_metric = NULL,
-           Entropy_threshold = NULL) {
+  function(N_cores = 1,
+           DATA_SPIAT,
+           DATA_Phenotypes,
+           Tile_size,
+           Phenotypes_included,
+           Autocorrelation_metric,
+           Entropy_threshold) {
 
     #Check suggested packages
     {
@@ -112,7 +111,7 @@ SPIAT_Heterogeneity_Analyzer <-
 
     RESULTS <-
       furrr::future_map(seq_along(1:length(DATA_SPIAT)), function(Index){
-        suppressPackageStartupMessages(library(SPIAT))
+
         #Define functions inside the cores
         Own_grid_metrics <-
           function(spe_object, FUN, n_split, ...) {
@@ -163,7 +162,7 @@ SPIAT_Heterogeneity_Analyzer <-
         N_tiles <- ceiling(Area / (Tile_size^2))
 
         #Perform grid metrics
-        grid_object <- Own_grid_metrics(SPIAT_Object, FUN = calculate_entropy, n_split = N_tiles,
+        grid_object <- Own_grid_metrics(SPIAT_Object, FUN = SPIAT::calculate_entropy, n_split = N_tiles,
                                         cell_types_of_interest = Phenotypes_included,
                                         feature_colname = "Phenotype")
 

@@ -34,11 +34,11 @@
 #' @export
 
 SPIAT_entropy_gradient_generator <-
-  function(DATA_SPIAT = NULL,
-           Gradient_start = NULL,
-           Gradient_stop = NULL,
-           Gradient_sampling = NULL,
-           Phenotypes_included = NULL
+  function(DATA_SPIAT,
+           Gradient_start,
+           Gradient_stop,
+           Gradient_sampling,
+           Phenotypes_included
   ) {
 
     #Check suggested packages

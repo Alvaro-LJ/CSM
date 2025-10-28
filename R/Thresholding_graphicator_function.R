@@ -36,10 +36,10 @@
 #' @export
 
 Thresholding_graphicator_function <-
-  function(DATA = NULL,
-           DATA_thresholded = NULL,
-           Marker_names = NULL,
-           Image_name = NULL) {
+  function(DATA,
+           DATA_thresholded,
+           Marker_names,
+           Image_name) {
     #Test the supplied function arguments
     if(!all(c(Image_name %in% DATA$Subject_Names, Image_name %in% DATA_thresholded$Subject_Names))){
       stop("Image_name provided not present in DATA")

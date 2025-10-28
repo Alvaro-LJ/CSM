@@ -42,11 +42,11 @@
 #' @returns A tibble containing cell feature data that have undergone neighbor message passing.
 
 UTAG_message_passing <-
-  function(DATA_name = NULL,
+  function(DATA_name,
            COO_to_visit = NULL,
 
-           Neighbor_strategy = NULL,
-           Message_strategy = NULL,
+           Neighbor_strategy,
+           Message_strategy,
 
 
            N_neighbors = NULL,
@@ -55,7 +55,7 @@ UTAG_message_passing <-
            Weighting_Strategy = NULL,
            COO_weight = NULL,
 
-           N_cores = NULL) {
+           N_cores = 1) {
     #Check suggested packages
     {
       if(!requireNamespace("rtree", quietly = FALSE)) stop(

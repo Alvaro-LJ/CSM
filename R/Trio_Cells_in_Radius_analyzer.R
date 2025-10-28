@@ -71,10 +71,10 @@
 #' @export
 
 Trio_Cells_in_Radius_analyzer <-
-  function(DATA = NULL,
+  function(DATA,
            DATA_RANDOM = NULL,
-           Radius = NULL,
-           Include_Random = NULL,
+           Radius,
+           Include_Random = FALSE,
            By_Sample_Random = NULL
   ) {
 

@@ -36,14 +36,14 @@
 
 
 Tailored_Closest_neighbor_calculator <-
-  function(N_cores = NULL,
-           DATA = NULL,
-           Strategy = NULL,
+  function(N_cores = 1,
+           DATA,
+           Strategy,
            N_neighbors = NULL,
-           Include_COO_in_neighborhood = NULL,
+           Include_COO_in_neighborhood = TRUE,
            Max_dist_allowed = NULL,
-           Cell_Of_Origin = NULL,
-           Target_Cell = NULL
+           Cell_Of_Origin,
+           Target_Cell
   ){
 
     #Check suggested packages

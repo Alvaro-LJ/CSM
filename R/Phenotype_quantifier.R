@@ -29,8 +29,8 @@
 #' @export
 
 Phenotype_quantifier <-
-  function(DATA = NULL,
-           Calculate_Density = NULL,
+  function(DATA,
+           Calculate_Density = FALSE,
            DATA_Area = NULL) {
 
     #Check arguments

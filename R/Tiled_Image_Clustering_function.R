@@ -109,22 +109,22 @@
 #' @export
 
 Tiled_Image_Clustering_function <-
-  function(Tiled_images = NULL,
-           Minimum_cell_no_per_tile = NULL,
-           Minimum_valid_tiles_per_image = NULL,
-           Phenotypes_included = NULL,
+  function(Tiled_images,
+           Minimum_cell_no_per_tile = 1,
+           Minimum_valid_tiles_per_image = 1,
+           Phenotypes_included,
 
            #Type of data to cluster
-           Cluster_Data = NULL,
+           Cluster_Data,
 
            #Dimension reduction
-           Perform_Dimension_reduction = NULL,
+           Perform_Dimension_reduction = FALSE,
            Dimension_reduction = NULL,
            Dimension_reduction_prop = NULL,
            Cluster_on_Reduced = NULL,
 
            #Clustering strategy
-           Strategy = NULL,
+           Strategy,
 
            #Parameters for Consensus Clustering
            Max_N_Clusters = NULL,

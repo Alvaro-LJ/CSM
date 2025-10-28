@@ -34,7 +34,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' #OPTIONAL, set aside any features that will not be used in the initial phenotyping process----------------
+#' #OPTIONAL: set aside any features that will not be used in the initial phenotyping process--
 #' DATA_list <- Data_set_aside(
 #'    DATA = CSM_Arrangedcellfeaturedata_test,
 #'    Markers_to_set = "GZMB_AVERAGE"
@@ -62,7 +62,7 @@
 #'    Phenotype_possibilities = Phenotype_possibilities
 #'    )
 #'
-#'#Perform Re-Clustering of a subset of cells according to set aside features----------------
+#'#Perform Re-Clustering of a subset of cells according to set aside features--------------
 #' ReClustering_function(
 #'     DATA = DATA_Phenotypes,
 #'     DATA_aside = DATA_list$Aside,
@@ -77,12 +77,12 @@
 #' @export
 
 ReClustering_function <-
-  function(DATA = NULL,
+  function(DATA,
            DATA_aside = NULL,
-           Phenotype_variable = NULL,
-           Phenotype_to_recluster = NULL,
-           Variables_to_recluster = NULL,
-           Strategy = NULL,
+           Phenotype_variable,
+           Phenotype_to_recluster,
+           Variables_to_recluster,
+           Strategy,
 
            N_Clusters = NULL,
 

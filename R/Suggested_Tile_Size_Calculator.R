@@ -27,11 +27,11 @@
 #' @export
 
 Suggested_Tile_Size_Calculator <-
-  function(DATA = NULL,
-           N_rows = NULL,
-           N_cols = NULL,
-           Based_on_smaller = NULL,
-           Draw_preview = NULL){
+  function(DATA,
+           N_rows,
+           N_cols,
+           Based_on_smaller = TRUE,
+           Draw_preview = TRUE){
     #Check arguments
     if(!all(c("Subject_Names", "X", "Y") %in% names(DATA))) {
       stop("Data must contain columns named Subject_Names, X and Y")

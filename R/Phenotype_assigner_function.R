@@ -29,7 +29,8 @@
 #'   Markers = names(DATA_thresholded)[-c(1:4)]
 #')
 #'#Assign a phenotype to each combination
-#'Phenotype_possibilities$Phenotype <- c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
+#'Phenotype_possibilities$Phenotype <-
+#'   c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
 #'
 #'#Perform phenotyping
 #'Phenotype_assigner_function(
@@ -41,7 +42,9 @@
 #' @export
 
 Phenotype_assigner_function <-
-  function(DATA = NULL, Phenotype_possibilities = NULL) {
+  function(DATA,
+           Phenotype_possibilities) {
+
     if(sum(names(Phenotype_possibilities)[1:(ncol(Phenotype_possibilities)-4)] %in% names(DATA)) != length(names(Phenotype_possibilities)[1:(ncol(Phenotype_possibilities)-4)])) {
       stop("Phenotype markers not matched in thresholded data")
     }

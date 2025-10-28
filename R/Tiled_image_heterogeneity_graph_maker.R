@@ -39,10 +39,10 @@
 #' @export
 
 Tiled_image_heterogeneity_graph_maker <-
-  function(DATA = NULL,
-           Tiled_images = NULL,
-           Image_name = NULL,
-           Metric = NULL){
+  function(DATA,
+           Tiled_images,
+           Image_name,
+           Metric){
     #Check arguments
     if(!all(Image_name %in% DATA$Subject_Names, Image_name %in% names(Tiled_images))) stop("Image_name not found in DATA or Tiled_images")
     if(!Metric %in% names(Tiled_images[[1]])) stop("Metric not found in DATA")

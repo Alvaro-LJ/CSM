@@ -43,8 +43,8 @@
 #' @export
 
 Thresholding_function_tailored <-
-  function(DATA = NULL,
-           Variables_tibble = NULL) {
+  function(DATA,
+           Variables_tibble) {
     if(!identical(c("variable", "Strategy", "Local_thresholding", "Method_autothreshold",
                     "number_iterations_TriClass", "Percentile", "Defined_threshold", "Levels"),
                   names(Variables_tibble))) {

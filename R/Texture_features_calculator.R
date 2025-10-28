@@ -33,8 +33,8 @@
 #' @export
 
 Texture_features_calculator <-
-  function(Tiled_images = NULL,
-           Phenotype_included = NULL) {
+  function(Tiled_images,
+           Phenotype_included) {
 
     #Check suggested packages
     {

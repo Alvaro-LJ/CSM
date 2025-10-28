@@ -32,9 +32,9 @@
 #' @export
 
 Tiled_images_graphicator <-
-  function(Tiled_images = NULL,
-           Image_name = NULL,
-           Phenotypes_included = NULL) {
+  function(Tiled_images,
+           Image_name,
+           Phenotypes_included) {
     if(!Image_name %in% names(Tiled_images)) stop("Image_name not found in Tiled_images")
 
     #Import the image data

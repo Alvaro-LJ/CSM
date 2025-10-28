@@ -20,9 +20,9 @@
 #' @export
 
 Plot_correlation_matrix <-
-  function(DATA = NULL,
-           Variables_included = NULL,
-           Correlation_method = NULL) {
+  function(DATA,
+           Variables_included,
+           Correlation_method) {
     #Check suggested packages
     if(!requireNamespace("corrplot", quietly = FALSE)) stop(
       paste0("corrplot CRAN package is required to execute the function. Please install using the following code: ",

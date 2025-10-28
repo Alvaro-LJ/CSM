@@ -32,7 +32,8 @@
 #' @export
 
 Thresholding_summary_function <-
-  function(DATA = NULL, DATA_thresholded = NULL){
+  function(DATA,
+           DATA_thresholded){
 
     #Generate the two basic information sources for this analysis
     Thresholded <- DATA_thresholded[-c(1:4)]

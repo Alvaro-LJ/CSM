@@ -26,11 +26,11 @@
 #' @export
 
 Ripley_function_calculator <-
-  function(DATA = NULL,
-           Cell_type = NULL,
-           Max_distance = NULL,
-           Strategy = NULL,
-           N_simulations = NULL){
+  function(DATA,
+           Cell_type,
+           Max_distance,
+           Strategy,
+           N_simulations){
 
     #Check suggested packages
     {

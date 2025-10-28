@@ -4,7 +4,7 @@
 #' are based on tiled images (those processed using the [Image_tile_deconstruction_function()] function), the function will return the tile-based X Y coordinates to image-based coordinates.
 #' The function performs the operation based on the tile X Y coordinates info contained in the Subject_Names variable. If names have been modified the function could return unexpected results.
 #'
-#' @param DATA Dataframe or tibble with cell features. This data should have been processed at some point using [DATA_arrange_function()].
+#' @param DATA Dataframe or tibble with cell features. This data should have been processed at some point using [Data_arrange_function()].
 #' @param Dist_to_edge For overlapping tiles, cells closer to tile edge than Dist_to_edge will be removed.
 #'
 #' @returns A tibble containing cell features with modified X and Y coordinates
@@ -25,7 +25,7 @@
 #'
 #' @export
 Tile_to_image_cell_arrange_function <-
-    function(DATA = NULL,
+    function(DATA,
              Dist_to_edge = NULL){
       #Check arguments
       if(!identical(names(DATA)[1:4],  c("Cell_no", "X", "Y", "Subject_Names")))  stop("DATA provided should have been processed using the DATA_arrange_function")

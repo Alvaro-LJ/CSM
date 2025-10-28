@@ -26,10 +26,10 @@
 #' @export
 
 Quick_Tumor_Stroma_identifier <-
-  function(DATA_Phenotypes = NULL,
-           Index_phenotype = NULL,
-           Accuracy = NULL,
-           Min_cell_no = NULL,
+  function(DATA_Phenotypes,
+           Index_phenotype,
+           Accuracy,
+           Min_cell_no = 1,
            Image_preview = NULL,
            N_cores = 1){
     #Import all required Data

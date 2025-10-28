@@ -21,8 +21,8 @@
 #' @export
 
 SPIAT_object_generator <-
-  function(DATA_Intensities = NULL,
-           DATA_Phenotypes = NULL) {
+  function(DATA_Intensities,
+           DATA_Phenotypes) {
 
     #Check suggested packages
     if(!requireNamespace("SPIAT", quietly = TRUE)) stop(

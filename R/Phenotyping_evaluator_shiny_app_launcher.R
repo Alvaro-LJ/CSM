@@ -29,7 +29,8 @@
 #' #Save images in Input directory
 #' purrr::map(1:2,
 #' function(Image){
-#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+#'    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 #' })
 #'
 #' #Deploy app----------------------------------------------
@@ -47,9 +48,9 @@
 #' @export
 
 Phenotyping_evaluator_shiny_app_launcher <-
-  function(DATA = NULL,
-           Directory = NULL,
-           Ordered_Channels = NULL){
+  function(DATA,
+           Directory,
+           Ordered_Channels){
 
     #Check required packages
     {
