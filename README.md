@@ -55,7 +55,8 @@
   - Divide tissue into compartments according to a single cell type (for example Tumor/stromal compartments).
 
 ## Publication
-This folder contains the CSM scripts and datasets to replicate the results of our [*publication*](publicationURL).
+To see examples of use of CSM you can have a look at our associated publication [*publication*](publicationURL).<br />
+Also this publication has an associated [*github repository*](CSM repository URL) where user can find test datasets and examples of use of CSM.
 
 
 
