@@ -60,7 +60,7 @@ devtools::install_github(Alvaro-LJ/CSM)
 
 ## Publication
 To see examples of use of CSM you can have a look at our associated publication [*publication*](publicationURL).<br />
-Also this publication has an associated GitHub [*repository*](CSM repositoryURL) where user can find test datasets and examples of use of CSM.
+Also this publication has an associated GitHub [*repository*](CSMrepositoryURL) where user can find test datasets and examples of use of CSM.
 
 ## Citation
 Please cite this paper in case our method or parts of it were helpful in your work.
