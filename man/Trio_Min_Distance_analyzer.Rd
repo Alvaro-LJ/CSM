@@ -5,10 +5,10 @@
 \title{Calculates the min distance to generate a TRIO between three cell types}
 \usage{
 Trio_Min_Distance_analyzer(
-  N_cores = NULL,
-  DATA = NULL,
+  N_cores = 1,
+  DATA,
   DATA_RANDOM = NULL,
-  Include_Random = NULL,
+  Include_Random = FALSE,
   By_Sample_Random = NULL
 )
 }

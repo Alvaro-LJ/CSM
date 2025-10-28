@@ -4,7 +4,7 @@
 \alias{Texture_features_calculator}
 \title{Calculates the average texture features of a single cell type.}
 \usage{
-Texture_features_calculator(Tiled_images = NULL, Phenotype_included = NULL)
+Texture_features_calculator(Tiled_images, Phenotype_included)
 }
 \arguments{
 \item{Tiled_images}{A list containing tiled images obtained using \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}.}

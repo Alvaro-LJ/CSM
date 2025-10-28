@@ -5,8 +5,8 @@
 \title{Summarizes thresholded data by image}
 \usage{
 Thresholding_exploration_function(
-  DATA = NULL,
-  Calculate_Density = NULL,
+  DATA,
+  Calculate_Density = FALSE,
   DATA_Area = NULL
 )
 }

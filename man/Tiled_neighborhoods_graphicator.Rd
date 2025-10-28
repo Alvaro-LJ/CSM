@@ -5,9 +5,9 @@
 \title{Generates a plot illustrating heterogeneity by tile.}
 \usage{
 Tiled_neighborhoods_graphicator(
-  DATA_elections = NULL,
-  Image_name = NULL,
-  Graph_only_winner_neighborhood = NULL
+  DATA_elections,
+  Image_name,
+  Graph_only_winner_neighborhood = FALSE
 )
 }
 \arguments{

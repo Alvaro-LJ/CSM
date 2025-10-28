@@ -5,9 +5,9 @@
 \title{Generates a plot of the TRIO spatial interaction for a single image}
 \usage{
 Trio_graph_maker(
-  Image_name = NULL,
-  DATA_Phenotypes = NULL,
-  Strategy = NULL,
+  Image_name,
+  DATA_Phenotypes,
+  Strategy,
   TRIO_Distances = NULL,
   TRIO_Cumulative = NULL,
   Radius = NULL

@@ -5,8 +5,8 @@
 \title{Thresholds cell features}
 \usage{
 Thresholding_function(
-  DATA = NULL,
-  Strategy = NULL,
+  DATA,
+  Strategy,
   Local_thresholding = FALSE,
   Method_autothreshold = "Otsu",
   number_iterations_TriClass = 20,

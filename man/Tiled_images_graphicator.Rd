@@ -4,11 +4,7 @@
 \alias{Tiled_images_graphicator}
 \title{Generates plots of cell counts by tile}
 \usage{
-Tiled_images_graphicator(
-  Tiled_images = NULL,
-  Image_name = NULL,
-  Phenotypes_included = NULL
-)
+Tiled_images_graphicator(Tiled_images, Image_name, Phenotypes_included)
 }
 \arguments{
 \item{Tiled_images}{A list containing tiled images obtained using \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}.}

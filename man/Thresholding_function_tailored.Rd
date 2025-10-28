@@ -4,7 +4,7 @@
 \alias{Thresholding_function_tailored}
 \title{Thresholds cell features applying a unique approach for every marker}
 \usage{
-Thresholding_function_tailored(DATA = NULL, Variables_tibble = NULL)
+Thresholding_function_tailored(DATA, Variables_tibble)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

@@ -4,7 +4,7 @@
 \alias{Thresholding_tester_app}
 \title{Launches a shiny APP to explore feature thresholding methods}
 \usage{
-Thresholding_tester_app(DATA = NULL, Directory = NULL, Ordered_Channels = NULL)
+Thresholding_tester_app(DATA, Directory, Ordered_Channels)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}
@@ -42,7 +42,8 @@ dir.create(Input_Dir, recursive = TRUE)
 #Save images in Input directory
 purrr::map(1:2,
 function(Image){
-   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
 #Deploy app----------------------------------------------

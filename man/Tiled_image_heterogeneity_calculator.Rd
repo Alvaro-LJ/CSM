@@ -5,9 +5,9 @@
 \title{Calculates heterogeneity by tile}
 \usage{
 Tiled_image_heterogeneity_calculator(
-  Tiled_images = NULL,
-  Minimum_cell_no_per_tile = NULL,
-  Phenotypes_included = NULL
+  Tiled_images,
+  Minimum_cell_no_per_tile = 1,
+  Phenotypes_included
 )
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{Thresholding_summary_function}
 \title{Calculates cut-off points of thresholded data and generates summary plots}
 \usage{
-Thresholding_summary_function(DATA = NULL, DATA_thresholded = NULL)
+Thresholding_summary_function(DATA, DATA_thresholded)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

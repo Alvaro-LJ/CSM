@@ -5,10 +5,10 @@
 \title{Generates thresholding results summary plots}
 \usage{
 Thresholding_graphicator_function(
-  DATA = NULL,
-  DATA_thresholded = NULL,
-  Marker_names = NULL,
-  Image_name = NULL
+  DATA,
+  DATA_thresholded,
+  Marker_names,
+  Image_name
 )
 }
 \arguments{

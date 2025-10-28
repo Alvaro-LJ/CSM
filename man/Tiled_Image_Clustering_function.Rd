@@ -5,16 +5,16 @@
 \title{Performs neighborhood identification based on tiled images}
 \usage{
 Tiled_Image_Clustering_function(
-  Tiled_images = NULL,
-  Minimum_cell_no_per_tile = NULL,
-  Minimum_valid_tiles_per_image = NULL,
-  Phenotypes_included = NULL,
-  Cluster_Data = NULL,
-  Perform_Dimension_reduction = NULL,
+  Tiled_images,
+  Minimum_cell_no_per_tile = 1,
+  Minimum_valid_tiles_per_image = 1,
+  Phenotypes_included,
+  Cluster_Data,
+  Perform_Dimension_reduction = FALSE,
   Dimension_reduction = NULL,
   Dimension_reduction_prop = NULL,
   Cluster_on_Reduced = NULL,
-  Strategy = NULL,
+  Strategy,
   Max_N_Clusters = NULL,
   Consensus_reps = NULL,
   Consensus_p_Items = NULL,

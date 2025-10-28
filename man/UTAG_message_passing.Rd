@@ -5,15 +5,15 @@
 \title{Performs message passing between neighboring cells}
 \usage{
 UTAG_message_passing(
-  DATA_name = NULL,
+  DATA_name,
   COO_to_visit = NULL,
-  Neighbor_strategy = NULL,
-  Message_strategy = NULL,
+  Neighbor_strategy,
+  Message_strategy,
   N_neighbors = NULL,
   Max_dist_allowed = NULL,
   Weighting_Strategy = NULL,
   COO_weight = NULL,
-  N_cores = NULL
+  N_cores = 1
 )
 }
 \arguments{

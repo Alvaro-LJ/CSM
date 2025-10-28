@@ -6,10 +6,10 @@
 \usage{
 Trio_Cumulative_Interaction_generator(
   N_cores = 1,
-  DATA = NULL,
-  Start_from = NULL,
-  Stop_at = NULL,
-  Sampling_frequency = NULL
+  DATA,
+  Start_from,
+  Stop_at,
+  Sampling_frequency
 )
 }
 \arguments{

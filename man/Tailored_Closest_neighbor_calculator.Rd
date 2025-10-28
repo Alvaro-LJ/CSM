@@ -5,14 +5,14 @@
 \title{Compute the closest neighbors matrix.}
 \usage{
 Tailored_Closest_neighbor_calculator(
-  N_cores = NULL,
-  DATA = NULL,
-  Strategy = NULL,
+  N_cores = 1,
+  DATA,
+  Strategy,
   N_neighbors = NULL,
-  Include_COO_in_neighborhood = NULL,
+  Include_COO_in_neighborhood = TRUE,
   Max_dist_allowed = NULL,
-  Cell_Of_Origin = NULL,
-  Target_Cell = NULL
+  Cell_Of_Origin,
+  Target_Cell
 )
 }
 \arguments{

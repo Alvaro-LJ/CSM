@@ -4,12 +4,7 @@
 \alias{Tiled_image_heterogeneity_graph_maker}
 \title{Generates a plot illustrating heterogeneity by tile.}
 \usage{
-Tiled_image_heterogeneity_graph_maker(
-  DATA = NULL,
-  Tiled_images = NULL,
-  Image_name = NULL,
-  Metric = NULL
-)
+Tiled_image_heterogeneity_graph_maker(DATA, Tiled_images, Image_name, Metric)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

@@ -5,10 +5,10 @@
 \title{Calculates the average TRIO score for every image}
 \usage{
 Trio_Cells_in_Radius_analyzer(
-  DATA = NULL,
+  DATA,
   DATA_RANDOM = NULL,
-  Radius = NULL,
-  Include_Random = NULL,
+  Radius,
+  Include_Random = FALSE,
   By_Sample_Random = NULL
 )
 }
