@@ -3,10 +3,10 @@
 
 
 ## What you will find in this Repository (Folder description)
-[Requirements and installation](#Main-features-and-requirements) 
-[Main outline of CSM](#Main-outline-of-CSMs) 
-[Publication and associated datasets](#Publication) 
-[Citation](#Images) 
++ [Requirements and installation](#Main-features-and-requirements) 
++ [Main outline of CSM](#Main-outline-of-CSMs) 
++ [Publication and associated datasets](#Publication) 
++ [Citation](#Images) 
 
 ## Main features and requirements
 * CSM was developed using R version > 4.3
