@@ -5,13 +5,13 @@
 \title{Calculates random distance backgrounds between two cell types}
 \usage{
 Random_Distance_matrix_generator(
-  N_cores = NULL,
-  DATA = NULL,
-  Cell_Of_Origin = NULL,
-  Target_Cell = NULL,
-  Random_cells_per_sample = NULL,
-  Allow_Cero_Distance = NULL,
-  Perform_edge_correction = NULL,
+  N_cores = 1,
+  DATA,
+  Cell_Of_Origin,
+  Target_Cell,
+  Random_cells_per_sample,
+  Allow_Cero_Distance = FALSE,
+  Perform_edge_correction = FALSE,
   Hull_ratio = NULL,
   Distance_to_edge = NULL
 )

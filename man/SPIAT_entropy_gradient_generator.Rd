@@ -5,11 +5,11 @@
 \title{Analyzes the spatial interaction between cell types according to the SPIAT package}
 \usage{
 SPIAT_entropy_gradient_generator(
-  DATA_SPIAT = NULL,
-  Gradient_start = NULL,
-  Gradient_stop = NULL,
-  Gradient_sampling = NULL,
-  Phenotypes_included = NULL
+  DATA_SPIAT,
+  Gradient_start,
+  Gradient_stop,
+  Gradient_sampling,
+  Phenotypes_included
 )
 }
 \arguments{

@@ -4,11 +4,7 @@
 \alias{Plot_correlation_matrix}
 \title{Draws a correlation matrix}
 \usage{
-Plot_correlation_matrix(
-  DATA = NULL,
-  Variables_included = NULL,
-  Correlation_method = NULL
-)
+Plot_correlation_matrix(DATA, Variables_included, Correlation_method)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

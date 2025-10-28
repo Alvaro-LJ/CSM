@@ -4,7 +4,7 @@
 \alias{Model_cell_phenotyper}
 \title{Executes cell phenotype label prediction}
 \usage{
-Model_cell_phenotyper(DATA = NULL, Model_parameters = NULL, N_cores = NULL)
+Model_cell_phenotyper(DATA, Model_parameters, N_cores = 1)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}
@@ -29,6 +29,7 @@ Model_cell_phenotyper(
  N_cores = 1
 )
 }
+
 
 }
 \seealso{

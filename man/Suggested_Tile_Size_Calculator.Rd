@@ -5,11 +5,11 @@
 \title{Calculates appropriate tile size to satisfy user preferences}
 \usage{
 Suggested_Tile_Size_Calculator(
-  DATA = NULL,
-  N_rows = NULL,
-  N_cols = NULL,
-  Based_on_smaller = NULL,
-  Draw_preview = NULL
+  DATA,
+  N_rows,
+  N_cols,
+  Based_on_smaller = TRUE,
+  Draw_preview = TRUE
 )
 }
 \arguments{

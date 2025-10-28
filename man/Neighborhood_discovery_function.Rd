@@ -5,15 +5,15 @@
 \title{Performs neighborhood identification}
 \usage{
 Neighborhood_discovery_function(
-  DATA = NULL,
-  Allowed_max_Dist = NULL,
-  Allowed_avg_Dist = NULL,
-  Allowed_median_Dist = NULL,
-  Perform_Dimension_reduction = NULL,
+  DATA,
+  Allowed_max_Dist,
+  Allowed_avg_Dist,
+  Allowed_median_Dist,
+  Perform_Dimension_reduction = FALSE,
   Dimension_reduction = NULL,
   Dimension_reduction_prop = NULL,
   Cluster_on_Reduced = NULL,
-  Strategy = NULL,
+  Strategy,
   Max_N_neighborhoods = NULL,
   Consensus_reps = NULL,
   Consensus_p_Items = NULL,

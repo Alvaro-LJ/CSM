@@ -4,7 +4,7 @@
 \alias{Data_set_aside}
 \title{Splits cell feature matrix}
 \usage{
-Data_set_aside(DATA = NULL, Markers_to_set = NULL)
+Data_set_aside(DATA, Markers_to_set)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

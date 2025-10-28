@@ -4,7 +4,7 @@
 \alias{DATA_Phenotype_renamer}
 \title{Modifies cell phenotype labels}
 \usage{
-DATA_Phenotype_renamer(DATA = NULL, New_names = NULL, Old_names = NULL)
+DATA_Phenotype_renamer(DATA, New_names, Old_names = NULL)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data, including a column named 'Phenotype'.}

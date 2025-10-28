@@ -4,7 +4,7 @@
 \alias{Normalization_diagnostics}
 \title{Compares normalized and non-normalized data}
 \usage{
-Normalization_diagnostics(Original_DATA = NULL, Normalized_DATA = NULL)
+Normalization_diagnostics(Original_DATA, Normalized_DATA)
 }
 \arguments{
 \item{Original_DATA}{A dataframe or tibble containing cell feature data before normalization.}

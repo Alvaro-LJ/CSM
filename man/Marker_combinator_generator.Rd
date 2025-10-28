@@ -4,7 +4,7 @@
 \alias{Marker_combinator_generator}
 \title{Generates all thresholded feature combinations present in a thresholded cell feature dataset}
 \usage{
-Marker_combinator_generator(DATA = NULL, Markers = NULL)
+Marker_combinator_generator(DATA, Markers)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing thresholded cell feature data.}
@@ -37,7 +37,8 @@ Phenotype_possibilities <- Marker_combinator_generator(
   Markers = names(DATA_thresholded)[-c(1:4)]
 )
 #Assign a phenotype to each combination------------
-Phenotype_possibilities$Phenotype <- c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
+Phenotype_possibilities$Phenotype <-
+  c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
 
 #Perform phenotyping-------------------------------
 Phenotype_assigner_function(

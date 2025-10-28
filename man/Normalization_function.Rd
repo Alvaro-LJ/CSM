@@ -4,7 +4,7 @@
 \alias{Normalization_function}
 \title{Normalizes cell feature expression data}
 \usage{
-Normalization_function(DATA = NULL, Strategy = NULL, Parameters = NULL)
+Normalization_function(DATA, Strategy, Parameters)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

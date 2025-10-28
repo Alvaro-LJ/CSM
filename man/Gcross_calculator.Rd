@@ -5,12 +5,12 @@
 \title{Analyzes the spatial interaction between two cell types across images by using the Gcross function}
 \usage{
 Gcross_calculator(
-  DATA = NULL,
-  Cell_Of_Origin = NULL,
-  Target_Cell = NULL,
-  Stop_at = NULL,
-  Sampling_frequency = NULL,
-  Use_Clinical = NULL,
+  DATA,
+  Cell_Of_Origin,
+  Target_Cell,
+  Stop_at,
+  Sampling_frequency,
+  Use_Clinical = FALSE,
   DATA_Clinical = NULL,
   Clinical_var = NULL
 )

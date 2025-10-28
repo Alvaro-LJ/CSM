@@ -4,7 +4,7 @@
 \alias{Image_thresholding_app_launcher}
 \title{Launches a shiny APP to explore image pixel thresholding parameters}
 \usage{
-Image_thresholding_app_launcher(Directory = NULL, Ordered_Channels = NULL)
+Image_thresholding_app_launcher(Directory, Ordered_Channels)
 }
 \arguments{
 \item{Directory}{Character specifying the path to the folder where images to be thresholded are present.}
@@ -42,7 +42,8 @@ dir.create(Input_Dir, recursive = TRUE)
 #Save images in Input directory
 purrr::map(1:2,
 function(Image){
-   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
 #Deploy app----------------------------------------------

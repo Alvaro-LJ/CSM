@@ -5,12 +5,12 @@
 \title{Divide images into tile chuncks}
 \usage{
 Image_tile_deconstruction_function(
-  Directory = NULL,
-  Output_directory = NULL,
+  Directory,
+  Output_directory,
   RGB_Color_images = FALSE,
   Ordered_Channels = NULL,
   Channels_to_keep = NULL,
-  Tile_pixel_size = NULL,
+  Tile_pixel_size,
   Tile_Overlap = 0,
   N_cores = 1
 )
@@ -60,7 +60,8 @@ dir.create(Output_Dir, recursive = TRUE)
 #Save images in Input directory
 purrr::map(1:2,
 function(Image){
-   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
 #Perform tiling---------------------------------------------------
@@ -81,4 +82,5 @@ list.files(Output_Dir)
 #Remove directories---------------------------------------------------------
 unlink(c(Input_Dir, Output_Dir), recursive = TRUE)
 }
+
 }

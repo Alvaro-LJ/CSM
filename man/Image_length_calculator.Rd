@@ -4,7 +4,7 @@
 \alias{Image_length_calculator}
 \title{Generate a summary of the width, length and surface of images in a dataset.}
 \usage{
-Image_length_calculator(DATA = NULL)
+Image_length_calculator(DATA)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

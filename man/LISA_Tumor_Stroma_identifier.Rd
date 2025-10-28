@@ -5,13 +5,13 @@
 \title{Calculates tumor and stromal compartment based on Local Indicators of Spatial Association}
 \usage{
 LISA_Tumor_Stroma_identifier(
-  DATA_Phenotypes = NULL,
-  Index_phenotype = NULL,
+  DATA_Phenotypes,
+  Index_phenotype,
   Image_preview = NULL,
-  Association_Dist_min = NULL,
-  Association_Dist_max = NULL,
-  Type_of_LISA_function = NULL,
-  Window_type = NULL,
+  Association_Dist_min,
+  Association_Dist_max,
+  Type_of_LISA_function,
+  Window_type,
   N_cores = 1
 )
 }

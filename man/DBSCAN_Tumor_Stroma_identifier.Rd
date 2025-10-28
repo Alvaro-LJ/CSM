@@ -5,11 +5,11 @@
 \title{Calculates tumor and stromal compartment based on density based clustering}
 \usage{
 DBSCAN_Tumor_Stroma_identifier(
-  DATA_Phenotypes = NULL,
-  Index_phenotype = NULL,
+  DATA_Phenotypes,
+  Index_phenotype,
   Image_preview = NULL,
-  Min_cells = NULL,
-  Distance_radius = NULL,
+  Min_cells,
+  Distance_radius,
   N_cores = 1
 )
 }

@@ -58,8 +58,6 @@ CELESTA_phenotyper(
 )
 }
 
-
-
 }
 \seealso{
 \code{\link[=CELESTA_template_generator]{CELESTA_template_generator()}}. For more information on how to fulfill the template please visit https://github.com/plevritis-lab/CELESTA.

@@ -5,10 +5,10 @@
 \title{Calculates tumor and stromal compartment based on tiles}
 \usage{
 Quick_Tumor_Stroma_identifier(
-  DATA_Phenotypes = NULL,
-  Index_phenotype = NULL,
-  Accuracy = NULL,
-  Min_cell_no = NULL,
+  DATA_Phenotypes,
+  Index_phenotype,
+  Accuracy,
+  Min_cell_no = 1,
   Image_preview = NULL,
   N_cores = 1
 )

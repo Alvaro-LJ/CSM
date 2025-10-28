@@ -5,11 +5,11 @@
 \title{Analyzes the distance pattern between two cell types for all images}
 \usage{
 Distance_analyzer(
-  N_cores = NULL,
-  DATA = NULL,
+  N_cores = 1,
+  DATA,
   DATA_RANDOM = NULL,
-  Metric = NULL,
-  Include_Random = NULL,
+  Metric,
+  Include_Random = FALSE,
   By_Sample_Random = NULL
 )
 }

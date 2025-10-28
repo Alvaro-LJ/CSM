@@ -4,7 +4,7 @@
 \alias{SPIAT_object_generator}
 \title{Generates SPIAT objects for every image in a dataset}
 \usage{
-SPIAT_object_generator(DATA_Intensities = NULL, DATA_Phenotypes = NULL)
+SPIAT_object_generator(DATA_Intensities, DATA_Phenotypes)
 }
 \arguments{
 \item{DATA_Intensities}{A dataframe or tibble containing cell feature data with feature expression by cell.}

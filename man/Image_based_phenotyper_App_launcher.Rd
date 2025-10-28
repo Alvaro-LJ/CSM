@@ -5,10 +5,10 @@
 \title{Launches a shiny APP that can generate cell phenotyping models based on user expertise}
 \usage{
 Image_based_phenotyper_App_launcher(
-  DATA = NULL,
-  Directory = NULL,
-  Ordered_Channels = NULL,
-  Channels_to_keep = NULL
+  DATA,
+  Directory,
+  Ordered_Channels,
+  Channels_to_keep
 )
 }
 \arguments{
@@ -64,7 +64,8 @@ dir.create(Input_Dir, recursive = TRUE)
 #Save images in Input directory
 purrr::map(1:2,
 function(Image){
-   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
 #Deploy app----------------------------------------------

@@ -5,13 +5,13 @@
 \title{Analyzes the spatial heterogeneity following the pipeline in the SPIAT package}
 \usage{
 SPIAT_Heterogeneity_Analyzer(
-  N_cores = NULL,
-  DATA_SPIAT = NULL,
-  DATA_Phenotypes = NULL,
-  Tile_size = NULL,
-  Phenotypes_included = NULL,
-  Autocorrelation_metric = NULL,
-  Entropy_threshold = NULL
+  N_cores = 1,
+  DATA_SPIAT,
+  DATA_Phenotypes,
+  Tile_size,
+  Phenotypes_included,
+  Autocorrelation_metric,
+  Entropy_threshold
 )
 }
 \arguments{
@@ -56,7 +56,6 @@ SPIAT_Heterogeneity_Analyzer(
     Autocorrelation_metric = "globalmoran"
 )
 }
-
 
 }
 \seealso{

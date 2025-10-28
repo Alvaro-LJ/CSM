@@ -4,11 +4,7 @@
 \alias{Neighborhood_Quantifier}
 \title{Summarizes cell neighborhoods for every image in the dataset}
 \usage{
-Neighborhood_Quantifier(
-  DATA = NULL,
-  Calculate_Density = NULL,
-  DATA_Area = NULL
-)
+Neighborhood_Quantifier(DATA, Calculate_Density = FALSE, DATA_Area = NULL)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data and a column named 'Neighborhood_assignment'.}

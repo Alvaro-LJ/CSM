@@ -4,7 +4,7 @@
 \alias{Phenotype_quantifier}
 \title{Summarizes cell phenotypes for every image in a dataset}
 \usage{
-Phenotype_quantifier(DATA = NULL, Calculate_Density = NULL, DATA_Area = NULL)
+Phenotype_quantifier(DATA, Calculate_Density = FALSE, DATA_Area = NULL)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data and a column named 'Phenotype' containing cell labels.}

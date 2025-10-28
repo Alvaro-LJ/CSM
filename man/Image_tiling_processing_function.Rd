@@ -6,10 +6,10 @@
 \usage{
 Image_tiling_processing_function(
   N_cores = 1,
-  DATA = NULL,
-  Tile_width = NULL,
-  Tile_height = NULL,
-  Variables_to_keep = NULL
+  DATA,
+  Tile_width,
+  Tile_height,
+  Variables_to_keep
 )
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{Global_heterogeneity_calculator}
 \title{Calculates cell composition heterogeneity.}
 \usage{
-Global_heterogeneity_calculator(DATA = NULL, Phenotypes_included = NULL)
+Global_heterogeneity_calculator(DATA, Phenotypes_included)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.}

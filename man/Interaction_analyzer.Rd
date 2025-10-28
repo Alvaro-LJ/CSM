@@ -5,9 +5,9 @@
 \title{Summarize images according to their cell-to-cell pairwise spatial interaction patterns}
 \usage{
 Interaction_analyzer(
-  DATA = NULL,
-  Exclude_non_significant = NULL,
-  Cluster = TRUE,
+  DATA,
+  Exclude_non_significant = FALSE,
+  Cluster = FALSE,
   Max_N_Clusters = NULL,
   Consensus_reps = NULL,
   Consensus_p_Items = NULL,

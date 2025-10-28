@@ -5,11 +5,11 @@
 \title{Analyzes the spatial interaction using Ripleys K and L functions}
 \usage{
 Ripley_function_calculator(
-  DATA = NULL,
-  Cell_type = NULL,
-  Max_distance = NULL,
-  Strategy = NULL,
-  N_simulations = NULL
+  DATA,
+  Cell_type,
+  Max_distance,
+  Strategy,
+  N_simulations
 )
 }
 \arguments{

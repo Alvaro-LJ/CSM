@@ -65,7 +65,8 @@ dir.create(Input_Dir, recursive = TRUE)
 #Save images in Input directory
 purrr::map(1:2,
 function(Image){
-   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
 #Draw the plot

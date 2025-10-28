@@ -6,21 +6,21 @@
 \usage{
 Pixel_Threshold_calculator(
   N_cores = 1,
-  Directory = NULL,
-  Ordered_Channels = NULL,
-  Channels_to_keep = NULL,
-  Target_channel = NULL,
+  Directory,
+  Ordered_Channels,
+  Channels_to_keep,
+  Target_channel,
   Save_processed_images = FALSE,
   Output_Directory = NULL,
-  Local_thresholding = NULL,
-  Threshold_type = NULL,
+  Local_thresholding = FALSE,
+  Threshold_type,
   Threshold_value = NULL,
   Levels = NULL,
-  Threshold_type_tissueMask = NULL,
+  Threshold_type_tissueMask,
   Threshold_value_tissueMask = NULL,
-  Blurr_tissueMask = NULL,
+  Blurr_tissueMask = FALSE,
   Sigma_tissueMask = NULL,
-  Blurr_target = NULL,
+  Blurr_target = FALSE,
   Sigma_target = NULL
 )
 }
@@ -81,7 +81,8 @@ dir.create(Output_Dir, recursive = TRUE)
 #Save images in Input directory
 purrr::map(1:2,
 function(Image){
-   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
 #Execute thresholding------------------------------------------------------

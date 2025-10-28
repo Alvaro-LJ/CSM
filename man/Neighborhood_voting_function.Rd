@@ -5,10 +5,10 @@
 \title{Performs elections within tiled images with neighborhood information}
 \usage{
 Neighborhood_voting_function(
-  N_cores = NULL,
-  Tiled_Images = NULL,
-  Minimum_cell_no_per_tile = NULL,
-  Neighborhoods_included = NULL
+  N_cores = 1,
+  Tiled_Images,
+  Minimum_cell_no_per_tile = 1,
+  Neighborhoods_included
 )
 }
 \arguments{

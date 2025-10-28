@@ -4,12 +4,7 @@
 \alias{Normalization_function_parallel}
 \title{Normalizes cell feature expression data using multicore}
 \usage{
-Normalization_function_parallel(
-  DATA = NULL,
-  Strategy = NULL,
-  Parameters = NULL,
-  N_cores = NULL
-)
+Normalization_function_parallel(DATA, Strategy, Parameters, N_cores = 1)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}

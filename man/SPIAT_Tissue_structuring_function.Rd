@@ -5,14 +5,14 @@
 \title{Generates tissue structures according to a cell phenotype label using the SPIAT package.}
 \usage{
 SPIAT_Tissue_structuring_function(
-  N_cores = NULL,
-  DATA_SPIAT = NULL,
-  DATA_Phenotypes = NULL,
-  Cell_type_to_define_cluster = NULL,
-  Minimum_number_cells_cluster = NULL,
-  Cell_types_of_interest = NULL,
-  Layers_margin = NULL,
-  Simplify_result = NULL
+  N_cores = 1,
+  DATA_SPIAT,
+  DATA_Phenotypes,
+  Cell_type_to_define_cluster,
+  Minimum_number_cells_cluster = 1,
+  Cell_types_of_interest,
+  Layers_margin,
+  Simplify_result = TRUE
 )
 }
 \arguments{
@@ -60,6 +60,7 @@ SPIAT_Tissue_structuring_function(
     Simplify_result = T
 )
 }
+
 
 }
 \seealso{

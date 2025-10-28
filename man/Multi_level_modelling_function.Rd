@@ -5,13 +5,13 @@
 \title{Analyzes the spatial interaction between two cell types using Multi-level modelling}
 \usage{
 Multi_level_modelling_function(
-  DATA_cumulative = NULL,
-  DATA_Clinical = NULL,
-  Clinical_var = NULL,
-  DATA_Densities = NULL,
-  Cell_Of_Origin = NULL,
-  Target_cell = NULL,
-  Calculate_R2 = NULL,
+  DATA_cumulative,
+  DATA_Clinical,
+  Clinical_var,
+  DATA_Densities,
+  Cell_Of_Origin,
+  Target_cell,
+  Calculate_R2 = FALSE,
   N_bootstrap = NULL
 )
 }

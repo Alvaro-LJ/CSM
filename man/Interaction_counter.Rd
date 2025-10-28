@@ -5,17 +5,17 @@
 \title{Analyzes the spatial interaction pattern between all cell types of all the images in the dataset}
 \usage{
 Interaction_counter(
-  DATA = NULL,
-  Phenotypes_included = NULL,
-  N_cores = NULL,
-  Graph_type = NULL,
+  DATA,
+  Phenotypes_included,
+  N_cores = 1,
+  Graph_type,
   K_number = NULL,
   Dist_threshold = NULL,
-  Method = NULL,
+  Method,
   patch_size = NULL,
-  Perform_significance_testing = NULL,
-  N_iterations = NULL,
-  p_threshold = NULL
+  Perform_significance_testing = TRUE,
+  N_iterations = 10,
+  p_threshold = 0.05
 )
 }
 \arguments{

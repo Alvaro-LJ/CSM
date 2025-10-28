@@ -5,10 +5,10 @@
 \title{Separates RGB color images into color channels according to user preferences}
 \usage{
 Image_deconvolution_function(
-  Directory = NULL,
-  Output_directory = NULL,
-  Deconvolution_parameters = NULL,
-  N_cores = NULL
+  Directory,
+  Output_directory,
+  Deconvolution_parameters,
+  N_cores = 1
 )
 }
 \arguments{
@@ -37,7 +37,8 @@ dir.create(Output_Dir, recursive = TRUE)
 #Save images in Input directory
 purrr::map(1:2,
 function(Image){
-   EBImage::writeImage(CSM_MiniHE_test[[Image]], file.path(Input_Dir, names(CSM_MiniHE_test)[Image]))
+   EBImage::writeImage(CSM_MiniHE_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniHE_test)[Image]))
 })
 
 #Print an example of the deconvolution parameters obtained using the App------------

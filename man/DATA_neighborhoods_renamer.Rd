@@ -4,7 +4,7 @@
 \alias{DATA_neighborhoods_renamer}
 \title{Modifies neighborhood labels}
 \usage{
-DATA_neighborhoods_renamer(DATA = NULL, New_names = NULL, Old_names = NULL)
+DATA_neighborhoods_renamer(DATA, New_names, Old_names = NULL)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing neighborhood data, including a column named 'Neighborhood_assignment'.}

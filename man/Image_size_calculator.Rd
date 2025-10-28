@@ -5,8 +5,8 @@
 \title{Approximates tissue size}
 \usage{
 Image_size_calculator(
-  DATA = NULL,
-  Strategy = NULL,
+  DATA,
+  Strategy,
   Image_to_plot = NULL,
   Tile_accuracy = NULL,
   Hull_ratio = NULL

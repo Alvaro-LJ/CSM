@@ -5,14 +5,14 @@
 \title{Identifies cell neighborhoods using the pipeline present in the SPIAT package}
 \usage{
 SPIAT_neighborhood_identifier(
-  N_cores = NULL,
-  DATA_SPIAT = NULL,
-  Strategy = NULL,
-  Cell_types_of_interest = NULL,
-  Radius = NULL,
-  Min_neighborhood_size = NULL,
+  N_cores = 1,
+  DATA_SPIAT,
+  Strategy,
+  Cell_types_of_interest,
+  Radius,
+  Min_neighborhood_size,
   K_phenograph = NULL,
-  No_Phenotype_name = NULL
+  No_Phenotype_name
 )
 }
 \arguments{
@@ -58,7 +58,6 @@ SPIAT_neighborhood_identifier(
     No_Phenotype_name = NULL
 )
 }
-
 
 }
 \seealso{
