@@ -1,0 +1,14 @@
+citHeader("To cite CSM in publications please use:")
+
+bibentry(
+  bibtype = "Article",
+  title = "Comprehensive Spatial Methods (CSM): a toolbox for spatially analyzing tissues in histopathology",
+  author = person("Alvaro", "Lopez Janeiro"),
+  journal = "Laboratory Investigation",
+  year = "XXX",
+  volume = "XX",
+  number = "X",
+  pages = "XXX",
+  doi = "10.1234/jss.v099.i01"
+)
+``
