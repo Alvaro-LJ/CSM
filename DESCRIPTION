@@ -3,7 +3,7 @@ Title: Toolbox to analyze tissue images with spatial resolution
 Version: 1.0.0
 Authors@R: c(
     person(given = "Alvaro", family = "Lopez-Janeiro", email = "alopezj@unav.es", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5744-3115")),
-    person(given = "Paulo", family = "Perez-Dominguez", email = "pperezdomin@unav.es", role = "aut"),
+    person(given = "Paulo", family = "Perez-Dominguez", email = "pperezdomin@unav.es", role = "ctb"),
     person(given = "Eduardo", family = "Miraval",email = "emiraval@unav.es", role = "ctb"),
     person(given = "Raluca", family = "Alexandru", email = "ralexandru@unav.es", role = "ctb"),
     person(given = "Carlos E.", family = "de Andrea",email = "ceandrea@unav.es", role = "ctb"))
