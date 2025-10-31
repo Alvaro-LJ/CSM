@@ -1,8 +1,8 @@
 # <img src="man/figures/Sticker.png" width="60" style = "align-items: center"> Comprehensive Spatial Methods (CSM) 
-**Summary:** CSM is an R package designed as a toolbox to analyze spatially resolved tissue data. To see a demo of CSM capabilities please see related [*publication*](publicationURL).
+**Summary:** CSM is an R package designed as a toolbox to analyze spatially resolved tissue data. To see a demo of CSM capabilities please see the related [*publication*](publicationURL).
 
 
-## What you will find in this Repository (Folder description)
+## What you will find in this Repository
 + [Requirements and installation](#Main-features-and-requirements) 
 + [Main outline of CSM](#Main-outline-of-CSMs) 
 + [Publication and associated datasets](#Publication) 
@@ -13,7 +13,7 @@
 * CSM was developed using R version > 4.3
 * CSM depends on many packages to work. However not all suggested packages are required to perform specific tasks.
 * CSM includes >100 functions organized in 6+1 modules.
-* CSM provides several datasets to test function capabilities.
+* CSM provides several images and datasets to test function capabilities.
 * You can install CSM in R using
 ```diff
 devtools::install_github(Alvaro-LJ/CSM)
@@ -59,7 +59,7 @@ devtools::install_github(Alvaro-LJ/CSM)
   - Divide tissue into compartments according to a single cell type (for example Tumor/stromal compartments).
 
 ## Publication
-To see examples of use of CSM you can have a look at our associated publication [*publication*](publicationURL).<br />
+To see examples of use of CSM you can have a look at our associated [*publication*](publicationURL).<br />
 Also this publication has an associated GitHub [*repository*](CSMrepositoryURL) where user can find test datasets and examples of use of CSM.
 
 ## Citation

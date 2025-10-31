@@ -8,7 +8,7 @@
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage(
     cat(
-      stringr::str_c("CSM (version ", utils::packageDescription("CSM")$Version, ")", " loaded"),
+      stringr::str_c("Comprehensive Spatial Methods - CSM (version ", utils::packageDescription("CSM")$Version, ")", " loaded"),
       "",
       "Please see package help with help(package = 'CSM')",
       "",
