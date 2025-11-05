@@ -67,7 +67,7 @@ Tile_to_image_cell_arrange_function <-
         }) %>%
           dplyr::arrange(desc(N_tiles)))[1,1]
       Overlap_check_tibble <-
-        Look_up_table %>% dplyr::filter(New_Subject_Names == Selected_image,
+        Look_up_table %>% dplyr::filter(New_Subject_Names == unlist(Selected_image),
                                         Tile_ID %in% c("Tile1", "Tile2"))
       #Check if the unique values of the min position of X and T tiles is identical to the size of the tiles
       X_Overlap <-
@@ -118,7 +118,7 @@ Tile_to_image_cell_arrange_function <-
             Cells_in_conflict_area_Y <- purrr::pmap(Y_conflict_tibble, function(From_y, To_y) Image_data$New_Y >= From_y & Image_data$New_Y <= To_y)
 
             #reduce to a single vector
-            Cell_in_conflict_vector <- reduce(c(Cells_in_conflict_area_X, Cells_in_conflict_area_Y), function(A, B) A | B)
+            Cell_in_conflict_vector <- purrr::reduce(c(Cells_in_conflict_area_X, Cells_in_conflict_area_Y), function(A, B) A | B)
 
             #First we get the cells not in conflict and in conflict
             Cells_out_of_conflict <- Image_data %>% dplyr::filter(!unlist(Cell_in_conflict_vector))

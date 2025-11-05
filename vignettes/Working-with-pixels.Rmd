@@ -72,6 +72,7 @@ Before thresholding the pixels (either for tissue mask generation or target chan
 
 Tissue mask and target thresholding can be explored with the dedicated shiny APP. To deploy it run the following:
 ```{r APP, eval = FALSE}
+#Can only run in an interactive setting
 Image_thresholding_app_launcher(
     Directory = Input_Dir,
     Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
@@ -122,6 +123,7 @@ If the thresholds are multilevel, the function will calculate the distance to th
 
 Before executing the function will take the image with the smallest number of cells to compute a test. Use the test to check if image needs to be 
 rotated or fliped or if pixel_distance_ratio needs to be adjusted. If satisfied interact with the menu to proceed with the computation.
+
 ```{r Distance_pixel, eval = FALSE}
 #Can only run in an interactive setting
 Cell_to_pixel_distance_calculator(
@@ -134,5 +136,154 @@ Cell_to_pixel_distance_calculator(
     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
     Pixel_distance_ratio = NULL
  )
+```
+
+## Analyzing mean (Fluorescence) intensity (MFI)
+Mean pixel intensity can summarize feature expression in every image. MFI is calculated using the `MFI_Experimet_Calculator()`.
+By default the MFI is calculated taking into account foreground pixels.However, users can define specific tissue compartments 
+where MFI should be analyzed. Compartments are generated using single or multiple image channels that are thresholded following 
+similar approaches as for tissue mask. These are provided as a list to the Targte_masks argument.
+
+In the following example the MFI of GZMB is calculated in a the CK-EPCAM and CD8a tissue compartment. This will translate as
+the mean GZMB expression of CD8a lymphocytes that reside in the tumor.
+
+```{r MFI_example, evaluate = TRUE}
+#Generate the tissue compartment arguments
+Target_mask_list <- list(CK = list(Mask_name = "CK-EPCAM",
+                                  Threshold_type = "Arbitrary",
+                                  Threshold_value = 0.1,
+                                  Blurr = TRUE,
+                                  Sigma = 1),
+                      CD8 = list(Mask_name = "CD8a",
+                                 Threshold_type = "Arbitrary",
+                                 Threshold_value = 0.001,
+                                 Blurr = TRUE,
+                                 Sigma = 1)
+)
+
+
+#Then calculate the MFI---------------------------
+MFI_Experimet_Calculator(
+   N_cores = 1,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Target_channel = "GZMB",
+
+   Target_masks = Target_mask_list,
+
+   Threshold_type_tissueMask = "Arbitrary",
+   Threshold_value_tissueMask = 0.01,
+   Blurr_tissueMask = TRUE,
+   Sigma_tissueMask = 0.5
+)
+```
+
+## Calculating the intersection or outersection of binary thresholded images
+
+Binary thresholded images (not multilevel thresholded) can be combined using `Binary_threshold_image_combinator()`.
+The function aims to combine the thresholded images present in different directories (one directory for every thresholded target).
+As many targets can be combined as desired by the user. The user must define the operators required to compute the combination.
+Available operators are "AND" (Image intersection), "OR" (Image combination), or "NOT" (Image outersection). Operators are used sequentially.
+This means that Target_A AND Target_B OR Target_C returns a different result to Target_C OR Target_B AND Target_A.
+
+```{r Multi_thres, eval = FALSE}
+# Create temporary input and output directories
+Output_Dir_CK <- tempfile(pattern = "tempdir2_Output")
+Output_Dir_CD8 <- tempfile(pattern = "tempdir3_Output")
+Output_Dir_GZMB <- tempfile(pattern = "tempdir4_Output")
+Output_Dir_Intersect <- tempfile(pattern = "tempdir5_Output")
+
+dir.create(Output_Dir_CK, recursive = TRUE)
+dir.create(Output_Dir_CD8, recursive = TRUE)
+dir.create(Output_Dir_GZMB, recursive = TRUE)
+dir.create(Output_Dir_Intersect, recursive = TRUE)
+
+#Generate binary threshold images for CK, CD8 and GZMB
+Pixel_Threshold_calculator(N_cores = 1,
+                          Directory = Input_Dir,
+                          Ordered_Channels =
+                            c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Channels_to_keep =
+                            c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Target_channel = "CK-EPCAM",
+
+                          Save_processed_images = TRUE,
+                          Output_Directory = Output_Dir_CK,
+
+                          Local_thresholding = FALSE,
+                          Threshold_type = "Arbitrary",
+                          Threshold_value = 0.1,
+
+                          Threshold_type_tissueMask = "Absolute",
+                          Blurr_tissueMask = TRUE,
+                          Sigma_tissueMask = 0.5,
+
+                          Blurr_target = FALSE
+)
+
+Pixel_Threshold_calculator(N_cores = 1,
+                          Directory = Input_Dir,
+                          Ordered_Channels =
+                            c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Channels_to_keep =
+                            c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Target_channel = "CD8a",
+
+                          Save_processed_images = TRUE,
+                          Output_Directory = Output_Dir_CD8,
+
+                          Local_thresholding = FALSE,
+                          Threshold_type = "Arbitrary",
+                          Threshold_value = 0.1,
+
+                          Threshold_type_tissueMask = "Absolute",
+                          Blurr_tissueMask = TRUE,
+                          Sigma_tissueMask = 0.5,
+
+                          Blurr_target = FALSE
+)
+
+Pixel_Threshold_calculator(N_cores = 1,
+                          Directory = Input_Dir,
+                          Ordered_Channels =
+                            c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Channels_to_keep =
+                            c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+                          Target_channel = "GZMB",
+
+                          Save_processed_images = TRUE,
+                          Output_Directory = Output_Dir_GZMB,
+
+                          Local_thresholding = FALSE,
+                          Threshold_type = "Arbitrary",
+                          Threshold_value = 0.1,
+
+                          Threshold_type_tissueMask = "Absolute",
+                          Blurr_tissueMask = TRUE,
+                          Sigma_tissueMask = 0.5,
+
+                          Blurr_target = FALSE
+)
+
+
+#Generate the intersects
+#Can only run interactively
+Binary_threshold_image_combinator(
+    Dir1 = Output_Dir_CK,
+    Dir2 = Output_Dir_CD8,
+    Dir3 = Output_Dir_GZMB,
+    Save_processed_images = TRUE,
+    Output_Directory = Output_Dir_Intersect,
+    Operators = c("AND", "OR"),
+    N_cores = 1
+)
+
+#Check the files created
+list.files(Output_Dir_Intersect)
+
+#Remove directories
+unlink(c(Input_Dir, Output_Dir_CK, Output_Dir_CD8, Output_Dir_GZMB, Output_Dir_Intersect),
+recursive = TRUE)
 ```
 

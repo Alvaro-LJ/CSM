@@ -1,0 +1,118 @@
+---
+title: "Working-with-large-images"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working-with-large-images}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Introduction
+Working with large images can be painful in R. Whole slide images can exceedingly large (up to docens of Gb). This
+can easily saturate RAM memory. Indeed many popular image handling R packages (like EBImage or magick) have image size
+limits that can be easily exceeded by whole slide images. 
+
+CSM has inbuilt pipelines work with this situation.CSM implements functions to chop large images into manageable tiles. 
+After image processing (either cell segmentation, cell phenotype labeling or image pixel thresholding), cell or image 
+pixel information can be re-assembled to the original whole slide coordinates.
+
+## Check computing resources available
+It is always a good idea to first check the CPU and RAM available.
+
+```{r check, eval = TRUE}
+Describe_my_computing_unit()
+```
+
+## Chopping large images
+`Image_tile_deconstruction_function()` divides all the images in a directory into tiles. User can select the tile size (in pixels),
+the image channels to keep and the tile overlap. The smaller the tile size the easier it will be to work with the resulting chopped images,
+at the cost of increased total tile number. If cell segmentation is going to be performed, tile overlap may be a good idea to
+segmentation artifacts due to edge proximity. Cell redundancy will be corrected in subsequent steps. 
+
+If RGB images need to be chopped, all RGB channels will be kept.
+
+```{r chop, eval = FALSE}
+#Can only run in an interactive setting
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Input_Dir, recursive = TRUE)
+dir.create(Output_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Perform tiling---------------------------------------------------
+Image_tile_deconstruction_function(
+   Directory = Input_Dir,
+   Output_directory = Output_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   RGB_Color_images = FALSE,
+   Tile_pixel_size = 250,
+   Tile_Overlap = 50,
+   N_cores = 1
+)
+
+#Check that files have been created-----------------------------------------
+list.files(Output_Dir)
+```
+
+## Cell segmentation using tiled images
+Cell segmentation and feature extraction proceeds as usual.
+```{r Segment, eval = FALSE}
+#Can only run in an interactive setting
+Cell_DATA_tiles <- 
+  Cell_segmentator_quantificator(
+    Directory = Output_Dir,
+    Parameter_list = CSM_SegmentParams_test,
+    N_cores = 1,
+    quantiles_to_calculate = 0.5
+)
+```
+
+After cell segmentation has been performed,  format the output using the `Data_arrange_function()`. Then, original cell coordinates can
+be obtained by running `Tile_to_image_cell_arrange_function()`. If tile overlap is detected,redundant cells (sharing spatial coordinates)
+will be removed automatically. In addition, if there is tile overlap, cells close to a shared tile edge can be removed according to
+user preferences (with the Dist_to_edge argument). The function works based on the information contained in the file name.
+Manipulating the name can result in unexpected results. PLEASE AVOID FILE NAME MODIFICATIONS!
+```{r Reassign_coordinates, eval = FALSE}
+#Can only run in an interactive setting
+#Arrange data
+Cell_DATA_tiles <- 
+  Data_arrange_function(
+    DATA = Cell_DATA_tiles,
+    X = 'm.cx',
+    Y = "m.cy",
+    Subject_Names = "imageID",
+    Markers_to_keep = c("CK-EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE")
+)
+
+#Return to original image X Y coordinates
+Cell_DATA_WholeImage <-
+  Tile_to_image_cell_arrange_function(
+    DATA = Cell_DATA_tiles,
+    Dist_to_edge = 20
+)
+
+#Check that results are OK
+Cell_DATA_WholeImage %>% 
+  dplyr::filter(Subject_Names == "ABCM22001_B09_MiniCrop.tiff") %>%
+  ggplot2::ggplot(ggplot2::aes(x = X, y = Y)) + ggplot2::geom_point()
+
+```
+
