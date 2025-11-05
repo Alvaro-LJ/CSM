@@ -1,5 +1,5 @@
 ---
-title: "Working-with-pixels"
+title: "Working with pixels"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Working-with-pixels}
@@ -13,6 +13,17 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+## Index
+
+- [Introduction](#introducción)
+- [Test dataset info](#test-datasets)
+- [Pixel thresholding and quantification](#thresholding-and-quantifying-pixels)
+- [Combining pixel and cell information](#combining-pixel-information-with-cell-location)
+- [Mean feature intensity analysis](#analyzing-mean-fluorescence-intensity-mfi)
+- [Binary threshold image combination](#calculating-the-intersection-or-outersection-of-binary-thresholded-images)
+
+
 
 ## Introduction
 
@@ -138,7 +149,7 @@ Cell_to_pixel_distance_calculator(
  )
 ```
 
-## Analyzing mean (Fluorescence) intensity (MFI)
+## Analyzing mean Fluorescence intensity-MFI
 Mean pixel intensity can summarize feature expression in every image. MFI is calculated using the `MFI_Experimet_Calculator()`.
 By default the MFI is calculated taking into account foreground pixels.However, users can define specific tissue compartments 
 where MFI should be analyzed. Compartments are generated using single or multiple image channels that are thresholded following 
