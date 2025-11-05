@@ -53,9 +53,9 @@ Foreground or tissue mask pixels are defined as pixels containing genuine tissue
 Tissue area is required to calculate % of positive pixels per image and MFI.
 Tissue mask pixels can be obtained by using all or a subset of image channels. These channels are pooled together by adding them and normalizing by the total number of channels used. Three methods can be used to obtain the tissue mask:
 
-* Otsu: Runs the Otsu algorithm from the EBImage R package.
-* Arbitrary: The user sets a single threshold value that is applied.
-* Absolute: Any pixel with a value above 0 will be considered to be a foreground pixel.
+* Otsu: Runs the Otsu algorithm from the EBImage R package.It works great when there is a balanced number of foreground/background pixels.
+* Arbitrary: The user sets a single threshold value that is applied. 
+* Absolute: Any pixel with a value above 0 will be considered to be a foreground pixel. Works well in images with very little noise.
 
 Pixel thresholding will allow the user to quantify the total positive pixels for every image in a dataset. 
 Pixel thresholding can be performed in various ways:
@@ -64,12 +64,75 @@ Pixel thresholding can be performed in various ways:
 * Arbitrary: The user can set a single threshold or a multi-level threshold.
 * Multilevel: Calculates multi-level thresholds using the  imagerExtra::ThresholdML function.
 
-Before thresholding the pixels (either for tissue mask generation or target channel thresholding), Gaussian blur can be applied.
+For non-arbitrary approaches, thresholds can be computed locally (a unique threshold is calculated for every image) or globally (a single threshold)
+for all the images in the dataset. Global thresholds are usually preferred as local thresholds can capture image specific patterns that are not
+generizable. However, global thresholding is more computationally demanding.
+
+Before thresholding the pixels (either for tissue mask generation or target channel thresholding), Gaussian blur can be applied.This can smooth borders of tissue masks and reduce salt and pepper noise of the target before proceeding.
 
 Tissue mask and target thresholding can be explored with the dedicated shiny APP. To deploy it run the following:
 ```{r APP, eval = FALSE}
-
+Image_thresholding_app_launcher(
+    Directory = Input_Dir,
+    Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
 ```
 
+After exploring thresholding possibilities thresholds can be calculated using the `Pixel_Threshold_calculator()`. The function will
+return a summary of the number pixels above the threshold value and the total amount of foreground pixels. In addition, the user can save the
+thresholded images generated in the process which can be used to combine the pixel information with cell location information.
 
+In the following example we will threshold the CK-EPCAM channel with an arbitrary threshold. The tissue mask will be generated using an absolute
+threshold. Blurring will only be applied to the tissue mask generation process.
+
+```{r Threshold, eval = TRUE}
+#Generate a temporary output directory
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+Pixel_Threshold_calculator(
+     N_cores = 1,
+     Directory = Input_Dir,
+     Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+     Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+     Target_channel = "CK-EPCAM",
+
+     Save_processed_images = TRUE,
+     Output_Directory = Output_Dir,
+
+     Local_thresholding = FALSE,
+     Threshold_type = "Arbitrary",
+     Threshold_value = 0.02,
+
+     Threshold_type_tissueMask = "Absolute",
+     Threshold_value_tissueMask = 0.001,
+     Blurr_tissueMask = TRUE,
+     Sigma_tissueMask = 0.5,
+     Blurr_target = FALSE
+)
+
+list.files(Output_Dir)
+```
+
+## Combining pixel information with cell location
+
+Once images have been thresholded, users can combine the pixel information with cell location.
+The `Cell_to_pixel_distance_calculator()` will allow users to calculate the distance to between cells and the closest positive pixel.
+If the thresholds are multilevel, the function will calculate the distance to the closest pixel for every non-zero pixel value.
+
+Before executing the function will take the image with the smallest number of cells to compute a test. Use the test to check if image needs to be 
+rotated or fliped or if pixel_distance_ratio needs to be adjusted. If satisfied interact with the menu to proceed with the computation.
+```{r Distance_pixel, eval = FALSE}
+#Can only run in an interactive setting
+Cell_to_pixel_distance_calculator(
+    N_cores = 1,
+    Directory = Output_Dir,
+    Image_rotate = 90,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE,
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+    Pixel_distance_ratio = NULL
+ )
+```
 

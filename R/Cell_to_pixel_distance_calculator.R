@@ -189,7 +189,7 @@ Cell_to_pixel_distance_calculator <-
       #Also note the target being measured (used to name distance column in final result)
       Target_being_measured <- Image_names_selected_list[[1]][[3]]
 
-      #Check that thresholded images have positive pixels and check that images have adequate numer of target cells
+      #Check that thresholded images have positive pixels and check that images have adequate number of target cells
       #If no phenotypes present in image remove images
       Images_with_cells <-
         purrr::map_lgl(Names_tibble$Subject_names_in_data, function(Image_name_in_subject){
