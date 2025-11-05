@@ -7,6 +7,13 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -20,7 +27,7 @@ library(CSM)
 
 ## Index
 
-- [Introduction](#introducción)
+- [Introduction](#introduction)
 - [Test dataset info](#test-datasets)
 - [Check computing resources](#check-computing-resources-available)
 - [Chopping large images](#chopping-large-images)
@@ -157,6 +164,7 @@ recommended.
 If images are being chopped to be easily thresholded, overlap between images is not supported. Although no error will be thrown by the 
 related functions, the re-build process of overlapping tiles will result in aberrant re-assembled images.
 ```{r Tile_threshold, eval = FALSE}
+#Can only run in an interactive setting
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 Output_Dir_tiles <- tempfile(pattern = "tempdir2_Output")
 Output_Dir_tiles_thresholded <- tempfile(pattern = "tempdir3_Output")
@@ -221,4 +229,3 @@ list.files(Output_Dir_reconstruction)
 #Remove directories---------------------------------------------------------
 unlink(c(Input_Dir, Output_Dir_tiles, Output_Dir_tiles_thresholded, Output_Dir_reconstruction), recursive = TRUE)
 ```
-
