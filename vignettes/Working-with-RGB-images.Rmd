@@ -1,0 +1,38 @@
+---
+title: "Working with RGB images"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working-with-RGB-images}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introducción)
+- [Color channel extraction APP](#test-datasets)
+- [Performing channel extraction](#check-computing-resources-available)
+- [Cell segmentation based on channels](#chopping-large-images)
+
+## Introduction
+RGB color images are another source of image information. CSM provides tools to extract different channels from
+RGB color images according to different colors. This can be used to separate hematoxylin and eosin channels from 
+conventional HE stained tissues, or to obtain hematoxylin and Diaminobenzidine color channels from immunohistochemical images.
+These channels can be used for subsequent pixel based analysis or even to perform cell segmentation if adequate nuclear
+channels can be obtained.
+
+## The channel extraction testing APP
+CSM implements a dedicated shiny App to explore how color channels can be extracted and generate the parameters that can be then applied
+to all the images in the dataset.
+
