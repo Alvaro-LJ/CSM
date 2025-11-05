@@ -69,6 +69,7 @@ Suggests:
     imager,
     imagerExtra,
     imcRtools,
+    knitr,
     lisaClust,
     lme4,
     magick,
@@ -88,6 +89,7 @@ Suggests:
     recipes,
     remotes,
     rJava,
+    rmarkdown,
     Rmixmod,
     rtree,
     S4Vectors,
@@ -120,3 +122,4 @@ Depends:
     R (>= 3.5)
 LazyData: true
 LazyDataCompression: xz
+VignetteBuilder: knitr

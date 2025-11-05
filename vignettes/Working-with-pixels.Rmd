@@ -1,0 +1,75 @@
+---
+title: "Working-with-pixels"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working-with-pixels}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This vignette explains the how the main functions in CSM work to perform pixel based analyses.
+Pixel analysis may be required for extra-cellular features (like for example measuring collagen proteins).
+There are two main approaches to pixel analysis in CSM. First, pixels can be thresholded and quantified. Second Mean (Fluorescence) pixel 
+intensity (MFI) can be analysed.
+
+For any approach used, a tissue mask defining foreground and background pixels needs to be created first. Any pixel considered to be
+background will be ignored in the analysis.
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Test datasets
+
+The test datasets we will be using comprise to small 500x500 pixels breast carcinoma images. They have been stained with a multiplexed
+immunofluorescence technique for the following markers: "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+```{r Images, results='hide'}
+#Generate a temporary directory to place the input images
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+```
+
+## Thresholding and quantifying pixels
+
+Foreground or tissue mask pixels are defined as pixels containing genuine tissue information. They are required to estimate the tissue area.
+Tissue area is required to calculate % of positive pixels per image and MFI.
+Tissue mask pixels can be obtained by using all or a subset of image channels. These channels are pooled together by adding them and normalizing by the total number of channels used. Three methods can be used to obtain the tissue mask:
+
+* Otsu: Runs the Otsu algorithm from the EBImage R package.
+* Arbitrary: The user sets a single threshold value that is applied.
+* Absolute: Any pixel with a value above 0 will be considered to be a foreground pixel.
+
+Pixel thresholding will allow the user to quantify the total positive pixels for every image in a dataset. 
+Pixel thresholding can be performed in various ways:
+
+* Otsu: Calculates the threshold using the Otsu method implemented in EBImage R package.
+* Arbitrary: The user can set a single threshold or a multi-level threshold.
+* Multilevel: Calculates multi-level thresholds using the  imagerExtra::ThresholdML function.
+
+Before thresholding the pixels (either for tissue mask generation or target channel thresholding), Gaussian blur can be applied.
+
+Tissue mask and target thresholding can be explored with the dedicated shiny APP. To deploy it run the following:
+```{r APP, eval = FALSE}
+
+```
+
+
+
