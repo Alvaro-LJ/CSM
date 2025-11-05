@@ -11,7 +11,7 @@
 
 ## Main features and requirements
 * CSM was developed using R version > 4.3
-* CSM depends on many packages to work. However not all suggested packages are required to perform specific tasks.
+* CSM dependencies are extense. However not all suggested packages are required to perform specific tasks. Functions will return an error if packages they depend on are not installed.
 * CSM includes >100 functions organized in 6+1 modules.
 * CSM provides several images and datasets to test function capabilities.
 * You can install CSM in R using
@@ -56,10 +56,10 @@ devtools::install_github(Alvaro-LJ/CSM)
   
 - MODULE 6: Neighborhood analysis and tissue structures
   - Calculate cellular neighborhoods using various algorithms
-  - Divide tissue into compartments according to a single cell type (for example Tumor/stromal compartments).
+  - Divide tissue into compartments according to a single cell type (for example Tumor/Stromal compartments).
 
 ## Publication
-To see examples of use of CSM you can have a look at our associated [*publication*](publicationURL).<br />
+To see examples of use of CSM you can have a look at CSM associated [*publication*](publicationURL).<br />
 Also this publication has an associated GitHub [*repository*](https://github.com/Alvaro-LJ/Comprehensive-Spatial-Methods-CSM-) where user can find test datasets and examples of use of CSM.
 
 ## Citation
@@ -77,11 +77,11 @@ Please cite this paper in case our method or parts of it were helpful in your wo
 
 If you encounter any bugs or unexpected behavior, please help us improve by reporting them! <br />
 
-You can report issues directly through the [GitHub Issues page](https://github.com/Alvaro-LJ). When submitting a bug report, please include:
+You can report issues directly through the [GitHub Issues page](https://github.com/Alvaro-LJ/CSM/issues). When submitting a bug report, please include:
 
 - A clear description of the problem
 - A Min-Reprex demonstrating the abnormal behavior
-- Your environment (OS, Rversion)
+- Your environment (OS, R version)
 
 We appreciate your feedback and contributions!
 
