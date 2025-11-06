@@ -1,0 +1,37 @@
+---
+title: "Calculating tissue heterogeneity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Calculating-tissue-heterogeneity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r setup, results = 'hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Global heterogeneity](#global-heterogeneity)
+- [Spatial heterogeneity](#spatial-heterogeneity)
+    - [Tile-based](#Tile-based)
+    - [Texture features](#texture-features)
+    - [SPIAT-based](#spiat-based)
+
+***

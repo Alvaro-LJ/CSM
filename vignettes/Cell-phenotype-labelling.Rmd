@@ -1,0 +1,44 @@
+---
+title: "Cell phenotype labelling"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cell-phenotype-labelling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results= 'hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Phenotyping by positive feature pattern](#normalizing-using-mxnorm)
+    - [Thresholding features](#feature-thresholding)
+    - [Finding recurrent patterns](#finding-recurrent-patterns)
+    - [Assign cell labels](#assign-cell-labels)
+- [Unsupervised clustering](#unsupervised-clustering)
+    - [Two-step clustering](#two-step-clustering)
+- [CELESTA semi-supervised clustering](#celesta)
+- [After cell phenotype labelling](#after-cell-phenotype-labelling)
+    - [Phenotype evaluation app](#phenotype-evaluation-app)
+    - [Concordance evaluation](#concordance-evaluation)
+    - [Labelling by consensus](#labelling-by-consensus)
+    - [Quantification & visualization](#quantification-&-visualization)
+
+***

@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 - [Mean feature intensity analysis](#analyzing-mean-fluorescence-intensity-mfi)
 - [Binary threshold image combination](#calculating-the-intersection-or-outersection-of-binary-thresholded-images)
 
-
+***
 
 ## Introduction
 

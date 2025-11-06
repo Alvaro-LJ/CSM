@@ -1,0 +1,41 @@
+---
+title: "Cell-to-cell spatial interaction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cell-to-cell-spatial-interaction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Cell-to-cell spatial interaction analysis](#cell-to-cell-spatial-interaction-analysis)
+    - [Distance matrix-based analysis](#distance-matrix-based-analysis)
+    - [Cumulative interaction-base analysis](#cumulative-interaction-base-analysis)
+    - [Gcross function](#gcross-function)
+    - [Ripley's K](#ripleys-k-function)
+- [Multi-level modelling](#multi-level-modelling)
+- [Three better than two](#Thriad-analysis)
+- [SPIAT-based](#spiat-based)
+
+***

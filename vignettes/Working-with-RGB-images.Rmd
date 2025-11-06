@@ -32,6 +32,8 @@ library(CSM)
 - [Performing channel extraction](#performing-channel-extraction)
 - [Cell segmentation based on channels](#cell-segmentation-based-on-channels)
 
+***
+
 ## Introduction
 RGB color images are another source of image information. CSM provides tools to extract different channels from
 RGB color images according to different colors. This can be used to separate hematoxylin and eosin channels from 

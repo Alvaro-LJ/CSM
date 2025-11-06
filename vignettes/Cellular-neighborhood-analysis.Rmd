@@ -1,0 +1,40 @@
+---
+title: "Cellular neighborhood analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cellular-neighborhood-analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Closest neighbor-based approach](#closest-neighbor-based-approach)
+    - [Conventional closest neighbors](#conventional-closest-neighbors)
+    - [UTAG](#utag)
+    - [Quantification](#quantification)
+- [Tiled-based approach](#tiled-based-approach)
+- [Global interaction pattern (imcRtools)](#global-interaction-pattern-(imcRtools))
+- [SPIAT-based](#spiat-based)
+
+***

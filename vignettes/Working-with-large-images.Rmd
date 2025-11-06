@@ -34,6 +34,8 @@ library(CSM)
 - [Cell segmentation using tiles](#cell-segmentation-using-tiled-images)
 - [Pixel thresholding using tiles](#pixel-thresholding-of-tiled-images-and-re-assembled-images)
 
+***
+
 ## Introduction
 Working with large images can be painful in R. Whole slide images can exceedingly large (up to docens of Gb). This
 can easily saturate RAM memory. Indeed many popular image handling R packages (like EBImage or magick) have image size
