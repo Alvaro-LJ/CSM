@@ -185,7 +185,7 @@ Clustering_Phenotyper <-
     }
     if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
     if(Cluster_on_Reduced){
-      if(!Perform_Dimension_reduction) stop("If Clustering needst o be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
+      if(!Perform_Dimension_reduction) stop("If Clustering needs to be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
     }
     #Check specific arguments and suggested packages
     if(Strategy == "Consensus_Clustering"){
