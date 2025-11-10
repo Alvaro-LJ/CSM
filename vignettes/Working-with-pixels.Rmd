@@ -19,6 +19,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
 ## Index
 
 - [Introduction](#introduction)
@@ -34,20 +39,20 @@ knitr::opts_chunk$set(
 
 This vignette explains the how the main functions in CSM work to perform pixel based analyses.
 Pixel analysis may be required for extra-cellular features (like for example measuring collagen proteins).
-There are two main approaches to pixel analysis in CSM. First, pixels can be thresholded and quantified. Second Mean (Fluorescence) pixel 
-intensity (MFI) can be analysed.
+There are two main approaches to pixel analysis in CSM. First, pixels can be thresholded and quantified. 
+Second Mean (Fluorescence) pixel intensity (MFI) can be analysed.
 
-For any approach used, a tissue mask defining foreground and background pixels needs to be created first. Any pixel considered to be
-background will be ignored in the analysis.
+For any approach used, a tissue mask defining foreground and background pixels needs to be created first. 
+Any pixel considered to be background will be ignored in the analysis.
 
-```{r setup, results='hide'}
-library(CSM)
-```
+Pixel analysis in CSM has been developed using the TIFF image format. However, other formats that are supported include
+png and jpeg.
 
 ## Test datasets
 
-The test datasets we will be using comprise to small 500x500 pixels breast carcinoma images. They have been stained with a multiplexed
-immunofluorescence technique for the following markers: "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The test datasets we will be using comprise to small 500x500 pixels breast carcinoma TIFF images. They have been 
+stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
 
 ```{r Images, results='hide'}

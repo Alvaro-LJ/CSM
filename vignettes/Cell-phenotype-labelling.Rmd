@@ -28,13 +28,14 @@ library(CSM)
 
 - [Introduction](#introduction)
 - [Test dataset info](#test-datasets)
-- [Phenotyping by positive feature pattern](#normalizing-using-mxnorm)
+- [Phenotyping by positive feature pattern](#phenotyping-by-positive-feature-pattern)
     - [Thresholding features](#feature-thresholding)
     - [Finding recurrent patterns](#finding-recurrent-patterns)
     - [Assign cell labels](#assign-cell-labels)
 - [Unsupervised clustering](#unsupervised-clustering)
     - [Two-step clustering](#two-step-clustering)
 - [CELESTA semi-supervised clustering](#celesta)
+- [Image-based supervised labelling](#image-based-supervised-labelling)
 - [After cell phenotype labelling](#after-cell-phenotype-labelling)
     - [Phenotype evaluation app](#phenotype-evaluation-app)
     - [Concordance evaluation](#concordance-evaluation)
@@ -42,3 +43,139 @@ library(CSM)
     - [Quantification & visualization](#quantification-&-visualization)
 
 ***
+
+## Introduction
+Cell phenotype labelling is a crucial step in spatial biology analysis. This process assigns
+an identity label to every cell of a dataset. Many of the analysis pipelines in CSM and elsewhere
+require cells to have an assigned phenotype label. CSM provides several ways to achieve labelling.
+
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The mean non-normalized intensity of CK, CD8a and GZMB will be used.
+
+```{r data, eval = TRUE}
+CSM_Arrangedcellfeaturedata_test
+```
+
+## Phenotyping by positive feature pattern
+This is one of the most popular methods to assign cell phenotypes in the field of
+flow cytometry. It requires setting thresholds for every feature. Cells showing a feature
+intensity above the threshold will be considered positive for that specific feature. After 
+thresholding feature positivity pattern can be used to assign a phenotype label to each
+cell. 
+
+Feature thresholding is well suited for experiments with few measured features and
+when the number cell phenotypes being identified is small. As the number of features
+increases the resulting number of different positivity patterns can be prohibitively
+large to work with. Users must understand that thresholding is usually a heavily supervised
+approach. If a large number of features need to be included in the analysis, unsupervised, CELESTA or 
+image-based supervised methods are preferred.
+
+### Feature thresholding
+Thresholding a feature basically means finding an adequate threshold to define positivity.
+CSM implements a wide repertoire of automatic threshold identification algorithms. Most of them
+are based on histogram analysis and try to reduce the within group variability compare to the
+between group variability. Most of the algorithms included in CSM come derive from greyscale image 
+binarization pipelines. 
+
+Some of the approaches are very restrictive like RenyiEntropy or MaxEntropy while others are very 
+tolerant like TriClass_Otsu or Huang. In addition, CSM implements methods that are not based on
+histogram analysis (like mean, quantile or arbitrary thresholds).
+
+In addition, thresholding can be executed in a LOCAL or in a GLOBAL manner. Local thresholding
+will calculate a unique threshold for every image in a dataset. In contrast, global thresholding
+will find a single threshold for all images in a dataset. In general, local thresholding is discouraged.
+Local thresholding can potentially find thresholds according to image-specific noisy features. Although
+global thresholding is also influenced by noise, it's more robust than local thresholding.
+
+In order to explore thresholding approaches the user can use the `Thresholding_tester_app()`.
+This app, can be used to explore images, cell ovearlays with feature intensity values and thresholding
+approach results.
+
+```{r app, eval = FALSE}
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app----------------------------------------------
+Thresholding_tester_app(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+```
+
+Once a thresholding approach has been found to be appropriate, it's time to perform
+thresholding. 
+
+CSM deploys to feature thresholding methods. The first applies the same thresholding
+strategy to all the features in the dataset and is executed using the `Thresholding_function()`.
+
+```{r simple_thres, eval = TRUE}
+DATA_Thresholded <- 
+  Thresholding_function(
+    DATA = CSM_Arrangedcellfeaturedata_test,
+    Strategy = "EBI_Otsu",
+    Local_thresholding = FALSE,
+    Method_autothreshold = NULL,
+    number_iterations_TriClass = NULL,
+    Percentile = NULL,
+    Defined_threshold = NULL,
+    Levels = NULL
+)
+DATA_Thresholded
+```
+
+However, it is commonplace that different features require different thresholding approaches.
+To address this situation, CSM implements `Thresholding_function_tailored()`. This function allows
+the user to apply specific thresholding methods to every feature in a dataset. To this end,
+the user must first generate a tibble (or dataframe) containing thresholding parameters for every feature being
+processed:
+```{r tailored_thres, eval = TRUE}
+Thresholding_strategy_tibble <-
+  tibble::tibble(
+    variable = names(CSM_Arrangedcellfeaturedata_test)[-(1:4)],
+    Strategy = c("TriClass_Otsu", "Kmeans", "Autothreshold"),
+    Local_thresholding = F,
+    Method_autothreshold = "Otsu",
+    number_iterations_TriClass = 20,
+    Percentile = NA,
+    Defined_threshold = NA,
+    Levels = NA
+)
+
+Thresholding_function_tailored(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Variables_tibble = Thresholding_strategy_tibble
+)
+```
+
+### Finding recurrent patterns
+Once features have been thresholded, the next step is to find recurrent 
+positivity patterns. These patterns are essentially the different cell phenotypes that
+can be found in the dataset. CSM finds these patterns using the `Marker_combinator_generator()`.
+The function can take a while to execute in very large datasets. The function will return
+the possibilities arranged by the abundance in the dataset.
+
+```{r Combin, eval = TRUE}
+Phenotype_possibilities <- Marker_combinator_generator(
+  DATA = DATA_Thresholded,
+  Markers = names(DATA_Thresholded)[-c(1:4)]
+)
+Phenotype_possibilities
+```
+
+
