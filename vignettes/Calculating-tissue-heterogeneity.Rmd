@@ -30,8 +30,110 @@ library(CSM)
 - [Test dataset info](#test-datasets)
 - [Global heterogeneity](#global-heterogeneity)
 - [Spatial heterogeneity](#spatial-heterogeneity)
-    - [Tile-based](#Tile-based)
+    - [Tile-based](#tile-based)
     - [Texture features](#texture-features)
     - [SPIAT-based](#spiat-based)
 
 ***
+
+## Introduction
+Tissue heterogeneity is one of the most complex areas in the field of spatial biology. In order
+to perform heterogeneity analysis cell phenotype labels must have been assigned (please see
+our dedicated vignette using 'vignette("Cell-phenotype-labelling")').
+
+Broadly, CSM heterogeneity analysis can be divided into GLOBAL heterogeneity (does not account for
+spatial information) and LOCAL or SPATIAL heterogeneity (takes into consideration the spatial dimension).
+
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The cells have been assigned a cell phenotype label
+by feature positivity pattern.
+
+```{r data, eval = TRUE}
+options(tibble.width = Inf)
+CSM_Phenotypecell_test
+```
+
+## Global heterogeneity
+Global heterogeneity metrics in CSM analyze the cell composition of samples to compute heterogeneity.
+Implemented metrics have various ways of defining heterogeneity:
+
+* __Richness and evenness metrics__: Includes Shannon, Simpson, Inverse Simpson, Renyi entropy,
+  and Rao indexes. These metrics take into account cell composition richness (the total number of different cell
+  types present in the sample) and evenness (the dominance of a single or very few cell types or in contrast the balance
+  between cell types). Different metrics combine these two factors in different ways to obtain the final metric.
+* __Evenness only metrics__: Gini index is the most representative of this type. Gini index analyzes the balance of the relative 
+  abundance of cell types in the sample.
+* __Observed vs Expected distribution metrics__: Includes Kullback-Leibler and Jensen-Shannon indexes. These metrics may quantify
+  the deviation from perfect balance between cell types or the deviation of the sample cell composition from the expected composition according
+  to the whole dataset.
+
+Global heterogeneity metrics can be computed using the `Global_heterogeneity_calculator()` function. It is of paramount importance 
+to understand that the number of phenotypes included in the analysis will heavily influence the final results.
+
+```{r global_het, eval = TRUE}
+Global_heterogeneity_by_sample <- 
+  Global_heterogeneity_calculator(
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype)
+    )
+Global_heterogeneity_by_sample
+```
+
+Afterwards, heterogeneity by sample can be quickly explored using the `Barplot_Heterogeneity_generator()`.
+```{r barplot_het, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Barplot_Heterogeneity_generator(
+   DATA = Global_heterogeneity_by_sample,
+   Metric = "Shannon"
+)
+```
+
+## Spatial heterogeneity
+Including the space dimension in heterogeneity analysis is not straightforward. CSM implements spatial
+heterogeneity in one of three ways:
+
+- **[Tile-based](#tile-based):** This approach divides the image into tiles and computes heterogeneity metrics
+  within this tiles. It can capture spatially restricted hot or cold spots. In addition, CSM implements tools
+  to analyze the spatial clustering of hot or cold heterogeneity spots. The implementation of the [SPIAT](#spiat-based) pipeline
+  in CSM is also based on image tiling.
+- **[Texture features](#texture-features):** Instead of cell composition, texture features analyzes the spatial distribution
+  heterogeneity of single cell types. It does so by first tiling the image and quantifying the abundance of cells within each
+  tile. This abundance by tile information is used to calculate the Grey-level co-ocurrence matrix (GLCM). GLCM is then analyzed
+  by calculating the average texture features. Texture features reflect different aspects of spatial distribution heterogeneity.
+    - __GLCM mean:__ The average amount of cells within the tiles (it just describes the chances of finding a cell within each tile, is not
+    actually a heterogeneity metric).
+    - __GLCM variance:__ The variance of the tile values within a sample (higher variance means that tile values are more dispersed).
+    - __GLCM homogeneity:__ The average value shift from tile values (higher values mean that tile values are homogeneous).
+    - __GLCM contrast:__ The average shift in value from neighboring tiles (high values mean there are sharp transitions between neighboring tile 
+    values).
+    - __GLCM dissimilarity:__ Similar to contrast but is less sensitive to very infrequent extreme variations.
+    - __GLCM entropy:__ Reflects tile complexity or randomness (the higher the value the more irregular distribution of tile values).
+    - __GLCM second moment:__ Also measures uniformity (high value means homogeneous tile values and low values means anarchy in tile value 
+    distribution).
+    - __GLCM correlation:__ Measures if tile values are predictable based on neighbors (high values indicate spatial clustering while low values
+    indicate random distributions).
+
+The choice of the approach will depend on the scientific question being analyzed. Tiled based approaches provide information of local heterogeneity
+patterns that can be missed in global analyses. On the other hand texture features provide a global summary of the spatial heterogeneity of a single
+cell type. Both approaches are complementary as they are aimed at different scientific questions. Indeed, the choice of including texture features
+as a type of spatial heterogeneity analysis is arbitrary. Some authors would better classify texture features as a type of homotypic cell to cell
+spatial interaction analysis. All in all some texture features recapitulate the chance of cell to cell spatial co-localization (like correlation).
+However, to our understanding, homotypic interactions are best analyzed in a more explicit manner (please see our dedicated vignette 
+using 'vignette("Cell-to-cell-spatial-interaction")'). Texture features provide information of the spatial dispersion or 
+clustering of a single cell type across the entire tissue area and therefore is closer to a spatial heterogeneity analysis.
+
+### Tile-based
+
+### Texture features
+
+### SPIAT-based
+
+
+
+
+
+

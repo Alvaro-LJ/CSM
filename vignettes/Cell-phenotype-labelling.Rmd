@@ -39,7 +39,7 @@ library(CSM)
     - [Phenotype evaluation app](#phenotype-evaluation-app)
     - [Concordance evaluation](#concordance-evaluation)
     - [Labeling by consensus](#labeling-by-consensus)
-    - [Quantification & visualization](#quantification-&-visualization)
+    - [Quantification & visualization](#quantification-and-visualization)
 
 ***
 
@@ -106,6 +106,8 @@ This app, can be used to explore images, cell ovearlays with feature intensity v
 approach results.
 
 ```{r app, eval = FALSE}
+#Can only run interactively
+
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 dir.create(Input_Dir, recursive = TRUE)
 
@@ -265,6 +267,8 @@ After performing the clustering, according to the output graphs, the user can ch
 `DATA_Phenotype_renamer()` function.
 
 ```{r re-namer, eval = FALSE}
+#Can only run interactively
+
 Clustering_results_DATA <-
   DATA_Phenotype_renamer(Clustering_results$DATA, 
                          c("OTHER", "TUMOR", "TUMOR", "CD8"))
@@ -283,6 +287,8 @@ formally evaluated by the function, features included in the re-clustering proce
 labels.
 
 ```{r Re-clustering, eval = FALSE}
+#Can only run interactively
+
 #Initial clustering based on CK and CD8a
 Clustering_results <-
   Clustering_Phenotyper(
@@ -336,6 +342,8 @@ as well as parameters related to algorithm sensitivity and specificity. Informat
 can be found at https://github.com/plevritis-lab/CELESTA. 
 
 ```{r template, eval = FALSE}
+#Can only run interactively
+
 CELESTA_template_generator(
    DATA = CSM_Arrangedcellfeaturedata_test,
    Markers_to_keep = c("CK_EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE"),
@@ -345,6 +353,8 @@ CELESTA_template_generator(
 
 After completing the template the CELESTA is executed using the `CELESTA_phenotyper()` function.
 ```{r CELESTA, eval = FALSE}
+#Can only run interactively
+
 DATA_Phenotypes <- 
   CELESTA_phenotyper(
     DATA = CSM_Arrangedcellfeaturedata_test, 
@@ -378,6 +388,8 @@ automatically match the names of the image files and the Subject_Names in data. 
 will pop-up before launch.
 
 ```{r model, eval = FALSE}
+#Can only run interactively
+
 #Create temporary directory
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 dir.create(Input_Dir, recursive = TRUE)
@@ -405,6 +417,8 @@ Using the App the phenotype label assign model can be created and saved in the G
 This model can then be used to phenotype all cells in the dataset using the `Model_cell_phenotyper()`.
 
 ```{r model_eval, eval = FALSE}
+#Can only run interactively
+
 print(CSM_ModelParam_test)
 
 #Use the model to assign cell labels to all cells in the dataset
@@ -415,8 +429,188 @@ Model_cell_phenotyper(
 )
 ```
 
+## After cell phenotype labelling
+Once cell phenotype labels have been assigned, users are encouraged to check that results are
+satisfactory before proceeding. Flawed cell phenotype labels usually result in low quality
+analyses. CSM implements tools to visually [evaluate](#phenotype-evaluation-app) phenotype labeling results, analyze
+[concordance](#concordance-evaluation) between methods, reach a final label choice between methods by [consensus](#labeling-by-consensus)
+and [quantifying](#quantification-and-visualization) results.
+
+### Phenotype evaluation App
+CSM implements a shiny App designed to evaluate phenotyping results. The app displays images, cell overlay with phenotype labels.
+In addition, sample summaries are shown and user can evaluate the feature expression values for selected cells.
+
+```{r Phenotype_app, eval = FALSE}
+#Can only run interactively
+
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app----------------------------------------------
+Phenotyping_evaluator_shiny_app_launcher(
+    DATA = CSM_Phenotypecell_test,
+    Directory = Input_Dir,
+    Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+```
+
+### Concordance evaluation
+If concordance between phenotyping methods is high, which method is finally chosen is irrelevant.
+In contrast, low concordance between methods may warrant further exploring the source of discrepancies.
+To analyze concordance, CSM implements to related functions. First `Concordance_calculator()` can be used to compute
+Rand or Fowlkes–Mallows concordance indexes between as many methods as desired. The function will return the median
+p25 and p75 between sample concordance as well as a heatmap to spot samples with high or low concordance values.
+Concordance evaluation will be fair as far as the cell phenotype labels are shared between the methods being compared.
+
+We will illustrate this by randomly assigning cell phenotype labels and checking that the FM index is low given that there
+are only 4 possible cell phenotypes in the dataset.
+
+```{r Concordance, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+library(magrittr)
+library(dplyr)
+#Generate datasets with random cell phenotype labels----------------------
+CSM_Phenotypecell_test_1 <-
+ CSM_Phenotypecell_test %>%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_2 <-
+ CSM_Phenotypecell_test %>%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_3 <-
+ CSM_Phenotypecell_test %>%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+
+#Find concordance between results--------------------------------------
+Concordance_calculator(
+  Random_1 = CSM_Phenotypecell_test_1,
+  Random_2 = CSM_Phenotypecell_test_2,
+  Random_3 = CSM_Phenotypecell_test_3,
+  Variable = "Phenotype",
+  Strategy = "FM"
+)
+```
 
 
+In addition, CSM implements the `Confusion_matrix_plotter()` function, that automatically draws a confusion matrix between
+two different methods.
+```{r Confusion, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+Confusion_matrix_plotter(
+  Random_1 = CSM_Phenotypecell_test_1,
+  Random_2 = CSM_Phenotypecell_test_2,
+  Variable = "Phenotype"
+)
+```
 
+### Labeling by consensus
+Although voting can be a flawed way of solving discrepancies (is better to analysze sources of conflict),it
+can be a good way to solve minor discordance between methods. It can also be a good way to address method 
+weaknesses by generating consensual choices. CSM implements consensus labeling through the 
+`Consensus_phenotype_assigner()` function. The function supports different ways of analyzing votes, as well as
+providing specific weights to highly confidence methods.
 
+```{r consensus, eval = FALSE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+#Can only run interactively
+DATA_Phenotypes_consensus <-
+  Consensus_phenotype_assigner(
+    Random_1 = CSM_Phenotypecell_test_1,
+    Random_2 = CSM_Phenotypecell_test_2,
+    Random_3 = CSM_Phenotypecell_test_3,
+    
+    Win_strategy = "Majority",
+    Weights = c(2,1,1),
+    No_consensus_value = NA_character_,
+    Tie_break_method = "Random",
+    N_cores = 1
+ )
+```
+
+### Quantification and visualization
+Once the phenotype labeling process is considered to be adequate, it's a good idea to quantify cell phenotypes.
+This can be easily done with the `Phenotype_quantifier()` function.
+
+```{r quantify, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+#Calculate tissue size 
+DATA_AREA <-
+  Image_size_calculator(
+    DATA = CSM_Phenotypecell_test,
+    Strategy = "Tiling",
+    Tile_accuracy = 100
+    )
+
+#Calculate the cell counts by image-------
+Phenotypes_by_Sample <-
+  Phenotype_quantifier(
+    DATA = CSM_Phenotypecell_test,
+    Calculate_Density = TRUE,
+    DATA_Area = DATA_AREA
+)
+Phenotypes_by_Sample
+```
+
+In addition, cell composition for every image can be used to obtain a barplot with the relative percentages of each cell type.
+```{r barplot, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+Barplot_generator(
+    DATA = Phenotypes_by_Sample,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg"),
+    Ordering_phenotype = "CD8_GZMBpos"
+)
+```
+
+Moreover, cells from individual images can be plotted with or without plotting the image.
+```{r images, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=10}
+#Without images
+Cell_plotter(
+   DATA = CSM_Phenotypecell_test,
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg", "OTHER")
+)
+
+#With images
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Draw the plot
+Cell_image_plot_generator(
+    Image_directory = dir(Input_Dir, full.names = TRUE)[2],
+    Channel_to_display = 5,
+    Image_rotate = NULL,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE,
+    Gamma_level = 0,
+    Equalize = FALSE,
+    Black_level = 1,
+    White_level = 20,
+
+    DATA = CSM_Phenotypecell_test,
+    Image_name ="ABCM22001_B14_MiniCrop.tif",
+    Color_by = "Phenotype",
+    Point_size = 2,
+    Pixel_distance_ratio = NULL
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+```
 
