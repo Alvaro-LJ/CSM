@@ -130,7 +130,7 @@ an histogram showing the feature distribution before and after normalization.
 Given the small sample size of the datasets used here (only two images) the evaluation of the normalization process can be hard.
 However, the principles presented here apply to larger datasets.
 
-```{r norm_diag, eval = TRUE}
+```{r norm_diag, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
 #First mxnorm diagnostics
 Normalization_diagnostics(Original_DATA = CSM_Arrangedcellfeaturedata_test,
                           Normalized_DATA = DATA_normalized_mx_norm

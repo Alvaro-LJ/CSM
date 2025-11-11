@@ -241,7 +241,7 @@ are hard to cluster. Denoising methods implemented in CSM are the following:
 Once the clustering method, denosing and dimension reduction strategy have been selected clustering is straightforward.
 Besides SOM and Graph-based clustering, all methods will try to estimate the adequate number of clusters to be computed.
 
-```{r clustering, eval = TRUE}
+```{r clustering, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
 Clustering_results <-
   Clustering_Phenotyper(
     DATA = CSM_Arrangedcellfeaturedata_test,
@@ -317,6 +317,105 @@ ReClustering_function(
     )
 
 ```
+
+After re-clustering execution, the new labels can be modified at will using the `DATA_Phenotype_renamer()` function.
+
+## CELESTA
+The CELl typE identification with SpaTiAl information (CELESTA) algorithm was developed by the
+Plevritis group (https://www.nature.com/articles/s41592-022-01498-z). In short, it assigns 
+cell labels based on target cell phenotype information provided by the user. The algorithm runs a 
+Gaussian Mixture Model to assign labels based on the information provided in sequential labeling rounds.
+
+The algorithm is computationally efficient. However, in our experience, parameter tuning is key
+to identify infrequent cell types. 
+
+There are two basic steps to execute CELESTA in CSM. First, the user needs to generate a CELESTA template.
+This is essentially a .csv file that needs to be fullfilled by the user with the target phenotypes information.
+Each row represents a target phenotype. Columns provide expected feature expression patterns of target phenotypes
+as well as parameters related to algorithm sensitivity and specificity. Information about completing the template
+can be found at https://github.com/plevritis-lab/CELESTA. 
+
+```{r template, eval = FALSE}
+CELESTA_template_generator(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Markers_to_keep = c("CK_EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE"),
+   Template_name = "Mypath/name_of_the_template" #.csv at the end is not required, the function will add it for you
+   )
+```
+
+After completing the template the CELESTA is executed using the `CELESTA_phenotyper()` function.
+```{r CELESTA, eval = FALSE}
+DATA_Phenotypes <- 
+  CELESTA_phenotyper(
+    DATA = CSM_Arrangedcellfeaturedata_test, 
+    Template_path = "Completed_template_path.csv",
+    Alternative_CSV_locale = TRUE, 
+    N_cores = 1, 
+    Apply_filters = TRUE, 
+    high_marker_threshold = 0.90, 
+    low_marker_threshold = 0.10, 
+    max_iteration = 10, 
+    cell_change_threshold = 0.01
+    )
+```
+
+Do not despair if results are not as expected. Obtaining satisfactory results using CELESTA is a matter
+of trial and error. Try modifying anchor parameters and labeling round strategy until success.
+
+## Image-based supervised labeling
+This approach relies on the ability of the user to inspect images and manually label different cell types.
+These labelled cells will be used to train a machine learning or deep learning algorithm. After training,
+the resulting model can be used to label all cells in the dataset.
+
+This approach is very powerful. It allows users to identify cells based on image findings. It can easily be trained
+to identify low abundance or complex phenotypes. In addition, it allows the algorithm to use not only cell information
+but also information of cell neighbors. This can be useful when cytoplasm segmentation is defective. However, it must be
+considered that manual labeling of cells is time consuming, and the model performance may be highly dependent on the number
+and quality of the cells selected for training.
+
+In order to generate the model CSM implements a dedicated shiny App (`Image_based_phenotyper_App_launcher()`). The app will
+automatically match the names of the image files and the Subject_Names in data. If missmatches are encountered a warning message
+will pop-up before launch.
+
+```{r model, eval = FALSE}
+#Create temporary directory
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app
+Image_based_phenotyper_App_launcher(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories
+unlink(Input_Dir, recursive = TRUE)
+```
+
+Using the App the phenotype label assign model can be created and saved in the Global Environment.
+This model can then be used to phenotype all cells in the dataset using the `Model_cell_phenotyper()`.
+
+```{r model_eval, eval = FALSE}
+print(CSM_ModelParam_test)
+
+#Use the model to assign cell labels to all cells in the dataset
+Model_cell_phenotyper(
+ DATA = CSM_Arrangedcellfeaturedata_test,
+ Model_parameters = CSM_ModelParam_test,
+ N_cores = 1
+)
+```
+
+
 
 
 
