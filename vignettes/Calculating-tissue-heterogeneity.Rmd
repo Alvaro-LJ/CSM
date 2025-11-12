@@ -235,7 +235,7 @@ Texture_features_calculator(
 )
 ```
 
-The results can also be graphicated
+The results can also be plotted.
 ```{r texture_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Tiled_images_graphicator(
    Tiled_images = Tiled_images,
@@ -263,7 +263,7 @@ SPIAT_Heterogeneity_Analyzer(
     N_cores = 1,
     DATA_SPIAT = DATA_SPIAT,
     DATA_Phenotypes = CSM_Phenotypecell_test,
-    Tile_size = 100,
+    Tile_size = 230,
     Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
     Entropy_threshold = 0.75,
     Autocorrelation_metric = "globalmoran"
