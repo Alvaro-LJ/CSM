@@ -41,3 +41,6 @@ Texture_features_calculator(
 }
 
 }
+\seealso{
+\code{\link[=Tiled_images_graphicator]{Tiled_images_graphicator()}}
+}

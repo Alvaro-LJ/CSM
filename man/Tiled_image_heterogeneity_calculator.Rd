@@ -53,3 +53,6 @@ Tiled_image_heterogeneity_calculator(
 }
 
 }
+\seealso{
+\code{\link[=Tiled_image_heterogeneity_analyzer]{Tiled_image_heterogeneity_analyzer()}}, \code{\link[=Tiled_image_heterogeneity_graph_maker]{Tiled_image_heterogeneity_graph_maker()}}
+}

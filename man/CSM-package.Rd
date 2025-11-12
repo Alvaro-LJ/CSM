@@ -11,13 +11,9 @@ Contains functions to perform tissue spatial analysis. Functions are organized i
 \author{
 \strong{Maintainer}: Alvaro Lopez-Janeiro \email{alopezj@unav.es} (\href{https://orcid.org/0000-0002-5744-3115}{ORCID})
 
-Authors:
-\itemize{
-  \item Paulo Perez-Dominguez \email{pperezdomin@unav.es}
-}
-
 Other contributors:
 \itemize{
+  \item Paulo Perez-Dominguez \email{pperezdomin@unav.es} [contributor]
   \item Eduardo Miraval \email{emiraval@unav.es} [contributor]
   \item Raluca Alexandru \email{ralexandru@unav.es} [contributor]
   \item Carlos E. de Andrea \email{ceandrea@unav.es} [contributor]

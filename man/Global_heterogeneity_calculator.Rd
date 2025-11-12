@@ -18,7 +18,7 @@ Generates a tibble containing heterogeneity metrics by image.
 The function calculates various heterogeneity metrics based on cell composition distribution. It does not take into account spatial information.
 }
 \details{
-Shannon, Simpson,Inverse Simpson and Renyi entropy indexes are calculated using the vegan package.
+Shannon, Simpson, Inverse Simpson and Renyi entropy indexes are calculated using the vegan package.
 
 Rao index is calculated using the picante::raoD function.
 

@@ -85,5 +85,5 @@ Cells_in_Radius_analyzer(
 
 }
 \seealso{
-\code{\link[=Distance_matrix_generator]{Distance_matrix_generator()}}, \code{\link[=Random_Distance_matrix_generator]{Random_Distance_matrix_generator()}}, \code{\link[=Cumulative_Interaction_generator]{Cumulative_Interaction_generator()}}
+\code{\link[=Distance_matrix_generator]{Distance_matrix_generator()}}, \code{\link[=Random_Distance_matrix_generator]{Random_Distance_matrix_generator()}}, \code{\link[=Cumulative_Interaction_generator]{Cumulative_Interaction_generator()}}, \code{\link[=Cell_to_Cell_graph_maker]{Cell_to_Cell_graph_maker()}}
 }
