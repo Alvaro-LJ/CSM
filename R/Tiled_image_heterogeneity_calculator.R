@@ -17,6 +17,8 @@
 #'
 #' @returns A list containing image information with by-tile heterogeneity metrics.
 #'
+#' @seealso [Tiled_image_heterogeneity_analyzer()], [Tiled_image_heterogeneity_graph_maker()]
+#'
 #' @examples
 #' \dontrun{
 #' #Divide cells into tiles---------

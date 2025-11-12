@@ -7,6 +7,8 @@
 #'
 #' @returns Returns a plot with the cells and the overlying tiles shaded according to the heterogeneity index.
 #'
+#' @seealso [Tiled_image_heterogeneity_graph_maker()], [Tiled_image_heterogeneity_analyzer()]
+#'
 #' @examples
 #' \dontrun{
 #' #Divide cells into tiles---------

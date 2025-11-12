@@ -12,6 +12,8 @@
 #'
 #' @returns A tibble containing the summary of the analysis
 #'
+#' @seealso [Tiled_image_heterogeneity_calculator()], [Tiled_image_heterogeneity_graph_maker()]
+#'
 #' @examples
 #' \dontrun{
 #' #Divide cells into tiles---------
