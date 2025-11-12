@@ -124,9 +124,100 @@ as a type of spatial heterogeneity analysis is arbitrary. Some authors would bet
 spatial interaction analysis. All in all some texture features recapitulate the chance of cell to cell spatial co-localization (like correlation).
 However, to our understanding, homotypic interactions are best analyzed in a more explicit manner (please see our dedicated vignette 
 using 'vignette("Cell-to-cell-spatial-interaction")'). Texture features provide information of the spatial dispersion or 
-clustering of a single cell type across the entire tissue area and therefore is closer to a spatial heterogeneity analysis.
+clustering of a single cell type across the entire tissue area.Therefore is closer to a spatial heterogeneity analysis.
 
 ### Tile-based
+The first step in any tile-based approach is to decide the tiling strategy. The width and height of tiles used in the analysis will have an impact
+in the result. Aggregating data into tiles is associated with an inherent bias usually referred to as 'Modifiable areal unit problem'
+(https://en.wikipedia.org/wiki/Modifiable_areal_unit_problem). Any modification in the shape (widht/height ratio) or size of our tiles will have an
+effect on the final result. Any time we aggregate cell information into tiles we are imposing a structure on the data. However, users should not refrain
+from tiling their data just because there is a potential bias. Just take into account this potential bias and it is always a good idea to check how
+tiling strategies may modify the final conclusions of the analysis.
+
+First the size of the tissue can be obtained using the `Image_length_calculator()` function.
+```{r length, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Image_length_calculator(DATA = CSM_Phenotypecell_test)
+```
+
+Afterwards, the target tile size can be approximated according to the desired number of rows and columns the tissue should be spitted into.
+This can be calculated using the smallest or the largest tissue in the dataset.
+
+```{r suggested, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Suggested_Tile_Size_Calculator(
+   CSM_Phenotypecell_test,
+   N_cols = 5,
+   N_rows = 5,
+   Based_on_smaller = TRUE,
+   Draw_preview = TRUE
+)
+```
+
+According to the results a tile of 100 pixels width and height will be selected. Then we perform our tiling process using the
+`Image_tiling_processing_function()`.
+```{r Tiling, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Tiled_images <-
+  Image_tiling_processing_function(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Tile_width = 100,
+    Tile_height = 100,
+    Variables_to_keep = "Phenotype"
+    )
+#Preview the first element of the resulting list
+Tiled_images[1]
+```
+Every element in the list represents a single image. Every image has two tibbles. The first contains tile information. The second contains cell tile assignment.
+There is a single unit overlap between tiles during the tiling processing. The reason for this is to account for potential decimals in the cell centroids that
+may cause dropping cells from the tiling analysis. Cells are assigned to the first tile where they are identified. Therefore cells cannot belong to multiple
+tiles.
+
+Once each cell has been assigned to a single tile the heterogeneity by tile can be computed.
+```{r tile_heterog, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Heterogeneity_by_tile <-
+  Tiled_image_heterogeneity_calculator(
+    Tiled_images = Tiled_images,
+    Minimum_cell_no_per_tile = 3,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+)
+#Print the results for the first image
+Heterogeneity_by_tile[1]
+```
+
+Once heterogeneity by tile has been computed it can be analyzed with `Tiled_image_heterogeneity_analyzer()`.
+```{r tile_heterog_analysis, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Analyze tiles above threshold
+Tiled_image_heterogeneity_analyzer(
+    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
+    Strategy = "Quantify_by_Threshold",
+    Metric = "Shannon",
+    Threshold = 0.75
+)
+
+#Analyze the overall pattern
+Tiled_image_heterogeneity_analyzer(
+    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
+    Strategy = "Overall_Summary",
+    Metric = "Shannon"
+    )
+```
+
+In addition, the heterogeneity by tile can also be graphicated.
+```{r tile_heterog_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Analyze tiles above threshold
+Tiled_image_heterogeneity_analyzer(
+    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
+    Strategy = "Quantify_by_Threshold",
+    Metric = "Shannon",
+    Threshold = 0.75
+)
+
+#Analyze the overall pattern
+Tiled_image_heterogeneity_analyzer(
+    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
+    Strategy = "Overall_Summary",
+    Metric = "Shannon"
+    )
+```
 
 ### Texture features
 
