@@ -41,6 +41,30 @@ library(CSM)
 ***
 
 ## Introduction
+Cell-to-cell spatial interaction analyses are a group of techniques aimed to identify simple cellular interactions.
+They can be used to address specific scientific questions. They usually require less computational resources compared
+to neighborhood analysis. 
+
+An important aspect of cell-to-cell spatial interaction analysis is the notion of Cell of Origin (COO) and target cell.
+These analytical tools require defining a cell type that will serve as the COO. The COO will be the pivotal
+cell type in the analysis. The target cell will be used as the variable being measured.  
+
+CSM implements several tools to approach cell-to-cell spatial interactions:
+
+* __[Basic distance analysis](#cell-to-cell-spatial-interaction-analysis):__ These are based on analyzing simple distance
+  patterns between two cell types. If the cell types are the same they are referred to as homotypic interactions. Of these 
+  the most popular metrics include calculating the average min distance between two cell populations and the cells in radius
+  analysis. Other possible tools implemented in CSM include calculating the Gcross or the Ripley's K function.
+* __[Multi-level modelling](#multi-level-modelling):__ Adds two extra layers of complexity to the analysis. First, it takes
+  into account the cellular density of the target cell that can partially explain spatial interaction. Second it analyzes the 
+  influence of image metadata on the spatial interaction. Multi-level imposes a nested data structure to the cell matrix, where
+  every COO has an associated spatial interaction, while belonging to an image with specific metadata and target cell density.
+* __[Three cell analysis](#Thriad-analysis):__ The principles are similar to those described in basic distance analysis.
+  However, this approach works with two target cells in stead of one.
+* __[SPIAT-based](#spiat-based):__ CSM ports the entropy gradient analysis implemented in the SPIAT package.
+
+
+
 
 
 
