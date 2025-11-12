@@ -202,21 +202,20 @@ Tiled_image_heterogeneity_analyzer(
 ```
 
 In addition, the heterogeneity by tile can also be graphicated.
-```{r tile_heterog_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
-#Analyze tiles above threshold
-Tiled_image_heterogeneity_analyzer(
-    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
-    Strategy = "Quantify_by_Threshold",
-    Metric = "Shannon",
-    Threshold = 0.75
+```{r tile_heterog_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Tiled_image_heterogeneity_graph_maker(
+    DATA = CSM_Phenotypecell_test,
+    Tiled_images = Heterogeneity_by_tile,
+    Image_name = "ABCM22001_B09_MiniCrop.tif",
+    Metric = "Shannon"
 )
 
-#Analyze the overall pattern
-Tiled_image_heterogeneity_analyzer(
-    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
-    Strategy = "Overall_Summary",
+Tiled_image_heterogeneity_graph_maker(
+    DATA = CSM_Phenotypecell_test,
+    Tiled_images = Heterogeneity_by_tile,
+    Image_name = "ABCM22001_B14_MiniCrop.tif",
     Metric = "Shannon"
-    )
+)
 ```
 
 ### Texture features
