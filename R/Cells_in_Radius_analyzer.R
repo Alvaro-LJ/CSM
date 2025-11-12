@@ -8,7 +8,7 @@
 #' @param Include_Random A logical value indicating if the Random background should be used.
 #' @param By_Sample_Random If a random background needs to be included, a logical value indicating if the random background should be calculated by sample or by experiment (see details).
 #'
-#' @seealso [Distance_matrix_generator()], [Random_Distance_matrix_generator()], [Cumulative_Interaction_generator()]
+#' @seealso [Distance_matrix_generator()], [Random_Distance_matrix_generator()], [Cumulative_Interaction_generator()], [Cell_to_Cell_graph_maker()]
 #'
 #' @details
 #' If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
