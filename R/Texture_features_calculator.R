@@ -11,6 +11,8 @@
 #'
 #' @returns A tibble containing averaged texture features by image.
 #'
+#' @seealso [Tiled_images_graphicator()]
+#'
 #' @examples
 #' \dontrun{
 #' #Divide cells into tiles-------------------------------------

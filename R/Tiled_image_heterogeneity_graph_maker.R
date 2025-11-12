@@ -76,5 +76,5 @@ Tiled_image_heterogeneity_graph_maker <-
                            low = "blue", high = "red", mid = "white",
                            midpoint = quantile(Tiles$value, 0.5))
     plot(PLOT)
-    invisible(return(PLOT))
+    return(invisible(PLOT))
   }

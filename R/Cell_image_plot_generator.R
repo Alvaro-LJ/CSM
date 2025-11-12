@@ -181,7 +181,7 @@ Cell_image_plot_generator <-
               axis.line = element_blank(),
               panel.grid = element_blank())
       plot(PLOT)
-      invisible(return(PLOT))
+      return(invisible(PLOT))
     }
 
   }
