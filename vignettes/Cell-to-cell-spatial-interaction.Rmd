@@ -63,8 +63,182 @@ CSM implements several tools to approach cell-to-cell spatial interactions:
   However, this approach works with two target cells in stead of one.
 * __[SPIAT-based](#spiat-based):__ CSM ports the entropy gradient analysis implemented in the SPIAT package.
 
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The cells have been assigned a cell phenotype label
+by feature positivity pattern.
+
+```{r data, eval = TRUE}
+CSM_Phenotypecell_test
+```
 
 
+## Cell-to-cell spatial interaction analysis
+There are several approaches to cell-to-cell distance analysis. 
+[Distance matrix-based analysis](#distance-matrix-based-analysis) requires computing a distance matrix between two cell types. 
+On the other hand, [Cumulative interaction-base analysis](#cumulative-interaction-base-analysis) requires computing 
+both a distance matrix and a cumulative interaction matrix.
+
+The distance matrix between two cell types can be computed using the `Distance_matrix_generator()` function.
+In this example the distance between CD8 cells and tumor cells will be calculated.
+```{r Distance_matrix, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Distance_matrix <- 
+  Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "CD8_GZMBneg",
+    Target_Cell = "TUMOR",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = FALSE
+)
+
+#Print the first element of the list
+Distance_matrix[[1]]
+```
+
+The cumulative interaction matrix quantifies the number of target cell encounters as the distance increases for every COO.
+It can be calculated using the `Cumulative_Interaction_generator()` function.
+```{r Cumulative, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Cumulative_interaction <- 
+  Cumulative_Interaction_generator(
+   N_cores = 1,
+   DATA = Distance_matrix,
+   Start_from = 25,
+   Stop_at = 100,
+   Sampling_frequency = 25
+)
+
+#Print the first element of the list
+Cumulative_interaction[[1]]
+```
+
+Before proceeding with the analysis a random background can be calculated. If cell phenotype labels were assigned
+randomly (keeping the cell densities intact) what would the distance and cumulative interaction matrices look like?
+We can calculate this using the `Random_Distance_matrix_generator()`. It permutes cell phenotype labels, selects a random
+COO and calculates the distances to all the randomly assigned target cells. The process is repeated as many times as 
+specified by the user for every sample in the dataset. In the following example we will calculate the random background by
+performing 30 random permutations by sample.
+
+```{r Random_matrix, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+RANDOM_dist_matrix <-
+  Random_Distance_matrix_generator(
+   N_cores = 1,
+   DATA = CSM_Phenotypecell_test,
+   Cell_Of_Origin = "CD8_GZMBneg",
+   Target_Cell = "TUMOR",
+   Random_cells_per_sample = 30,
+   Allow_Cero_Distance = FALSE,
+   Perform_edge_correction = FALSE
+)
+
+#Print the first element of the list
+RANDOM_dist_matrix[[1]]
+```
+
+This random distance matrix is also used to compute the random cumulative interaction matrix.
+```{r Random_cumulative, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+RANDOM_Cumulative_interaction <- 
+  Cumulative_Interaction_generator(
+   N_cores = 1,
+   DATA = RANDOM_dist_matrix,
+   Start_from = 25,
+   Stop_at = 100,
+   Sampling_frequency = 25
+)
+
+#Print the first element of the list
+RANDOM_Cumulative_interaction[[1]]
+```
+
+Now we are ready to proceed with the analysis.
+
+### Distance matrix-based analysis
+These metrics are computed using the distance matrix and optionally the random distance matrix.
+They include calculating the average distance and the average minimum and maximum distances between COO and target cells.
+
+Of all of these the average minimum distance and the absolute average are usually the most informative
+```{r Min_dist, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Distance_analyzer(
+  N_cores = 1,
+  DATA = Distance_matrix,
+  DATA_RANDOM = RANDOM_dist_matrix,
+  Metric = "Min_Distance",
+  Include_Random = TRUE,
+  By_Sample_Random = TRUE
+)
+```
+
+The analysis shows that the average minimum distance is shorter in B14 sample compared to B09. If all the random permuted cells
+generated are considered to be sample specific, only B09 distance pattern cannot be explained by cell densities alone.
+
+We can graph our results using the `Cell_to_Cell_graph_maker()` function.
+```{r Dist_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Cell_to_Cell_graph_maker(
+   Image_name = "ABCM22001_B09_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Min_Distance",
+   DATA_Distances = Distance_matrix
+)
+```
+
+Here, COO are represented in blue and target cells are represented in red.
 
 
+### Cumulative interaction-base analysis
+This analysis measures the average number of target cells surrounding each COO within a given distance. Here, the distance
+choice heavily influences the final results.
+```{r Cells_in_radius, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#25 pixel distance
+Cells_in_Radius_analyzer(
+   DATA = Cumulative_interaction,
+   DATA_RANDOM = RANDOM_Cumulative_interaction,
+   Radius = 25,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
 
+
+#50 pixel distance
+Cells_in_Radius_analyzer(
+   DATA = Cumulative_interaction,
+   DATA_RANDOM = RANDOM_Cumulative_interaction,
+   Radius = 50,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+
+
+#75 pixel distance
+Cells_in_Radius_analyzer(
+   DATA = Cumulative_interaction,
+   DATA_RANDOM = RANDOM_Cumulative_interaction,
+   Radius = 75,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+
+
+#100 pixel distance
+Cells_in_Radius_analyzer(
+   DATA = Cumulative_interaction,
+   DATA_RANDOM = RANDOM_Cumulative_interaction,
+   Radius = 100,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+```
+
+Results can also be plotted using the `Cell_to_Cell_graph_maker()` function.
+```{r Cum_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Cell_to_Cell_graph_maker(
+   Image_name = "ABCM22001_B09_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Cells_in_Radius",
+   DATA_Cumulative = Cumulative_interaction,
+   Radius = 50
+)
+```
