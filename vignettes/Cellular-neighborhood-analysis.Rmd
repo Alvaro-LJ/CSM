@@ -40,5 +40,69 @@ library(CSM)
 ***
 
 ## Introduction
-Neighborhood analysis can reveal complex cellular interaction patterns. The analize recurrent
-patterns of multi-cellular interaction.
+Neighborhood analysis can reveal complex cellular interaction patterns. These tools are able to identify recurrent
+patterns of multi-cellular interaction. They are all based on the notion of spatial association which is defined according
+to the first law of geography:
+
+<p style="text-align: right;"><em>“Everything is related to everything else, but near things are more related than distant things.”</em></p>
+<p style="text-align: right;">  — Waldo Tobler, 1970</p>
+
+Although this definition is also relevant for cell-to-cell spatial interaction analysis, it is of paramount importance for 
+neighborhood analysis. Neighborhood analysis requires defining when two cells can be considered neighbors, which implies
+defining what "near" means. Different algorithms define neighbors in different manners, conditioning the final result.
+
+CSM implements several approaches to identify neighborhoods:
+
+* __[Closest neighbor-based approach](#closest-neighbor-based-approach):__ These approaches are based on calculating the
+  neighbors for every cell. Afterwards this information is used to identify patterns.
+    * __[Conventional closest neighbors](#conventional-closest-neighbors):__ For every cell it's closest neighbors are 
+    calculated. The presence of different cell types is quantified among neighbors to build the closest neighbor matrix.
+    Afterwards, recurrent patterns are identified in this matrix.
+    * __[UTAG](#utag):__ Based on the original publication from the Elemento group
+    (https://www.nature.com/articles/s41592-022-01657-2), CSM implements the Unsupervised 
+    discovery of Tissue Architecture with Graphs algorithm with several modifications to increase flexibility.
+    In essence, UTAG works by combining cell features, with the features of their close neighbors. This process is
+    known as 'message passing'. Afterwards, the resulting combined features are clustered to identify recurrent patterns.
+    UTAG is interesting because it can perform cell neighborhood analysis without requiring prior cell phenotype labels.
+* __[Tiled-based approach](#tiled-based-approach):__ This approach requires the overlaying a tile grid over the tissue area.
+  Cells within each tile are considered to belong to the same neighborhood. Recurrent cell type composition among neighborhoods
+  are then identified by performing clustering. These recurrent patterns summarize neighborhood architectures within tissues.
+  Tiled-based approaches are computationally efficient and very intuitive to understand. 
+  However, they are subject to the 'Modifiable areal unit problem' that is discussed in the 'Calculating tissue heterogeneity' vignette 
+  (please see vignette("Calculating-tissue-heterogeneity") for more information).
+* __[Global interaction pattern (imcRtools)](#global-interaction-pattern-(imcRtools)):__ CSM ports imcRtools neighborhood discovery pipeline.
+  This pipeline first computes graphs between cell types and computes interaction scores for every cell type pair. Each sample, has an
+  interaction score for every cell type pair. Global interaction patterns are identified across samples, not cell types. These approach
+  is a good choice to perform neighborhood analysis at the sample level in stead of the cell level.
+  
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The cells have been assigned a cell phenotype label
+by feature positivity pattern.
+In addition, the cell feature matrix without phenotype labels will be used for the UTAG example.
+
+```{r data, eval = TRUE}
+CSM_Phenotypecell_test
+CSM_Arrangedcellfeaturedata_test
+```
+
+## [Closest neighbor-based approach](#closest-neighbor-based-approach)
+The closest neighbor approach requires a definition of neighbors. Currently, CSM supports three ways of defining neighbors:
+
+* __N closest cells:__ The neighbors of any cell in the sample are it's N closest cells, being N an integer number. As N increases,
+  neighborhoods start reflecting broader interaction patterns. If N is kept small, only local interactions will be recorded. This approach
+  has a main disadvantage. Since there is no true spatial restriction according to this definition of neighbors some issues may arise.
+  For example, the N closest cells to a single cell that is very spatially isolated (like a cell stranded in the middle of stroma) will
+  not reflect true spatial interactions.
+* __Distance:__ The neighbors of any cell in the sample are those cells within a disance of D, being D a numeric value.
+
+
+
+  
+
+
+
