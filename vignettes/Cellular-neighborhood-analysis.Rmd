@@ -38,3 +38,7 @@ library(CSM)
 - [SPIAT-based](#spiat-based)
 
 ***
+
+## Introduction
+Neighborhood analysis can reveal complex cellular interaction patterns. The analize recurrent
+patterns of multi-cellular interaction.

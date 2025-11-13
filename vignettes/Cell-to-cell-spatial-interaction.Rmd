@@ -35,8 +35,9 @@ library(CSM)
     - [Gcross function](#gcross-function)
     - [Ripley's K](#ripleys-k-function)
 - [Multi-level modelling](#multi-level-modelling)
-- [Three better than two](#Thriad-analysis)
+- [Three better than two](#thriad-analysis)
 - [SPIAT-based](#spiat-based)
+- [Distance to Pixels](#distance-to-pixels)
 
 ***
 
@@ -59,9 +60,13 @@ CSM implements several tools to approach cell-to-cell spatial interactions:
   into account the cellular density of the target cell that can partially explain spatial interaction. Second it analyzes the 
   influence of image metadata on the spatial interaction. Multi-level imposes a nested data structure to the cell matrix, where
   every COO has an associated spatial interaction, while belonging to an image with specific metadata and target cell density.
-* __[Three cell analysis](#Thriad-analysis):__ The principles are similar to those described in basic distance analysis.
+* __[Three cell analysis](#thriad-analysis):__ The principles are similar to those described in basic distance analysis.
   However, this approach works with two target cells in stead of one.
 * __[SPIAT-based](#spiat-based):__ CSM ports the entropy gradient analysis implemented in the SPIAT package.
+
+In addition CSM also implements a Cell to [pixel analysis tool](#distance-to-pixels). It allows users to compute distance between cells
+and non-cellular pixel elements in the image. 
+
 
 ## Test datasets
 The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
@@ -352,5 +357,238 @@ Calculating p values in multi-level modelling is not straightforward. Pseudo R2 
 
 ## Thriad analysis
 Thriad analysis follows the same rules as those exposed in 
+[Cell-to-cell spatial interaction analysis](#cell-to-cell-spatial-interaction-analysis). However, this approach
+requires defining a single COO and two types of target cells.
 
+In order to execute the analysis a TRIO distance matrix must be computed. Here we will compute the distance
+between tumor cells and the two types of CD8 cells present in our samples.
+
+```{r TRIO_dist, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+TRIO_distance_matrix <- 
+  Trio_Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "TUMOR",
+    Target_Cell_1 = "CD8_GZMBneg",
+    Target_Cell_2 = "CD8_GZMBpos",
+    Perform_edge_correction = FALSE
+)
+
+#Print the first element of the list
+TRIO_distance_matrix[[1]]
+```
+
+In addition, we can calculate the cumulative interaction and the TRIO score across increasing distances.
+The TRIO score is defined as:
+
+$$
+TRIOscore = {\sqrt{TargetA * TargetB}} 
+$$
+Therefore, the score can only be higher than 0 if both target cells are present within the given distance. 
+The score balances the relative abundance of both cell types.
+
+The cumulative interaction and TRIO score can be computed using the `Trio_Cumulative_Interaction_generator()`.
+```{r TRIO_cumul, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+TRIO_cumulative_interaction <- 
+  Trio_Cumulative_Interaction_generator(
+    N_cores = 1,
+    DATA = TRIO_distance_matrix,
+    Start_from = 25,
+    Stop_at = 100,
+    Sampling_frequency = 25
+)
+
+#Print the first element of the list
+TRIO_cumulative_interaction[[1]]
+```
+
+Following the same principles as for simple cell-to-cell analysis, random background can be computed.
+
+```{r TRIO_random, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Compute 30 random COO per sample
+RANDOM_TRIO_distance_matrix <- 
+  Trio_Random_Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "TUMOR",
+    Target_Cell_1 = "CD8_GZMBneg",
+    Target_Cell_2 = "CD8_GZMBpos",
+    Random_cells_per_sample = 30,
+    Perform_edge_correction = FALSE
+    )
+
+#Print the first element of the list
+RANDOM_TRIO_distance_matrix[[1]]
+
+#Compute the RANDOM cumulative interaction and TRIO score
+RANDOM_TRIO_cumulative_interaction <- 
+  Trio_Cumulative_Interaction_generator(
+    N_cores = 1,
+    DATA = RANDOM_TRIO_distance_matrix,
+    Start_from = 25,
+    Stop_at = 100,
+    Sampling_frequency = 25
+)
+
+#Print the first element of the list
+RANDOM_TRIO_cumulative_interaction[[1]]
+```
+
+Once all the required matrices have been computed, the min distance to TRIO and the TRIO score in radius analyses
+can proceed. In contrast to simple cell-to-cell analysis, average thriad distance and maximum thriad distance metrics
+are non-informative and therefore cannot be computed.
+
+```{r TRIO_analyses, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Perform min distance to TRIO analysis.
+Trio_Min_Distance_analyzer(
+  N_cores = 1,
+  DATA = TRIO_distance_matrix,
+  DATA_RANDOM = RANDOM_TRIO_distance_matrix,
+  Include_Random = TRUE,
+  By_Sample_Random = TRUE
+)
+
+#Perform the TRIO score in radius analysis
+Trio_Cells_in_Radius_analyzer(
+  DATA = TRIO_cumulative_interaction,
+  DATA_RANDOM = RANDOM_TRIO_cumulative_interaction,
+  Radius = 75,
+  Include_Random = TRUE,
+  By_Sample_Random = TRUE
+)
+```
+
+Finally, results can also be plotted as for cell-to-cell analysis.
+```{r TRIO_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Plot min distance to TRIO
+Trio_graph_maker(
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Min_Distance",
+   TRIO_Distances = TRIO_distance_matrix
+)
+
+#Plot TRIO score in radius
+Trio_graph_maker(
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "TRIO_in_Radius",
+   TRIO_Cumulative = TRIO_cumulative_interaction,
+   Radius = 75
+)
+```
+
+## SPIAT-based
+Finally CSM ports SPIAT entropy gradient analysis to analyze spatial association between two cell types.
+For more information regarding the interpretation of this metric please seethe original paper published at
+https://www.nature.com/articles/s41467-023-37822-0.
+
+As for cumulative interaction metrics, the user must decide the sampling strategy with Gradient start, stop and sampling
+distance arguments.
+
+```{r SPIAT, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+DATA_SPIAT <- 
+  SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+    )
+
+#Calculate entropy gradients--------------------------
+SPIAT_entropy_gradient_generator(
+    DATA_SPIAT = DATA_SPIAT,
+    Gradient_start = 0,
+    Gradient_stop = 250,
+    Gradient_sampling = 50,
+    Phenotypes_included = c("CD8_GZMBpos", "TUMOR")
+)
+```
+
+## Distance to Pixels
+Distance to pixel analysis requires two sources of information: cell spatial coordinate information and
+thresholded images. The analysis is intended to understand how cells are positioned with relation to non-cellular
+elements (usually extracellular matrix elements). In practice, this tool can be used to assess distances from cells
+to any sort of biomolecule present in the tissue.
+
+For this example we will try to compute the distance of CD8 cells to any pixel positive for CK. First we need to
+threshold CK images. Here we will use a basic binary threshold.
+
+```{r Thresholded_images, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Create the input and output directories
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Threshold the CK channel and save the results
+Pixel_Threshold_calculator(
+     N_cores = 1,
+     Directory = Input_Dir,
+     Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+     Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+     Target_channel = "CK-EPCAM",
+
+     Save_processed_images = TRUE,
+     Output_Directory = Output_Dir,
+
+     Local_thresholding = FALSE,
+     Threshold_type = "Arbitrary",
+     Threshold_value = 0.02,
+
+     Threshold_type_tissueMask = "Absolute",
+     Threshold_value_tissueMask = 0.001,
+     Blurr_tissueMask = TRUE,
+     Sigma_tissueMask = 0.5,
+     Blurr_target = FALSE
+)
+```
+
+Now that thresholded images have been generated, we can compute the distance between cells and their
+closest positive pixel. Due to image pixel and cell coordinate discrepancies, sometimes adjustments need to be made.
+The function will show a test image with cell overlay to check that the alignment is correct before proceeding.
+
+```{r Dist_to_pixel, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+Cells_to_pixel_dist <- 
+  Cell_to_pixel_distance_calculator(
+    N_cores = 1,
+    Directory = Output_Dir,
+    Image_rotate = 90,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE,
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = c("CD8_GZMBpos", "CD8_GZMBneg"),
+    Pixel_distance_ratio = NULL
+ )
+
+Cells_to_pixel_dist
+```
+
+Now that we have obtained the distance of the CD8 cells to their closest CK positive pixel, we can classify
+cells according to this distance. For example we will classify CD8 cells closer than 3 pixel distance as being
+"inside CK", cells located between 4 and 10 pixel being "bordering CK" and those any farther as being "outside CK".
+
+```{r Dist_segments, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+Cells_to_pixel_dist <- 
+  Marker_segmentator(
+    DATA = Cells_to_pixel_dist,
+    DATA_variable = "CK-EPCAM_DIST",
+    DATA_cutoff = c(0, 4, 10, 5000),
+    New_labels = c("Inside", "Border", "Outside"),
+    Merge = TRUE,
+    Var_to_Merge = "Phenotype"
+)
+
+Cells_to_pixel_dist
+```
+
+Now the information regarding the position of these cells with respect to CK has been included in the cells phenotype.
 
