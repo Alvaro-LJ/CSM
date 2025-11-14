@@ -39,7 +39,7 @@ library(CSM)
 ## Introduction
 Tissue heterogeneity is one of the most complex areas in the field of spatial biology. In order
 to perform heterogeneity analysis cell phenotype labels must have been assigned (please see
-our dedicated vignette using 'vignette("Cell-phenotype-labelling")').
+our dedicated vignette using `vignette("Cell-phenotype-labelling")`).
 
 Broadly, CSM heterogeneity analysis can be divided into GLOBAL heterogeneity (does not account for
 spatial information) and LOCAL or SPATIAL heterogeneity (takes into consideration the spatial dimension).
@@ -123,7 +123,7 @@ cell type. Both approaches are complementary as they are aimed at different scie
 as a type of spatial heterogeneity analysis is arbitrary. Some authors would better classify texture features as a type of homotypic cell to cell
 spatial interaction analysis. All in all some texture features recapitulate the chance of cell to cell spatial co-localization (like correlation).
 However, to our understanding, homotypic interactions are best analyzed in a more explicit manner (please see our dedicated vignette 
-using 'vignette("Cell-to-cell-spatial-interaction")'). Texture features provide information of the spatial dispersion or 
+using `vignette("Cell-to-cell-spatial-interaction")`). Texture features provide information of the spatial dispersion or 
 clustering of a single cell type across the entire tissue area.Therefore is closer to a spatial heterogeneity analysis.
 
 ### Tile-based

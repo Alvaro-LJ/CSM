@@ -69,7 +69,7 @@ CSM implements several approaches to identify neighborhoods:
   are then identified by performing clustering. These recurrent patterns summarize neighborhood architectures within tissues.
   Tiled-based approaches are computationally efficient and very intuitive to understand. 
   However, they are subject to the 'Modifiable areal unit problem' that is discussed in the 'Calculating tissue heterogeneity' vignette 
-  (please see vignette("Calculating-tissue-heterogeneity") for more information).
+  (please run `vignette("Calculating-tissue-heterogeneity")` for more information).
 * __[Global interaction pattern (imcRtools)](#global-interaction-pattern-(imcRtools)):__ CSM ports imcRtools neighborhood discovery pipeline.
   This pipeline first computes graphs between cell types and computes interaction scores for every cell type pair. Each sample, has an
   interaction score for every cell type pair. Global interaction patterns are identified across samples, not cell types. These approach
@@ -95,14 +95,123 @@ The closest neighbor approach requires a definition of neighbors. Currently, CSM
 
 * __N closest cells:__ The neighbors of any cell in the sample are it's N closest cells, being N an integer number. As N increases,
   neighborhoods start reflecting broader interaction patterns. If N is kept small, only local interactions will be recorded. This approach
-  has a main disadvantage. Since there is no true spatial restriction according to this definition of neighbors some issues may arise.
-  For example, the N closest cells to a single cell that is very spatially isolated (like a cell stranded in the middle of stroma) will
-  not reflect true spatial interactions.
-* __Distance:__ The neighbors of any cell in the sample are those cells within a disance of D, being D a numeric value.
-
-
-
+  has a main disadvantage. Since this neighbor definition is not spatially restricted, non-neighboring cells may be identified as neighbors.
+  For example, the N closest cells to a single cell that is spatially isolated (like a cell stranded in the middle of stroma) will
+  not reflect true spatial interactions. This approach calculates the N closest cells, irrespective of the actual distance between these and the cell of origin.
+  An advantage of this approach is that the same number of neighbors is computed for all cells. This facilitates the interpretation of cell type percentages within
+  neighbors.
+* __Distance:__ The neighbors of a cell in the sample are those cells within a distance of D, being D a numeric value. As with N closest
+  cells definition, as D value increases broader interaction patterns are captured. Since this definition is spatially restricted, it is not subject
+  to the bias described in the N closest cells. However, distance alone does not reflect spatial interaction. The number of simultaneous cellular interactions
+  any cell can experience is not infinite. In addition, the total neighbor count for every cell may vary according to cell density. This means that cell percentages
+  may not be easily comparable between cells. However, since the distance analyzed is fixed, cell counts effectively reflect cell type densities within the neighborhood.
+  This can be a biologically relevant metric.
+* __N and D:__ It sounds reasonable to combine both definitions. The neighbors of any cell are restricted by the number N and by distance D. In practice this means that
+  the neighbors of any cell are the N closest neighbors, given that all of these cells are within distance D from the cell of origin. Although this definition is very
+  powerful, the interpretation of results can be cumbersome. The total amount of neighbors by cell and the maximum distance to the cell of origin will be variable.
+  This makes percentages and densities less meaningful.
   
+Once neighbors have been identified, closest neighbors approach identify recurrent pattern using clustering. This recurrent patterns are considered the neighborhoods.
+Clustering options are similar to those described in the vinegette 'Cell-phenotype-labelling' (please run `vignette('Cell-phenotype-labelling')`, for more information).
+Clustering parameters can also influence the final result. Users are encouraged to explore different approaches to reach a satisfactory result.
 
+In practice, the choice of neighbor definition and the choice of parameters is arbitrary. Depending on the choice, different types of neighborhoods summarizing
+various types of spatial patterns can be identified. There is no single way to identify neighborhoods.
+
+### Conventional closest neighbors
+This pipeline starts by computing the closest neighbor matrix. This matrix contains a summary of the neighbors from every cell included in the analysis.  
+CSM function `Tailored_Closest_neighbor_calculator()` does this job. It requires a dataframe or tibble containing cell phenotype labels. The function allows
+users to select which cells of origin will be visited, and what cells can be considered to be neighbors (target cells). 
+
+In the followin example we will calculate neighbors, defined as any cell within 30 pixels from the COO. Cells labelled as 'OTHER' will not be visited by the
+algorithm, but will be considered as neighbors.
+
+```{r closest_neighbors, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Closest_neighbors <- 
+  Tailored_Closest_neighbor_calculator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Strategy = "Distance",
+    Include_COO_in_neighborhood = TRUE,
+    Max_dist_allowed = 30,
+    Cell_Of_Origin = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos"),
+    Target_Cell = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+)
+
+#Print the resulting list
+Closest_neighbors
+```
+  
+The function returns a list containing closest neighbors expressed as percentages and as absolute counts (reflecting density if calculated by distance).
+In addition, it plots the correlation between cell types in the neighborhoods. This can be a proxy of interaction/repulsion patterns. For example from the
+resulting correlation coefficients, it can be concluded that as TUMOR cells increase in the neighborhood, the presence of any other cell type decreases (repulsion pattern).
+In contrast, GZMB negative and positive CD8 T cells are positively correlated, implying spatial clustering. The function also returns histograms reporting
+the average, median and maximum distances of neighbors to the COO. The 0 distance reflects those cells without neighbors.
+
+Once we have obtained the closest neighbor matrix we can cluster it to obtain neighborhoods. In this case we will use the 'Absolute_count' tibble to take into account
+cell densities within the neighborhood. The function `Neighborhood_discovery_function()` allows filtering by distance (useful for defined by N). The example will be
+kept simple and we will set the maximum number of neighborhoods identified to 3.
+
+```{r Neighborhood_discovery, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+Neighborhoods_by_cell <- 
+  Neighborhood_discovery_function(
+   DATA = Closest_neighbors$Absolute_count,
+   Allowed_max_Dist = 31,
+   Allowed_avg_Dist = 31,
+   Allowed_median_Dist = 31,
+
+   Perform_Dimension_reduction = TRUE,
+   Dimension_reduction = "UMAP",
+   Dimension_reduction_prop = 1,
+   Cluster_on_Reduced = FALSE,
+
+   Strategy = "GMM",
+   Quality_metric = "AIC",
+   Max_N_neighborhoods_GMM = 3,
+   Max_iterations_km = 10,
+   Max_iterations_em = 10,
+   GMM_Distance = "eucl_dist"
+)
+
+Neighborhoods_by_cell
+```
+
+The function will return graphs describing neighborhood cellular composition. Afterwards we can rename our neighborhoods using the
+`DATA_neighborhoods_renamer()`. Afterwards we could proceed with other analyses.
+
+```{r Neighborhood_renaming, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+DATA_Neighborhoods_names <-
+ DATA_neighborhoods_renamer(
+    DATA = Neighborhoods_by_cell$DATA,
+    New_names = c("TUMOR_RICH", "IMMUNE_NICHE", "CD8_NEG_RICH")
+)
+```
+
+### UTAG
+As mentioned above, UTAG first performs message passing. This process allows neighboring cells to share feature information.
+In CSM the UTAG algorithm has been tweaked to allow different neighboring cell definitions (see above). In addition,
+the UTAG message passing function developed for CSM (`UTAG_message_passing()`) has 3 other interesting features:
+
+* __COO to visit:__ If the user has some previous information regarding cells of interest, it can be used to ameliorate computational demands.
+  COO_to_visit argument allows the user to select which cells will be visited by the algorithm and considered COO. It should be a logical vector where
+  TRUE cells are visited and FALSE cells are ignored. However, ignored cells will also be taken into account as target cells.
+* __COO weight:__ Message passing can somehow dilute the feature information contained by COO. In cases where there are too many neighbors, message passing can
+  erase almost completely the information provided by the original COO. This may or may not be an issue. Anyways, the function allows the user to provide a fixed
+  weight for the COO during message passing. The weight will be the same for all COO visited by the algorithm.
+* __Neighbor's weights:__ Should all the neighbors share their features equally? Imagine the following scenario: the COO has 10 closest neighbors, 5 within a 10 pixel
+  distance and the others more than 50 pixels away. Should they all have the same weights during message passing? Alternatively think about this situation. One of the 
+  features is only rarely expressed in the data or is shows very low expression values on average. However very few high expressing cells can be encountered from time to time.
+  Should we boost the signal from these low expression markers so that it is not diluted during message passing?
+  The function allows both correcting for proximity to COO and by low expression (disregarded_minority correction)
+    * __Proximity correction:__ Every neighbor is at distance d from the COO. The sum of all distances d is D. Weight for every neighbor is calculated as the following:
+$$
+Weight = {\frac{1}{\frac{d}{D}}} 
+$$
+    * __Disregarded minority correction:__ First the -log10 of the average expression in the dataset is calculated for all features. The weight is calculated as the following:
+$$
+Weight = {\frac{-log10(\bar{x})}{\min(-log10(\bar{x}))}} 
+$$
 
 
