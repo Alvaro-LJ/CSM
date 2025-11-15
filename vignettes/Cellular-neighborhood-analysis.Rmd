@@ -192,11 +192,16 @@ DATA_Neighborhoods_names <-
 ### UTAG
 As mentioned above, UTAG first performs message passing. This process allows neighboring cells to share feature information.
 In CSM the UTAG algorithm has been tweaked to allow different neighboring cell definitions (see above). In addition,
-the UTAG message passing function developed for CSM (`UTAG_message_passing()`) has 3 other interesting features:
+the UTAG message passing function developed for CSM (`UTAG_message_passing()`) has 4 other interesting features:
 
 * __COO to visit:__ If the user has some previous information regarding cells of interest, it can be used to ameliorate computational demands.
   COO_to_visit argument allows the user to select which cells will be visited by the algorithm and considered COO. It should be a logical vector where
   TRUE cells are visited and FALSE cells are ignored. However, ignored cells will also be taken into account as target cells.
+* __Message strategy:__ There are two ways the feature information from neighbors can be combined:
+    * __Averaging:__ Adds the features and divides them by the total amount of neighbors. Well suited to perform all types of weighting. Does not take into account the density of cells in the 
+    neighborhood.
+    * __Sum:__ Adds the cell features values alone. Is compatible with proximity weighting (see below). Takes into account the cell density in the neighborhood. It can increase the dinamic 
+    range of features.
 * __COO weight:__ Message passing can somehow dilute the feature information contained by COO. In cases where there are too many neighbors, message passing can
   erase almost completely the information provided by the original COO. This may or may not be an issue. Anyways, the function allows the user to provide a fixed
   weight for the COO during message passing. The weight will be the same for all COO visited by the algorithm.
@@ -214,4 +219,162 @@ $$
 Weight = {\frac{-log10(\bar{x})}{\min(-log10(\bar{x}))}} 
 $$
 
+After deciding the parameters message passing can be performed. Here we will apply the same neighbor definition as for conventional closest neighbors. We
+will take into account proximity to COO in message passing.
 
+```{r Message_passing, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Message_passed_cells <- 
+  UTAG_message_passing(
+    DATA = CSM_Arrangedcellfeaturedata_test,
+
+    Neighbor_strategy = "Distance",
+    Message_strategy = "Averaging",
+    Max_dist_allowed = 30,
+    Weighting_Strategy = "Proximity",
+
+    N_cores = 1
+)
+
+#we will check the difference between features before and after message passing
+library(purrr)
+library(ggplot2)
+library(magrittr)
+map(5:7, function(column_index){
+  Before <- CSM_Arrangedcellfeaturedata_test[[column_index]]
+  After <- Message_passed_cells[[column_index]]
+  
+  Absolute_min <- min(c(Before, After))
+  Absolute_max <- max(c(Before, After))
+  
+  tibble::tibble(Before = Before,
+                 After = After) %>%
+    ggplot(aes(x = Before, y = After)) +
+    geom_point() +
+    scale_x_continuous("Before", limits = c(Absolute_min, Absolute_max)) +
+    scale_y_continuous("After", limits = c(Absolute_min, Absolute_max)) +
+    annotate("segment",x = Absolute_min, y = Absolute_min, xend = Absolute_max, yend = Absolute_max) +
+    ggtitle(names(CSM_Arrangedcellfeaturedata_test)[column_index])
+})
+```
+
+It can be observed that feature values change dramatically after message passing.
+
+If we perform message passing by sum in stead, we would obtain always higher feature values.
+```{r Message_passing_sum, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Message_passed_cells_sum <- 
+  UTAG_message_passing(
+    DATA = CSM_Arrangedcellfeaturedata_test,
+
+    Neighbor_strategy = "Distance",
+    Message_strategy = "Sum",
+    Max_dist_allowed = 30,
+    Weighting_Strategy = "Proximity",
+
+    N_cores = 1
+)
+
+#we will check the difference between features before and after message passing
+library(purrr)
+library(ggplot2)
+library(magrittr)
+map(5:7, function(column_index){
+  Before <- CSM_Arrangedcellfeaturedata_test[[column_index]]
+  After <- Message_passed_cells_sum[[column_index]]
+  
+  Absolute_min <- min(c(Before, After))
+  Absolute_max <- max(c(Before, After))
+  
+  tibble::tibble(Before = Before,
+                 After = After) %>%
+    ggplot(aes(x = Before, y = After)) +
+    geom_point() +
+    scale_x_continuous("Before", limits = c(Absolute_min, Absolute_max)) +
+    scale_y_continuous("After", limits = c(Absolute_min, Absolute_max)) +
+    annotate("segment",x = Absolute_min, y = Absolute_min, xend = Absolute_max, yend = Absolute_max) +
+    ggtitle(names(CSM_Arrangedcellfeaturedata_test)[column_index])
+})
+```
+
+Once the message passing process has been completed it is time to cluster the results to obtain neighborhoods. When analyzing clustering results
+is important to take into account that this is no longer cell information, but rather information regarding neighborhoods. To find neighborhoods
+CSM implements the function `UTAG_Neighborhood_identifier()`. It use is similar to the function `Clustering_Phenotyper()` seen in the Cell-phenotype-labelling 
+vignette.
+
+```{r UTAG, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+UTAG_Neighborhood_identifier(
+   DATA = Message_passed_cells,
+   Strategy = "Batch_K_means",
+   Min_Neighbors = 3,
+
+   Apply_Denoise = TRUE,
+   Denoising = "Otsu",
+
+   Perform_Dimension_reduction = TRUE,
+   Dimension_reduction = "UMAP",
+   Dimension_reduction_prop = 1,
+   Cluster_on_Reduced = FALSE,
+
+   Batch_size = 100,
+   Max_N_neighborhoods_Batch = 5,
+   N_initiations = 10,
+   Max_iterations = 10
+)
+```
+
+As for conventional closest neighbor neighborhood analysis, neighborhood names can be modified with `DATA_neighborhoods_renamer()`.
+
+### Quantification
+Before quantification, the user can check the concordance between neighborhood identification approaches using the `Concordance_calculator()` and
+`Confusion_matrix_plotter()` described in the vignette "Cell phenotype labelling".
+
+After performing neighborhood analysis, the next reasonable step is to quantify results. Every cell in the dataset has been assigned to a neighborhood.
+The initial quantification step just quantifies the number of cells belonging to each neighborhood for every sample. In addition, neighborhood density
+can also be quantified.
+
+```{r Quantification_standard, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+Neighborhood_Quantifier(
+    DATA = DATA_Neighborhoods_names,
+    Calculate_Density = FALSE
+)
+```
+
+This initial quantification step can reveal interesting patterns. However, it can be heavily influenced by cell density. If a neighborhood pattern is associated with
+high cell density (for example a neighborhood consisting of heavily packed tumor cells), identifying a high proportion of cells belonging to this neighborhood may not
+be informative. 
+
+Therefore, another approach is to divide the tissue samples into tiles and analyze the amount of tiles where each neighborhood can be found. As described in the
+vignette "Calculating tissue heterogeneity", the first step for any tile analysis is to divide the dataset into tiles
+
+```{r Tiling, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+Tiled_images <- Image_tiling_processing_function(N_cores = 1, 
+                                                 DATA = DATA_Neighborhoods_names, 
+                                                 Tile_width = 100, 
+                                                 Tile_height = 100, 
+                                                 Variables_to_keep = "Neighborhood_assignment"
+                                                 ) 
+#print the first element
+Tiled_Images[[1]]
+```
+
+After Tiling it can be interesting to quantify the number of neighborhoods present in each tile. The `Neighborhood_voting_function()` quantifies the number of cells belonging
+to each neighborhood by tile. In addition, it returns the most represented neighborhood by tile. This information can be useful to have an idea if spatial clustering of neighborhoods.
+
+```{r Tiling, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+DATA_Neighborhood_elections <- Neighborhood_voting_function(N_cores = 1, 
+                                                            Tiled_Images = Tiled_images, 
+                                                            Minimum_cell_no_per_tile = 1, 
+                                                            Neighborhoods_included = c("TUMOR_RICH", "IMMUNE_NICHE", "CD8_NEG_RICH")
+                                                            )
+```
+
+Finally results can be graph the results.
+```{r Graph_tiles, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Tiled_neighborhoods_graphicator(DATA_elections = DATA_Neighborhood_elections, #Specify the object containing the data neighborhood elections
+                                Image_name = "ABCM22001_B14_MiniCrop.tif", #Provide the name of the sample
+                                Graph_only_winner_neighborhood = FALSE #Specify if only the winner neighborhood in each tile should be graphed
+)
+```
