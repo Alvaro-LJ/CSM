@@ -4,7 +4,7 @@
 \alias{expand.grid.unique}
 \title{Generates a tibble with unique combinations between two vectors.}
 \usage{
-\method{expand}{grid.unique}(x, y, include.equals = FALSE)
+expand.grid.unique(x, y, include.equals = FALSE)
 }
 \arguments{
 \item{x}{A vector}

@@ -40,6 +40,8 @@
 #' }
 #'
 #' @returns A tibble containing cell feature data that have undergone neighbor message passing.
+#'
+#' @export
 
 UTAG_message_passing <-
   function(DATA_name,
