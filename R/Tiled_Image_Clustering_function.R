@@ -430,7 +430,7 @@ Tiled_Image_Clustering_function <-
 
     #Else proceed with analysis. First calculate the total cells and the percentage by tile
     Cell_counts_by_tile <-
-      purrr::map(Tiled_Images, function(x) {
+      purrr::map(Tiled_images, function(x) {
         Interim <- x[[2]] %>% dplyr::filter(Phenotype %in% Phenotypes_included)
 
         Filtered_tiles <-
