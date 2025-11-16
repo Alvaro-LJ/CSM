@@ -592,3 +592,6 @@ Cells_to_pixel_dist
 
 Now the information regarding the position of these cells with respect to CK has been included in the cells phenotype.
 
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

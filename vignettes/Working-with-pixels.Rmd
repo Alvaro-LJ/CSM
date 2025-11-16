@@ -308,3 +308,6 @@ unlink(c(Input_Dir, Output_Dir_CK, Output_Dir_CD8, Output_Dir_GZMB, Output_Dir_I
 recursive = TRUE)
 ```
 
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

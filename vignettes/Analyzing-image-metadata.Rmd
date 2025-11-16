@@ -1,0 +1,136 @@
+---
+title: "Analyzing-image-metadata"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analyzing-image-metadata}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+<style>
+p {
+  text-align: justify;
+}
+</style>
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Examples](#examples)
+    - [Continuous metadata](#continuous-metadata)
+    - [Qualitative metadata](#qualitative-metadata)
+    - [Time-to-event analysis](#time-to-event-analysis)
+
+## Introduction
+CSM implements a master function to explore association of tissue features with tissue metadata. The function `Clinical_Data_analyzer()` allows the user to perform
+association studies. It only requires two data sources. First tissue metadata that has been adequately formatted using the `Clinical_Data_arrange_function()`.
+Second a summary tibble of the image features (for example cell densities by sample, heterogeneity by sample, neighborhood counts by sample...). Image features computed using
+CSM are always numeric variables (instance counting, densities, spatial interaction metrics....). As far as each sample
+is represented uniquely in both data sources (no duplicated entries in either datasource), the function will be executed.
+
+## Test datasets
+For the following examples, we will use a dataset of endometrial carcinoma samples including 500K cells
+obtained from 49 TMA samples. The cells have been assigned a cell label. The image metadata associated with these dataset
+were randomly generated and includes information regarding patient age, survival status and tumor MMRP status.
+
+```{r data, eval = TRUE}
+CSM_PhenotypeTMA_test
+CSM_ClinicalTMA_test
+```
+
+## Examples
+For the following examples, we will first quantify cell densities by sample. 
+
+```{r Cell_density, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Obtain cell density by sample to account for density of target cells in the model
+DATA_AREA <-
+ Image_size_calculator(
+    DATA = CSM_PhenotypeTMA_test,
+    Strategy = "Concave_hull",
+    Hull_ratio = 0.4
+)
+Cells_by_sample <-
+ Phenotype_quantifier(
+    CSM_PhenotypeTMA_test,
+    Calculate_Density = TRUE,
+    DATA_Area = DATA_AREA
+)
+
+#Print the result
+Cells_by_sample
+```
+
+In addition we need to arrange our image metadata to an adequate format using the `Clinical_Data_arrange_function()`.
+```{r Clin_arrange, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Arrange clinical data
+DATA_CLINICAL <-
+  Clinical_Data_arrange_function(
+     DATA = CSM_ClinicalTMA_test,
+     Subject_Names = "Sample",
+     Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
+)
+
+#Print the result
+DATA_CLINICAL
+```
+
+
+### Continuous metadata
+Our first example will analyze the density of CD8 and macrophage cells with age of the patients. The function will return pearson correlation estimates and p values as well
+as summary plots.
+```{r Clin_continuous, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Clinical_Data_analyzer(
+   DATA = Cells_by_sample,
+   DATA_var = c("Density_CD8", "Density_MACROPHAGE"),
+   DATA_Clinical = DATA_CLINICAL,
+   Clinical_var = "AGE",
+   Perform_time_to_event = FALSE
+)
+```
+
+### Qualitative metadata
+Additionally, the function can work with qualitative data. It is important that if qualitative data is encoded using numeric values, they are turned to factor or character vectors.
+If not the function will treat the image metadata as numeric and perform correlation analysis. The function will compute averages and dispersion metrics by group. In addition
+t-tests or ANOVA will be computed. The summary graphs will include the non-parametric association test.
+
+
+```{r Clin_qualitative, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Clinical_Data_analyzer(
+   DATA = Cells_by_sample,
+   DATA_var = c("Density_CD8", "Density_MACROPHAGE"),
+   DATA_Clinical = DATA_CLINICAL,
+   Clinical_var = "MMRP_status",
+   Perform_time_to_event = FALSE
+)
+```
+
+### Time-to-event analysis
+In order to perform time to event, the image metadata must contain information of follow-up (a numeric vector) and event (also a numeric vector). The function will 
+compute the optimal cut-off point based on pvalue optimization (using the `survminer::surv_cutpoint()` function). Once calculated, the function will run cox PH model and
+draw KM plots.
+
+```{r Clin_surv, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Clinical_Data_analyzer(
+   DATA = Cells_by_sample,
+   DATA_var = c("Density_CD8", "Density_MACROPHAGE"),
+   DATA_Clinical = DATA_CLINICAL,
+   Perform_time_to_event = TRUE,
+   Time_variable = "OS_m",
+   Event_variable = "DEATH"
+)
+```
+
+
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

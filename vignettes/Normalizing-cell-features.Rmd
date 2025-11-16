@@ -143,3 +143,6 @@ Normalization_diagnostics(Original_DATA = CSM_Arrangedcellfeaturedata_test,
 ```
 
 
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

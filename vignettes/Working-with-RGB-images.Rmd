@@ -118,5 +118,8 @@ Cell_image_plot_generator(
   Point_size = 1,
   Pixel_distance_ratio = NULL
 )
+```
 
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
 ```
