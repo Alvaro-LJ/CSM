@@ -34,7 +34,7 @@ library(CSM)
     - [UTAG](#utag)
     - [Quantification](#quantification)
 - [Tiled-based approach](#tiled-based-approach)
-- [Global interaction pattern (imcRtools)](#global-interaction-pattern-(imcRtools))
+- [Global interaction pattern (imcRtools)](#global-interaction-pattern-imcrtools)
 - [SPIAT-based](#spiat-based)
 
 ***
@@ -362,7 +362,7 @@ Tiled_Images[[1]]
 After Tiling it can be interesting to quantify the number of neighborhoods present in each tile. The `Neighborhood_voting_function()` quantifies the number of cells belonging
 to each neighborhood by tile. In addition, it returns the most represented neighborhood by tile. This information can be useful to have an idea if spatial clustering of neighborhoods.
 
-```{r Tiling, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+```{r Tiling_elections, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 #Can only run interactively
 DATA_Neighborhood_elections <- Neighborhood_voting_function(N_cores = 1, 
                                                             Tiled_Images = Tiled_images, 
@@ -371,10 +371,133 @@ DATA_Neighborhood_elections <- Neighborhood_voting_function(N_cores = 1,
                                                             )
 ```
 
-Finally results can be graph the results.
+Finally results can be graphicated.
 ```{r Graph_tiles, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Tiled_neighborhoods_graphicator(DATA_elections = DATA_Neighborhood_elections, #Specify the object containing the data neighborhood elections
                                 Image_name = "ABCM22001_B14_MiniCrop.tif", #Provide the name of the sample
                                 Graph_only_winner_neighborhood = FALSE #Specify if only the winner neighborhood in each tile should be graphed
+)
+```
+
+## Tiled-based approach
+This strategy first divides the tissue into tiles. Each tile is considered an individual neighborhood. Then cell composition among neighborhoods is analyzed.
+First tiled images need to be generated. Then patterns are identified by using the `Tiled_Image_Clustering_function()`.
+
+```{r Tiled_clustering, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+
+#Tile the images
+Tiled_images <-
+ Image_tiling_processing_function(
+   N_cores = 1,
+   DATA = CSM_Phenotypecell_test,
+   Tile_width = 100,
+   Tile_height = 100,
+   Variables_to_keep = "Phenotype"
+   )
+
+#Perform clustering
+Neighborhood_tiles <-
+  Tiled_Image_Clustering_function(
+    Tiled_images = Tiled_images,
+    Minimum_cell_no_per_tile = 4,
+    Minimum_valid_tiles_per_image = 4,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+
+    Cluster_Data = "Cell_Density",
+
+    Perform_Dimension_reduction = FALSE,
+    Cluster_on_Reduced = FALSE,
+    
+    Strategy = "Consensus_Clustering",
+    Max_N_Clusters = 5,
+    Consensus_reps = 2,
+    Consensus_p_Items = 1,
+    Consensus_Cluster_Alg = "pam",
+    Consensus_Distance = "euclidean",
+    Consensus_Name = "Consensus_clustering_test"
+)
+
+#Modify names
+Neighborhood_tiles_result <- Clustered_Tiled_Images_renamer(Tiled_images = Neighborhood_tiles,
+                                                            New_names = c("Depleted_neighborhood",
+                                                                          "OTHER_RICH",
+                                                                          "IMMUNE_NICHE",
+                                                                          "TUMOR_DENSE",
+                                                                          "TUMOR_LIGHT"))
+```
+
+Once the neighborhoods have been identified, quantification and analysis can be performed using `Clustered_Tiled_Images_analyzer()`.
+In addition, neighborhood spatial heterogeneity can be analyzed using this function using by calculating several heterogeneity indexes and graph modularity.
+```{r Tiled_clustering_analysis, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+Clustered_Tiled_Images_analysis <- Clustered_Tiled_Images_analyzer(Tiled_images = Neighborhood_tiles_result, 
+                                                                   Perform_heterogeneity_analysis = T, 
+                                                                   Graph_Modularity_resolution = 0.5 
+)
+```
+
+Finally the results can be graphicated.
+```{r Tiled_clustering_graphs, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Clustered_Tiled_Images_graphicator(Tiled_images = Neighborhood_tiles_result,
+                                   Image_name = "ABCM22001_B14_MiniCrop.tif")
+```
+
+## Global interaction pattern-imcRtools
+This approach is based on counting the spatial interaction between cell type pairs based on the `imcRtools::countInteractions()` function. Then global sample patterns are identified.
+This approach can be applied using the `Interaction_counter()`. Then interaction patterns can be analyzed and identified using the `Interaction_analyzer()`.
+In this case, since we only have two samples, clustering samples cannot be computed.
+
+```{r Spatial_interactions, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+
+#Compute interactions
+Interaction_by_sample <-
+  Interaction_counter(
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+    N_cores = 1,
+
+    Graph_type = "knn",
+    K_number = 10,
+
+    Method = "classic",
+    patch_size = 100,
+
+    Perform_significance_testing = TRUE,
+    N_iterations = 10,
+    p_threshold = 0.05
+)
+
+#Find patterns
+Samples_clustering <- 
+  Interaction_analyzer(
+    Interaction_by_sample,
+    Exclude_non_significant = FALSE,
+    Cluster = FALSE
+    )
+```
+
+## SPIAT-based
+This approach is based on the SPIAT function `SPIAT::identify_neighborhoods()`. It finds neighborhoods within each sample. Although useful, this approach makes comparing
+neighborhoods across samples dificult.
+
+```{r SPIAT_Clustering, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+DATA_SPIAT <-
+  SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+    )
+
+#Find neighborhoods in each sample--------------------
+SPIAT_neighborhood_identifier(
+  N_cores = 2,
+  DATA_SPIAT = DATA_SPIAT,
+  Strategy = "hierarchical",
+  Cell_types_of_interest = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+  Radius = 50,
+  Min_neighborhood_size = 10,
+  No_Phenotype_name = NULL
 )
 ```

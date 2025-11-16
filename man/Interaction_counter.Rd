@@ -60,7 +60,7 @@ Interaction_counter(
     N_cores = 1,
 
     Graph_type = "knn",
-    K_number = 20
+    K_number = 20,
 
     Method = "classic",
     patch_size = 125,

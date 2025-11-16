@@ -34,7 +34,7 @@ The function calculates tissue compartments (usually tumor and stroma) based on 
 }
 \examples{
 \dontrun{
-#' Quick_Tumor_Stroma_identifier(
+Quick_Tumor_Stroma_identifier(
     DATA_Phenotypes = CSM_Phenotypecell_test,
     Index_phenotype = "TUMOR",
     Accuracy = 80,
