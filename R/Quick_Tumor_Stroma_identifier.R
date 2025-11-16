@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' #' Quick_Tumor_Stroma_identifier(
+#' Quick_Tumor_Stroma_identifier(
 #'     DATA_Phenotypes = CSM_Phenotypecell_test,
 #'     Index_phenotype = "TUMOR",
 #'     Accuracy = 80,

@@ -65,5 +65,5 @@ Clustered_Tiled_Images_graphicator <-
       scale_fill_manual("Cluster", values = unname(pals::polychrome(length(unique(Image_to_graph$Cluster_assignment))))) +
       theme(panel.grid = element_blank())
     plot(PLOT)
-    return(PLOT)
+    return(invisible(PLOT))
   }

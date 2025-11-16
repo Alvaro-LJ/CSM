@@ -38,6 +38,7 @@ If Simplify_result is FALSE, the function returns a list containing cell locatio
 }
 \description{
 The function generates tissue structure according to a cell phenotype label (usually tumor cells). Then all the cells are asigned a label according to their distance to the tissue structures.
+The function is based on the SPIAT function SPIAT::define_structure.
 }
 \examples{
 \dontrun{

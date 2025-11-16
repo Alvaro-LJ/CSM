@@ -35,7 +35,8 @@ Cell_plotter <-
       stop(paste0(stringr::str_c(Missing_phenotypes, collapse = ", "), " not present in the phenotypes of DATA"))
     }
 
-    DATA %>% dplyr::select(Subject_Names, X, Y, Phenotype) %>% dplyr::filter(Subject_Names == Image_name, Phenotype %in% Phenotypes_included) %>%
+    PLOT <-
+      DATA %>% dplyr::select(Subject_Names, X, Y, Phenotype) %>% dplyr::filter(Subject_Names == Image_name, Phenotype %in% Phenotypes_included) %>%
       ggplot(aes(x = X, y = Y, color = Phenotype)) +
       geom_point(size = 2, alpha = 0.95)+
       cowplot::theme_cowplot()+
@@ -48,4 +49,6 @@ Cell_plotter <-
             axis.ticks = element_blank(),
             legend.text = element_text(size = 20),
             legend.title = element_text(size = 20))
+    plot(PLOT)
+    return(invisible(PLOT))
   }

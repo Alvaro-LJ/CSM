@@ -247,7 +247,7 @@ Cell_to_Cell_graph_maker <-
     else if(Strategy == "Cells_in_Radius"){
       #Import general data frames
       DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == Image_name)
-      DATA_Cumulative_Interaction <- DATA_Cumulative_Interaction[[Image_name]]
+      DATA_Cumulative_Interaction <- DATA_Cumulative[[Image_name]]
 
       #Check that radius size is present in the data
       if(!(as.character(Radius) %in% names(DATA_Cumulative_Interaction[[2]]))){

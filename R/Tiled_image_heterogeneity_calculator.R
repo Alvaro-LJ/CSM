@@ -17,6 +17,8 @@
 #'
 #' @returns A list containing image information with by-tile heterogeneity metrics.
 #'
+#' @seealso [Tiled_image_heterogeneity_analyzer()], [Tiled_image_heterogeneity_graph_maker()]
+#'
 #' @examples
 #' \dontrun{
 #' #Divide cells into tiles---------
@@ -74,9 +76,9 @@ Tiled_image_heterogeneity_calculator <-
 
     #Else proceed with analysis
     Results <-
-      purrr::map(1:length(Tiled_Images), function(x) {
+      purrr::map(1:length(Tiled_images), function(x) {
 
-        Image <- Tiled_Images[[x]]
+        Image <- Tiled_images[[x]]
         Interim <- Image[[2]] %>% dplyr::filter(Phenotype %in% Phenotypes_included)
 
         #Generate the global cell count expected proportions (required for KL and JSD)
@@ -92,7 +94,7 @@ Tiled_image_heterogeneity_calculator <-
 
         #If not enough tiles are present in the image print a warning message
         if(nrow(Filtered_tiles) == 0) {
-          warning(paste0("No valid tiles present in: ", names(Tiled_Images)[x], ", hence it will be removed from analysis. Please consider lowering Minimum_cell_no_per_tile threshold or increasing the cell types included in analysis"))
+          warning(paste0("No valid tiles present in: ", names(Tiled_images)[x], ", hence it will be removed from analysis. Please consider lowering Minimum_cell_no_per_tile threshold or increasing the cell types included in analysis"))
           return(NULL)
         }
 
@@ -184,7 +186,7 @@ Tiled_image_heterogeneity_calculator <-
                        show_after = 2,
                        type = "iterator"))
 
-    names(Results) <- names(Tiled_Images)
+    names(Results) <- names(Tiled_images)
 
     #Return results except for NULL values
     return(Results[!purrr::map_lgl(Results, is.null)])

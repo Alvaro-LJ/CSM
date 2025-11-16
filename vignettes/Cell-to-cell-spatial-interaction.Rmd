@@ -1,0 +1,597 @@
+---
+title: "Cell to cell spatial interaction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cell-to-cell-spatial-interaction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Cell-to-cell spatial interaction analysis](#cell-to-cell-spatial-interaction-analysis)
+    - [Distance matrix-based analysis](#distance-matrix-based-analysis)
+    - [Cumulative interaction-base analysis](#cumulative-interaction-base-analysis)
+    - [Gcross function](#gcross-function)
+    - [Ripley's K](#ripleys-k-function)
+- [Multi-level modelling](#multi-level-modelling)
+- [Three better than two](#thriad-analysis)
+- [SPIAT-based](#spiat-based)
+- [Distance to Pixels](#distance-to-pixels)
+
+***
+
+## Introduction
+Cell-to-cell spatial interaction analyses are a group of techniques aimed to identify simple cellular interactions.
+They can be used to address specific scientific questions. They usually require less computational resources compared
+to neighborhood analysis. 
+
+An important aspect of cell-to-cell spatial interaction analysis is the notion of Cell of Origin (COO) and target cell.
+These analytical tools require defining a cell type that will serve as the COO. The COO will be the pivotal
+cell type in the analysis. The target cell will be used as the variable being measured.  
+
+CSM implements several tools to approach cell-to-cell spatial interactions:
+
+* __[Basic distance analysis](#cell-to-cell-spatial-interaction-analysis):__ These are based on analyzing simple distance
+  patterns between two cell types. If the cell types are the same they are referred to as homotypic interactions. Of these 
+  the most popular metrics include calculating the average min distance between two cell populations and the cells in radius
+  analysis. Other possible tools implemented in CSM include calculating the Gcross or the Ripley's K function.
+* __[Multi-level modelling](#multi-level-modelling):__ Adds two extra layers of complexity to the analysis. First, it takes
+  into account the cellular density of the target cell that can partially explain spatial interaction. Second it analyzes the 
+  influence of image metadata on the spatial interaction. Multi-level imposes a nested data structure to the cell matrix, where
+  every COO has an associated spatial interaction, while belonging to an image with specific metadata and target cell density.
+* __[Three cell analysis](#thriad-analysis):__ The principles are similar to those described in basic distance analysis.
+  However, this approach works with two target cells in stead of one.
+* __[SPIAT-based](#spiat-based):__ CSM ports the entropy gradient analysis implemented in the SPIAT package.
+
+In addition CSM also implements a Cell to [pixel analysis tool](#distance-to-pixels). It allows users to compute distance between cells
+and non-cellular pixel elements in the image. 
+
+
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The cells have been assigned a cell phenotype label
+by feature positivity pattern.
+
+In addition, for the multilevel model example, we will use a dataset of endometrial carcinoma samples including 500K cells
+obtained from 49 TMA samples. The cells have been assigned a cell label. The image metadata associated with these dataset
+were randomly generated and includes information regarding patient age, survival status and tumor MMRP status.
+
+```{r data, eval = TRUE}
+CSM_Phenotypecell_test
+CSM_PhenotypeTMA_test
+CSM_ClinicalTMA_test
+```
+
+## Cell-to-cell spatial interaction analysis
+There are several approaches to cell-to-cell distance analysis. 
+[Distance matrix-based analysis](#distance-matrix-based-analysis) requires computing a distance matrix between two cell types. 
+On the other hand, [Cumulative interaction-base analysis](#cumulative-interaction-base-analysis) requires computing 
+both a distance matrix and a cumulative interaction matrix.
+
+The distance matrix between two cell types can be computed using the `Distance_matrix_generator()` function.
+In this example the distance between CD8 cells and tumor cells will be calculated.
+```{r Distance_matrix, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Distance_matrix <- 
+  Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "CD8_GZMBneg",
+    Target_Cell = "TUMOR",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = FALSE
+)
+
+#Print the first element of the list
+Distance_matrix[[1]]
+```
+
+The cumulative interaction matrix quantifies the number of target cell encounters as the distance increases for every COO.
+It can be calculated using the `Cumulative_Interaction_generator()` function.
+```{r Cumulative, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Cumulative_interaction <- 
+  Cumulative_Interaction_generator(
+   N_cores = 1,
+   DATA = Distance_matrix,
+   Start_from = 25,
+   Stop_at = 100,
+   Sampling_frequency = 25
+)
+
+#Print the first element of the list
+Cumulative_interaction[[1]]
+```
+
+Before proceeding with the analysis a random background can be calculated. If cell phenotype labels were assigned
+randomly (keeping the cell densities intact) what would the distance and cumulative interaction matrices look like?
+We can calculate this using the `Random_Distance_matrix_generator()`. It permutes cell phenotype labels, selects a random
+COO and calculates the distances to all the randomly assigned target cells. The process is repeated as many times as 
+specified by the user for every sample in the dataset. In the following example we will calculate the random background by
+performing 30 random permutations by sample.
+
+```{r Random_matrix, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+RANDOM_dist_matrix <-
+  Random_Distance_matrix_generator(
+   N_cores = 1,
+   DATA = CSM_Phenotypecell_test,
+   Cell_Of_Origin = "CD8_GZMBneg",
+   Target_Cell = "TUMOR",
+   Random_cells_per_sample = 30,
+   Allow_Cero_Distance = FALSE,
+   Perform_edge_correction = FALSE
+)
+
+#Print the first element of the list
+RANDOM_dist_matrix[[1]]
+```
+
+This random distance matrix is also used to compute the random cumulative interaction matrix.
+```{r Random_cumulative, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+RANDOM_Cumulative_interaction <- 
+  Cumulative_Interaction_generator(
+   N_cores = 1,
+   DATA = RANDOM_dist_matrix,
+   Start_from = 25,
+   Stop_at = 100,
+   Sampling_frequency = 25
+)
+
+#Print the first element of the list
+RANDOM_Cumulative_interaction[[1]]
+```
+
+Now we are ready to proceed with the analysis.
+
+### Distance matrix-based analysis
+These metrics are computed using the distance matrix and optionally the random distance matrix.
+They include calculating the average distance and the average minimum and maximum distances between COO and target cells.
+
+Of all of these the average minimum distance and the absolute average are usually the most informative
+```{r Min_dist, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Distance_analyzer(
+  N_cores = 1,
+  DATA = Distance_matrix,
+  DATA_RANDOM = RANDOM_dist_matrix,
+  Metric = "Min_Distance",
+  Include_Random = TRUE,
+  By_Sample_Random = TRUE
+)
+```
+
+The analysis shows that the average minimum distance is shorter in B14 sample compared to B09. If all the random permuted cells
+generated are considered to be sample specific, only B09 distance pattern cannot be explained by cell densities alone.
+
+We can graph our results using the `Cell_to_Cell_graph_maker()` function.
+```{r Dist_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Cell_to_Cell_graph_maker(
+   Image_name = "ABCM22001_B09_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Min_Distance",
+   DATA_Distances = Distance_matrix
+)
+```
+
+Here, COO are represented in blue and target cells are represented in red.
+
+
+### Cumulative interaction-base analysis
+This analysis measures the average number of target cells surrounding each COO within a given distance. Here, the distance
+choice heavily influences the final results.
+```{r Cells_in_radius, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#25 pixel distance
+Cells_in_Radius_analyzer(
+   DATA = Cumulative_interaction,
+   DATA_RANDOM = RANDOM_Cumulative_interaction,
+   Radius = 25,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+
+
+#50 pixel distance
+Cells_in_Radius_analyzer(
+   DATA = Cumulative_interaction,
+   DATA_RANDOM = RANDOM_Cumulative_interaction,
+   Radius = 50,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+
+
+#75 pixel distance
+Cells_in_Radius_analyzer(
+   DATA = Cumulative_interaction,
+   DATA_RANDOM = RANDOM_Cumulative_interaction,
+   Radius = 75,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+
+
+#100 pixel distance
+Cells_in_Radius_analyzer(
+   DATA = Cumulative_interaction,
+   DATA_RANDOM = RANDOM_Cumulative_interaction,
+   Radius = 100,
+   Include_Random = TRUE,
+   By_Sample_Random = TRUE
+)
+```
+
+Results can also be plotted using the `Cell_to_Cell_graph_maker()` function.
+```{r Cum_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Cell_to_Cell_graph_maker(
+   Image_name = "ABCM22001_B09_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Cells_in_Radius",
+   DATA_Cumulative = Cumulative_interaction,
+   Radius = 75
+)
+```
+
+### Gcross function
+G-cross function computes the probability of spatial interaction between two cell types across increasing distances.
+A single function is approximated for every sample in the dataset. Once the function is computed the AUC of the function
+is calculated by integrating it. The AUC is a proxy for cell-to-cell spatial interaction for every sample.
+
+```{r Gcross, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Gcross_calculator(
+   DATA = CSM_Phenotypecell_test,
+   Cell_Of_Origin = "CD8_GZMBneg",
+   Target_Cell = "TUMOR",
+   Stop_at = 200,
+   Sampling_frequency = 10,
+   Use_Clinical = FALSE
+)
+```
+
+### Ripleys K function
+Ripley`s K and L functions assess the homotypic spatial interactions. The function is calculated across increasing distances.
+After being computed the AUC is calculated by function integration. In our experience integration of these functions
+can be problematic. Different max distances must be tried to obtain satisfactory results.
+
+```{r Ripley, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Ripley_function_calculator(
+   DATA = CSM_Phenotypecell_test,
+   Cell_type = "TUMOR",
+   Max_distance = 15,
+   Strategy = "Ripleys_K",
+   N_simulations = 10
+)
+```
+
+## Multi-level modelling
+This approach harness the information contained in the cumulative interaction matrix, information regarding target
+cell density and image metadata. Multilevel modelling can be very computationally intensive in datasets with many COO.
+
+Interpretation of multi-level models can be hard. Essentially, if the Clin_Group:DIST is positive it means that
+the image metadata provided influences positively in the spatial association. This means that if COO belong to 
+images with a certain condition, the chances of encountering a target cell as the distance increases is higher than for
+images without that condition. The opposite is true if the estimated coefficient is negative. 
+
+Intuitively, target cell density and distance alone, should always be positively associated with chances of encountering
+target cells.
+
+```{r Multilevel, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Generate cumulative interaction information
+DATA_Distances <-
+  Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_PhenotypeTMA_test,
+    Cell_Of_Origin = "CD8",
+    Target_Cell = "MACROPHAGE",
+    Allow_Cero_Distance = FALSE,
+    Perform_edge_correction = FALSE
+)
+
+DATA_Cumulative <-
+  Cumulative_Interaction_generator(
+    N_cores = 1,
+    DATA = DATA_Distances,
+    Start_from = 10,
+    Stop_at = 210,
+    Sampling_frequency = 50
+)
+
+
+#Obtain cell density by sample to account for density of target cells in the model
+DATA_AREA <-
+ Image_size_calculator(
+    DATA = CSM_PhenotypeTMA_test,
+    Strategy = "Concave_hull",
+    Hull_ratio = 0.4
+)
+Cells_by_sample <-
+ Phenotype_quantifier(
+    CSM_PhenotypeTMA_test,
+    Calculate_Density = TRUE,
+    DATA_Area = DATA_AREA
+)
+
+#Arrange clinical data
+DATA_CLINICAL <-
+Clinical_Data_arrange_function(
+     DATA = CSM_ClinicalTMA_test,
+     Subject_Names = "Sample",
+     Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
+)
+
+#Calculate the model--------------------------------------------------------------------------
+Multi_level_modelling_function(
+    DATA_cumulative = DATA_Cumulative,
+    DATA_Clinical = DATA_CLINICAL,
+    Clinical_var = "MMRP_status",
+    DATA_Densities = Cells_by_sample,
+    Cell_Of_Origin = "CD8",
+    Target_cell = "MACROPHAGE",
+    Calculate_R2 = FALSE
+)
+```
+
+Calculating p values in multi-level modelling is not straightforward. Pseudo R2 can be computed using the 
+`Multi_level_modelling_function()`. This can be very computationally intensive. 
+
+## Thriad analysis
+Thriad analysis follows the same rules as those exposed in 
+[Cell-to-cell spatial interaction analysis](#cell-to-cell-spatial-interaction-analysis). However, this approach
+requires defining a single COO and two types of target cells.
+
+In order to execute the analysis a TRIO distance matrix must be computed. Here we will compute the distance
+between tumor cells and the two types of CD8 cells present in our samples.
+
+```{r TRIO_dist, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+TRIO_distance_matrix <- 
+  Trio_Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "TUMOR",
+    Target_Cell_1 = "CD8_GZMBneg",
+    Target_Cell_2 = "CD8_GZMBpos",
+    Perform_edge_correction = FALSE
+)
+
+#Print the first element of the list
+TRIO_distance_matrix[[1]]
+```
+
+In addition, we can calculate the cumulative interaction and the TRIO score across increasing distances.
+The TRIO score is defined as:
+
+$$
+TRIOscore = {\sqrt{TargetA * TargetB}} 
+$$
+Therefore, the score can only be higher than 0 if both target cells are present within the given distance. 
+The score balances the relative abundance of both cell types.
+
+The cumulative interaction and TRIO score can be computed using the `Trio_Cumulative_Interaction_generator()`.
+```{r TRIO_cumul, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+TRIO_cumulative_interaction <- 
+  Trio_Cumulative_Interaction_generator(
+    N_cores = 1,
+    DATA = TRIO_distance_matrix,
+    Start_from = 25,
+    Stop_at = 100,
+    Sampling_frequency = 25
+)
+
+#Print the first element of the list
+TRIO_cumulative_interaction[[1]]
+```
+
+Following the same principles as for simple cell-to-cell analysis, random background can be computed.
+
+```{r TRIO_random, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Compute 30 random COO per sample
+RANDOM_TRIO_distance_matrix <- 
+  Trio_Random_Distance_matrix_generator(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Cell_Of_Origin = "TUMOR",
+    Target_Cell_1 = "CD8_GZMBneg",
+    Target_Cell_2 = "CD8_GZMBpos",
+    Random_cells_per_sample = 30,
+    Perform_edge_correction = FALSE
+    )
+
+#Print the first element of the list
+RANDOM_TRIO_distance_matrix[[1]]
+
+#Compute the RANDOM cumulative interaction and TRIO score
+RANDOM_TRIO_cumulative_interaction <- 
+  Trio_Cumulative_Interaction_generator(
+    N_cores = 1,
+    DATA = RANDOM_TRIO_distance_matrix,
+    Start_from = 25,
+    Stop_at = 100,
+    Sampling_frequency = 25
+)
+
+#Print the first element of the list
+RANDOM_TRIO_cumulative_interaction[[1]]
+```
+
+Once all the required matrices have been computed, the min distance to TRIO and the TRIO score in radius analyses
+can proceed. In contrast to simple cell-to-cell analysis, average thriad distance and maximum thriad distance metrics
+are non-informative and therefore cannot be computed.
+
+```{r TRIO_analyses, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Perform min distance to TRIO analysis.
+Trio_Min_Distance_analyzer(
+  N_cores = 1,
+  DATA = TRIO_distance_matrix,
+  DATA_RANDOM = RANDOM_TRIO_distance_matrix,
+  Include_Random = TRUE,
+  By_Sample_Random = TRUE
+)
+
+#Perform the TRIO score in radius analysis
+Trio_Cells_in_Radius_analyzer(
+  DATA = TRIO_cumulative_interaction,
+  DATA_RANDOM = RANDOM_TRIO_cumulative_interaction,
+  Radius = 75,
+  Include_Random = TRUE,
+  By_Sample_Random = TRUE
+)
+```
+
+Finally, results can also be plotted as for cell-to-cell analysis.
+```{r TRIO_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Plot min distance to TRIO
+Trio_graph_maker(
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "Min_Distance",
+   TRIO_Distances = TRIO_distance_matrix
+)
+
+#Plot TRIO score in radius
+Trio_graph_maker(
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Strategy = "TRIO_in_Radius",
+   TRIO_Cumulative = TRIO_cumulative_interaction,
+   Radius = 75
+)
+```
+
+## SPIAT-based
+Finally CSM ports SPIAT entropy gradient analysis to analyze spatial association between two cell types.
+For more information regarding the interpretation of this metric please seethe original paper published at
+https://www.nature.com/articles/s41467-023-37822-0.
+
+As for cumulative interaction metrics, the user must decide the sampling strategy with Gradient start, stop and sampling
+distance arguments.
+
+```{r SPIAT, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+DATA_SPIAT <- 
+  SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+    )
+
+#Calculate entropy gradients--------------------------
+SPIAT_entropy_gradient_generator(
+    DATA_SPIAT = DATA_SPIAT,
+    Gradient_start = 0,
+    Gradient_stop = 250,
+    Gradient_sampling = 50,
+    Phenotypes_included = c("CD8_GZMBpos", "TUMOR")
+)
+```
+
+## Distance to Pixels
+Distance to pixel analysis requires two sources of information: cell spatial coordinate information and
+thresholded images. The analysis is intended to understand how cells are positioned with relation to non-cellular
+elements (usually extracellular matrix elements). In practice, this tool can be used to assess distances from cells
+to any sort of biomolecule present in the tissue.
+
+For this example we will try to compute the distance of CD8 cells to any pixel positive for CK. First we need to
+threshold CK images. Here we will use a basic binary threshold.
+
+```{r Thresholded_images, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Create the input and output directories
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Threshold the CK channel and save the results
+Pixel_Threshold_calculator(
+     N_cores = 1,
+     Directory = Input_Dir,
+     Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+     Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+     Target_channel = "CK-EPCAM",
+
+     Save_processed_images = TRUE,
+     Output_Directory = Output_Dir,
+
+     Local_thresholding = FALSE,
+     Threshold_type = "Arbitrary",
+     Threshold_value = 0.02,
+
+     Threshold_type_tissueMask = "Absolute",
+     Threshold_value_tissueMask = 0.001,
+     Blurr_tissueMask = TRUE,
+     Sigma_tissueMask = 0.5,
+     Blurr_target = FALSE
+)
+```
+
+Now that thresholded images have been generated, we can compute the distance between cells and their
+closest positive pixel. Due to image pixel and cell coordinate discrepancies, sometimes adjustments need to be made.
+The function will show a test image with cell overlay to check that the alignment is correct before proceeding.
+
+```{r Dist_to_pixel, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+Cells_to_pixel_dist <- 
+  Cell_to_pixel_distance_calculator(
+    N_cores = 1,
+    Directory = Output_Dir,
+    Image_rotate = 90,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE,
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = c("CD8_GZMBpos", "CD8_GZMBneg"),
+    Pixel_distance_ratio = NULL
+ )
+
+Cells_to_pixel_dist
+```
+
+Now that we have obtained the distance of the CD8 cells to their closest CK positive pixel, we can classify
+cells according to this distance. For example we will classify CD8 cells closer than 3 pixel distance as being
+"inside CK", cells located between 4 and 10 pixel being "bordering CK" and those any farther as being "outside CK".
+
+```{r Dist_segments, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+Cells_to_pixel_dist <- 
+  Marker_segmentator(
+    DATA = Cells_to_pixel_dist,
+    DATA_variable = "CK-EPCAM_DIST",
+    DATA_cutoff = c(0, 4, 10, 5000),
+    New_labels = c("Inside", "Border", "Outside"),
+    Merge = TRUE,
+    Var_to_Merge = "Phenotype"
+)
+
+Cells_to_pixel_dist
+```
+
+Now the information regarding the position of these cells with respect to CK has been included in the cells phenotype.
+
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

@@ -6,7 +6,7 @@
 #' @param Phenotypes_included A character vector indicating the phenotype labels that will be included in the analysis.
 #'
 #' @details
-#' Shannon, Simpson,Inverse Simpson and Renyi entropy indexes are calculated using the vegan package.
+#' Shannon, Simpson, Inverse Simpson and Renyi entropy indexes are calculated using the vegan package.
 #'
 #' Rao index is calculated using the picante::raoD function.
 #'

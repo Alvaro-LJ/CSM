@@ -1,0 +1,619 @@
+---
+title: "Cell phenotype labelling"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cell-phenotype-labelling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results= 'hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Phenotyping by positive feature pattern](#phenotyping-by-positive-feature-pattern)
+    - [Thresholding features](#feature-thresholding)
+    - [Finding recurrent patterns and assigning cell labels](#finding-recurrent-patterns-and-assigning-cell-labels)
+- [Unsupervised clustering](#unsupervised-clustering)
+    - [Two-step clustering](#two-step-clustering)
+- [CELESTA semi-supervised clustering](#celesta)
+- [Image-based supervised labeling](#image-based-supervised-labeling)
+- [After cell phenotype labelling](#after-cell-phenotype-labelling)
+    - [Phenotype evaluation app](#phenotype-evaluation-app)
+    - [Concordance evaluation](#concordance-evaluation)
+    - [Labeling by consensus](#labeling-by-consensus)
+    - [Quantification & visualization](#quantification-and-visualization)
+
+***
+
+## Introduction
+Cell phenotype labelling is a crucial step in spatial biology analysis. This process assigns
+an identity label to every cell of a dataset. Many of the analysis pipelines in CSM and elsewhere
+require cells to have an assigned phenotype label. CSM provides several ways to achieve labelling.
+The choice between approaches is based on the characteristics of the cell feature dataset. If you cannot
+decide between method the user can always perform [Labeling by consensus](#labeling-by-consensus).
+
+* [Phenotyping by positive feature pattern](#phenotyping-by-positive-feature-pattern): Based on feature
+  thresholding. Well suited for datasets with few features and target cell phenotypes.
+* [Unsupervised clustering](#unsupervised-clustering): Based on various clustering algorithms. Well suited
+  for datasets with many features. May miss infrequent cell phenotypes if parameters are not adequately tuned.
+* [CELESTA semi-supervised clustering](#celesta): Based on CELESTA algorithm. Well suited if target cell phenotypes
+  are known and user has prior information regarding expected feature expression of these cell phenotypes.
+* [Image-based supervised labeling](#image-based-supervised-labeling): Based on manual labeling of cells based on
+  images. Manually labeling cells is time consuming but adequate to identify cell phenotypes even in noisy scenarios.
+
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The mean non-normalized intensity of CK, CD8a and GZMB will be used.
+
+```{r data, eval = TRUE}
+CSM_Arrangedcellfeaturedata_test
+```
+
+## Phenotyping by positive feature pattern
+This is one of the most popular methods to assign cell phenotypes. It is simliar to
+marker expression gating in the field of flow cytometry. It requires setting thresholds for every feature.
+Cells showing a feature intensity above the threshold will be considered positive for that specific feature. After 
+thresholding feature positivity pattern can be used to assign a phenotype label to each cell. 
+
+Feature thresholding is well suited for experiments with few measured features and
+when the number cell phenotypes being identified is small. As the number of features
+increases the resulting number of different positivity patterns can be prohibitively
+large to work with. Users must understand that thresholding is usually a heavily supervised
+approach. If a large number of features need to be included in the analysis, unsupervised, CELESTA or 
+image-based supervised methods are preferred.
+
+### Feature thresholding
+Thresholding a feature basically means finding an adequate threshold to define positivity.
+CSM implements a wide repertoire of automatic threshold identification algorithms. Most of them
+are based on histogram analysis and try to reduce the within group variability compare to the
+between group variability. Most of the algorithms included in CSM come derive from greyscale image 
+binarization pipelines. 
+
+Some of the approaches are very restrictive like RenyiEntropy or MaxEntropy while others are very 
+tolerant like TriClass_Otsu or Huang. In addition, CSM implements methods that are not based on
+histogram analysis (like mean, quantile or arbitrary thresholds).
+
+In addition, thresholding can be executed in a LOCAL or in a GLOBAL manner. Local thresholding
+will calculate a unique threshold for every image in a dataset. In contrast, global thresholding
+will find a single threshold for all images in a dataset. In general, local thresholding is discouraged.
+Local thresholding can potentially find thresholds according to image-specific noisy features. Although
+global thresholding is also influenced by noise, it's more robust than local thresholding.
+
+In order to explore thresholding approaches the user can use the `Thresholding_tester_app()`.
+This app, can be used to explore images, cell ovearlays with feature intensity values and thresholding
+approach results.
+
+```{r app, eval = FALSE}
+#Can only run interactively
+
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app----------------------------------------------
+Thresholding_tester_app(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+```
+
+Once a thresholding approach has been found to be appropriate, it's time to perform
+thresholding. 
+
+CSM deploys to feature thresholding methods. The first applies the same thresholding
+strategy to all the features in the dataset and is executed using the `Thresholding_function()`.
+
+```{r simple_thres, eval = TRUE}
+DATA_Thresholded <- 
+  Thresholding_function(
+    DATA = CSM_Arrangedcellfeaturedata_test,
+    Strategy = "EBI_Otsu",
+    Local_thresholding = FALSE,
+    Method_autothreshold = NULL,
+    number_iterations_TriClass = NULL,
+    Percentile = NULL,
+    Defined_threshold = NULL,
+    Levels = NULL
+)
+DATA_Thresholded
+```
+
+However, it is commonplace that different features require different thresholding approaches.
+To address this situation, CSM implements `Thresholding_function_tailored()`. This function allows
+the user to apply specific thresholding methods to every feature in a dataset. To this end,
+the user must first generate a tibble (or dataframe) containing thresholding parameters for every feature being
+processed:
+```{r tailored_thres, eval = TRUE}
+Thresholding_strategy_tibble <-
+  tibble::tibble(
+    variable = names(CSM_Arrangedcellfeaturedata_test)[-(1:4)],
+    Strategy = c("TriClass_Otsu", "Kmeans", "Autothreshold"),
+    Local_thresholding = F,
+    Method_autothreshold = "Otsu",
+    number_iterations_TriClass = 20,
+    Percentile = NA,
+    Defined_threshold = NA,
+    Levels = NA
+)
+
+Thresholding_function_tailored(
+  DATA = CSM_Arrangedcellfeaturedata_test,
+  Variables_tibble = Thresholding_strategy_tibble
+)
+```
+
+### Finding recurrent patterns and assigning cell labels
+Once features have been thresholded, the next step is to find recurrent 
+positivity patterns. These patterns are essentially the different cell phenotypes that
+can be found in the dataset. CSM finds these patterns using the `Marker_combinator_generator()`.
+The function can take a while to execute in very large datasets. The function will return
+the possibilities arranged by the abundance in the dataset.
+
+```{r Combin, eval = TRUE}
+Phenotype_possibilities <- Marker_combinator_generator(
+  DATA = DATA_Thresholded,
+  Markers = names(DATA_Thresholded)[-c(1:4)]
+)
+Phenotype_possibilities
+```
+
+Now that all positivity combination patterns have been identified, the user must assign
+a cell phenotype label to each pattern.
+
+```{r Possibilities, eval = TRUE}
+Phenotype_possibilities$Phenotype <-
+  c('TUMOR', 'OTHER', 'CD8_GZMBneg', 'CD8_GZMBneg', 'OTHER', 'CD8_GZMBpos', 'CD8_GZMBpos')
+Phenotype_possibilities[4:7]
+```
+
+Now we can combine this phenotype label information with the thresholded cell feature data
+to assign the final cell phenotype labels.
+```{r Phenotypes, eval = TRUE}
+DATA_Phenotypes <-
+  Phenotype_assigner_function(
+    DATA = DATA_Thresholded,
+    Phenotype_possibilities = Phenotype_possibilities
+    )
+table(DATA_Phenotypes$Phenotype)
+```
+
+## Unsupervised clustering
+Unsupervised clustering is also a very useful method to perform cell phenotype labeling.
+It can be specially useful in datasets with a high number of features. However, these methods
+can be computationally intensive. To alleviate the computational burden, dimension reduction
+and dataset denoising can be performed before clustering.
+
+Here's a short description of clustering methods implemented in CSM:
+
+* __Consensus Clustering and K_Means_Meta_clustering__: Well poised to find robust phenotypes. 
+  It suffers with increased number of cells in the dataset (indeed with as few as 50K cells it can require huge amounts of RAM).
+  K-means Meta clustering partially solves this issue. It first performs K-means to find a reduced number of centroids. These
+  centroids can then be clustered using consensus clustering.
+* __Self-organizing Maps (SOM)__: One of the most computationally efficient algorithms. It can usually miss low abundance cell types. It can also suffer
+  with very small dataset (with les than 1K cells).
+* __Graph based clustering__: Includes the very popular Louvain and Leiden algorithms. Computing graphs can take plenty of time and the results
+  of the algorithm widely depend on the number of neighbors to build the KNN graphs and the resolution of the clustering method. However, these
+  methods yield awesome results on datasets that have undergone dimension reduction
+* __Batched K-means, Gaussian Mixture Models (GMM) and Clustering Large Applications (CLARA)__: These are the methods developed to deal with really large
+  datasets. They perform reasonably well in both reduced and non-reduced scenarios. Stimating the right amount of cell types to identify can take some time.
+
+Denoising can help to remove cells that have absent feature expression or that show intermediate phenotypes that
+are hard to cluster. Denoising methods implemented in CSM are the following:
+
+* __Quantile__: Removes cells that show feature expression below a desired quantile for ALL the features in the dataset.
+* __Standard deviation__: Removes cells that show feature expression below the number of standard deviations from the mean for ALL the features
+  in the dataset.
+* __Threshold__: Removes cell that show no feature expression above the desired threshold for ALL the features in the dataset.
+* __Otsu__: Performs Otsu thresholding for all the features. Cells without positivity in any of the features are removed from the analysis.
+* __Density-based clustering on dimension reduction data__: Can only be performed if dimension reduction has been performed.
+  Performs DBSCAN clustering. Unclustered cells (demonstrating undeterminate phenotypes) are removed from the analysis.
+
+Once the clustering method, denosing and dimension reduction strategy have been selected clustering is straightforward.
+Besides SOM and Graph-based clustering, all methods will try to estimate the adequate number of clusters to be computed.
+
+```{r clustering, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Clustering_results <-
+  Clustering_Phenotyper(
+    DATA = CSM_Arrangedcellfeaturedata_test,
+    Strategy = "Graph_Based",
+    
+    Apply_Denoise = TRUE,
+    Denoising = "Otsu",
+    
+    Perform_Dimension_reduction = TRUE,
+    Dimension_reduction = "UMAP",
+    Dimension_reduction_prop = 1,
+    Cluster_on_Reduced = TRUE,
+  
+    Nearest_neighbors_for_graph = 10,
+    Graph_Method = "Leiden",
+    Graph_Resolution = 0.05
+)
+```
+
+After performing the clustering, according to the output graphs, the user can change the names of the clusters using the
+`DATA_Phenotype_renamer()` function.
+
+```{r re-namer, eval = FALSE}
+#Can only run interactively
+
+Clustering_results_DATA <-
+  DATA_Phenotype_renamer(Clustering_results$DATA, 
+                         c("OTHER", "TUMOR", "TUMOR", "CD8"))
+table(Clustering_results_DATA$Phenotype)
+```
+
+### Two-step clustering
+Clustering can be applied to already defined cell types based on previously unused features. Although re-clustering can be
+applied to any phenotype labeling approach, it is reasonable to explain it here. This function reliefs the stress of the initial
+clustering approach. The user can first assign core cell phenotype labels and then refine this initial core labels using the
+`ReClustering_function()`. 
+
+The re-clustering function works with a single cell phenotype at a time. It can re-cluster based on various features. 
+It supports clustering methods like SOM, Batch K-means and GMM and thresholding methods like Arbitrary and Multilevel. Although not
+formally evaluated by the function, features included in the re-clustering process should not have been used to define the initial core phenotype 
+labels.
+
+```{r Re-clustering, eval = FALSE}
+#Can only run interactively
+
+#Initial clustering based on CK and CD8a
+Clustering_results <-
+  Clustering_Phenotyper(
+    DATA = CSM_Arrangedcellfeaturedata_test[-7],
+    Strategy = "Graph_Based",
+    
+    Apply_Denoise = TRUE,
+    Denoising = "Otsu",
+    
+    Perform_Dimension_reduction = TRUE,
+    Dimension_reduction = "UMAP",
+    Dimension_reduction_prop = 1,
+    Cluster_on_Reduced = TRUE,
+  
+    Nearest_neighbors_for_graph = 10,
+    Graph_Method = "Leiden",
+    Graph_Resolution = 0.001
+)
+
+Clustering_results_DATA <-
+  DATA_Phenotype_renamer(Clustering_results$DATA, 
+                         c("OTHER", "TUMOR", "CD8"))
+
+ReClustering_function(
+    DATA = Clustering_results_DATA,
+    DATA_aside = CSM_Arrangedcellfeaturedata_test,
+    Phenotype_variable = "Phenotype",
+    Phenotype_to_recluster = "CD8",
+    Variables_to_recluster = "GZMB_AVERAGE",
+    Strategy = "Multilevel",
+    Levels = 3
+    )
+
+```
+
+After re-clustering execution, the new labels can be modified at will using the `DATA_Phenotype_renamer()` function.
+
+## CELESTA
+The CELl typE identification with SpaTiAl information (CELESTA) algorithm was developed by the
+Plevritis group (https://www.nature.com/articles/s41592-022-01498-z). In short, it assigns 
+cell labels based on target cell phenotype information provided by the user. The algorithm runs a 
+Gaussian Mixture Model to assign labels based on the information provided in sequential labeling rounds.
+
+The algorithm is computationally efficient. However, in our experience, parameter tuning is key
+to identify infrequent cell types. 
+
+There are two basic steps to execute CELESTA in CSM. First, the user needs to generate a CELESTA template.
+This is essentially a .csv file that needs to be fullfilled by the user with the target phenotypes information.
+Each row represents a target phenotype. Columns provide expected feature expression patterns of target phenotypes
+as well as parameters related to algorithm sensitivity and specificity. Information about completing the template
+can be found at https://github.com/plevritis-lab/CELESTA. 
+
+```{r template, eval = FALSE}
+#Can only run interactively
+
+CELESTA_template_generator(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Markers_to_keep = c("CK_EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE"),
+   Template_name = "Mypath/name_of_the_template" #.csv at the end is not required, the function will add it for you
+   )
+```
+
+After completing the template the CELESTA is executed using the `CELESTA_phenotyper()` function.
+```{r CELESTA, eval = FALSE}
+#Can only run interactively
+
+DATA_Phenotypes <- 
+  CELESTA_phenotyper(
+    DATA = CSM_Arrangedcellfeaturedata_test, 
+    Template_path = "Completed_template_path.csv",
+    Alternative_CSV_locale = TRUE, 
+    N_cores = 1, 
+    Apply_filters = TRUE, 
+    high_marker_threshold = 0.90, 
+    low_marker_threshold = 0.10, 
+    max_iteration = 10, 
+    cell_change_threshold = 0.01
+    )
+```
+
+Do not despair if results are not as expected. Obtaining satisfactory results using CELESTA is a matter
+of trial and error. Try modifying anchor parameters and labeling round strategy until success.
+
+## Image-based supervised labeling
+This approach relies on the ability of the user to inspect images and manually label different cell types.
+These labelled cells will be used to train a machine learning or deep learning algorithm. After training,
+the resulting model can be used to label all cells in the dataset.
+
+This approach is very powerful. It allows users to identify cells based on image findings. It can easily be trained
+to identify low abundance or complex phenotypes. In addition, it allows the algorithm to use not only cell information
+but also information of cell neighbors. This can be useful when cytoplasm segmentation is defective. However, it must be
+considered that manual labeling of cells is time consuming, and the model performance may be highly dependent on the number
+and quality of the cells selected for training.
+
+In order to generate the model CSM implements a dedicated shiny App (`Image_based_phenotyper_App_launcher()`). The app will
+automatically match the names of the image files and the Subject_Names in data. If missmatches are encountered a warning message
+will pop-up before launch.
+
+```{r model, eval = FALSE}
+#Can only run interactively
+
+#Create temporary directory
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app
+Image_based_phenotyper_App_launcher(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories
+unlink(Input_Dir, recursive = TRUE)
+```
+
+Using the App the phenotype label assign model can be created and saved in the Global Environment.
+This model can then be used to phenotype all cells in the dataset using the `Model_cell_phenotyper()`.
+
+```{r model_eval, eval = FALSE}
+#Can only run interactively
+
+print(CSM_ModelParam_test)
+
+#Use the model to assign cell labels to all cells in the dataset
+Model_cell_phenotyper(
+ DATA = CSM_Arrangedcellfeaturedata_test,
+ Model_parameters = CSM_ModelParam_test,
+ N_cores = 1
+)
+```
+
+## After cell phenotype labelling
+Once cell phenotype labels have been assigned, users are encouraged to check that results are
+satisfactory before proceeding. Flawed cell phenotype labels usually result in low quality
+analyses. CSM implements tools to visually [evaluate](#phenotype-evaluation-app) phenotype labeling results, analyze
+[concordance](#concordance-evaluation) between methods, reach a final label choice between methods by [consensus](#labeling-by-consensus)
+and [quantifying](#quantification-and-visualization) results.
+
+### Phenotype evaluation App
+CSM implements a shiny App designed to evaluate phenotyping results. The app displays images, cell overlay with phenotype labels.
+In addition, sample summaries are shown and user can evaluate the feature expression values for selected cells.
+
+```{r Phenotype_app, eval = FALSE}
+#Can only run interactively
+
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app----------------------------------------------
+Phenotyping_evaluator_shiny_app_launcher(
+    DATA = CSM_Phenotypecell_test,
+    Directory = Input_Dir,
+    Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+```
+
+### Concordance evaluation
+If concordance between phenotyping methods is high, which method is finally chosen is irrelevant.
+In contrast, low concordance between methods may warrant further exploring the source of discrepancies.
+To analyze concordance, CSM implements to related functions. First `Concordance_calculator()` can be used to compute
+Rand or Fowlkes–Mallows concordance indexes between as many methods as desired. The function will return the median
+p25 and p75 between sample concordance as well as a heatmap to spot samples with high or low concordance values.
+Concordance evaluation will be fair as far as the cell phenotype labels are shared between the methods being compared.
+
+We will illustrate this by randomly assigning cell phenotype labels and checking that the FM index is low given that there
+are only 4 possible cell phenotypes in the dataset.
+
+```{r Concordance, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+library(magrittr)
+library(dplyr)
+#Generate datasets with random cell phenotype labels----------------------
+CSM_Phenotypecell_test_1 <-
+ CSM_Phenotypecell_test %>%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_2 <-
+ CSM_Phenotypecell_test %>%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+CSM_Phenotypecell_test_3 <-
+ CSM_Phenotypecell_test %>%
+     mutate(Phenotype = sample(unique(CSM_Phenotypecell_test$Phenotype),
+                               size = nrow(CSM_Phenotypecell_test),
+                               replace = TRUE))
+
+#Find concordance between results--------------------------------------
+Concordance_calculator(
+  Random_1 = CSM_Phenotypecell_test_1,
+  Random_2 = CSM_Phenotypecell_test_2,
+  Random_3 = CSM_Phenotypecell_test_3,
+  Variable = "Phenotype",
+  Strategy = "FM"
+)
+```
+
+
+In addition, CSM implements the `Confusion_matrix_plotter()` function, that automatically draws a confusion matrix between
+two different methods.
+```{r Confusion, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+Confusion_matrix_plotter(
+  Random_1 = CSM_Phenotypecell_test_1,
+  Random_2 = CSM_Phenotypecell_test_2,
+  Variable = "Phenotype"
+)
+```
+
+### Labeling by consensus
+Although voting can be a flawed way of solving discrepancies (is better to analysze sources of conflict),it
+can be a good way to solve minor discordance between methods. It can also be a good way to address method 
+weaknesses by generating consensual choices. CSM implements consensus labeling through the 
+`Consensus_phenotype_assigner()` function. The function supports different ways of analyzing votes, as well as
+providing specific weights to highly confidence methods.
+
+```{r consensus, eval = FALSE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+#Can only run interactively
+DATA_Phenotypes_consensus <-
+  Consensus_phenotype_assigner(
+    Random_1 = CSM_Phenotypecell_test_1,
+    Random_2 = CSM_Phenotypecell_test_2,
+    Random_3 = CSM_Phenotypecell_test_3,
+    
+    Win_strategy = "Majority",
+    Weights = c(2,1,1),
+    No_consensus_value = NA_character_,
+    Tie_break_method = "Random",
+    N_cores = 1
+ )
+```
+
+### Quantification and visualization
+Once the phenotype labeling process is considered to be adequate, it's a good idea to quantify cell phenotypes.
+This can be easily done with the `Phenotype_quantifier()` function.
+
+```{r quantify, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+#Calculate tissue size 
+DATA_AREA <-
+  Image_size_calculator(
+    DATA = CSM_Phenotypecell_test,
+    Strategy = "Tiling",
+    Tile_accuracy = 100
+    )
+
+#Calculate the cell counts by image-------
+Phenotypes_by_Sample <-
+  Phenotype_quantifier(
+    DATA = CSM_Phenotypecell_test,
+    Calculate_Density = TRUE,
+    DATA_Area = DATA_AREA
+)
+Phenotypes_by_Sample
+```
+
+In addition, cell composition for every image can be used to obtain a barplot with the relative percentages of each cell type.
+```{r barplot, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=7}
+Barplot_generator(
+    DATA = Phenotypes_by_Sample,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg"),
+    Ordering_phenotype = "CD8_GZMBpos"
+)
+```
+
+Moreover, cells from individual images can be plotted with or without plotting the image.
+```{r images, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=10}
+#Without images
+Cell_plotter(
+   DATA = CSM_Phenotypecell_test,
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   Phenotypes_included = c("TUMOR", "CD8_GZMBpos", "CD8_GZMBneg", "OTHER")
+)
+
+#With images
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Draw the plot
+Cell_image_plot_generator(
+    Image_directory = dir(Input_Dir, full.names = TRUE)[2],
+    Channel_to_display = 5,
+    Image_rotate = NULL,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE,
+    Gamma_level = 0,
+    Equalize = FALSE,
+    Black_level = 1,
+    White_level = 20,
+
+    DATA = CSM_Phenotypecell_test,
+    Image_name ="ABCM22001_B14_MiniCrop.tif",
+    Color_by = "Phenotype",
+    Point_size = 2,
+    Pixel_distance_ratio = NULL
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+```
+
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

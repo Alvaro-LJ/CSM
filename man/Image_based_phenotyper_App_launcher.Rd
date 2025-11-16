@@ -38,7 +38,8 @@ Cell label assigner has several buttons:
 }
 
 Model settings allows the user to control how the model will be calculated. If spatial interaction features are required the user must
-specify how neighbors are defined.
+specify how neighbors are defined. The 'thresh' (threshold) parameter defines the minimum confidence of the prediction required to
+assign a cell a label. If threshold is not reached, the cell will remain unnasigned.
 
 Relevan buttons in the lower area of the control panel
 \itemize{

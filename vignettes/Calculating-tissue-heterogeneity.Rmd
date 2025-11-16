@@ -1,0 +1,275 @@
+---
+title: "Calculating tissue heterogeneity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Calculating-tissue-heterogeneity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r setup, results = 'hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Global heterogeneity](#global-heterogeneity)
+- [Spatial heterogeneity](#spatial-heterogeneity)
+    - [Tile-based](#tile-based)
+    - [Texture features](#texture-features)
+    - [SPIAT-based](#spiat-based)
+
+***
+
+## Introduction
+Tissue heterogeneity is one of the most complex areas in the field of spatial biology. In order
+to perform heterogeneity analysis cell phenotype labels must have been assigned (please see
+our dedicated vignette using `vignette("Cell-phenotype-labelling")`).
+
+Broadly, CSM heterogeneity analysis can be divided into GLOBAL heterogeneity (does not account for
+spatial information) and LOCAL or SPATIAL heterogeneity (takes into consideration the spatial dimension).
+
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The cells have been assigned a cell phenotype label
+by feature positivity pattern.
+
+```{r data, eval = TRUE}
+options(tibble.width = Inf)
+CSM_Phenotypecell_test
+```
+
+## Global heterogeneity
+Global heterogeneity metrics in CSM analyze the cell composition of samples to compute heterogeneity.
+Implemented metrics have various ways of defining heterogeneity:
+
+* __Richness and evenness metrics__: Includes Shannon, Simpson, Inverse Simpson, Renyi entropy,
+  and Rao indexes. These metrics take into account cell composition richness (the total number of different cell
+  types present in the sample) and evenness (the dominance of a single or very few cell types or in contrast the balance
+  between cell types). Different metrics combine these two factors in different ways to obtain the final metric.
+* __Evenness only metrics__: Gini index is the most representative of this type. Gini index analyzes the balance of the relative 
+  abundance of cell types in the sample.
+* __Observed vs Expected distribution metrics__: Includes Kullback-Leibler and Jensen-Shannon indexes. These metrics may quantify
+  the deviation from perfect balance between cell types or the deviation of the sample cell composition from the expected composition according
+  to the whole dataset.
+
+Global heterogeneity metrics can be computed using the `Global_heterogeneity_calculator()` function. It is of paramount importance 
+to understand that the number of phenotypes included in the analysis will heavily influence the final results.
+
+```{r global_het, eval = TRUE}
+Global_heterogeneity_by_sample <- 
+  Global_heterogeneity_calculator(
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype)
+    )
+Global_heterogeneity_by_sample
+```
+
+Afterwards, heterogeneity by sample can be quickly explored using the `Barplot_Heterogeneity_generator()`.
+```{r barplot_het, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Barplot_Heterogeneity_generator(
+   DATA = Global_heterogeneity_by_sample,
+   Metric = "Shannon"
+)
+```
+
+## Spatial heterogeneity
+Including the space dimension in heterogeneity analysis is not straightforward. CSM implements spatial
+heterogeneity in one of three ways:
+
+- **[Tile-based](#tile-based):** This approach divides the image into tiles and computes heterogeneity metrics
+  within this tiles. It can capture spatially restricted hot or cold spots. In addition, CSM implements tools
+  to analyze the spatial clustering of hot or cold heterogeneity spots. The implementation of the [SPIAT](#spiat-based) pipeline
+  in CSM is also based on image tiling.
+- **[Texture features](#texture-features):** Instead of cell composition, texture features analyzes the spatial distribution
+  heterogeneity of single cell types. It does so by first tiling the image and quantifying the abundance of cells within each
+  tile. This abundance by tile information is used to calculate the Grey-level co-ocurrence matrix (GLCM). GLCM is then analyzed
+  by calculating the average texture features. Texture features reflect different aspects of spatial distribution heterogeneity.
+    - __GLCM mean:__ The average amount of cells within the tiles (it just describes the chances of finding a cell within each tile, is not
+    actually a heterogeneity metric).
+    - __GLCM variance:__ The variance of the tile values within a sample (higher variance means that tile values are more dispersed).
+    - __GLCM homogeneity:__ The average value shift from tile values (higher values mean that tile values are homogeneous).
+    - __GLCM contrast:__ The average shift in value from neighboring tiles (high values mean there are sharp transitions between neighboring tile 
+    values).
+    - __GLCM dissimilarity:__ Similar to contrast but is less sensitive to very infrequent extreme variations.
+    - __GLCM entropy:__ Reflects tile complexity or randomness (the higher the value the more irregular distribution of tile values).
+    - __GLCM second moment:__ Also measures uniformity (high value means homogeneous tile values and low values means anarchy in tile value 
+    distribution).
+    - __GLCM correlation:__ Measures if tile values are predictable based on neighbors (high values indicate spatial clustering while low values
+    indicate random distributions).
+
+The choice of the approach will depend on the scientific question being analyzed. Tiled based approaches provide information of local heterogeneity
+patterns that can be missed in global analyses. On the other hand texture features provide a global summary of the spatial heterogeneity of a single
+cell type. Both approaches are complementary as they are aimed at different scientific questions. Indeed, the choice of including texture features
+as a type of spatial heterogeneity analysis is arbitrary. Some authors would better classify texture features as a type of homotypic cell to cell
+spatial interaction analysis. All in all some texture features recapitulate the chance of cell to cell spatial co-localization (like correlation).
+However, to our understanding, homotypic interactions are best analyzed in a more explicit manner (please see our dedicated vignette 
+using `vignette("Cell-to-cell-spatial-interaction")`). Texture features provide information of the spatial dispersion or 
+clustering of a single cell type across the entire tissue area.Therefore is closer to a spatial heterogeneity analysis.
+
+### Tile-based
+The first step in any tile-based approach is to decide the tiling strategy. The width and height of tiles used in the analysis will have an impact
+in the result. Aggregating data into tiles is associated with an inherent bias usually referred to as 'Modifiable areal unit problem'
+(https://en.wikipedia.org/wiki/Modifiable_areal_unit_problem). Any modification in the shape (widht/height ratio) or size of our tiles will have an
+effect on the final result. Any time we aggregate cell information into tiles we are imposing a structure on the data. However, users should not refrain
+from tiling their data just because there is a potential bias. Just take into account this potential bias and it is always a good idea to check how
+tiling strategies may modify the final conclusions of the analysis.
+
+First the size of the tissue can be obtained using the `Image_length_calculator()` function.
+```{r length, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Image_length_calculator(DATA = CSM_Phenotypecell_test)
+```
+
+Afterwards, the target tile size can be approximated according to the desired number of rows and columns the tissue should be spitted into.
+This can be calculated using the smallest or the largest tissue in the dataset.
+
+```{r suggested, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Suggested_Tile_Size_Calculator(
+   CSM_Phenotypecell_test,
+   N_cols = 5,
+   N_rows = 5,
+   Based_on_smaller = TRUE,
+   Draw_preview = TRUE
+)
+```
+
+According to the results a tile of 100 pixels width and height will be selected. Then we perform our tiling process using the
+`Image_tiling_processing_function()`.
+```{r Tiling, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Tiled_images <-
+  Image_tiling_processing_function(
+    N_cores = 1,
+    DATA = CSM_Phenotypecell_test,
+    Tile_width = 100,
+    Tile_height = 100,
+    Variables_to_keep = "Phenotype"
+    )
+#Preview the first element of the resulting list
+Tiled_images[1]
+```
+Every element in the list represents a single image. Every image has two tibbles. The first contains tile information. The second contains cell tile assignment.
+There is a single unit overlap between tiles during the tiling processing. The reason for this is to account for potential decimals in the cell centroids that
+may cause dropping cells from the tiling analysis. Cells are assigned to the first tile where they are identified. Therefore cells cannot belong to multiple
+tiles.
+
+Once each cell has been assigned to a single tile the heterogeneity by tile can be computed.
+```{r tile_heterog, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Heterogeneity_by_tile <-
+  Tiled_image_heterogeneity_calculator(
+    Tiled_images = Tiled_images,
+    Minimum_cell_no_per_tile = 3,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")
+)
+#Print the results for the first image
+Heterogeneity_by_tile[1]
+```
+
+Once heterogeneity by tile has been computed it can be analyzed with `Tiled_image_heterogeneity_analyzer()`.
+```{r tile_heterog_analysis, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Analyze tiles above threshold
+Tiled_image_heterogeneity_analyzer(
+    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
+    Strategy = "Quantify_by_Threshold",
+    Metric = "Shannon",
+    Threshold = 0.75
+)
+
+#Analyze the overall pattern
+Tiled_image_heterogeneity_analyzer(
+    Tiled_heterogeneity_DATA = Heterogeneity_by_tile,
+    Strategy = "Overall_Summary",
+    Metric = "Shannon"
+    )
+```
+
+In addition, the heterogeneity by tile can also be graphicated.
+```{r tile_heterog_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Tiled_image_heterogeneity_graph_maker(
+    DATA = CSM_Phenotypecell_test,
+    Tiled_images = Heterogeneity_by_tile,
+    Image_name = "ABCM22001_B09_MiniCrop.tif",
+    Metric = "Shannon"
+)
+
+Tiled_image_heterogeneity_graph_maker(
+    DATA = CSM_Phenotypecell_test,
+    Tiled_images = Heterogeneity_by_tile,
+    Image_name = "ABCM22001_B14_MiniCrop.tif",
+    Metric = "Shannon"
+)
+```
+
+### Texture features
+Texture features also require tiling the image. For this example the previously 100 pixel strategy will also be used.
+Texture features can be computed directly from tiled images using the `Texture_features_calculator()`.
+```{r texture, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Calculate texture features of CD8 T cells
+Texture_features_calculator(
+    Tiled_images = Tiled_images,
+    Phenotype_included = "CD8_GZMBneg"
+)
+
+#Calculate texture features of TUMOR cells
+Texture_features_calculator(
+    Tiled_images = Tiled_images,
+    Phenotype_included = "TUMOR"
+)
+```
+
+The results can also be plotted.
+```{r texture_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Tiled_images_graphicator(
+   Tiled_images = Tiled_images,
+   Image_name = "ABCM22001_B14_MiniCrop.tif",
+   Phenotypes_included = c( "CD8_GZMBneg", "TUMOR")
+)
+```
+
+### SPIAT-based
+CSM implements a port to perform SPIAT heterogeneity analysis. The principles are similar to those explained
+in [tiling-based analysis](#tile-based).
+
+To analyze using SPIAT first we need to create a SPIAT object list
+```{r SPIAT_object, results = 'hide', eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+DATA_SPIAT <-
+  SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+    )
+```
+
+Then we can analyze them using the `SPIAT_Heterogeneity_Analyzer()` function.
+```{r SPIAT_analysis, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+SPIAT_Heterogeneity_Analyzer(
+    N_cores = 1,
+    DATA_SPIAT = DATA_SPIAT,
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Tile_size = 230,
+    Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+    Entropy_threshold = 0.75,
+    Autocorrelation_metric = "globalmoran"
+)
+```
+
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

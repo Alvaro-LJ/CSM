@@ -1,0 +1,227 @@
+---
+title: "Dividing tissue into cellular structures"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Dividing-tissue-into-cellular-structures}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Quick structuring](#quick-structuring)
+- [DBSCAN structuring](#dbscan-structuring)
+- [LISA structuring](#lisa-structuring)
+- [Advanced structuring](#advanced-structuring)
+- [SPIAT-based structuring](#spiat-based-structuring)
+- [Pixel-based structuring](#pixel-based-structuring)
+
+## Introduction
+
+Dividing the tissue into cellular structures can be useful to locate cells within specific tissue compartments. In tumor spatial biology, tissue structuring
+is commonly used to divide sample areas into tumor and stromal areas. This is the reason why functions are named as "Tumor_Stroma" identifiers.
+However, this technique can be used to identify tissue compartments of any type. 
+Structures are based on a single cell type. As far as this cell type shows a good degree of spatial clustering, tissue structuring can be successful.
+
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The cells have been assigned a cell phenotype label
+by feature positivity pattern.
+
+```{r data, eval = TRUE}
+options(tibble.width = Inf)
+CSM_Phenotypecell_test
+```
+
+## Quick structuring
+This structuring function is based on tiles. It divides areas into tumor and stromal compartments based on presence of tumor cells in these tiles.
+If enough tumor cells are located in a tile, the tile is considered to be a tumor tile and stromal tile otherwise. After imputing tile labels, cells
+are assigned to a compartment based on tile location.
+
+```{r Quick, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Can only run interactively
+Quick_Tumor_Stroma_identifier(
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Index_phenotype = "TUMOR",
+    Accuracy = 50,
+    Min_cell_no = 2,
+    Image_preview = NULL,
+    N_cores = 1
+)
+```
+
+## DBSCAN structuring
+This approach is based on Density Based clustering. It first uses index phenotype (usually tumor cells) to compute spatially clustered cells. Afterwards, all
+cells are projected over this clustered index phenotype cells. Cells over clustered cells are considered to be in the tumor compartment. Cells outside are considered
+to be in the stromal compartment.
+
+```{r DBSCAN, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Can only run interactively
+DBSCAN_Tumor_Stroma_identifier(
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Index_phenotype = "TUMOR",
+    Min_cells = 3,
+    Distance_radius = 50,
+    N_cores = 1
+)
+```
+
+## LISA structuring
+This approach is based on Local Indicators of Spatial Association. It can be computationally intensive. It will compute Tumora, stromal and border compartments.
+
+```{r LISA, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Can only run interactively
+LISA_Tumor_Stroma_identifier(
+   DATA_Phenotypes = CSM_Phenotypecell_test,
+   Index_phenotype = "TUMOR",
+   Association_Dist_min = 5,
+   Association_Dist_max = 50,
+   Type_of_LISA_function = "L",
+   Window_type = "convex",
+   N_cores = 1
+)
+```
+
+## Advanced structuring
+Advanced structuring combines tiling or DBSCAN methods to pre-filter index cells, and the computes the concave hull to infer the tumor, stromal and border compartments.
+Since it calculates a single polygon, it will under-perform in highly dispersed index cell scenarios.
+
+```{r ADVANCED, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Can only run interactively
+Advanced_Tumor_Stroma_identifier(
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Index_phenotype = "TUMOR",
+
+    Filtering_Method = "DBSCAN",
+    Min_cell_no = 5,
+    Distance_radius = 100,
+
+    Hull_ratio = 0.05,
+    Calculate_border = TRUE,
+    Dist_to_border = 10
+)
+```
+
+## SPIAT-based structuring
+This approach is based on the `SPIAT::define_structure()` function. It can also be very computationally intensive. It can compute a highly granulated compartment assigning cells to
+inner and outer tumor and stromal borders. Results can be simplified by turning the 'Simplify_result' to TRUE.
+
+```{r SPIAT, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Can only run interactively
+DATA_SPIAT <-
+  SPIAT_object_generator(
+    DATA_Intensities = CSM_Arrangedcellfeaturedata_test,
+    DATA_Phenotypes = CSM_Phenotypecell_test
+)
+
+
+#Calculate tissue structures-------------
+SPIAT_Tissue_structuring_function(
+    N_cores = 1,
+    DATA_SPIAT = DATA_SPIAT,
+    DATA_Phenotypes = CSM_Phenotypecell_test,
+    Cell_type_to_define_cluster = "TUMOR",
+    Minimum_number_cells_cluster = 5,
+    Cell_types_of_interest = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER"),
+    Layers_margin = 5,
+    Simplify_result = T
+)
+```
+
+## Pixel-based structuring
+Tissue can also be structured without requiring index cells. Cells can be assigned to a tissue structure based on thresholded pixel information. 
+In the following example, TUMOR/STROMAL compartments are defined by a CK-epcam thresholded image. This example was also presented in the Cell-to-cell-spatial-interaction
+vignette (please see `vignette("Cell-to-cell-spatial-interaction")`).
+
+```{r Pixel_based, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Can only run interactively
+#Create the input and output directories
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Threshold the CK channel and save the results
+Pixel_Threshold_calculator(
+     N_cores = 1,
+     Directory = Input_Dir,
+     Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+     Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+     Target_channel = "CK-EPCAM",
+
+     Save_processed_images = TRUE,
+     Output_Directory = Output_Dir,
+
+     Local_thresholding = FALSE,
+     Threshold_type = "Arbitrary",
+     Threshold_value = 0.02,
+
+     Threshold_type_tissueMask = "Absolute",
+     Threshold_value_tissueMask = 0.001,
+     Blurr_tissueMask = TRUE,
+     Sigma_tissueMask = 0.5,
+     Blurr_target = FALSE
+)
+
+#Calculate distance to closest positive pixel
+Cells_to_pixel_dist <- 
+  Cell_to_pixel_distance_calculator(
+    N_cores = 1,
+    Directory = Output_Dir,
+    Image_rotate = 90,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE,
+    DATA = CSM_Phenotypecell_test,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+    Pixel_distance_ratio = NULL
+ )
+
+#Divide cells into compartments according to distance to closest positive pixel
+Cells_to_pixel_dist <- 
+  Marker_segmentator(
+    DATA = Cells_to_pixel_dist,
+    DATA_variable = "CK-EPCAM_DIST",
+    DATA_cutoff = c(0, 4, 10, 5000),
+    New_labels = c("Inside", "Border", "Outside"),
+    Merge = TRUE,
+    Var_to_Merge = "Phenotype"
+)
+
+Cells_to_pixel_dist
+```
+
+
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```
+

@@ -1,6 +1,7 @@
 #' Generates tissue structures according to a cell phenotype label using the SPIAT package.
 #'
 #' The function generates tissue structure according to a cell phenotype label (usually tumor cells). Then all the cells are asigned a label according to their distance to the tissue structures.
+#' The function is based on the SPIAT function SPIAT::define_structure.
 #'
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @param DATA_SPIAT A list containing SPIAT objects generated using [SPIAT_object_generator()].

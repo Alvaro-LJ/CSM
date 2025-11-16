@@ -1,0 +1,148 @@
+---
+title: "Normalizing cell features"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Normalizing-cell-features}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Normalizing using mxnorm](#normalizing-using-mxnorm)
+- [Normalizing using simpleSeg](#normalizing-using-simpleseg)
+- [Evaluating normalization results](#evaluating-normalization-results)
+
+***
+
+## Introduction
+Cell feature data is obtained from images. Images are usually subject to inherent batch effect that can be removed using
+normalization procedures. Normalization can be performed at the image level (not supported currently by CSM), or at the cell
+feature expression level. While it is certainly possible that normalization can remove true signal, the benefit of removing
+batch effect usually outweigh the drawbacks. This is specially true for noisy features, like the ones derived from immunofluorescence
+protocols with plenty of background staining.
+
+CSM implements two popular pipelines to perform image normalization. On the one hand COMBAT algorithm and the registration method powered
+by the mxnorm package. On the other diverse transformations implemented in the simpleSeg bioconductor package.
+
+## Test datasets
+The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. They have been stained with a multiplexed
+immunofluorescence technique for the following markers: "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+For the current example we will use information from around 1K cells. The mean intensity of CK, CD8a and GZMB will be normalized.
+```{r data, eval = TRUE}
+CSM_Arrangedcellfeaturedata_test
+```
+
+## Normalizing using mxnorm
+mxnorm normalization supports both COMBAT and registration algorithms. Users are directed to the associated publication for further information
+(https://academic.oup.com/bioinformatics/article/38/6/1700/6496920/). mxnorm allows to take into account two sources of variability:
+
+* Slide to slide variability: The variability derived from the specific slide where the tissue is located (useful for TMA based experiments)
+* Image to image variability: The variability derived from the image acquisition process
+
+If slide information is not available, user can set the slide_id and the image_id parameters to the same variable.
+```{r mxnorm_1, eval = TRUE}
+mxnorm_Parameters_simple <- list(slide_id = "Subject_Names", 
+                                 image_id = "Subject_Names", 
+                                 marker_cols = names(CSM_Arrangedcellfeaturedata_test[-c(1:4)]), 
+                                 transform = "log10", 
+                                 method = "ComBat", 
+                                 method_override = NULL, 
+                                 method_override_name = NULL 
+                          )
+```
+
+mxnorm allows users to specify a normalization method of their own, which can be provided to the method_override argument
+(see mxnorm documentation for further details).
+
+After setting the parameters the `Normalization_function()` can be executed to obtain the results.
+```{r norm_mx, eval = TRUE}
+DATA_normalized_mx_norm <- 
+  Normalization_function(CSM_Arrangedcellfeaturedata_test,
+                         Strategy = "mxnorm", 
+                         Parameters = mxnorm_Parameters_simple
+)
+DATA_normalized_mx_norm
+```
+
+## Normalizing using simpleSeg
+The other approach implemented in CSM is powered by the simpleSeg bioconductor package. It allows normalizing using one of the following
+approaches: 'mean', 'minMax', 'trim99' or 'PC1'.
+
+As for mxnorm, a parameters list needs to be created first. simpleSeg normalization allows the use of multiple methods simultaneously.
+```{r simple_1, eval = TRUE}
+simpleSeg_Parameters <- list(cells = CSM_Arrangedcellfeaturedata_test,
+                             markers = names(CSM_Arrangedcellfeaturedata_test[-c(1:4)]),
+                             imageID = "Subject_Names",
+                             transformation = "sqrt", 
+                             method = c("trim99", "minMax"), 
+                             cores = 1 
+)
+```
+Although you see a "cores" item in the parameter list, this information is not used during normalization. If multicore parallelization
+is required during normalization (which only improves normalization speed in terribly large datasets, those with over 10^7 cells),
+the `Normalization_function_parallel()` should be used.
+
+Afterwards normalization can be executed with the `Normalization_function()`.
+```{r norm_simple, eval = TRUE}
+DATA_normalized_simple_seg <- 
+  Normalization_function(CSM_Arrangedcellfeaturedata_test,
+                         Strategy = "simpleSeg", 
+                         Parameters = simpleSeg_Parameters
+)
+DATA_normalized_simple_seg
+```
+
+## Evaluating normalization results
+Once you normalize feature data it's a good idea to check that normalization actually did something to your data. 
+In CSM you check the effect by running `Normalization_diagnostics()`. Normalization diagnostics returns two analyses.
+
+First if normalization is successful the variability of the Otsu threshold value calculated for every sample in the dataset should be
+smaller. In practice, if normalization works, the feature expression across samples will show less variability than before normalization.
+This will translate in less variable Otsu thresholds. The function returns the Coefficient of Variation (CV) of the Otsu thresholds before
+and after normalization.
+
+Second, feature expression distribution in all the cells contained in a dataset may be closer to a bimodal distribution or to the normal 
+distribution after normalization. This may be a desired effect if features need to be thresholded afterwards. The function returns
+an histogram showing the feature distribution before and after normalization.
+
+Given the small sample size of the datasets used here (only two images) the evaluation of the normalization process can be hard.
+However, the principles presented here apply to larger datasets.
+
+```{r norm_diag, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#First mxnorm diagnostics
+Normalization_diagnostics(Original_DATA = CSM_Arrangedcellfeaturedata_test,
+                          Normalized_DATA = DATA_normalized_mx_norm
+                          )
+
+#Second simpleSeg diagnostics
+Normalization_diagnostics(Original_DATA = CSM_Arrangedcellfeaturedata_test,
+                          Normalized_DATA = DATA_normalized_simple_seg
+                          )
+```
+
+
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

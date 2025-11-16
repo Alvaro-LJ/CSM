@@ -1,0 +1,125 @@
+---
+title: "Working with RGB images"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working-with-RGB-images}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Index
+
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Color channel extraction APP](#the-channel-extraction-testing-app)
+- [Performing channel extraction](#performing-channel-extraction)
+- [Cell segmentation based on channels](#cell-segmentation-based-on-channels)
+
+***
+
+## Introduction
+RGB color images are another source of image information. CSM provides tools to extract different channels from
+RGB color images according to different colors. This can be used to separate hematoxylin and eosin channels from 
+conventional HE stained tissues, or to obtain hematoxylin and Diaminobenzidine color channels from immunohistochemical images.
+These channels can be used for subsequent pixel based analysis or even to perform cell segmentation if adequate nuclear
+channels can be obtained.
+
+## Test datasets
+The test dataset is composed of two 1000x1000 HE images of cardiac muscle.
+```{r DATA, eval = TRUE}
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniHE_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniHE_test)[Image]))
+})
+```
+
+## The channel extraction testing APP
+CSM implements a dedicated shiny App to explore how color channels can be extracted and generate the parameters that can be then applied
+to all the images in the dataset.
+```{r App, eval = FALSE}
+#Can only run in an interactive setting
+Color_deconvolution_App_launcher(Directory = Input_Dir)
+```
+
+## Performing channel extraction
+Once the parameters have been defined using the APP, they can be applied to all the images in the dataset. The multi-channel TIFF images are saved
+in the output directory.
+
+```{r Deconv, eval = FALSE}
+#Can only run in an interactive setting
+#Generate the output directory
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+Image_deconvolution_function(
+       Directory = Input_Dir,
+       Output_directory = Output_Dir,
+       Deconvolution_parameters = CSM_colordeconv_test,
+       N_cores = 1
+)
+```
+
+## Cell segmentation based on channels
+Once channels have been created if at least one nuclear channel is present, cells can be segmented and features extracted.
+
+```{r Segment, eval = FALSE}
+#Can only run in an interactive setting
+CELL_DATA_RAW <- 
+  Cell_segmentator_quantificator(
+    Directory = Output_Dir,
+    Parameter_list = CSM_HE_SegmentParams_test,
+    N_cores = 1,
+    quantiles_to_calculate = 0.5)
+
+CELL_DATA_ARRANGED <- 
+  Data_arrange_function(
+    DATA = CELL_DATA_RAW,
+    Subject_Names = "imageID",
+    X = "m.cx",
+    Y = "m.cy",
+    Markers_to_keep = c("Hematoxylin_AVERAGE", "Eosin_AVERAGE")
+  )
+
+Cell_image_plot_generator(
+  Image_directory = stringr::str_c(Input_Dir, "/", "HE1_TEST.tiff"),
+  Channel_to_display = 1,
+  Image_rotate = 0,
+  Image_x_flip = FALSE,
+  Image_y_flip = TRUE,
+  Gamma_level = 0,
+  Equalize = FALSE,
+  Black_level = 0,
+  White_level = 100,
+  DATA = CELL_DATA_ARRANGED,
+  Image_name = "HE1_TEST.tiff_Channels.tiff",
+  Color_by = NULL,
+  Point_size = 1,
+  Pixel_distance_ratio = NULL
+)
+```
+
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
+```

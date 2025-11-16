@@ -7,6 +7,8 @@
 #'
 #' @returns Returns a plot with the cells and the overlying tiles shaded according to the heterogeneity index.
 #'
+#' @seealso [Tiled_image_heterogeneity_graph_maker()], [Tiled_image_heterogeneity_analyzer()]
+#'
 #' @examples
 #' \dontrun{
 #' #Divide cells into tiles---------
@@ -74,5 +76,5 @@ Tiled_image_heterogeneity_graph_maker <-
                            low = "blue", high = "red", mid = "white",
                            midpoint = quantile(Tiles$value, 0.5))
     plot(PLOT)
-    return(PLOT)
+    return(invisible(PLOT))
   }

@@ -150,7 +150,7 @@ Cell_image_plot_generator <-
                 axis.line = element_blank(),
                 panel.grid = element_blank())
         plot(PLOT)
-        return(PLOT)
+        invisible(return(PLOT))
       }
 
       #If is character
@@ -166,7 +166,7 @@ Cell_image_plot_generator <-
                 axis.line = element_blank(),
                 panel.grid = element_blank())
         plot(PLOT)
-        return(PLOT)
+        invisible(return(PLOT))
       }
     }
 
@@ -181,7 +181,7 @@ Cell_image_plot_generator <-
               axis.line = element_blank(),
               panel.grid = element_blank())
       plot(PLOT)
-      return(PLOT)
+      return(invisible(PLOT))
     }
 
   }
