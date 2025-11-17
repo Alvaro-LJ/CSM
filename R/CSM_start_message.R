@@ -12,9 +12,11 @@
       "",
       "Please see package help with help(package = 'CSM')",
       "",
-      "For further information please visit our github repositories: https://github.com/Alvaro-LJ",
+      "To see examples of use please see CSM vignettes with browseVignettes(package = 'CSM')",
       "",
-      "Bug and suggestions can be reported through our github profile",
+      "For further information please visit our github repository: https://github.com/Alvaro-LJ/CSM",
+      "",
+      "Bug and suggestions can be reported through our github repository: https://github.com/Alvaro-LJ/CSM/issues",
       "",
       "Thanks for using CSM!",
       sep = "\n"
