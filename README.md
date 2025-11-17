@@ -11,12 +11,12 @@
 
 ## Main features and requirements
 * CSM was developed using R version > 4.3
-* CSM dependencies are extense. However not all suggested packages are required to perform specific tasks. Functions will return an error if packages they depend on are not installed.
+* CSM depends on many packages. However not all suggested packages are required to perform specific tasks. Functions will return an error if packages they depend on are not installed.
 * CSM includes >100 functions organized in 6+1 modules.
 * CSM provides several images and datasets to test function capabilities.
-* You can install CSM in R using
+* You can install CSM in R using the following code (we encourage users to obtain and read our vignettes by setting the build_vignettes argument to TRUE):
 ```diff
-devtools::install_github(Alvaro-LJ/CSM)
+devtools::install_github(Alvaro-LJ/CSM, build_vignettes = TRUE)
 ```
 
 ## Main outline of CSM
@@ -81,7 +81,7 @@ You can report issues directly through the [GitHub Issues page](https://github.c
 
 - A clear description of the problem
 - A Min-Reprex demonstrating the abnormal behavior
-- Your environment (OS, R version)
+- Your environment (OS, R version...)
 
 We appreciate your feedback and contributions!
 
