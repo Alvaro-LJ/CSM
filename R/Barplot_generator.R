@@ -59,6 +59,6 @@ Barplot_generator <-
               legend.title = element_text(size = 20))
 
       plot(PLOT)
-      invisible(return(PLOT))
+      return(invisible(PLOT))
     }
   }

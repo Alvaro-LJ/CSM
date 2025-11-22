@@ -99,5 +99,5 @@ Confusion_matrix_plotter <-
     )
 
     #Return
-    invisible(return(Final_plot))
+    return(invisible(Final_plot))
   }
