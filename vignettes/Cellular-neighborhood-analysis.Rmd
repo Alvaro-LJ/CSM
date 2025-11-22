@@ -90,7 +90,7 @@ CSM_Phenotypecell_test
 CSM_Arrangedcellfeaturedata_test
 ```
 
-## [Closest neighbor-based approach](#closest-neighbor-based-approach)
+## Closest neighbor-based approach
 The closest neighbor approach requires a definition of neighbors. Currently, CSM supports three ways of defining neighbors:
 
 * __N closest cells:__ The neighbors of any cell in the sample are it's N closest cells, being N an integer number. As N increases,
