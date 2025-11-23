@@ -42,7 +42,7 @@ library(CSM)
 ***
 
 ## Introduction
-Cell-to-cell spatial interaction analyses are a group of techniques aimed to identify simple cellular interactions.
+Cell-to-cell spatial interaction analyses are a group of techniques aimed at identifying simple cellular interactions.
 They can be used to address specific scientific questions. They usually require less computational resources compared
 to neighborhood analysis. 
 
@@ -53,13 +53,14 @@ cell type in the analysis. The target cell will be used as the variable being me
 CSM implements several tools to approach cell-to-cell spatial interactions:
 
 * __[Basic distance analysis](#cell-to-cell-spatial-interaction-analysis):__ These are based on analyzing simple distance
-  patterns between two cell types. If the cell types are the same they are referred to as homotypic interactions. Of these 
+  patterns between two cell types. If the cell types are the same they are referred to as homotypic interactions. Of these, 
   the most popular metrics include calculating the average min distance between two cell populations and the cells in radius
   analysis. Other possible tools implemented in CSM include calculating the Gcross or the Ripley's K function.
 * __[Multi-level modelling](#multi-level-modelling):__ Adds two extra layers of complexity to the analysis. First, it takes
-  into account the cellular density of the target cell that can partially explain spatial interaction. Second it analyzes the 
-  influence of image metadata on the spatial interaction. Multi-level imposes a nested data structure to the cell matrix, where
-  every COO has an associated spatial interaction, while belonging to an image with specific metadata and target cell density.
+  into account the cellular density of the target cell that can partially explain spatial interactions. Second, it analyzes the 
+  influence of image metadata on the spatial interaction. Multi-level modelling imposes a nested data structure to the cell matrix, where
+  every COO has an associated spatial interaction with the target cell, 
+  while belonging to an image with specific metadata and target cell density.
 * __[Three cell analysis](#thriad-analysis):__ The principles are similar to those described in basic distance analysis.
   However, this approach works with two target cells in stead of one.
 * __[SPIAT-based](#spiat-based):__ CSM ports the entropy gradient analysis implemented in the SPIAT package.
@@ -69,7 +70,7 @@ and non-cellular pixel elements in the image.
 
 
 ## Test datasets
-The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+The test dataset includes cell feature matrix obtained from two 500x500 pixels breast carcinoma images. 
 They have been stained with a multiplexed immunofluorescence technique for the following markers: 
 "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
@@ -78,10 +79,11 @@ For the current example we will use information from around 1K cells. The cells 
 by feature positivity pattern.
 
 In addition, for the multilevel model example, we will use a dataset of endometrial carcinoma samples including 500K cells
-obtained from 49 TMA samples. The cells have been assigned a cell label. The image metadata associated with these dataset
-were randomly generated and includes information regarding patient age, survival status and tumor MMRP status.
+obtained from 49 TMA samples. The cells have been assigned a phenotype label. The image metadata associated with this dataset
+was randomly generated and includes information regarding patient age, survival status and tumor MMRP status.
 
 ```{r data, eval = TRUE}
+options(tibble.width = NULL)
 CSM_Phenotypecell_test
 CSM_PhenotypeTMA_test
 CSM_ClinicalTMA_test
@@ -94,7 +96,7 @@ On the other hand, [Cumulative interaction-base analysis](#cumulative-interactio
 both a distance matrix and a cumulative interaction matrix.
 
 The distance matrix between two cell types can be computed using the `Distance_matrix_generator()` function.
-In this example the distance between CD8 cells and tumor cells will be calculated.
+In this example the distance between CD8 cells (COO) and tumor cells (Target) will be calculated.
 ```{r Distance_matrix, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Distance_matrix <- 
   Distance_matrix_generator(
@@ -111,7 +113,8 @@ Distance_matrix[[1]]
 ```
 
 The cumulative interaction matrix quantifies the number of target cell encounters as the distance increases for every COO.
-It can be calculated using the `Cumulative_Interaction_generator()` function.
+It can be calculated using the `Cumulative_Interaction_generator()` function. It requires the user to specify the distance sampling
+strategy using the 'Start_from', 'Stop_at' and 'Sampling_frequency' function arguments.
 ```{r Cumulative, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Cumulative_interaction <- 
   Cumulative_Interaction_generator(
@@ -170,7 +173,7 @@ Now we are ready to proceed with the analysis.
 These metrics are computed using the distance matrix and optionally the random distance matrix.
 They include calculating the average distance and the average minimum and maximum distances between COO and target cells.
 
-Of all of these the average minimum distance and the absolute average are usually the most informative
+Of all of these, the average minimum distance and the absolute average are usually the most informative.
 ```{r Min_dist, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Distance_analyzer(
   N_cores = 1,
@@ -183,7 +186,8 @@ Distance_analyzer(
 ```
 
 The analysis shows that the average minimum distance is shorter in B14 sample compared to B09. If all the random permuted cells
-generated are considered to be sample specific, only B09 distance pattern cannot be explained by cell densities alone.
+generated are considered to be sample specific, the average distance of B09 is way higher thant that expected by change, indicating 
+repulsion. In contrast, the spatial clustering in B14 is similar to that expected by chance.
 
 We can graph our results using the `Cell_to_Cell_graph_maker()` function.
 ```{r Dist_graph, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
@@ -289,7 +293,7 @@ This approach harness the information contained in the cumulative interaction ma
 cell density and image metadata. Multilevel modelling can be very computationally intensive in datasets with many COO.
 
 Interpretation of multi-level models can be hard. Essentially, if the Clin_Group:DIST is positive it means that
-the image metadata provided influences positively in the spatial association. This means that if COO belong to 
+the image metadata provided has a positive influence in the spatial association. This means that if a COO belongs to 
 images with a certain condition, the chances of encountering a target cell as the distance increases is higher than for
 images without that condition. The opposite is true if the estimated coefficient is negative. 
 
@@ -340,7 +344,7 @@ Clinical_Data_arrange_function(
      Outcomes_to_keep = c("AGE", "MMRP_status", "DEATH", "OS_m")
 )
 
-#Calculate the model--------------------------------------------------------------------------
+#Calculate the model
 Multi_level_modelling_function(
     DATA_cumulative = DATA_Cumulative,
     DATA_Clinical = DATA_CLINICAL,
@@ -361,7 +365,7 @@ Thriad analysis follows the same rules as those exposed in
 requires defining a single COO and two types of target cells.
 
 In order to execute the analysis a TRIO distance matrix must be computed. Here we will compute the distance
-between tumor cells and the two types of CD8 cells present in our samples.
+between tumor cells (COO) and the two types of CD8 cells present in our samples (Target cells).
 
 ```{r TRIO_dist, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 TRIO_distance_matrix <- 
