@@ -49,13 +49,13 @@ to the first law of geography:
 
 Although this definition is also relevant for cell-to-cell spatial interaction analysis, it is of paramount importance for 
 neighborhood analysis. Neighborhood analysis requires defining when two cells can be considered neighbors, which implies
-defining what "near" means. Different algorithms define neighbors in different manners, conditioning the final result.
+defining what "near" means. Different algorithms define neighbors in different manners, influencing the final result.
 
 CSM implements several approaches to identify neighborhoods:
 
 * __[Closest neighbor-based approach](#closest-neighbor-based-approach):__ These approaches are based on calculating the
   neighbors for every cell. Afterwards this information is used to identify patterns.
-    * __[Conventional closest neighbors](#conventional-closest-neighbors):__ For every cell it's closest neighbors are 
+    * __[Conventional closest neighbors](#conventional-closest-neighbors):__ For every cell, it's closest neighbors are 
     calculated. The presence of different cell types is quantified among neighbors to build the closest neighbor matrix.
     Afterwards, recurrent patterns are identified in this matrix.
     * __[UTAG](#utag):__ Based on the original publication from the Elemento group
@@ -63,20 +63,20 @@ CSM implements several approaches to identify neighborhoods:
     discovery of Tissue Architecture with Graphs algorithm with several modifications to increase flexibility.
     In essence, UTAG works by combining cell features, with the features of their close neighbors. This process is
     known as 'message passing'. Afterwards, the resulting combined features are clustered to identify recurrent patterns.
-    UTAG is interesting because it can perform cell neighborhood analysis without requiring prior cell phenotype labels.
+    UTAG is interesting because it can perform cell neighborhood analysis without cell phenotype label information.
 * __[Tiled-based approach](#tiled-based-approach):__ This approach requires the overlaying a tile grid over the tissue area.
   Cells within each tile are considered to belong to the same neighborhood. Recurrent cell type composition among neighborhoods
   are then identified by performing clustering. These recurrent patterns summarize neighborhood architectures within tissues.
   Tiled-based approaches are computationally efficient and very intuitive to understand. 
-  However, they are subject to the 'Modifiable areal unit problem' that is discussed in the 'Calculating tissue heterogeneity' vignette 
+  However, they are subject to the 'Modifiable areal unit problem' discussed in the 'Calculating tissue heterogeneity' vignette 
   (please run `vignette("Calculating-tissue-heterogeneity")` for more information).
-* __[Global interaction pattern (imcRtools)](#global-interaction-pattern-(imcRtools)):__ CSM ports imcRtools neighborhood discovery pipeline.
+* __[Global interaction pattern (imcRtools)](#global-interaction-pattern-imcrtools):__ CSM ports imcRtools neighborhood discovery pipeline.
   This pipeline first computes graphs between cell types and computes interaction scores for every cell type pair. Each sample, has an
-  interaction score for every cell type pair. Global interaction patterns are identified across samples, not cell types. These approach
+  interaction score for every cell type pair. Global interaction patterns are identified across samples, not cell types. This approach
   is a good choice to perform neighborhood analysis at the sample level in stead of the cell level.
   
 ## Test datasets
-The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+The test dataset includes cell feature matrix obtained from two 500x500 pixels breast carcinoma images. 
 They have been stained with a multiplexed immunofluorescence technique for the following markers: 
 "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
@@ -96,10 +96,10 @@ The closest neighbor approach requires a definition of neighbors. Currently, CSM
 * __N closest cells:__ The neighbors of any cell in the sample are it's N closest cells, being N an integer number. As N increases,
   neighborhoods start reflecting broader interaction patterns. If N is kept small, only local interactions will be recorded. This approach
   has a main disadvantage. Since this neighbor definition is not spatially restricted, non-neighboring cells may be identified as neighbors.
-  For example, the N closest cells to a single cell that is spatially isolated (like a cell stranded in the middle of stroma) will
+  For example, the N closest neighbors to a single cell that is spatially isolated (like a cell stranded in the middle of stroma) will
   not reflect true spatial interactions. This approach calculates the N closest cells, irrespective of the actual distance between these and the cell of origin.
   An advantage of this approach is that the same number of neighbors is computed for all cells. This facilitates the interpretation of cell type percentages within
-  neighbors.
+  neighborhoods.
 * __Distance:__ The neighbors of a cell in the sample are those cells within a distance of D, being D a numeric value. As with N closest
   cells definition, as D value increases broader interaction patterns are captured. Since this definition is spatially restricted, it is not subject
   to the bias described in the N closest cells. However, distance alone does not reflect spatial interaction. The number of simultaneous cellular interactions
@@ -115,15 +115,15 @@ Once neighbors have been identified, closest neighbors approach identify recurre
 Clustering options are similar to those described in the vinegette 'Cell-phenotype-labelling' (please run `vignette('Cell-phenotype-labelling')`, for more information).
 Clustering parameters can also influence the final result. Users are encouraged to explore different approaches to reach a satisfactory result.
 
-In practice, the choice of neighbor definition and the choice of parameters is arbitrary. Depending on the choice, different types of neighborhoods summarizing
-various types of spatial patterns can be identified. There is no single way to identify neighborhoods.
+In practice, the choice of neighbor definition and the choice of parameters is arbitrary. Depending on the choice, different types of neighborhoods capturing
+various types of spatial patterns can be identified. There is no single ideal way to identify neighborhoods.
 
 ### Conventional closest neighbors
 This pipeline starts by computing the closest neighbor matrix. This matrix contains a summary of the neighbors from every cell included in the analysis.  
 CSM function `Tailored_Closest_neighbor_calculator()` does this job. It requires a dataframe or tibble containing cell phenotype labels. The function allows
 users to select which cells of origin will be visited, and what cells can be considered to be neighbors (target cells). 
 
-In the followin example we will calculate neighbors, defined as any cell within 30 pixels from the COO. Cells labelled as 'OTHER' will not be visited by the
+In the following example we will calculate neighbors, defined as any cell within 30 pixels from the COO. Cells labelled as 'OTHER' will not be visited by the
 algorithm, but will be considered as neighbors.
 
 ```{r closest_neighbors, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
@@ -191,36 +191,37 @@ DATA_Neighborhoods_names <-
 
 ### UTAG
 As mentioned above, UTAG first performs message passing. This process allows neighboring cells to share feature information.
-In CSM the UTAG algorithm has been tweaked to allow different neighboring cell definitions (see above). In addition,
+In CSM, the UTAG algorithm has been tweaked to allow different neighboring cell definitions (see above). In addition,
 the UTAG message passing function developed for CSM (`UTAG_message_passing()`) has 4 other interesting features:
 
 * __COO to visit:__ If the user has some previous information regarding cells of interest, it can be used to ameliorate computational demands.
-  COO_to_visit argument allows the user to select which cells will be visited by the algorithm and considered COO. It should be a logical vector where
-  TRUE cells are visited and FALSE cells are ignored. However, ignored cells will also be taken into account as target cells.
+  The 'COO_to_visit' argument allows the user to select which cells will be visited by the algorithm and considered COO. It should be a logical vector where
+  TRUE cells are visited and FALSE cells are ignored. However, ignored cells will also be taken into account as potential neighbors of COO.
 * __Message strategy:__ There are two ways the feature information from neighbors can be combined:
     * __Averaging:__ Adds the features and divides them by the total amount of neighbors. Well suited to perform all types of weighting. Does not take into account the density of cells in the 
     neighborhood.
     * __Sum:__ Adds the cell features values alone. Is compatible with proximity weighting (see below). Takes into account the cell density in the neighborhood. It can increase the dinamic 
     range of features.
-* __COO weight:__ Message passing can somehow dilute the feature information contained by COO. In cases where there are too many neighbors, message passing can
+* __COO weight:__ Message passing can somehow dilute the feature information of the COO. In cases where there are too many neighbors, message passing can
   erase almost completely the information provided by the original COO. This may or may not be an issue. Anyways, the function allows the user to provide a fixed
   weight for the COO during message passing. The weight will be the same for all COO visited by the algorithm.
 * __Neighbor's weights:__ Should all the neighbors share their features equally? Imagine the following scenario: the COO has 10 closest neighbors, 5 within a 10 pixel
   distance and the others more than 50 pixels away. Should they all have the same weights during message passing? Alternatively think about this situation. One of the 
-  features is only rarely expressed in the data or is shows very low expression values on average. However very few high expressing cells can be encountered from time to time.
+  features is only rarely expressed in the data or shows very low expression values on average. However very few high expressing cells can be encountered from time to time.
   Should we boost the signal from these low expression markers so that it is not diluted during message passing?
-  The function allows both correcting for proximity to COO and by low expression (disregarded_minority correction)
-    * __Proximity correction:__ Every neighbor is at distance d from the COO. The sum of all distances d is D. Weight for every neighbor is calculated as the following:
+  The function allows both correcting for proximity to COO and by low expression ('disregarded_minority' correction)
+    * __Proximity correction:__ Every neighbor is at distance d from the COO. The sum of all distances d from all the neighbors of the COO is
+    D. Weight for every neighbor is calculated as the following:
 $$
 Weight = {\frac{1}{\frac{d}{D}}} 
 $$
-    * __Disregarded minority correction:__ First the -log10 of the average expression in the dataset is calculated for all features. The weight is calculated as the following:
+    * __Disregarded minority correction:__ First, the -log10 of the average expression in the dataset is calculated for all features. The weight is calculated as the following:
 $$
 Weight = {\frac{-log10(\bar{x})}{\min(-log10(\bar{x}))}} 
 $$
 
-After deciding the parameters message passing can be performed. Here we will apply the same neighbor definition as for conventional closest neighbors. We
-will take into account proximity to COO in message passing.
+After deciding the parameters, message passing can be performed. Here we will apply the same neighbor definition as for conventional closest
+neighbors. We will take into account proximity to COO in message passing.
 
 ```{r Message_passing, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Message_passed_cells <- 
@@ -259,7 +260,8 @@ map(5:7, function(column_index){
 
 It can be observed that feature values change dramatically after message passing.
 
-If we perform message passing by sum in stead, we would obtain always higher feature values.
+If we perform message passing by sum in stead, we would obtain always higher feature values. In addition,
+the dinamic range of the features is also higher. 
 ```{r Message_passing_sum, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Message_passed_cells_sum <- 
   UTAG_message_passing(
@@ -344,8 +346,8 @@ This initial quantification step can reveal interesting patterns. However, it ca
 high cell density (for example a neighborhood consisting of heavily packed tumor cells), identifying a high proportion of cells belonging to this neighborhood may not
 be informative. 
 
-Therefore, another approach is to divide the tissue samples into tiles and analyze the amount of tiles where each neighborhood can be found. As described in the
-vignette "Calculating tissue heterogeneity", the first step for any tile analysis is to divide the dataset into tiles
+To circunvent this limitation, another approach is to divide the tissue samples into tiles and analyze the amount of tiles where each neighborhood can be found. As described in the
+vignette "Calculating tissue heterogeneity", the first step for any tile analysis is to divide the dataset into tiles.
 
 ```{r Tiling, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 #Can only run interactively
@@ -360,7 +362,7 @@ Tiled_Images[[1]]
 ```
 
 After Tiling it can be interesting to quantify the number of neighborhoods present in each tile. The `Neighborhood_voting_function()` quantifies the number of cells belonging
-to each neighborhood by tile. In addition, it returns the most represented neighborhood by tile. This information can be useful to have an idea if spatial clustering of neighborhoods.
+to each neighborhood by tile. In addition, it returns the most represented neighborhood by tile. This information can be useful to have an idea of the spatial clustering of neighborhoods.
 
 ```{r Tiling_elections, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 #Can only run interactively
@@ -371,7 +373,7 @@ DATA_Neighborhood_elections <- Neighborhood_voting_function(N_cores = 1,
                                                             )
 ```
 
-Finally results can be graphicated.
+Finally results can be plotted.
 ```{r Graph_tiles, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Tiled_neighborhoods_graphicator(DATA_elections = DATA_Neighborhood_elections, #Specify the object containing the data neighborhood elections
                                 Image_name = "ABCM22001_B14_MiniCrop.tif", #Provide the name of the sample
@@ -381,7 +383,7 @@ Tiled_neighborhoods_graphicator(DATA_elections = DATA_Neighborhood_elections, #S
 
 ## Tiled-based approach
 This strategy first divides the tissue into tiles. Each tile is considered an individual neighborhood. Then cell composition among neighborhoods is analyzed.
-First tiled images need to be generated. Then patterns are identified by using the `Tiled_Image_Clustering_function()`.
+First, tiled images are generated. Then, patterns are identified by using the `Tiled_Image_Clustering_function()`.
 
 ```{r Tiled_clustering, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 #Can only run interactively
@@ -428,7 +430,7 @@ Neighborhood_tiles_result <- Clustered_Tiled_Images_renamer(Tiled_images = Neigh
 ```
 
 Once the neighborhoods have been identified, quantification and analysis can be performed using `Clustered_Tiled_Images_analyzer()`.
-In addition, neighborhood spatial heterogeneity can be analyzed using this function using by calculating several heterogeneity indexes and graph modularity.
+In addition, neighborhood spatial heterogeneity can be analyzed by calculating several heterogeneity indexes and graph modularity.
 ```{r Tiled_clustering_analysis, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 #Can only run interactively
 Clustered_Tiled_Images_analysis <- Clustered_Tiled_Images_analyzer(Tiled_images = Neighborhood_tiles_result, 
@@ -437,16 +439,16 @@ Clustered_Tiled_Images_analysis <- Clustered_Tiled_Images_analyzer(Tiled_images 
 )
 ```
 
-Finally the results can be graphicated.
+Finally, the results can be graphicated.
 ```{r Tiled_clustering_graphs, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Clustered_Tiled_Images_graphicator(Tiled_images = Neighborhood_tiles_result,
                                    Image_name = "ABCM22001_B14_MiniCrop.tif")
 ```
 
 ## Global interaction pattern-imcRtools
-This approach is based on counting the spatial interaction between cell type pairs based on the `imcRtools::countInteractions()` function. Then global sample patterns are identified.
+This approach is based on counting the spatial interaction between cell type pairs based on the `imcRtools::countInteractions()` function. After analyzing sample-wise cell pair interactions, sample-wise clustering can be performed to identify recurrent patterns.
 This approach can be applied using the `Interaction_counter()`. Then interaction patterns can be analyzed and identified using the `Interaction_analyzer()`.
-In this case, since we only have two samples, clustering samples cannot be computed.
+In this case, since we only have two samples, samples cannot be clustered.
 
 ```{r Spatial_interactions, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 #Can only run interactively
@@ -500,4 +502,8 @@ SPIAT_neighborhood_identifier(
   Min_neighborhood_size = 10,
   No_Phenotype_name = NULL
 )
+```
+
+```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+sessionInfo()
 ```

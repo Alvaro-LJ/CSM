@@ -365,7 +365,7 @@ Thriad analysis follows the same rules as those exposed in
 requires defining a single COO and two types of target cells.
 
 In order to execute the analysis a TRIO distance matrix must be computed. Here we will compute the distance
-between tumor cells (COO) and the two types of CD8 cells present in our samples (Target cells).
+between tumor cells (COO) and the two types of CD8 cells (Target cells) present in our samples.
 
 ```{r TRIO_dist, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 TRIO_distance_matrix <- 
@@ -484,11 +484,11 @@ Trio_graph_maker(
 
 ## SPIAT-based
 Finally CSM ports SPIAT entropy gradient analysis to analyze spatial association between two cell types.
-For more information regarding the interpretation of this metric please seethe original paper published at
+For more information regarding the interpretation of this metric please see the original paper published at
 https://www.nature.com/articles/s41467-023-37822-0.
 
-As for cumulative interaction metrics, the user must decide the sampling strategy with Gradient start, stop and sampling
-distance arguments.
+As for cumulative interaction metrics, the user must decide the sampling strategy with  the 'Gradient_start', 
+'Gradient_stop' and G'radient_sampling' function arguments.
 
 ```{r SPIAT, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 DATA_SPIAT <- 
@@ -509,11 +509,11 @@ SPIAT_entropy_gradient_generator(
 
 ## Distance to Pixels
 Distance to pixel analysis requires two sources of information: cell spatial coordinate information and
-thresholded images. The analysis is intended to understand how cells are positioned with relation to non-cellular
+thresholded images. The analysis is designed to understand how cells are positioned related to non-cellular
 elements (usually extracellular matrix elements). In practice, this tool can be used to assess distances from cells
-to any sort of biomolecule present in the tissue.
+to any sort of biomolecule measured in the tissue.
 
-For this example we will try to compute the distance of CD8 cells to any pixel positive for CK. First we need to
+For this example we will try to compute the distance of CD8 cells to any pixel positive for CK. First, we need to
 threshold CK images. Here we will use a basic binary threshold.
 
 ```{r Thresholded_images, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
@@ -555,8 +555,9 @@ Pixel_Threshold_calculator(
 ```
 
 Now that thresholded images have been generated, we can compute the distance between cells and their
-closest positive pixel. Due to image pixel and cell coordinate discrepancies, sometimes adjustments need to be made.
-The function will show a test image with cell overlay to check that the alignment is correct before proceeding.
+closest positive pixel. Due to discrepancies between cell coordinate system and origina image pixel coordinates that may
+occur, image adjustments could be required before proceeding.
+The function will show a test image with a cell overlay to check that the alignment is correct before proceeding.
 
 ```{r Dist_to_pixel, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 #Can only run interactively
@@ -576,7 +577,7 @@ Cells_to_pixel_dist
 ```
 
 Now that we have obtained the distance of the CD8 cells to their closest CK positive pixel, we can classify
-cells according to this distance. For example we will classify CD8 cells closer than 3 pixel distance as being
+cells according to this distance. For example we will classify CD8 cells closer than a 3 pixel distance as being
 "inside CK", cells located between 4 and 10 pixel being "bordering CK" and those any farther as being "outside CK".
 
 ```{r Dist_segments, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
@@ -594,7 +595,7 @@ Cells_to_pixel_dist <-
 Cells_to_pixel_dist
 ```
 
-Now the information regarding the position of these cells with respect to CK has been included in the cells phenotype.
+Now the information regarding the position of these cells with respect to CK has been included in the cell phenotype label.
 
 ```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 sessionInfo()
