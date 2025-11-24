@@ -36,13 +36,16 @@ library(CSM)
 
 ## Introduction
 
-Dividing the tissue into cellular structures can be useful to locate cells within specific tissue compartments. In tumor spatial biology, tissue structuring
-is commonly used to divide sample areas into tumor and stromal areas. This is the reason why functions are named as "Tumor_Stroma" identifiers.
+Dividing the tissue into cellular structures can be useful to locate cells within specific tissue compartments. 
+In tumor spatial biology, tissue structuring is commonly used to divide samples into tumor and stromal areas. 
+This is why functions described in this vignette are named as "Tumor_Stroma_identifiers".
+
 However, this technique can be used to identify tissue compartments of any type. 
-Structures are based on a single cell type. As far as this cell type shows a good degree of spatial clustering, tissue structuring can be successful.
+Tissue structures are based on the spatial distribution of a single cell type. 
+As far as this cell type shows a good degree of spatial clustering, tissue structuring can be successful.
 
 ## Test datasets
-The test dataset includes cell feature matrix obtained from two 500x500 breast carcinoma images. 
+The test dataset includes a cell feature matrix obtained from two 500x500 pixels breast carcinoma images. 
 They have been stained with a multiplexed immunofluorescence technique for the following markers: 
 "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
@@ -53,12 +56,14 @@ by feature positivity pattern.
 ```{r data, eval = TRUE}
 options(tibble.width = Inf)
 CSM_Phenotypecell_test
+options(tibble.width = NULL)
 ```
 
 ## Quick structuring
-This structuring function is based on tiles. It divides areas into tumor and stromal compartments based on presence of tumor cells in these tiles.
-If enough tumor cells are located in a tile, the tile is considered to be a tumor tile and stromal tile otherwise. After imputing tile labels, cells
-are assigned to a compartment based on tile location.
+This structuring function is based on tiles. It divides areas into tumor and stromal compartments based on presence of tumor cells 
+in these tiles. If enough tumor cells are located in a tile, the tile is considered to be a tumor tile. Otherwise the tile is considered to 
+belong to stromal tissue. After obtaining tile labels, cells are assigned to a compartment based on tile location. The algorithm is
+computationally efficient but results can be chunky if tile size is too big.
 
 ```{r Quick, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
 #Can only run interactively
@@ -73,9 +78,10 @@ Quick_Tumor_Stroma_identifier(
 ```
 
 ## DBSCAN structuring
-This approach is based on Density Based clustering. It first uses index phenotype (usually tumor cells) to compute spatially clustered cells. Afterwards, all
-cells are projected over this clustered index phenotype cells. Cells over clustered cells are considered to be in the tumor compartment. Cells outside are considered
-to be in the stromal compartment.
+This approach is based on Density Based clustering. 
+First, the spatial coordinates of the index phenotype cells (usually tumor cells) are used to identify spatially clustered cells. 
+Afterwards, all cells are projected over this clustering. Cells within clusters are considered to be inside tumor nests. Cells outside are considered to be in the stromal compartment. Regarding computation requirements, this method is somewhere in between the tiling strategy
+and LISA clustering.
 
 ```{r DBSCAN, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
 #Can only run interactively
@@ -89,7 +95,8 @@ DBSCAN_Tumor_Stroma_identifier(
 ```
 
 ## LISA structuring
-This approach is based on Local Indicators of Spatial Association. It can be computationally intensive. It will compute Tumora, stromal and border compartments.
+This approach is based on Local Indicators of Spatial Association. It can be computationally intensive. However,
+this method is capable of computing tumor, stromal and border compartments.
 
 ```{r LISA, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
 #Can only run interactively
@@ -106,7 +113,9 @@ LISA_Tumor_Stroma_identifier(
 
 ## Advanced structuring
 Advanced structuring combines tiling or DBSCAN methods to pre-filter index cells, and the computes the concave hull to infer the tumor, stromal and border compartments.
-Since it calculates a single polygon, it will under-perform in highly dispersed index cell scenarios.
+Since it calculates a single polygon, it will under-perform in highly dispersed index cell scenarios. However, it is faster than
+LISA clustering and also allows the user to compute a border compartment. In addition, it will return the area occupied by the
+tumor compartment, allowing subsequent density estimation in the tumor compartment using the `Compartment_Phenotype_quantifier()` function.
 
 ```{r ADVANCED, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
 #Can only run interactively
@@ -125,8 +134,8 @@ Advanced_Tumor_Stroma_identifier(
 ```
 
 ## SPIAT-based structuring
-This approach is based on the `SPIAT::define_structure()` function. It can also be very computationally intensive. It can compute a highly granulated compartment assigning cells to
-inner and outer tumor and stromal borders. Results can be simplified by turning the 'Simplify_result' to TRUE.
+This approach is based on the `SPIAT::define_structure()` function. It can also be very computationally intensive. It can compute a highly granulated compartments (for example dividing the border compartment into inner and outer areas). Results can be simplified by turning 
+the 'Simplify_result' to TRUE.
 
 ```{r SPIAT, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
 #Can only run interactively
@@ -151,9 +160,10 @@ SPIAT_Tissue_structuring_function(
 ```
 
 ## Pixel-based structuring
-Tissue can also be structured without requiring index cells. Cells can be assigned to a tissue structure based on thresholded pixel information. 
-In the following example, TUMOR/STROMAL compartments are defined by a CK-epcam thresholded image. This example was also presented in the Cell-to-cell-spatial-interaction
-vignette (please see `vignette("Cell-to-cell-spatial-interaction")`).
+Tissue can also be structured using thresholded pixel information. Cells can be assigned to a tissue structure based on their distance to
+positive thresholded pixels.
+In the following example, TUMOR/STROMAL compartments are defined by a CK-epcam thresholded image. 
+This example was also presented in the Cell-to-cell-spatial-interaction vignette (please see `vignette("Cell-to-cell-spatial-interaction")`).
 
 ```{r Pixel_based, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 #Can only run interactively
