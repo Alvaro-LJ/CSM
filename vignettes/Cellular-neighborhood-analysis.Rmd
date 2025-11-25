@@ -77,7 +77,7 @@ CSM implements several approaches to identify neighborhoods:
   
 ## Test datasets
 The test dataset includes cell feature matrix obtained from two 500x500 pixels breast carcinoma images. 
-They have been stained with a multiplexed immunofluorescence technique for the following markers: 
+They have been stained with a multiplexed immunofluorescence protocol for the following markers: 
 "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
 

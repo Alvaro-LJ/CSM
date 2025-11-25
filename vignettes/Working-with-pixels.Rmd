@@ -37,15 +37,15 @@ library(CSM)
 
 ## Introduction
 
-This vignette explains the how the main functions in CSM work to perform pixel based analyses.
-Pixel analysis may be required for extra-cellular features (like for example measuring collagen proteins).
-There are two main approaches to pixel analysis in CSM. First, pixels can be thresholded and quantified. 
+This vignette explains how CSM works to perform pixel based analyses.
+Pixel analysis may be required for extra-cellular features (for example measuring collagen proteins).
+There are two main approaches to perform pixel analysis in CSM. First, pixels can be thresholded and quantified. 
 Second Mean (Fluorescence) pixel intensity (MFI) can be analysed.
 
 For any approach used, a tissue mask defining foreground and background pixels needs to be created first. 
-Any pixel considered to be background will be ignored in the analysis.
+Any background pixel will be ignored in the analysis.
 
-Pixel analysis in CSM has been developed using the TIFF image format. However, other formats that are supported include
+Pixel analysis in CSM has been developed using the TIFF image format. However, other supported formats include
 png and jpeg.
 
 ## Test datasets

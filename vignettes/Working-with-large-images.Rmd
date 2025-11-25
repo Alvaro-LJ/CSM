@@ -37,25 +37,26 @@ library(CSM)
 ***
 
 ## Introduction
-Working with large images can be painful in R. Whole slide images can exceedingly large (up to docens of Gb). This
+Working with large images can be painful in R. Whole slide images can exceedingly large (up to tens of gigabytes). This
 can easily saturate RAM memory. Indeed many popular image handling R packages (like EBImage or magick) have image size
 limits that can be easily exceeded by whole slide images. 
 
-CSM has inbuilt pipelines work with this situation. CSM implements functions to chop large images into manageable tiles. 
+CSM has inbuilt pipelines to deal with this situation. CSM implements functions to chop large images into manageable smaller crops. 
 After image processing (either cell segmentation, cell phenotype labeling or image pixel thresholding), cell or image 
-pixel information can be re-assembled to the original whole slide coordinates.
+pixel information can be re-assembled to match the original whole slide coordinates.
 
 
 ## Test datasets
 
 The test datasets we will be using comprise to small 500x500 pixels breast carcinoma images. They have been stained with a multiplexed
-immunofluorescence technique for the following markers: "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+immunofluorescence protocol for the following markers: "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
 
 This is a trivial test dataset, as it contains very small images that could be easily handled by CSM. However, the principles
-described in this example apply to larger whole slide images.
+described in this example apply to larger whole-slide images.
 
-```{r Images, results='hide'}
+```{r Images, eval = FALSE, results='hide'}
+#Can only run in an interactive setting
 #Generate a temporary directory to place the input images
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 dir.create(Input_Dir, recursive = TRUE)
@@ -79,8 +80,8 @@ Describe_my_computing_unit()
 ## Chopping large images
 `Image_tile_deconstruction_function()` divides all the images in a directory into tiles. Accepted file extension include TIFF and OME.TIFF.
 User can select the tile size (in pixels),the image channels to keep and the tile overlap. The smaller the tile size the easier it will 
-be to work with the resulting chopped images, at the cost of increased total tile number. If cell segmentation is going to be performed, 
-tile overlap may be a good idea to segmentation artifacts due to edge proximity. Cell redundancy will be corrected in subsequent steps. 
+be to work with the resulting chopped images, at the cost of an increased total tile number. If cell segmentation is going to be performed, 
+tile overlap may be applied to account for segmentation artifacts due to edge proximity. Cell redundancy will be corrected in subsequent steps.
 If RGB images need to be chopped, all RGB channels will be kept. The image chopping process is powered by the RBioFormats bioconductor R package. 
 
 ```{r chop, eval = FALSE}
@@ -126,11 +127,12 @@ Cell_DATA_tiles <-
 )
 ```
 
-After cell segmentation has been performed,  format the output using the `Data_arrange_function()`. Then, original cell coordinates can
-be obtained by running `Tile_to_image_cell_arrange_function()`. If tile overlap is detected,redundant cells (sharing spatial coordinates)
-will be removed automatically. In addition, if there is tile overlap, cells close to a shared tile edge can be removed according to
-user preferences (with the Dist_to_edge argument). The function works based on the information contained in the file name.
-Manipulating the name can result in unexpected results. PLEASE AVOID FILE NAME MODIFICATIONS!
+After cell segmentation has been performed, the dataset needs to be formatted using the `Data_arrange_function()`. 
+Then, original cell coordinates can be obtained by running `Tile_to_image_cell_arrange_function()`. If tile overlap is detected, 
+redundant cells (sharing spatial coordinates) will be removed automatically. In addition, 
+if there is tile overlap, cells close to a shared tile edge can be removed according to
+user preferences (with the 'Dist_to_edge' argument). The function works based on the information contained in the file name.
+Manipulating the name can result in unexpected results. __PLEASE AVOID FILE NAME MODIFICATIONS!__
 ```{r Reassign_coordinates, eval = FALSE}
 #Can only run in an interactive setting
 #Arrange data
@@ -159,11 +161,11 @@ Cell_DATA_WholeImage %>%
 
 ## Pixel thresholding of tiled images and re-assembled images
 Single channels can be pixel-thresholded using image chunks. Afterwards thresholded image chunks can be used to re-assemble a 
-thresholded whole image. Since image chunks will be used in the thresholding process, LOCAL thresholding using automatic algorithms
-can be extremely problematic (high risk of setting thresholds according to local artifacts). Therefore, GLOBAL thresholding is highly
-recommended.
+thresholded whole image using the `Image_from_tile_rebuilder()` function. Since image chunks will be used in the thresholding process,
+LOCAL thresholding using automatic algorithms can be extremely problematic (high risk of setting thresholds according to local artifacts).
+Therefore, GLOBAL thresholding is highly recommended.
 
-If images are being chopped to be easily thresholded, overlap between images is not supported. Although no error will be thrown by the 
+If images are being chopped to be thresholded, overlap between images is not supported. Although no error will be thrown by the 
 related functions, the re-build process of overlapping tiles will result in aberrant re-assembled images.
 ```{r Tile_threshold, eval = FALSE}
 #Can only run in an interactive setting
