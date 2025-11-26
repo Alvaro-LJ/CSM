@@ -48,7 +48,7 @@ CSM implements two popular pipelines to perform image normalization. On the one 
 by the mxnorm package. On the other diverse, transformations implemented in the simpleSeg bioconductor package.
 
 ## Test datasets
-The test dataset includes cell feature matrix obtained from two 500x500 pixels breast carcinoma images. They have been stained with a multiplexed immunofluorescence protocol for the following markers: "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The test dataset includes a cell feature matrix obtained from two 500x500 pixels breast carcinoma images. They have been stained with a multiplexed immunofluorescence protocol for the following markers: "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
 
 For the current example we will use information from around 1K cells. The mean intensity of CK, CD8a and GZMB will be normalized.

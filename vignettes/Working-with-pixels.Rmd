@@ -37,9 +37,9 @@ library(CSM)
 
 ## Introduction
 
-This vignette explains how CSM works to perform pixel based analyses.
-Pixel analysis may be required for extra-cellular features (for example measuring collagen proteins).
-There are two main approaches to perform pixel analysis in CSM. First, pixels can be thresholded and quantified. 
+This vignette explains how CSM works to perform pixel-based analyses.
+Pixel analysis may be required to assess extra-cellular features (for example measuring collagen proteins).
+There are two main approaches to perform pixel analysis in CSM. First, pixels can be thresholded followed by quantification. 
 Second Mean (Fluorescence) pixel intensity (MFI) can be analysed.
 
 For any approach used, a tissue mask defining foreground and background pixels needs to be created first. 
@@ -50,8 +50,8 @@ png and jpeg.
 
 ## Test datasets
 
-The test datasets we will be using comprise to small 500x500 pixels breast carcinoma TIFF images. They have been 
-stained with a multiplexed immunofluorescence technique for the following markers: 
+The test datasets consists of two small 500x500 pixels breast carcinoma TIFF images. They have been 
+stained with a multiplexed immunofluorescence protocol for the following markers: 
 "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
 
@@ -72,11 +72,12 @@ function(Image){
 
 Foreground or tissue mask pixels are defined as pixels containing genuine tissue information. They are required to estimate the tissue area.
 Tissue area is required to calculate % of positive pixels per image and MFI.
-Tissue mask pixels can be obtained by using all or a subset of image channels. These channels are pooled together by adding them and normalizing by the total number of channels used. Three methods can be used to obtain the tissue mask:
+Tissue mask pixels can be obtained by using all or a subset of image channels. These channels are pooled together by adding up their pixel
+values and then dividing the result by the total number of channels used. Three methods can be used to obtain the tissue mask:
 
 * Otsu: Runs the Otsu algorithm from the EBImage R package.It works great when there is a balanced number of foreground/background pixels.
 * Arbitrary: The user sets a single threshold value that is applied. 
-* Absolute: Any pixel with a value above 0 will be considered to be a foreground pixel. Works well in images with very little noise.
+* Absolute: Any pixel with a value above 0 will be considered to be a foreground pixel. Works well for images with very little noise.
 
 Pixel thresholding will allow the user to quantify the total positive pixels for every image in a dataset. 
 Pixel thresholding can be performed in various ways:
@@ -85,11 +86,11 @@ Pixel thresholding can be performed in various ways:
 * Arbitrary: The user can set a single threshold or a multi-level threshold.
 * Multilevel: Calculates multi-level thresholds using the  imagerExtra::ThresholdML function.
 
-For non-arbitrary approaches, thresholds can be computed locally (a unique threshold is calculated for every image) or globally (a single threshold)
-for all the images in the dataset. Global thresholds are usually preferred as local thresholds can capture image specific patterns that are not
-generizable. However, global thresholding is more computationally demanding.
+For non-arbitrary approaches, thresholds can be computed locally (a unique threshold is calculated for every image) or globally (a single threshold for all the image in the directory provided). Global thresholds are usually preferred as local thresholds can 
+capture image specific patterns that are not generizable. However, global thresholding is more computationally demanding (it requires
+loading all the images in the directory and storing their pixel values to compute the global threshold).
 
-Before thresholding the pixels (either for tissue mask generation or target channel thresholding), Gaussian blur can be applied.This can smooth borders of tissue masks and reduce salt and pepper noise of the target before proceeding.
+Before thresholding the pixels (either for tissue mask generation or target channel thresholding), Gaussian blur can be applied. This can smooth borders of tissue masks and reduce salt and pepper noise of the target channel before proceeding.
 
 Tissue mask and target thresholding can be explored with the dedicated shiny APP. To deploy it run the following:
 ```{r APP, eval = FALSE}
@@ -102,7 +103,8 @@ Image_thresholding_app_launcher(
 
 After exploring thresholding possibilities thresholds can be calculated using the `Pixel_Threshold_calculator()`. The function will
 return a summary of the number pixels above the threshold value and the total amount of foreground pixels. In addition, the user can save the
-thresholded images generated in the process which can be used to combine the pixel information with cell location information.
+thresholded images generated in the process which can be used to combine the pixel information with cell spatial location information 
+(see below and `vignette("Cell-to-cell-spatial-interaction")`).
 
 In the following example we will threshold the CK-EPCAM channel with an arbitrary threshold. The tissue mask will be generated using an absolute
 threshold. Blurring will only be applied to the tissue mask generation process.
@@ -139,11 +141,12 @@ list.files(Output_Dir)
 ## Combining pixel information with cell location
 
 Once images have been thresholded, users can combine the pixel information with cell location.
-The `Cell_to_pixel_distance_calculator()` will allow users to calculate the distance to between cells and the closest positive pixel.
+The `Cell_to_pixel_distance_calculator()` will allow users to calculate the distance between cells and the closest positive pixel.
 If the thresholds are multilevel, the function will calculate the distance to the closest pixel for every non-zero pixel value.
 
-Before executing the function will take the image with the smallest number of cells to compute a test. Use the test to check if image needs to be 
-rotated or fliped or if pixel_distance_ratio needs to be adjusted. If satisfied interact with the menu to proceed with the computation.
+Before computing the actual distances, the function will take the image with the smallest number of cells to run a test.
+Use the test to check if image needs to be 
+rotated or flipped or if 'pixel_distance_ratio' needs to be adjusted. If satisfied, interact with the menu to proceed with the computation.
 
 ```{r Distance_pixel, eval = FALSE}
 #Can only run in an interactive setting
@@ -161,12 +164,12 @@ Cell_to_pixel_distance_calculator(
 
 ## Analyzing mean Fluorescence intensity-MFI
 Mean pixel intensity can summarize feature expression in every image. MFI is calculated using the `MFI_Experimet_Calculator()`.
-By default the MFI is calculated taking into account foreground pixels.However, users can define specific tissue compartments 
-where MFI should be analyzed. Compartments are generated using single or multiple image channels that are thresholded following 
-similar approaches as for tissue mask. These are provided as a list to the Targte_masks argument.
+By default the MFI is calculated taking into account foreground pixels. In addition to foreground pixels masks, users can define 
+specific tissue compartments where MFI should be analyzed. Compartments are generated using single or multiple image channels that are
+thresholded following similar approaches as for tissue mask. These are provided as a list to the 'Target_masks' argument.
 
-In the following example the MFI of GZMB is calculated in a the CK-EPCAM and CD8a tissue compartment. This will translate as
-the mean GZMB expression of CD8a lymphocytes that reside in the tumor.
+In the following example the MFI of GZMB is calculated in a the CK-EPCAM and CD8a tissue compartment. This will approximate the 
+mean GZMB expression of CD8a lymphocytes that reside in the tumor.
 
 ```{r MFI_example, evaluate = TRUE}
 #Generate the tissue compartment arguments
@@ -183,7 +186,7 @@ Target_mask_list <- list(CK = list(Mask_name = "CK-EPCAM",
 )
 
 
-#Then calculate the MFI---------------------------
+#Then calculate the MFI
 MFI_Experimet_Calculator(
    N_cores = 1,
    Directory = Input_Dir,
@@ -202,13 +205,15 @@ MFI_Experimet_Calculator(
 
 ## Calculating the intersection or outersection of binary thresholded images
 
-Binary thresholded images (not multilevel thresholded) can be combined using `Binary_threshold_image_combinator()`.
+Binary thresholded images (not multilevel thresholded) can be combined using the `Binary_threshold_image_combinator()` function.
 The function aims to combine the thresholded images present in different directories (one directory for every thresholded target).
 As many targets can be combined as desired by the user. The user must define the operators required to compute the combination.
 Available operators are "AND" (Image intersection), "OR" (Image combination), or "NOT" (Image outersection). Operators are used sequentially.
 This means that Target_A AND Target_B OR Target_C returns a different result to Target_C OR Target_B AND Target_A.
 
 ```{r Multi_thres, eval = FALSE}
+#Can only run interactively
+
 # Create temporary input and output directories
 Output_Dir_CK <- tempfile(pattern = "tempdir2_Output")
 Output_Dir_CD8 <- tempfile(pattern = "tempdir3_Output")
@@ -289,7 +294,6 @@ Pixel_Threshold_calculator(N_cores = 1,
 
 
 #Generate the intersects
-#Can only run interactively
 Binary_threshold_image_combinator(
     Dir1 = Output_Dir_CK,
     Dir2 = Output_Dir_CD8,

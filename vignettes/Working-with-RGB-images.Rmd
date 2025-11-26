@@ -35,15 +35,16 @@ library(CSM)
 ***
 
 ## Introduction
-RGB color images are another source of image information. CSM provides tools to extract different channels from
-RGB color images according to different colors. This can be used to separate hematoxylin and eosin channels from 
+RGB color images are another source of information that can be used using CSM. CSM provides tools to extract different channels from
+RGB color images by applying color filters. For example, this can be used to separate hematoxylin and eosin channels from 
 conventional HE stained tissues, or to obtain hematoxylin and Diaminobenzidine color channels from immunohistochemical images.
 These channels can be used for subsequent pixel based analysis or even to perform cell segmentation if adequate nuclear
 channels can be obtained.
 
 ## Test datasets
-The test dataset is composed of two 1000x1000 HE images of cardiac muscle.
-```{r DATA, eval = TRUE}
+The test dataset is composed of two 1000x1000 pixels HE images of cardiac muscle.
+```{r DATA, eval = FALSE}
+#Can only run in an interactive setting
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 dir.create(Input_Dir, recursive = TRUE)
 
@@ -57,15 +58,17 @@ function(Image){
 
 ## The channel extraction testing APP
 CSM implements a dedicated shiny App to explore how color channels can be extracted and generate the parameters that can be then applied
-to all the images in the dataset.
+to all the images in the dataset. The app provides various image pre-processing steps as well as color filtering options. After obtaining
+a filtered color channel, post-processing can be applied. The app can be used to generate a list of color thresholding parameters. These
+parameters can be used to feed the `Image_deconvolution_function()`.
 ```{r App, eval = FALSE}
 #Can only run in an interactive setting
 Color_deconvolution_App_launcher(Directory = Input_Dir)
 ```
 
 ## Performing channel extraction
-Once the parameters have been defined using the APP, they can be applied to all the images in the dataset. The multi-channel TIFF images are saved
-in the output directory.
+Once the parameters have been defined using the APP, they can be applied to all the images in the dataset. 
+The multi-channel TIFF images generated are saved in the output directory.
 
 ```{r Deconv, eval = FALSE}
 #Can only run in an interactive setting

@@ -60,7 +60,7 @@ decide between methods, the user can always perform [Labeling by consensus](#lab
   images. Manually labeling cells is time consuming but is well suited to identify cell phenotypes even in noisy scenarios.
 
 ## Test datasets
-The test dataset includes cell feature matrix obtained from two 500x500 pixels breast carcinoma images. 
+The test dataset consists of cell feature matrix obtained from two 500x500 pixels breast carcinoma images. 
 They have been stained with a multiplexed immunofluorescence protocol for the following markers: 
 "DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
 The original images can be found at: https://immunoatlas.org/.
