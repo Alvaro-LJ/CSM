@@ -295,7 +295,7 @@ Cell_segmentator_quantificator <-
 
     SEGMENTATION_RESULTS <-
       furrr::future_map(seq_along(1:length(Complete_Image_Names)), function(Index){
-        try({
+        RESULT_TIBBLE <- try({
           #Pre-process nuclear channels if required
           if(Perform_nuclear_channel_processing){
             Image <- magick::image_read(Complete_Image_Names[Index]) #Import image
@@ -411,6 +411,7 @@ Cell_segmentator_quantificator <-
           }
         }
         )
+        return(RESULT_TIBBLE)
       },
       .progress = TRUE)
     future::plan("future::sequential")
@@ -418,6 +419,7 @@ Cell_segmentator_quantificator <-
 
     #check for any errors during segmentation
     Any_error <- purrr::map_lgl(SEGMENTATION_RESULTS, function(Image) berryFunctions::is.error(Image))
+    if(all(Any_error)) stop("All images returned error during segmentation. Please check parameters provided.")
     if(any(Any_error)){
       Error_images <- Simple_Image_Names[Any_error]
       warning(paste0("The following images returned an error during cell segmentation, hence they will be removed from the analysis. This may probably occur due to abscence of cells in these images: ",
