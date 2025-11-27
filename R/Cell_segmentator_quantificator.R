@@ -419,8 +419,8 @@ Cell_segmentator_quantificator <-
 
     #check for any errors during segmentation
     Any_error <- purrr::map_lgl(SEGMENTATION_RESULTS, function(Image) berryFunctions::is.error(Image))
-    if(all(Any_error)) stop("All images returned error during segmentation. Please check parameters provided.")
-    if(any(Any_error)){
+    if(all(Any_error)) stop("All images returned error during segmentation. Please check parameters provided.") # If all images throw an error
+    if(any(Any_error)){ #If at least one image throws an error
       Error_images <- Simple_Image_Names[Any_error]
       warning(paste0("The following images returned an error during cell segmentation, hence they will be removed from the analysis. This may probably occur due to abscence of cells in these images: ",
                      stringr::str_c(Error_images, collapse = ", ")))
