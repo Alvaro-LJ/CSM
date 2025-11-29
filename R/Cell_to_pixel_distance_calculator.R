@@ -1,12 +1,12 @@
 #' Calculate the distance from a cell to the closest positive pixel.
 #'
-#' Given a thresholded image (either binary or multilevel) and the cell feature information matrix, the function will compute the distance from cell to the closest non-zero value pixels.
+#' Given a thresholded image (either binary or multilevel) and the cell feature information matrix, the function will compute the distance from cell to the closest non-zero value pixel.
 #' This can be used to analyze the spatial interaction of cells with extra-cellular elements in the image. Images can be thresholded using the [Pixel_Threshold_calculator()] function.
 #'
 #'
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @param Directory Character string specifying the path to the folder containing thresholded images.
-#' @param Image_rotate (OPTIONAL) A integer value indicating the degrees of rotation of the image.
+#' @param Image_rotate (OPTIONAL) A integer value indicating the degrees of rotation of the image. If NULL no rotation is applied.
 #' @param Image_x_flip A logical value indicating if X image flip should be performed.
 #' @param Image_y_flip A logical value indicating if X image flip should be performed.
 #' @param DATA A dataframe or tibble containing cell feature data.
@@ -36,7 +36,7 @@
 Cell_to_pixel_distance_calculator <-
     function(N_cores = 1,
              Directory,
-             Image_rotate = FALSE,
+             Image_rotate = NULL,
              Image_x_flip = FALSE,
              Image_y_flip = FALSE,
              DATA,

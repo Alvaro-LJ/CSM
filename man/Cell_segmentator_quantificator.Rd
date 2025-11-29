@@ -38,47 +38,47 @@ Cell_segmentator_quantificator(
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
 
-\item{Channels_to_keep}{Character vector specifying image channels to be kept in the analysis (must be a subse of Ordered_Channels).}
+\item{Channels_to_keep}{Character vector specifying image channels to be kept in the analysis (must be a subset of Ordered_Channels).}
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 
-\item{quantiles_to_calculate}{Numeric vector specifying the expression quantiles calculated for every cell and channel.}
+\item{quantiles_to_calculate}{Numeric vector specifying the expression quantiles calculated for every cell and channel. If NULL, no quantiles are computed.}
 
 \item{Nuclear_marker}{(Used if Parameters_list is NULL) Character vector of markers corresponding to the nuclei.}
 
-\item{Cell_body_method}{(Used if Parameters_list is NULL) Method of cytoplasm identification. Can be 'none', dilate' or 'discModel'}
+\item{Cell_body_method}{(Used if Parameters_list is NULL) Method of cytoplasm identification. Can be 'none', 'dilate' or 'discModel'.}
 
-\item{Min_pixel}{(Used if Parameters_list is NULL) Integer value specifying the minimum pixels for an object to be recognized as a cell and not noise}
+\item{Min_pixel}{(Used if Parameters_list is NULL) Integer value specifying the minimum pixels for an object to be recognized as a cell and not noise.}
 
-\item{Smooth_amount}{(Used if Parameters_list is NULL) Numeric value specifying the amount of Gaussian smoothing to be applied to the image}
+\item{Smooth_amount}{(Used if Parameters_list is NULL) Numeric value specifying the amount of Gaussian smoothing to be applied to the image.}
 
-\item{Normalization}{(Used if Parameters_list is NULL) Single value or vector specifying the transformations from "sqrt", "asinh", "norm99", "maxThresh" and "tissueMask}
+\item{Normalization}{(Used if Parameters_list is NULL) Single value or vector specifying the transformations from "sqrt", "asinh", "norm99", "maxThresh" and "tissueMask.}
 
-\item{Watershed_type}{(Used if Parameters_list is NULL) Method used to perform watersheding. Accepted values: "intensity", "distance" or "combine"}
+\item{Watershed_type}{(Used if Parameters_list is NULL) Method used to perform watersheding. Accepted values: "intensity", "distance" or "combine".}
 
-\item{Tolerance_value}{(Used if Parameters_list is NULL) Numeric value specifying the minimum height of the object in the units of image intensity between its highest point (seed) and the point where it contacts another object (MAY BE NULL)}
+\item{Tolerance_value}{(Used if Parameters_list is NULL) Numeric value specifying the minimum height of the object in the units of image intensity between its highest point (seed) and the point where it contacts another object (MAY BE NULL).}
 
 \item{Neighborhood_distance}{(Used if Parameters_list is NULL) Radius of the neighborhood in pixels for the detection of neighboring objects. Higher value smooths out small objects.}
 
-\item{Disc_size}{(Used if Parameters_list is NULL) The size of dilation around nuclei to create cell disc or capture cytoplasm}
+\item{Disc_size}{(Used if Parameters_list is NULL) The size of dilation around nuclei to create cell disc or capture cytoplasm.}
 
-\item{Tissue_mask_markers}{(Used if Parameters_list is NULL) A vector specifying the channels to be used to create the tissue mask if specified in transformation}
+\item{Tissue_mask_markers}{(Used if Parameters_list is NULL) A vector specifying the channels to be used to create the tissue mask if specified in transformation.}
 
-\item{Perform_PCA}{(Used if Parameters_list is NULL) A logical value specifying wether to run PCA on aggregated nucleus markers in order to detect the cellular nucclei}
+\item{Perform_PCA}{(Used if Parameters_list is NULL) A logical value specifying wether to run PCA on aggregated nucleus markers in order to detect the cellular nucclei.}
 
-\item{Perform_nuclear_channel_processing}{(Used if Parameters_list is NULL) A logical value specifying if nuclear channel pre-processing should be performed}
+\item{Perform_nuclear_channel_processing}{(Used if Parameters_list is NULL) A logical value specifying if nuclear channel pre-processing should be performed.}
 
-\item{Black_level}{(Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Numeric indicating the \% below the max intensity level to be removed}
+\item{Black_level}{(Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Numeric indicating the \% below the max intensity level to be set to absolute black.}
 
-\item{White_level}{(Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Numeric indicating the \% above the max intensity level to be removed}
+\item{White_level}{(Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Numeric indicating the \% above the max intensity level to be set to absolute white.}
 
-\item{Gamma_level}{(Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Numeric value to indicate channel gamma}
+\item{Gamma_level}{(Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Numeric value between -3 and +3 to indicate channel gamma.}
 
-\item{Equalize}{(Used if Parameters_list is NULL)(Used if Parameters_list is NULL) A logical value specifying if channel should be equalized}
+\item{Equalize}{(Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) A logical value specifying if channel should be equalized.}
 
-\item{Opening_kernel_size}{(Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Opening kernel size (set to 1 if no opening is required)}
+\item{Opening_kernel_size}{(Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Opening kernel size (set to 1 if no opening is required).}
 
-\item{Closing_kernel_size}{(Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Closing kernel size (set to 1 if no closing is required)}
+\item{Closing_kernel_size}{(Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Closing kernel size (set to 1 if no closing is required).}
 }
 \value{
 A tibble containing cell feature data including cell X Y coordinates
@@ -115,4 +115,7 @@ Cell_segmentator_quantificator(
 unlink(Input_Dir, recursive = TRUE)
 }
 
+}
+\seealso{
+\code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}}
 }

@@ -2,33 +2,37 @@
 #'
 #' `Cell_segmentator_quantificator()` performs cell segmentation according to user defined parameters.
 #' Parameters can then be obtained using [Segmentator_tester_app()].
+#'
 #' @param Directory Character specifying the path to the folder where images to be segmented are present.
 #' @param Parameter_list List obtained using the [Segmentator_tester_app()] containing segmentation parameters.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
-#' @param Channels_to_keep Character vector specifying image channels to be kept in the analysis (must be a subse of Ordered_Channels).
+#' @param Channels_to_keep Character vector specifying image channels to be kept in the analysis (must be a subset of Ordered_Channels).
 #' @param N_cores Integer. Number of cores to parallelize your computation.
-#' @param quantiles_to_calculate Numeric vector specifying the expression quantiles calculated for every cell and channel.
+#' @param quantiles_to_calculate Numeric vector specifying the expression quantiles calculated for every cell and channel. If NULL, no quantiles are computed.
 #'
 #' @param Nuclear_marker (Used if Parameters_list is NULL) Character vector of markers corresponding to the nuclei.
-#' @param Cell_body_method (Used if Parameters_list is NULL) Method of cytoplasm identification. Can be 'none', dilate' or 'discModel'
-#' @param Min_pixel (Used if Parameters_list is NULL) Integer value specifying the minimum pixels for an object to be recognized as a cell and not noise
-#' @param Smooth_amount (Used if Parameters_list is NULL) Numeric value specifying the amount of Gaussian smoothing to be applied to the image
-#' @param Normalization (Used if Parameters_list is NULL) Single value or vector specifying the transformations from "sqrt", "asinh", "norm99", "maxThresh" and "tissueMask
-#' @param Watershed_type (Used if Parameters_list is NULL) Method used to perform watersheding. Accepted values: "intensity", "distance" or "combine"
-#' @param Tolerance_value (Used if Parameters_list is NULL) Numeric value specifying the minimum height of the object in the units of image intensity between its highest point (seed) and the point where it contacts another object (MAY BE NULL)
+#' @param Cell_body_method (Used if Parameters_list is NULL) Method of cytoplasm identification. Can be 'none', 'dilate' or 'discModel'.
+#' @param Min_pixel (Used if Parameters_list is NULL) Integer value specifying the minimum pixels for an object to be recognized as a cell and not noise.
+#' @param Smooth_amount (Used if Parameters_list is NULL) Numeric value specifying the amount of Gaussian smoothing to be applied to the image.
+#' @param Normalization (Used if Parameters_list is NULL) Single value or vector specifying the transformations from "sqrt", "asinh", "norm99", "maxThresh" and "tissueMask.
+#' @param Watershed_type (Used if Parameters_list is NULL) Method used to perform watersheding. Accepted values: "intensity", "distance" or "combine".
+#' @param Tolerance_value (Used if Parameters_list is NULL) Numeric value specifying the minimum height of the object in the units of image intensity between its highest point (seed) and the point where it contacts another object (MAY BE NULL).
 #' @param Neighborhood_distance (Used if Parameters_list is NULL) Radius of the neighborhood in pixels for the detection of neighboring objects. Higher value smooths out small objects.
-#' @param Disc_size (Used if Parameters_list is NULL) The size of dilation around nuclei to create cell disc or capture cytoplasm
-#' @param Tissue_mask_markers (Used if Parameters_list is NULL) A vector specifying the channels to be used to create the tissue mask if specified in transformation
-#' @param Perform_PCA (Used if Parameters_list is NULL) A logical value specifying wether to run PCA on aggregated nucleus markers in order to detect the cellular nucclei
+#' @param Disc_size (Used if Parameters_list is NULL) The size of dilation around nuclei to create cell disc or capture cytoplasm.
+#' @param Tissue_mask_markers (Used if Parameters_list is NULL) A vector specifying the channels to be used to create the tissue mask if specified in transformation.
+#' @param Perform_PCA (Used if Parameters_list is NULL) A logical value specifying wether to run PCA on aggregated nucleus markers in order to detect the cellular nucclei.
 #'
-#' @param Perform_nuclear_channel_processing (Used if Parameters_list is NULL) A logical value specifying if nuclear channel pre-processing should be performed
-#' @param Black_level (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Numeric indicating the % below the max intensity level to be removed
-#' @param White_level (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Numeric indicating the % above the max intensity level to be removed
-#' @param Gamma_level (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Numeric value to indicate channel gamma
-#' @param Equalize (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) A logical value specifying if channel should be equalized
-#' @param Opening_kernel_size (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Opening kernel size (set to 1 if no opening is required)
-#' @param Closing_kernel_size (Used if Parameters_list is NULL)(Used if Parameters_list is NULL) Closing kernel size (set to 1 if no closing is required)
+#' @param Perform_nuclear_channel_processing (Used if Parameters_list is NULL) A logical value specifying if nuclear channel pre-processing should be performed.
+#' @param Black_level (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Numeric indicating the % below the max intensity level to be set to absolute black.
+#' @param White_level (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Numeric indicating the % above the max intensity level to be set to absolute white.
+#' @param Gamma_level (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Numeric value between -3 and +3 to indicate channel gamma.
+#' @param Equalize (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) A logical value specifying if channel should be equalized.
+#' @param Opening_kernel_size (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Opening kernel size (set to 1 if no opening is required).
+#' @param Closing_kernel_size (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Closing kernel size (set to 1 if no closing is required).
+#'
 #' @returns A tibble containing cell feature data including cell X Y coordinates
+#'
+#' @seealso [Segmentator_tester_app()]
 #'
 #' @examples
 #' \dontrun{

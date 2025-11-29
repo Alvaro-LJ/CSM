@@ -27,9 +27,12 @@ Binary_threshold_image_combinator(
 Returns a tibble with the total positive pixels per image after combining binary thresholded images
 }
 \description{
-This function can be used to generate binary thresholded images that result from combining several thresholded images using the operators AND, OR, NOT
+This function can be used to generate binary thresholded images that result from combining several thresholded images using the operators AND, OR, NOT.
 }
 \details{
+The function will first match the file names in the provided directories. After matching, binary thresholded images will be combined
+\bold{SEQUENTIALLY} using the operators provided by the user. This means that the order of the operators and the images being combined
+matters. This function can only combine binary thresholded images. Multi-level thresholded images are not supported.
 If processed images are saved, these can be further combined with cell position data using \code{\link[=Cell_to_pixel_distance_calculator]{Cell_to_pixel_distance_calculator()}}.
 }
 \examples{

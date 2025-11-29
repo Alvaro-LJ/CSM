@@ -37,7 +37,7 @@ Advanced_Tumor_Stroma_identifier(
 
 \item{Dist_to_border}{A numeric value indicating the distance to the border to consider a cell to be in the border}
 
-\item{Image_preview}{A character value indicating the name of the image to be used in the preview.}
+\item{Image_preview}{A character value indicating the name of the image to be used in the preview. If NULL, a random image will be selected.}
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 }
@@ -46,7 +46,7 @@ Returns a list with a tibble with cell features including a column named 'Compar
 }
 \description{
 The function calculates tissue compartments (usually tumor and stroma) based on concave hull.
-The border is calculated based on a user defined distance to the tissue structure. Before the concave hull is calculated a filtering method must be applied to remove non-spatially clustered cells.
+The border is calculated based on a user defined distance to the tissue structure. Before the concave hull is calculated, a filtering method must be applied to remove non-spatially clustered cells.
 The concave hull is calculated using th sf R package.
 DBscan filtering is based on the dbscan::dbscan function.
 }

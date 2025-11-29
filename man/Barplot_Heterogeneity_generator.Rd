@@ -7,12 +7,12 @@
 Barplot_Heterogeneity_generator(DATA, Metric)
 }
 \arguments{
-\item{DATA}{A dataframe or tibble containing a summary of global heterogeneity by sample like the one obtained after running Global_heterogeneity_calculator()].}
+\item{DATA}{A dataframe or tibble containing a summary of global heterogeneity by sample like the one obtained after running \code{\link[=Global_heterogeneity_calculator]{Global_heterogeneity_calculator()}}.}
 
 \item{Metric}{A character vector indicating the metric that will be displayed in the plot.}
 }
 \value{
-Generates a barplot of the heterogeneity of every image in DATA.
+Generates a barplot of the heterogeneity for every image in DATA.
 }
 \description{
 After quantifying heterogeneity for every image using \code{\link[=Global_heterogeneity_calculator]{Global_heterogeneity_calculator()}}, the user can plot the results using this function.

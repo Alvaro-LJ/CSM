@@ -17,7 +17,7 @@ Clinical_Data_analyzer(
 \arguments{
 \item{DATA}{A dataframe or tibble containing image feature data.}
 
-\item{DATA_var}{A character value indicating which feature from DATA will be analyzed.}
+\item{DATA_var}{A character vector indicating which features from DATA will be analyzed.}
 
 \item{DATA_Clinical}{A dataframe or tibble containing image metadata, formatted using \code{\link[=Clinical_Data_arrange_function]{Clinical_Data_arrange_function()}}.}
 
@@ -25,9 +25,9 @@ Clinical_Data_analyzer(
 
 \item{Perform_time_to_event}{A logical value indicating if time to event analysis should be performed (see details).}
 
-\item{Time_variable}{If time to event is required this argument is used to provide the column name specifying the time variable (Numeric).}
+\item{Time_variable}{If time to event is required, this argument is used to provide the column name specifying the time variable (Numeric).}
 
-\item{Event_variable}{If time to event is required this argument is used to provide the column name specifying the event variable (0 or 1).}
+\item{Event_variable}{If time to event is required, this argument is used to provide the column name specifying the event variable (a numeric variable containing 0 or 1 values).}
 }
 \value{
 Returns a summary of association and generates summary plots.
@@ -37,7 +37,7 @@ Returns a summary of association and generates summary plots.
 Image feature data can be obtained in various ways using CSM, for example running \code{\link[=Phenotype_quantifier]{Phenotype_quantifier()}}, \code{\link[=Global_heterogeneity_calculator]{Global_heterogeneity_calculator()}}, \code{\link[=Distance_analyzer]{Distance_analyzer()}} among others.
 }
 \details{
-If image metadata variable is a character, the function will calculate t-tests or ANOVA depending on the amount of categories.
+If image metadata variable is a character, the function will calculate t-tests or ANOVA depending on the number of categories.
 If image metadata is numeric, Pearson correlation will be calculated. For time-to event analysis, cut-off points for the image feature will be calculated using the survminer::surv_cutpoint function.
 }
 \examples{

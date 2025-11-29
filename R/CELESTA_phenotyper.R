@@ -1,6 +1,6 @@
 #' Assigns phenotype labels using CELESTA algorithm
 #'
-#' The function runs the CELESTA algorithm using cell feature data and a template indicating expected cell phenotypes.
+#' The function runs the CELESTA algorithm using cell feature data and a template indicating expected features of cell phenotypes.
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Template_path A character indicating the path to the CSV file containing the fulfilled template.

@@ -1,12 +1,12 @@
 #' Plot an image with a cell overlay.
 #'
-#' The function generates a plot with an image in the background and cells overlayed. Cell information must have been obtained from the image in order to match X Y coordinates with image coordinates.
+#' The function generates a plot with an image in the background and cells overlayed. Cell information must have been obtained from the image in order to match X Y coordinates with image pixel coordinates.
 #'
 #' @param Image_directory Character string specifying the path to the image file that needs to be plotted.
 #' @param Channel_to_display A integer value indicating the Channel index to be displayed (1 for single channel images).
 #' @param Image_rotate (OPTIONAL) A integer value indicating the degrees of rotation of the image.
 #' @param Image_x_flip A logical value indicating if X image flip should be performed.
-#' @param Image_y_flip A logical value indicating if X image flip should be performed.
+#' @param Image_y_flip A logical value indicating if Y image flip should be performed.
 #' @param Gamma_level A numeric value between -3 and +3 indicating the gamma level to apply to the image.
 #' @param Equalize A logical value indicating if the image should be equalized.
 #' @param Black_level A integer value between 0 and 100 indicating the minimum pixel intensity.

@@ -2,10 +2,10 @@
 #'
 #' After quantifying heterogeneity for every image using [Global_heterogeneity_calculator()], the user can plot the results using this function.
 #'
-#' @param DATA A dataframe or tibble containing a summary of global heterogeneity by sample like the one obtained after running Global_heterogeneity_calculator()].
+#' @param DATA A dataframe or tibble containing a summary of global heterogeneity by sample like the one obtained after running [Global_heterogeneity_calculator()].
 #' @param Metric A character vector indicating the metric that will be displayed in the plot.
 #'
-#' @returns Generates a barplot of the heterogeneity of every image in DATA.
+#' @returns Generates a barplot of the heterogeneity for every image in DATA.
 #'
 #' @examples
 #' \dontrun{

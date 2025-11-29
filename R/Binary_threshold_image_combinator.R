@@ -1,6 +1,6 @@
 #' Performs combination of multiple binary thresholded images using boolean operators
 #'
-#' This function can be used to generate binary thresholded images that result from combining several thresholded images using the operators AND, OR, NOT
+#' This function can be used to generate binary thresholded images that result from combining several thresholded images using the operators AND, OR, NOT.
 #'
 #' @param ... Strings indicating the path to folders containing binary thresholded images. Images from different directories will be matched by name.
 #' @param Save_processed_images Logical value indicating if thresholded images should be written (see details).
@@ -11,6 +11,9 @@
 #' @returns Returns a tibble with the total positive pixels per image after combining binary thresholded images
 #'
 #' @details
+#' The function will first match the file names in the provided directories. After matching, binary thresholded images will be combined
+#' \bold{SEQUENTIALLY} using the operators provided by the user. This means that the order of the operators and the images being combined
+#' matters. This function can only combine binary thresholded images. Multi-level thresholded images are not supported.
 #' If processed images are saved, these can be further combined with cell position data using [Cell_to_pixel_distance_calculator()].
 #'
 #' @seealso [Image_thresholding_app_launcher()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]

@@ -1,7 +1,7 @@
 #' Calculates tumor and stromal compartment based on concave hull
 #'
 #' The function calculates tissue compartments (usually tumor and stroma) based on concave hull.
-#' The border is calculated based on a user defined distance to the tissue structure. Before the concave hull is calculated a filtering method must be applied to remove non-spatially clustered cells.
+#' The border is calculated based on a user defined distance to the tissue structure. Before the concave hull is calculated, a filtering method must be applied to remove non-spatially clustered cells.
 #' The concave hull is calculated using th sf R package.
 #' DBscan filtering is based on the dbscan::dbscan function.
 #'
@@ -19,7 +19,7 @@
 #' @param Calculate_border A logical value indicating if border to tissue estructure should be computed.
 #' @param Dist_to_border A numeric value indicating the distance to the border to consider a cell to be in the border
 #'
-#' @param Image_preview A character value indicating the name of the image to be used in the preview.
+#' @param Image_preview A character value indicating the name of the image to be used in the preview. If NULL, a random image will be selected.
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
 #' @returns Returns a list with a tibble with cell features including a column named 'Compartment' containing cell location and a tibble with tumor compartment area.

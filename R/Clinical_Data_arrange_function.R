@@ -1,7 +1,7 @@
 #' Formats image metadata
 #'
-#' `Clinical_Data_arrange_function()`must be run in order to format image metadata. These can be either numeric or strings. Time to event data must be coded in two separate features (one for event and other for time).
-#' This function is similar to [Data_arrange_function()], without adequate formatting, image metadata will no be able to work with [Clinical_Data_analyzer()]
+#' `Clinical_Data_arrange_function()` must be run in order to format image metadata. Image metadata variables can be either numeric or strings. Time to event data must be coded in two separate features (one for event and other for time).
+#' This function is similar to [Data_arrange_function()], without adequate formatting, image metadata will no be able to work with [Clinical_Data_analyzer()].
 #'
 #' @param DATA A dataframe or tibble containing image metadata.
 #' @param Subject_Names A character indicating the column name containing image name.

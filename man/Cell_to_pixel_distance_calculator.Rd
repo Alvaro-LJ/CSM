@@ -7,7 +7,7 @@
 Cell_to_pixel_distance_calculator(
   N_cores = 1,
   Directory,
-  Image_rotate = FALSE,
+  Image_rotate = NULL,
   Image_x_flip = FALSE,
   Image_y_flip = FALSE,
   DATA,
@@ -20,7 +20,7 @@ Cell_to_pixel_distance_calculator(
 
 \item{Directory}{Character string specifying the path to the folder containing thresholded images.}
 
-\item{Image_rotate}{(OPTIONAL) A integer value indicating the degrees of rotation of the image.}
+\item{Image_rotate}{(OPTIONAL) A integer value indicating the degrees of rotation of the image. If NULL no rotation is applied.}
 
 \item{Image_x_flip}{A logical value indicating if X image flip should be performed.}
 
@@ -36,7 +36,7 @@ Cell_to_pixel_distance_calculator(
 A tibble containing Cell feature information along with the distance to the closest positive pixel.
 }
 \description{
-Given a thresholded image (either binary or multilevel) and the cell feature information matrix, the function will compute the distance from cell to the closest non-zero value pixels.
+Given a thresholded image (either binary or multilevel) and the cell feature information matrix, the function will compute the distance from cell to the closest non-zero value pixel.
 This can be used to analyze the spatial interaction of cells with extra-cellular elements in the image. Images can be thresholded using the \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}} function.
 }
 \examples{

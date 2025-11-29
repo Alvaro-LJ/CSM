@@ -41,7 +41,7 @@ The recommended range is 0.01 - 0.05. Note that the higher the cell change thres
 Returns a tibble with cell features and a column named 'Phenotype' containing cell labels.
 }
 \description{
-The function runs the CELESTA algorithm using cell feature data and a template indicating expected cell phenotypes.
+The function runs the CELESTA algorithm using cell feature data and a template indicating expected features of cell phenotypes.
 }
 \examples{
 \dontrun{

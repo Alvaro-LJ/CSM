@@ -30,7 +30,7 @@ Cell_image_plot_generator(
 
 \item{Image_x_flip}{A logical value indicating if X image flip should be performed.}
 
-\item{Image_y_flip}{A logical value indicating if X image flip should be performed.}
+\item{Image_y_flip}{A logical value indicating if Y image flip should be performed.}
 
 \item{Gamma_level}{A numeric value between -3 and +3 indicating the gamma level to apply to the image.}
 
@@ -54,7 +54,7 @@ Cell_image_plot_generator(
 Generates a plot with the image and the cells overlay.
 }
 \description{
-The function generates a plot with an image in the background and cells overlayed. Cell information must have been obtained from the image in order to match X Y coordinates with image coordinates.
+The function generates a plot with an image in the background and cells overlayed. Cell information must have been obtained from the image in order to match X Y coordinates with image pixel coordinates.
 }
 \examples{
 \dontrun{

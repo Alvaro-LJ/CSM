@@ -5,15 +5,15 @@
 #'
 #'
 #' @param DATA A dataframe or tibble containing image feature data.
-#' @param DATA_var A character value indicating which feature from DATA will be analyzed.
+#' @param DATA_var A character vector indicating which features from DATA will be analyzed.
 #' @param DATA_Clinical A dataframe or tibble containing image metadata, formatted using [Clinical_Data_arrange_function()].
 #' @param Clinical_var A character value indicating the name of the column to be analyzed from image metadata.
 #' @param Perform_time_to_event A logical value indicating if time to event analysis should be performed (see details).
-#' @param Time_variable If time to event is required this argument is used to provide the column name specifying the time variable (Numeric).
-#' @param Event_variable If time to event is required this argument is used to provide the column name specifying the event variable (0 or 1).
+#' @param Time_variable If time to event is required, this argument is used to provide the column name specifying the time variable (Numeric).
+#' @param Event_variable If time to event is required, this argument is used to provide the column name specifying the event variable (a numeric variable containing 0 or 1 values).
 #' @returns Returns a summary of association and generates summary plots.
 #'
-#' @details If image metadata variable is a character, the function will calculate t-tests or ANOVA depending on the amount of categories.
+#' @details If image metadata variable is a character, the function will calculate t-tests or ANOVA depending on the number of categories.
 #' If image metadata is numeric, Pearson correlation will be calculated. For time-to event analysis, cut-off points for the image feature will be calculated using the survminer::surv_cutpoint function.
 #'
 #' @examples
