@@ -2,7 +2,7 @@
 % Please edit documentation in R/Cell_image_plot_generator.R
 \name{Cell_image_plot_generator}
 \alias{Cell_image_plot_generator}
-\title{Plot an image with a cell overlay.}
+\title{Plot an image with a cell overlay}
 \usage{
 Cell_image_plot_generator(
   Image_directory,

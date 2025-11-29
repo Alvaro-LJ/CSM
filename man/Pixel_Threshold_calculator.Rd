@@ -60,7 +60,7 @@ Pixel_Threshold_calculator(
 \item{Sigma_target}{Numeric value indicating the sigma value to perform Gaussian blurring}
 }
 \value{
-Returns a tibble with the total foreground pixels and pixels above threshold per image
+Returns a tibble with the total foreground pixels and pixels above threshold per image.
 }
 \description{
 Generates binary or multi-level images based on pixel thresholding.

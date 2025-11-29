@@ -9,7 +9,7 @@ Marker_combinator_generator(DATA, Markers)
 \arguments{
 \item{DATA}{A dataframe or tibble containing thresholded cell feature data.}
 
-\item{Markers}{A character vector indicating which features need to be used.}
+\item{Markers}{A character vector indicating which features should be used.}
 }
 \value{
 Returns a tibble where each row are unique positive feature combinations found in DATA.

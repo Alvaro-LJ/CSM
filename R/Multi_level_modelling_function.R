@@ -5,7 +5,7 @@
 #' If the tissue target cell density is higher, or the distance from the COO is larger, the spatial interaction is going to increase.
 #' The function tries to model the influence of image metadata on this spatial interaction. It does so by considering cells in the dataset as nested observations,
 #' where cells within the same image share specific characteristics (like exposure to the same target cell density or image metadata condition).
-#' The model formula will look something like this: N umber of Target cells ~ Image_Metadata*Distance_COO + Density_Target + (1|Cell_Of_Origin_ID)
+#' The model formula will look something like this: Number of Target cells ~ Image_Metadata*Distance_COO + Density_Target + (1|Cell_Of_Origin_ID)
 #' The multilevel model is calculated using lme4::lmer function. The contribution of each variables to the total variance explanation is calculated using the partR2::partR2 function.
 #'
 #' @param DATA_cumulative A list containing cumulative interaction data. It can be computed using [Cumulative_Interaction_generator()] function.
@@ -17,7 +17,7 @@
 #' @param Calculate_R2 A logical value indicating if R2 should be calculated after model fitting.
 #' @param N_bootstrap A integer value indicating the number of permutations to calculate R2 values.
 #'
-#' @returns A list containing two outputs: Raw_DATA contains the expected interaction probability for every distance point. Simplified_DATA cotains the AUC data by image.
+#' @returns Summary of the fitted multi-level model.
 #'
 #' @examples
 #'

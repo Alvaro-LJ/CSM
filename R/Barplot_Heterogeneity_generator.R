@@ -1,4 +1,4 @@
-#' Generate a summary plot of global heterogeneity across images.
+#' Generate a summary plot of global heterogeneity across images
 #'
 #' After quantifying heterogeneity for every image using [Global_heterogeneity_calculator()], the user can plot the results using this function.
 #'

@@ -1,4 +1,4 @@
-#' Generate a summary plot of phenotype composition across images.
+#' Generate a summary plot of phenotype composition across images
 #'
 #' After quantifying cell phenotypes in every image using [Phenotype_quantifier()] function, the user can plot the results using this function.
 #'

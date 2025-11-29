@@ -2,7 +2,7 @@
 % Please edit documentation in R/Confusion_matrix_plotter.R
 \name{Confusion_matrix_plotter}
 \alias{Confusion_matrix_plotter}
-\title{Generates a confusion matrix between two methods used to label cells.}
+\title{Generates a confusion matrix between two methods used to label cells}
 \usage{
 Confusion_matrix_plotter(..., Variable)
 }

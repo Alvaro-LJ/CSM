@@ -17,7 +17,7 @@ Phenotype_quantifier(DATA, Calculate_Density = FALSE, DATA_Area = NULL)
 Returns a tibble with cell counts, percentages and optionally cell densities per image.
 }
 \description{
-The function generates positive cell counts, percentages and optionally cell densities according to cell phenotypes.
+The function generates cell counts, percentages and optionally, cell densities.
 }
 \examples{
 \dontrun{

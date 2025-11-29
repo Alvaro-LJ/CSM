@@ -2,7 +2,7 @@
 % Please edit documentation in R/Tiled_image_heterogeneity_analyzer.R
 \name{Tiled_image_heterogeneity_analyzer}
 \alias{Tiled_image_heterogeneity_analyzer}
-\title{Generates a summary of the heterogeneity by tile.}
+\title{Generates a summary of the heterogeneity by tile}
 \usage{
 Tiled_image_heterogeneity_analyzer(
   Tiled_heterogeneity_DATA,
@@ -24,7 +24,7 @@ Tiled_image_heterogeneity_analyzer(
 A tibble containing the summary of the analysis
 }
 \description{
-Generates a summary of the heterogeneity by tile.
+Generates a summary of the heterogeneity by tile
 }
 \details{
 Quantify_by_Threshold counts the number of tiles above the arbitrary threshold and spatial autocorrelation (Moran's I) of the positive tiles.

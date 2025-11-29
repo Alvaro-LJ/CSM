@@ -3,7 +3,7 @@
 \docType{data}
 \name{CSM_Arrangedcellfeaturedata_test}
 \alias{CSM_Arrangedcellfeaturedata_test}
-\title{Cell feature data formatted with Data_arrange_function.}
+\title{Cell feature data formatted with Data_arrange_function}
 \format{
 A data frame with 1047 rows and 7 variables
 }

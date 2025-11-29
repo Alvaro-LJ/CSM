@@ -1,4 +1,4 @@
-#' Generates a plot illustrating heterogeneity by tile.
+#' Generates a plot illustrating heterogeneity by tile
 #'
 #' @param DATA_elections An object created using the [Neighborhood_voting_function()] function containing neighborhood election results.
 #' @param Image_name A character value indicating the image to be plotted.

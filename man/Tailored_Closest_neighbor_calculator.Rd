@@ -2,7 +2,7 @@
 % Please edit documentation in R/Tailored_Closest_neighbor_calculator.R
 \name{Tailored_Closest_neighbor_calculator}
 \alias{Tailored_Closest_neighbor_calculator}
-\title{Compute the closest neighbors matrix.}
+\title{Compute the closest neighbors matrix}
 \usage{
 Tailored_Closest_neighbor_calculator(
   N_cores = 1,

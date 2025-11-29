@@ -2,7 +2,7 @@
 % Please edit documentation in R/Clustered_Tiled_Images_analyzer.R
 \name{Clustered_Tiled_Images_analyzer}
 \alias{Clustered_Tiled_Images_analyzer}
-\title{Generates a summary of neighborhood analysis based on clustering of tiles.}
+\title{Generates a summary of neighborhood analysis based on clustering of tiles}
 \usage{
 Clustered_Tiled_Images_analyzer(
   Tiled_images,

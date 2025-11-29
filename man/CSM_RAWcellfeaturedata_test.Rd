@@ -3,7 +3,7 @@
 \docType{data}
 \name{CSM_RAWcellfeaturedata_test}
 \alias{CSM_RAWcellfeaturedata_test}
-\title{Raw cell feature data, without format.}
+\title{Raw cell feature data, without format}
 \format{
 A data frame with 1047 rows and 28 variables
 }

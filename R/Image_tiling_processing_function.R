@@ -1,4 +1,4 @@
-#' Performs image tiling.
+#' Performs image tiling
 #'
 #' The function assigns cells to unique tiles. Afterwards, tile information can be used to run subsequent analyses.
 #'

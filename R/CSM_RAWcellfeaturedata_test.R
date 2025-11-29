@@ -1,4 +1,4 @@
-#' Raw cell feature data, without format.
+#' Raw cell feature data, without format
 #'
 #' A dataset containing cell feature data without specific format obtained from
 #'  two 500x500 pixel breast carcinoma images. Original images were obtained from

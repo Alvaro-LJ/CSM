@@ -1,4 +1,4 @@
-#' Cell feature data containing cell distances to positive pixels.
+#' Cell feature data containing cell distances to positive pixels
 #'
 #' A dataset containing breast carcinoma cell feature that has been phenotyped.
 #' The distance from each cell to the closest positive CK-Epcam pixel has been calculated.

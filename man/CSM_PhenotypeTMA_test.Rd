@@ -3,7 +3,7 @@
 \docType{data}
 \name{CSM_PhenotypeTMA_test}
 \alias{CSM_PhenotypeTMA_test}
-\title{Cell feature data containing cell phenotype labels.}
+\title{Cell feature data containing cell phenotype labels}
 \format{
 A data frame with 504,958 rows and 5 variables
 }

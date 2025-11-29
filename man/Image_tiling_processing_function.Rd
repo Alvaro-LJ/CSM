@@ -2,7 +2,7 @@
 % Please edit documentation in R/Image_tiling_processing_function.R
 \name{Image_tiling_processing_function}
 \alias{Image_tiling_processing_function}
-\title{Performs image tiling.}
+\title{Performs image tiling}
 \usage{
 Image_tiling_processing_function(
   N_cores = 1,

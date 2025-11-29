@@ -13,7 +13,7 @@
 #' @param Dimension_reduction_prop A numeric value between 0 and 1 to indicate the percentage of the cells to be used in dimension computation (applicable for TSNE and UMAP).
 #' @param Cluster_on_Reduced A logical value indicating if clustering should be performed on new dimensions.
 #'
-#' @param Strategy One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
+#' @param Strategy The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
 #'
 #' @param Max_N_neighborhoods If Strategy is Consensus_Clustering: Number of maximum neighborhoods that can be identified.
 #' @param Consensus_reps If Strategy is Consensus_Clustering: Number of iterations to converge.
@@ -61,7 +61,7 @@
 #'
 #' Self Organizing Maps clustering is performed using the FlowSOM::FlowSOM function.
 #'
-#' For graph based clustering Nearest neighbors graphs are built using bluster::makeSNNGraph and clustered using functions included in the igraph package.
+#' For graph based clustering Nearest neighbors graphs (SNNG) are built using bluster::makeSNNGraph and clustered using functions included in the igraph package.
 #'
 #' K_Means_Meta_clustering first summarizes cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/expand.grid.unique.R
 \name{expand.grid.unique}
 \alias{expand.grid.unique}
-\title{Generates a tibble with unique combinations between two vectors.}
+\title{Generates a tibble with unique combinations between two vectors}
 \usage{
 expand.grid.unique(x, y, include.equals = FALSE)
 }

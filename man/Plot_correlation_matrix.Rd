@@ -14,7 +14,7 @@ Plot_correlation_matrix(DATA, Variables_included, Correlation_method)
 \item{Correlation_method}{Either "pearson" or "spearman".}
 }
 \value{
-Generates a correlation matrix plot
+Generates a correlation matrix plot.
 }
 \description{
 The function calculates correlation between variables and draws a correlation matrix. Highly correlated or anti-correlated variables can cause trouble in subsequent analyses.

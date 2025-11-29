@@ -2,7 +2,7 @@
 % Please edit documentation in R/Concordance_calculator.R
 \name{Concordance_calculator}
 \alias{Concordance_calculator}
-\title{Calculates concordance between different methods.}
+\title{Calculates concordance between different methods}
 \usage{
 Concordance_calculator(..., Variable, Strategy)
 }

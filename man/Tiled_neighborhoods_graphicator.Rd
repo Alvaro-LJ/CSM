@@ -2,7 +2,7 @@
 % Please edit documentation in R/Tiled_neighborhoods_graphicator.R
 \name{Tiled_neighborhoods_graphicator}
 \alias{Tiled_neighborhoods_graphicator}
-\title{Generates a plot illustrating heterogeneity by tile.}
+\title{Generates a plot illustrating heterogeneity by tile}
 \usage{
 Tiled_neighborhoods_graphicator(
   DATA_elections,
@@ -21,7 +21,7 @@ Tiled_neighborhoods_graphicator(
 Returns a plot with the tiles and the neighborhood elections results.
 }
 \description{
-Generates a plot illustrating heterogeneity by tile.
+Generates a plot illustrating heterogeneity by tile
 }
 \examples{
 \dontrun{

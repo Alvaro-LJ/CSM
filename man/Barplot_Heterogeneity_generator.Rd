@@ -2,7 +2,7 @@
 % Please edit documentation in R/Barplot_Heterogeneity_generator.R
 \name{Barplot_Heterogeneity_generator}
 \alias{Barplot_Heterogeneity_generator}
-\title{Generate a summary plot of global heterogeneity across images.}
+\title{Generate a summary plot of global heterogeneity across images}
 \usage{
 Barplot_Heterogeneity_generator(DATA, Metric)
 }

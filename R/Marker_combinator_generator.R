@@ -4,7 +4,7 @@
 #' The result can then be used to feed the [Phenotype_assigner_function()] to obtain cell phenotypes.
 #'
 #' @param DATA A dataframe or tibble containing thresholded cell feature data.
-#' @param Markers A character vector indicating which features need to be used.
+#' @param Markers A character vector indicating which features should be used.
 #'
 #' @returns Returns a tibble where each row are unique positive feature combinations found in DATA.
 #'

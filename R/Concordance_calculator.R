@@ -1,4 +1,4 @@
-#' Calculates concordance between different methods.
+#' Calculates concordance between different methods
 #'
 #' The function calculates concordance between two or more methods that generate cell labels.
 #'

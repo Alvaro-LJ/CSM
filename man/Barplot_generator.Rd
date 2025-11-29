@@ -2,7 +2,7 @@
 % Please edit documentation in R/Barplot_generator.R
 \name{Barplot_generator}
 \alias{Barplot_generator}
-\title{Generate a summary plot of phenotype composition across images.}
+\title{Generate a summary plot of phenotype composition across images}
 \usage{
 Barplot_generator(DATA, Phenotypes_included, Ordering_phenotype)
 }

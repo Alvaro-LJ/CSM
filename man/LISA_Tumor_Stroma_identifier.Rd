@@ -37,7 +37,7 @@ Returns a tibble with cell features and a column named 'Compartment' containing 
 }
 \description{
 The function calculates tissue compartments (usually tumor and stroma) based on Local Indicators of Spatial Association.
-The function is based on the lisaClust::lisaClustfunction.
+The function is based on the lisaClust::lisaClust function.
 }
 \examples{
 \dontrun{

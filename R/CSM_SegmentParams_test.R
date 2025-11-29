@@ -1,4 +1,4 @@
-#' List containing cell segmentation parameters.
+#' List containing cell segmentation parameters
 #'
 #'A list containing the parameters to perform cell segmentation and feature extraction.
 #'

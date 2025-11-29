@@ -3,7 +3,7 @@
 \docType{data}
 \name{CSM_SegmentParams_test}
 \alias{CSM_SegmentParams_test}
-\title{List containing cell segmentation parameters.}
+\title{List containing cell segmentation parameters}
 \format{
 A list containig parameters
 }

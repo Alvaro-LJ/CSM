@@ -3,7 +3,7 @@
 \docType{data}
 \name{CSM_Neighborhoods_test}
 \alias{CSM_Neighborhoods_test}
-\title{Closest neighbor matrix.}
+\title{Closest neighbor matrix}
 \format{
 A data frame with 798 rows and 15 variables
 }

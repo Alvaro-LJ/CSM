@@ -1,4 +1,4 @@
-#' Assigns a phenotype to every cell according to user specified labels and thresholding results.
+#' Assigns a phenotype to every cell according to user specified labels and thresholding results
 #'
 #' The function takes a thresholded cell feature matrix and a tibble obtained using [Marker_combinator_generator()]. The resulting tibble obtained using [Marker_combinator_generator()]
 #' must have a new column named 'Phenotype' where the user specifies the name of the phenotype according to the feature positivity pattern. The function uses this information to assign cell phenotypes to all cells in DATA.

@@ -1,4 +1,4 @@
-#' Generates a plot illustrating heterogeneity by tile.
+#' Generates a plot illustrating heterogeneity by tile
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Tiled_images A list containing tiled images obtained using [Tiled_image_heterogeneity_calculator()].

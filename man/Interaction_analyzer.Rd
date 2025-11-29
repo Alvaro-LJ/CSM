@@ -39,7 +39,7 @@ Interaction_analyzer(
 A list containing a summary of the pairwise cell-to-cell interactions by sample.
 }
 \description{
-The function summarizes the results of the the pairwise cell-to-cell spatial interaction. In addition, the function identifies recurrent patterns of cell-to-cell spatial interactions in images. Before running the function pairwise spatial interactions need to be computed using \code{\link[=Interaction_counter]{Interaction_counter()}}.
+The function summarizes the results of the the pairwise cell-to-cell spatial interaction. In addition, the function identifies recurrent patterns of cell-to-cell spatial interactions in images. Before running the function, pairwise spatial interactions need to be computed using \code{\link[=Interaction_counter]{Interaction_counter()}}.
 }
 \examples{
 \dontrun{

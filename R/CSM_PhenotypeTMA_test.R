@@ -1,4 +1,4 @@
-#' Cell feature data containing cell phenotype labels.
+#' Cell feature data containing cell phenotype labels
 #'
 #' A dataset containing endometrial carcinoma cell feature that has been
 #' phenotyped. The dataset contains information of more than 500K cells from

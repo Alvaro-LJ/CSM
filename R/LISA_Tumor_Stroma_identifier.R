@@ -1,7 +1,7 @@
 #' Calculates tumor and stromal compartment based on Local Indicators of Spatial Association
 #'
 #' The function calculates tissue compartments (usually tumor and stroma) based on Local Indicators of Spatial Association.
-#' The function is based on the lisaClust::lisaClustfunction.
+#' The function is based on the lisaClust::lisaClust function.
 #'
 #' @param DATA_Phenotypes A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.
 #' @param Index_phenotype A character value indicating the cell phenotype to be used to calculate the tissue compartment.

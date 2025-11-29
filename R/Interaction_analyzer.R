@@ -1,6 +1,6 @@
 #' Summarize images according to their cell-to-cell pairwise spatial interaction patterns
 #'
-#' The function summarizes the results of the the pairwise cell-to-cell spatial interaction. In addition, the function identifies recurrent patterns of cell-to-cell spatial interactions in images. Before running the function pairwise spatial interactions need to be computed using [Interaction_counter()].
+#' The function summarizes the results of the the pairwise cell-to-cell spatial interaction. In addition, the function identifies recurrent patterns of cell-to-cell spatial interactions in images. Before running the function, pairwise spatial interactions need to be computed using [Interaction_counter()].
 #'
 #'
 #' @param DATA A list of pairwise cell-to-cell spatial interactions computed using [Interaction_counter()].

@@ -65,7 +65,7 @@ Neighborhood_discovery_function(
 
 \item{Cluster_on_Reduced}{A logical value indicating if clustering should be performed on new dimensions.}
 
-\item{Strategy}{One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).}
+\item{Strategy}{The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).}
 
 \item{Max_N_neighborhoods}{If Strategy is Consensus_Clustering: Number of maximum neighborhoods that can be identified.}
 
@@ -145,7 +145,7 @@ Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClust
 
 Self Organizing Maps clustering is performed using the FlowSOM::FlowSOM function.
 
-For graph based clustering Nearest neighbors graphs are built using bluster::makeSNNGraph and clustered using functions included in the igraph package.
+For graph based clustering Nearest neighbors graphs (SNNG) are built using bluster::makeSNNGraph and clustered using functions included in the igraph package.
 
 K_Means_Meta_clustering first summarizes cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
 

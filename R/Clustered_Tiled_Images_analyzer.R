@@ -1,4 +1,4 @@
-#' Generates a summary of neighborhood analysis based on clustering of tiles.
+#' Generates a summary of neighborhood analysis based on clustering of tiles
 #'
 #' The function returns neighborhood counts and percentages. Optionally the function may compute neighborhood heterogeneity metrics.
 #'

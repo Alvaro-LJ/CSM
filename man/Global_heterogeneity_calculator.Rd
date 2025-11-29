@@ -2,7 +2,7 @@
 % Please edit documentation in R/Global_heterogeneity_calculator.R
 \name{Global_heterogeneity_calculator}
 \alias{Global_heterogeneity_calculator}
-\title{Calculates cell composition heterogeneity.}
+\title{Calculates cell composition heterogeneity}
 \usage{
 Global_heterogeneity_calculator(DATA, Phenotypes_included)
 }

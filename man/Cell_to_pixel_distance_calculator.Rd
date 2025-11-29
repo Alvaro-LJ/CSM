@@ -2,7 +2,7 @@
 % Please edit documentation in R/Cell_to_pixel_distance_calculator.R
 \name{Cell_to_pixel_distance_calculator}
 \alias{Cell_to_pixel_distance_calculator}
-\title{Calculate the distance from a cell to the closest positive pixel.}
+\title{Calculate the distance from a cell to the closest positive pixel}
 \usage{
 Cell_to_pixel_distance_calculator(
   N_cores = 1,

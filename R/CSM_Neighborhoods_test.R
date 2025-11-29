@@ -1,4 +1,4 @@
-#' Closest neighbor matrix.
+#' Closest neighbor matrix
 #'
 #' A dataset containing the closest neighbors for every cell carcinoma cell in the
 #' dataset (OTHER cells cannot be COO). A distance of 50 pixels has been used to

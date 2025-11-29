@@ -20,7 +20,7 @@ Image_tile_deconstruction_function(
 
 \item{Output_directory}{Character string specifying the path to the folder where  output images are written. It must be an empty folder.}
 
-\item{RGB_Color_images}{Logical. Is the image a RGB color image?}
+\item{RGB_Color_images}{Logical. Are we dealing with RGB color images?}
 
 \item{Ordered_Channels}{Character vector specifying image channels. If RGB_Color_images is TRUE it will be set automatically to c("R", "G", "B").}
 
@@ -38,12 +38,12 @@ The function writes the tiles in the ouput directory.
 \description{
 \code{Image_tile_deconstruction_function()} divides into smaller chunks all the images in a directory.
 This allows faster computations when using CSM apps, performing image thresholding and cell segmentation.
-The names of the resulting images should not be modified. If modified this can
+The names of the resulting images should not be modified. If modified, this can
 result in unexpected results when using companion functions \code{\link[=Image_from_tile_rebuilder]{Image_from_tile_rebuilder()}}, \code{\link[=Tile_to_image_cell_arrange_function]{Tile_to_image_cell_arrange_function()}}.
 Tile overlap may be useful to avoid segmentation errors in cells close to the tile edge.
 }
 \details{
-Allowed image formats are tiff and ome.tiff. The ome.tiff files have been less extensively tested than tiff files.
+The function has been developed using tiff and ome.tiff image formats. The ome.tiff files have been less extensively tested than tiff files. Other formats (like png) may work but have not been tested.
 
 Warning!! The function uses the RBioFormats Bioconductor package that parses the Bioformats Java library to R. Sometimes even if the user
 has installed the RBioFormats package from bioconductor the function will still return an error. If this happens, the issue can be solved

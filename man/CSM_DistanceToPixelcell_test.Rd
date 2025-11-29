@@ -3,7 +3,7 @@
 \docType{data}
 \name{CSM_DistanceToPixelcell_test}
 \alias{CSM_DistanceToPixelcell_test}
-\title{Cell feature data containing cell distances to positive pixels.}
+\title{Cell feature data containing cell distances to positive pixels}
 \format{
 A data frame with 1047 rows and 9 variables
 }

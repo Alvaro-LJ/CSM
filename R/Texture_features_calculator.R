@@ -1,4 +1,4 @@
-#' Calculates the average texture features of a single cell type.
+#' Calculates the average texture features of a single cell type
 #'
 #' The function calculates the average texture features of a single cell type for every image. Image must have been previously tiled using [Image_tiling_processing_function()].
 #' The tiled image is first transformed into a raster like object, then the grey level co-ocurrence matrix is calculated and texture features are obtained and averaged.

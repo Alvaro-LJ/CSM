@@ -2,7 +2,7 @@
 % Please edit documentation in R/Image_length_calculator.R
 \name{Image_length_calculator}
 \alias{Image_length_calculator}
-\title{Generate a summary of the width, length and surface of images in a dataset.}
+\title{Generate a summary of the width, length and surface of images in a dataset}
 \usage{
 Image_length_calculator(DATA)
 }

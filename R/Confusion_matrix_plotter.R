@@ -1,4 +1,4 @@
-#' Generates a confusion matrix between two methods used to label cells.
+#' Generates a confusion matrix between two methods used to label cells
 #'
 #' The function generates a confusion matrix between two cell labeling methods (cell phenotype or neighborhood labels for example).
 #'

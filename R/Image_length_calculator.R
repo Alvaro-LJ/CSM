@@ -1,4 +1,4 @@
-#' Generate a summary of the width, length and surface of images in a dataset.
+#' Generate a summary of the width, length and surface of images in a dataset
 #'
 #' The function can be used  to plan the image tiling strategy.
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Texture_features_calculator.R
 \name{Texture_features_calculator}
 \alias{Texture_features_calculator}
-\title{Calculates the average texture features of a single cell type.}
+\title{Calculates the average texture features of a single cell type}
 \usage{
 Texture_features_calculator(Tiled_images, Phenotype_included)
 }

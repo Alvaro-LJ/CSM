@@ -1,4 +1,4 @@
-#' Compute the closest neighbors matrix.
+#' Compute the closest neighbors matrix
 #'
 #' The function calculates the closest neighbors matrix according to user preferences. The algorithm will visit all the cells in the dataset and compute their neighbors. During this process, the visited cell is considered the Cell of Origin (COO) and the neighbors are the target cells.
 #' The closest neighbor matrix can be used to identify neighborhoods using [Neighborhood_discovery_function()].

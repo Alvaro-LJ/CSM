@@ -2,7 +2,7 @@
 % Please edit documentation in R/SPIAT_Tissue_structuring_function.R
 \name{SPIAT_Tissue_structuring_function}
 \alias{SPIAT_Tissue_structuring_function}
-\title{Generates tissue structures according to a cell phenotype label using the SPIAT package.}
+\title{Generates tissue structures according to a cell phenotype label using the SPIAT package}
 \usage{
 SPIAT_Tissue_structuring_function(
   N_cores = 1,

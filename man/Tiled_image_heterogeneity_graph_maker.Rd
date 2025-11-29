@@ -2,7 +2,7 @@
 % Please edit documentation in R/Tiled_image_heterogeneity_graph_maker.R
 \name{Tiled_image_heterogeneity_graph_maker}
 \alias{Tiled_image_heterogeneity_graph_maker}
-\title{Generates a plot illustrating heterogeneity by tile.}
+\title{Generates a plot illustrating heterogeneity by tile}
 \usage{
 Tiled_image_heterogeneity_graph_maker(DATA, Tiled_images, Image_name, Metric)
 }
@@ -19,7 +19,7 @@ Tiled_image_heterogeneity_graph_maker(DATA, Tiled_images, Image_name, Metric)
 Returns a plot with the cells and the overlying tiles shaded according to the heterogeneity index.
 }
 \description{
-Generates a plot illustrating heterogeneity by tile.
+Generates a plot illustrating heterogeneity by tile
 }
 \examples{
 \dontrun{

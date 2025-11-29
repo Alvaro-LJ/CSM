@@ -1,6 +1,6 @@
 #' Summarizes cell phenotypes for every image in a dataset
 #'
-#' The function generates positive cell counts, percentages and optionally cell densities according to cell phenotypes.
+#' The function generates cell counts, percentages and optionally, cell densities.
 #'
 #' @param DATA A dataframe or tibble containing cell feature data and a column named 'Phenotype' containing cell labels.
 #' @param Calculate_Density A logical value indicating if density should be calculated.

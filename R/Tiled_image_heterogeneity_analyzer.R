@@ -1,4 +1,4 @@
-#' Generates a summary of the heterogeneity by tile.
+#' Generates a summary of the heterogeneity by tile
 #'
 #' @param Tiled_heterogeneity_DATA A list containing tiled images obtained using [Tiled_image_heterogeneity_calculator()].
 #' @param Strategy A character value indicating the analytical approach. Either 'Quantify_by_Threshold' or 'Overall_Summary' (see details).

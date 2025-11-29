@@ -1,4 +1,4 @@
-#' Generates a tibble with unique combinations between two vectors.
+#' Generates a tibble with unique combinations between two vectors
 #'
 #' Intended for internal use only. In contrast to expand.grid only unique combinations are preserved.
 #'

@@ -1,4 +1,4 @@
-#' Plot an image with a cell overlay.
+#' Plot an image with a cell overlay
 #'
 #' The function generates a plot with an image in the background and cells overlayed. Cell information must have been obtained from the image in order to match X Y coordinates with image pixel coordinates.
 #'

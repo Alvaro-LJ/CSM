@@ -22,7 +22,7 @@
 #' @param Blurr_target Logical value indicating if image blurring be performed before target thresholding
 #' @param Sigma_target Numeric value indicating the sigma value to perform Gaussian blurring
 #'
-#' @returns Returns a tibble with the total foreground pixels and pixels above threshold per image
+#' @returns Returns a tibble with the total foreground pixels and pixels above threshold per image.
 #'
 #' @details
 #' If processed images are saved, these can be further combined with cell position data using [Cell_to_pixel_distance_calculator()].

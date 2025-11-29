@@ -1,4 +1,4 @@
-#' Calculates cell composition heterogeneity.
+#' Calculates cell composition heterogeneity
 #'
 #' The function calculates various heterogeneity metrics based on cell composition distribution. It does not take into account spatial information.
 #'

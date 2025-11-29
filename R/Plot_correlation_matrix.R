@@ -6,7 +6,8 @@
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Variables_included A character vector indicating the names of the features to be used.
 #' @param Correlation_method Either "pearson" or "spearman".
-#' @returns Generates a correlation matrix plot
+#'
+#' @returns Generates a correlation matrix plot.
 #'
 #' @examples
 #' \dontrun{
