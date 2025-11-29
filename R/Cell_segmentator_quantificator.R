@@ -142,6 +142,15 @@ Cell_segmentator_quantificator <-
 
     #Specify what to do on exit
     on.exit(gc())
+
+    #Check regular arguments
+    if(length(dir(Directory)) < 1) stop("No files found at the directory provided. Please check out the path.")
+    if(!all(N_cores >= 1, N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
+    if(!is.null(quantiles_to_calculate)){
+      if(!all(is.numeric(quantiles_to_calculate), quantiles_to_calculate > 0, quantiles_to_calculate < 1)) stop("quantiles_to_calculate must be numeric values between 0 and 1")
+    }
+
+
     #If parameter list is provided obtain the parameters
     if(!is.null(Parameter_list)){
       Ordered_Channels <- Parameter_list[["Ordered_Channels"]]
