@@ -3,6 +3,11 @@
 #' `Image_from_tile_rebuilder()` builds a complete image from it's tiles.
 #' Warning: Image reconstruction is limited to ≈ 2-3Gb.
 #' Image reconstruction is designed to rebuild complete images from tiles once these have undergone pixel thresholding using [Pixel_Threshold_calculator()].
+#'
+#' Another warning: Image re-build for overlapping tiles is not currently supported.
+#'
+#' Another warning: The re-building process is based on the file names. If file names are modified, the re-building process can yield unexpected results.
+#'
 #' @param Directory Character string specifying the path to the folder where image tiles are present.
 #' @param Output_directory Character string specifying the path to the folder where  output images are written. It must be an empty folder.
 #' @param RGB_Color_images Logical. Is the image a RGB color image?

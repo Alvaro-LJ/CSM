@@ -28,6 +28,11 @@ The function writes the images in the ouput directory.
 Warning: Image reconstruction is limited to ≈ 2-3Gb.
 Image reconstruction is designed to rebuild complete images from tiles once these have undergone pixel thresholding using \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}.
 }
+\details{
+Another warning: Image re-build for overlapping tiles is not currently supported.
+
+Another warning: The re-building process is based on the file names. If file names are modified, the re-building process can yield unexpected results.
+}
 \examples{
 \dontrun{
 Input_Dir <- tempfile(pattern = "tempdir1_Input")

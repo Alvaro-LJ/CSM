@@ -1,11 +1,11 @@
 #' Formats cell feature data
 #'
-#' `Data_arrange_function()`must be run in order to format cell feature matrix. Many CSM functions won't work if the data has not been adequately formatted
+#' `Data_arrange_function()` must be run in order to format a cell feature matrix. Many CSM functions won't work if the data has not been adequately formatted.
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param X A character indicating the column name containing X coordinates.
 #' @param Y A character indicating the column name containing Y coordinates.
-#' @param Subject_Names A character indicating the column name containing image name.
+#' @param Subject_Names A character indicating the column name containing image names.
 #' @param Markers_to_keep A character vector indicating the names of the columns to be kept in the analysis.
 #' @returns Returns a tibble with cell features. The function adds a unique Cell_no to every cell in the dataset.
 #'

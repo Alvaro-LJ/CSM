@@ -24,7 +24,7 @@ Image_size_calculator(
 \item{Hull_ratio}{A numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.}
 }
 \value{
-Returns a tibble with tissue size for each image
+Returns a tibble with tissue size for each image.
 }
 \description{
 The function approximates tissue size either by tiling the tissue and analyzing the amount of tiles where cells are present or by approximating the silhouette of the tissue by calculating the concave hull.

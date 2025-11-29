@@ -16,7 +16,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' #' #Generate a data distance or random distance matrix--------------------------
+#' #Generate a data distance or random distance matrix--------------------------
 #' DATA_Distances <-
 #' Distance_matrix_generator(
 #'     N_cores = 1,

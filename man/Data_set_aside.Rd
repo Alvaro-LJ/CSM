@@ -9,7 +9,7 @@ Data_set_aside(DATA, Markers_to_set)
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}
 
-\item{Markers_to_set}{Character vector indicating which cell features will be placed aside.}
+\item{Markers_to_set}{Character vector indicating the names of the features will be placed aside.}
 }
 \value{
 A list with two elements: Aside (containing markers removed from main cell feature dataset) and DATA containing remaining features
@@ -17,7 +17,7 @@ A list with two elements: Aside (containing markers removed from main cell featu
 \description{
 The function is used to split cell feature matrix into a tibble containing features that are desired to be used and features that are required to be set aside.
 Feature that are set aside are stored in a tibble containing cell_no and spatial coordinates.
-Features set aside can be used in fine tuning of cell phenotypes using \code{\link[=ReClustering_function]{ReClustering_function()}} or functional analysis using \code{\link[=Cell_functional_assessment]{Cell_functional_assessment()}}
+Features set aside can be used in fine tuning of cell phenotypes using \code{\link[=ReClustering_function]{ReClustering_function()}} or functional analysis using \code{\link[=Cell_functional_assessment]{Cell_functional_assessment()}}.
 }
 \examples{
 \dontrun{

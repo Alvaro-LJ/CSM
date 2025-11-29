@@ -3,14 +3,14 @@
 #' `Clustering_Phenotyper()` assigns cell phenotypes based on clustering. Phenotype names can be then modidified using [DATA_Phenotype_renamer()]
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
-#' @param Strategy One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
+#' @param Strategy The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
 #'
 #' @param Apply_Denoise A logical value. Specify if a denoising filtering is required before clustering (see details).
 #' @param Denoising Denoising strategy. One of the following: Quantile, Standard_Deviation, Threshold, Otsu or DimRed_DBscan.
-#' @param Percentile A numeric value indicating the percentile for quantile threshold. Cells below percentile for all features will be considered to be noise.
+#' @param Percentile A numeric value indicating the percentile for quantile denoising. Cells below percentile for all features will be considered to be noise.
 #' @param N_Standard_Deviations A numeric value indicating the number of standard deviations from mean for Standard_Deviation method. Cells below SD for all features will be considered to be noise.
 #' @param Selected_threshold A numeric value indicating the threshold to be used for the Threshold method. Cells below the threshold for all features will be considered to be noise.
-#' @param Min_cell_no An integer value for the DBscan method. Minimum cell number in distance to consider a cell to be clustered.
+#' @param Min_cell_no An integer value for the DBscan method. Minimum cell number to consider a group of cells to be clustered.
 #' @param Distance_radius A numeric value for the DBscan method. Distance to be sampled.
 #'
 #' @param Perform_Dimension_reduction Logical value. Should Dimension Reduction be performed (see details).
@@ -25,7 +25,7 @@
 #' @param Consensus_Distance If Strategy is Consensus_Clustering: Distance metric to be used (pearson(1 - Pearson correlation), spearman(1 - Spearman correlation), euclidean, binary, maximum, canberra, minkowski.
 #' @param Consensus_Name If Strategy is Consensus_Clustering: Name of the folder that is going to be created in order to place the resulting graphs.
 #'
-#' @param Max_SOM_phenotypes If Strategy is SOM: umber of maximum phenotypes that can be identified.
+#' @param Max_SOM_phenotypes If Strategy is SOM: number of maximum phenotypes that can be identified.
 #'
 #' @param Nearest_neighbors_for_graph If strategy is Graph_Based: The number of closest neighbors to calculate the graph.
 #' @param Graph_Method If strategy is Graph_Based: One of Louvain, Leiden, Greedy, WalkTrap, Spinglass, Leading_Eigen or Edge_Betweenness.
@@ -35,7 +35,7 @@
 #' @param N_K_centroids If strategy is K_Means_Meta_clustering: Number of centroids to perform K means.
 #' @param Max_N_phenotypes_Meta If strategy is K_Means_Meta_clustering: Number of maximum phenotypes that can be identified.
 #' @param Consensus_reps_Meta If strategy is K_Means_Meta_clustering: Number of iterations to converge.
-#' @param Consensus_p_Items_Meta If strategy is K_Means_Meta_clustering: Percentage of cells that you desire to sample in each iteration.
+#' @param Consensus_p_Items_Meta If strategy is K_Means_Meta_clustering: Percentage of cells to sample in each iteration.
 #' @param Consensus_Name_Meta If strategy is K_Means_Meta_clustering: Name of the folder that is going to be created in order to place the resulting graphs.
 #'
 #' @param Batch_size If strategy is Batch_K_means: Number of cells to be included in each random batch.
@@ -43,7 +43,7 @@
 #' @param N_initiations If strategy is Batch_K_means: Number of times the algorithm is going to be tried to find the best clustering result.
 #' @param Max_iterations If strategy is Batch_K_means: Max number of iterations in each try.
 #'
-#' @param Quality_metric If strategy is GMM:T he quality measure used to test the number of clusters ("AIC" or "BIC").
+#' @param Quality_metric If strategy is GMM: The quality measure used to test the number of clusters ("AIC" or "BIC").
 #' @param Max_N_phenotypes_GMM If strategy is GMM: Number of maximum phenotypes that can be identified.
 #' @param Max_iterations_km If strategy is GMM: Number of max iterations in the K means clustering performed.
 #' @param Max_iterations_em If strategy is GMM: Number of max iterations in the Expectation Maximization algorithm.
@@ -58,24 +58,24 @@
 #' @details
 #' De-noising process does not remove cells from the final output. It rather assigns noise cells to a single phenotype. Otsu thresholding and DBSCAN based denoising are based on EBImage::otsu and dbscan::dbscan functions, respectively.
 #'
-#' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then predicting coordinates for all the cells. This can be more computationally efficient.
-#' The first time TSNE is sused, snifter will install a CONDA distribution in you R library through basilisk package. The path to the library is relevant. Any non-standard characters in you path may lead to errors (non ASCII characters, spaces...).
+#' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP, a model can be fitted using a subset of data and then generalized to all the dataset. This can be more computationally efficient.
+#' The first time TSNE is used, snifter will install a CONDA distribution in yout R library using the basilisk package. The path to the library is relevant. Any non-standard characters in you path may lead to errors (non ASCII characters, spaces...).
 #'
 #' Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 #'
 #' Self Organizing Maps clustering is performed using the FlowSOM::FlowSOM function.
 #'
-#' For graph based clustering Nearest neighbors graphs are built using bluster::makeSNNGraph and clustered using functions included in the igraph package.
+#' For graph based clustering, Nearest Neighbors Graphs (SNNG) are built using bluster::makeSNNGraph and clustered using functions included in the igraph package.
 #'
-#' K_Means_Meta_clustering first summarizes cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
+#' K_Means_Meta_clustering first summarizes the cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
 #'
-#' Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
+#' Batch K-means, Gaussian Mixture Models and Clustering Large Applications (CLARA) are all based on the ClusterR package.
 #'
 #' @seealso [DATA_Phenotype_renamer()], [ReClustering_function()], [Consensus_phenotype_assigner()], [Concordance_calculator()], [Confusion_matrix_plotter()],
 #' [Phenotyping_evaluator_shiny_app_launcher()]
 #'
 #' @returns Returns a tibble with cell features and a column named 'Phenotype' containing cell labels.
-#' If dimension reduction has been performed returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
+#' If dimension reduction has been performed, returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
 #'
 #' @examples
 #' \dontrun{

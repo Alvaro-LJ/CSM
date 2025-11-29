@@ -9,7 +9,7 @@ Concordance_calculator(..., Variable, Strategy)
 \arguments{
 \item{...}{Two or more dataframes or tibbles containing a column with cell labels. A name must be provided for every tibble.}
 
-\item{Variable}{A character value of the column name containing the labels. The name must be shared across datasets provided.}
+\item{Variable}{A character value indicating the column name containing the labels. The name must be shared across datasets provided.}
 
 \item{Strategy}{One of the following: 'Rand' or 'FM' (Fowlkes–Mallows) (see details).}
 }

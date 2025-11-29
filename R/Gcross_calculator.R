@@ -1,6 +1,6 @@
 #' Analyzes the spatial interaction between two cell types across images by using the Gcross function
 #'
-#' The function calculates the probability of spatial encounter between two cell types as distance sampling increases using the Gcross functions.
+#' The function calculates the probability of spatial encounter between two cell types as distance sampling increases using the Gcross function.
 #' Steep rise in probability as distance increases means high chances of spatial interaction. The function is calculated using the spatstat R metapackage
 #' (specifically the spatstat.explore::Gcross function). The Area Under the Curve (AUC) of the resulting function can be used as a metric of spatial association.
 #'

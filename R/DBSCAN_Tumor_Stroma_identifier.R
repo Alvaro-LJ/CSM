@@ -5,7 +5,7 @@
 #'
 #' @param DATA_Phenotypes A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.
 #' @param Index_phenotype A character value indicating the cell phenotype to be used to calculate the tissue compartment.
-#' @param Image_preview A character value indicating the name of the image to be used in the preview.
+#' @param Image_preview A character value indicating the name of the image to be used in the preview. If NULL, a random image will be selected.
 #' @param Min_cells A integer value indicating the minimum number of cells required to be a cluster.
 #' @param Distance_radius A numeric value indicating the distance to be sampled.
 #' @param N_cores Integer. Number of cores to parallelize your computation.

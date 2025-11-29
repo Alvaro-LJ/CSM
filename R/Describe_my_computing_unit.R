@@ -1,6 +1,6 @@
 #' Obtain CPU information and available RAM
 #'
-#' The function returns CPU characteristics like processor model and number of cores. It will also return the OS and R version.
+#' The function returns machine characteristics like CPU model and number of cores. It will return the available RAM. It will also return the OS and R version.
 #'
 #' @return A list containing information regarding CPU, RAM, R version being used and Operating system
 #'

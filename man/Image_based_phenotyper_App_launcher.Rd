@@ -37,7 +37,7 @@ Cell label assigner has several buttons:
 \item{Remove labels: Removes any cells from the training dataset matching the label in the "Cell label" box.}
 }
 
-Model settings allows the user to control how the model will be calculated. If spatial interaction features are required the user must
+Model settings allows the user to control how the model will be calculated. If spatial interaction features are required, the user must
 specify how neighbors are defined. The 'thresh' (threshold) parameter defines the minimum confidence of the prediction required to
 assign a cell a label. If threshold is not reached, the cell will remain unnasigned.
 
@@ -48,13 +48,13 @@ Relevan buttons in the lower area of the control panel
 \item{Download button saves the current active model in the Global environment}
 }
 
-Upper left panel: Displays the image (use it to zoom in and out)
-
-Upper right panel: Allows assigning cells for the training dataset. Select cells by clicking or use the area selection tools provided. Cell labels will be updated as they are assigned.
-
-Lower left: Shows features of the training dataset and the results of the test dataset if tests have been performed.
-
-Lower right: If a test has been performed, it shows the model results. Missclassified cells can be selected and labels can be re-assigned to refine the model.
+Image Panels:
+\itemize{
+\item{Upper left panel: Displays the image (use it to zoom in and out).}
+\item{Upper right panel: Allows assigning cells for the training dataset. Select cells by clicking or use the area selection tools provided. Cell labels will be updated as they are assigned.}
+\item{Lower left: Shows features of the training dataset and the results of the test dataset if tests have been performed.}
+\item{Lower right: If a test has been performed, it shows the model results. Misclassified cells can be selected and labels can be re-assigned to refine the model.}
+}
 }
 \examples{
 \dontrun{

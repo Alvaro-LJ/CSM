@@ -4,7 +4,7 @@
 #' Compartment areas must be first computed using [Advanced_Tumor_Stroma_identifier()] function.
 #'
 #' @param DATA A list containing cell compartment location and compartment area generated with [Advanced_Tumor_Stroma_identifier()].
-#' @param Calculate_Density A logical value indicating if density should be calculated. Currently density in border computation is not supported.
+#' @param Calculate_Density A logical value indicating if density should be calculated. Currently computing cell density in border is not supported.
 #' @param DATA_Area If density needs to be calculated, a tibble or dataframe containing total tissue size information. It may be generated using [Image_size_calculator()].
 #'
 #' @returns Returns tibble with information of cell percentages and (optionally) densities by image and compartment.

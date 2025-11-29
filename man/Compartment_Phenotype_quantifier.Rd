@@ -13,7 +13,7 @@ Compartment_Phenotype_quantifier(
 \arguments{
 \item{DATA}{A list containing cell compartment location and compartment area generated with \code{\link[=Advanced_Tumor_Stroma_identifier]{Advanced_Tumor_Stroma_identifier()}}.}
 
-\item{Calculate_Density}{A logical value indicating if density should be calculated. Currently density in border computation is not supported.}
+\item{Calculate_Density}{A logical value indicating if density should be calculated. Currently computing cell density in border is not supported.}
 
 \item{DATA_Area}{If density needs to be calculated, a tibble or dataframe containing total tissue size information. It may be generated using \code{\link[=Image_size_calculator]{Image_size_calculator()}}.}
 }

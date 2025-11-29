@@ -5,7 +5,7 @@
 #' @param ... Two dataframes or tibbles containing a column with cell labels.
 #' @param Variable A character value of the column name containing the labels. The name must be shared across the two datasets provided.
 #'
-#' @returns Generates a confusion matrix plot
+#' @returns Generates a confusion matrix plot.
 #'
 #' @examples
 #' \dontrun{

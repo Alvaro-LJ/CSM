@@ -13,7 +13,7 @@ Data_arrange_function(DATA, X, Y, Subject_Names, Markers_to_keep)
 
 \item{Y}{A character indicating the column name containing Y coordinates.}
 
-\item{Subject_Names}{A character indicating the column name containing image name.}
+\item{Subject_Names}{A character indicating the column name containing image names.}
 
 \item{Markers_to_keep}{A character vector indicating the names of the columns to be kept in the analysis.}
 }
@@ -21,7 +21,7 @@ Data_arrange_function(DATA, X, Y, Subject_Names, Markers_to_keep)
 Returns a tibble with cell features. The function adds a unique Cell_no to every cell in the dataset.
 }
 \description{
-\code{Data_arrange_function()}must be run in order to format cell feature matrix. Many CSM functions won't work if the data has not been adequately formatted
+\code{Data_arrange_function()} must be run in order to format a cell feature matrix. Many CSM functions won't work if the data has not been adequately formatted.
 }
 \examples{
 \dontrun{

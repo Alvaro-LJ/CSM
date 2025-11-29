@@ -12,7 +12,7 @@ Confusion_matrix_plotter(..., Variable)
 \item{Variable}{A character value of the column name containing the labels. The name must be shared across the two datasets provided.}
 }
 \value{
-Generates a confusion matrix plot
+Generates a confusion matrix plot.
 }
 \description{
 The function generates a confusion matrix between two cell labeling methods (cell phenotype or neighborhood labels for example).

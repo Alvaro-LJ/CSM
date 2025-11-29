@@ -8,7 +8,8 @@
 #' @param Image_to_plot (Optional) A character value indicating the image to be used in the preview. If NULL the smallest tissue will be used.
 #' @param Tile_accuracy Lower values calculate the area in a more precise manner, with higher computational times. If the value is too low, it can classify areas of stroma as not being tissue.
 #' @param Hull_ratio A numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.
-#' @returns Returns a tibble with tissue size for each image
+#'
+#' @returns Returns a tibble with tissue size for each image.
 #'
 #' @examples
 #' \dontrun{

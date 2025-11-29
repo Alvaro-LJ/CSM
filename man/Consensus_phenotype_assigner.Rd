@@ -36,9 +36,9 @@ Returns a tibble containing consensus cell labels.
 The function allows various cell phenotyping methods to be combined into a final consensus label.
 }
 \details{
-Majority voting assigns the label with the highest votes. If there is a tie between two or more methods, the tie can be resolved by randomly selecting a label, or by using the No_consensus_value.
+Majority voting assigns the label with the highest votes. If there is a tie between two or more labels, the tie can be resolved by randomly selecting a label, or by using the No_consensus_value.
 
-Arbitrary voting assigns the label with the highest votes as long as it has received enough arbitrary votes. Arbitrary threshold must be between 0.5 and 1.
+Arbitrary voting assigns the label with the highest votes as long as it has received enough votes. Arbitrary threshold must be between 0.5 and 1.
 
 Difference voting assigns the label with the highest votes as long as the difference between the selected label and the second most voted option is above an arbitrary threshold.
 }

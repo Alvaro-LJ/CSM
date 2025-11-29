@@ -18,7 +18,7 @@ DBSCAN_Tumor_Stroma_identifier(
 
 \item{Index_phenotype}{A character value indicating the cell phenotype to be used to calculate the tissue compartment.}
 
-\item{Image_preview}{A character value indicating the name of the image to be used in the preview.}
+\item{Image_preview}{A character value indicating the name of the image to be used in the preview. If NULL, a random image will be selected.}
 
 \item{Min_cells}{A integer value indicating the minimum number of cells required to be a cluster.}
 

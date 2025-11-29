@@ -36,7 +36,7 @@ Gcross_calculator(
 A list containing two outputs: Raw_DATA contains the expected interaction probability for every distance point. Simplified_DATA cotains the AUC data by image.
 }
 \description{
-The function calculates the probability of spatial encounter between two cell types as distance sampling increases using the Gcross functions.
+The function calculates the probability of spatial encounter between two cell types as distance sampling increases using the Gcross function.
 Steep rise in probability as distance increases means high chances of spatial interaction. The function is calculated using the spatstat R metapackage
 (specifically the spatstat.explore::Gcross function). The Area Under the Curve (AUC) of the resulting function can be used as a metric of spatial association.
 }
