@@ -37,7 +37,7 @@ Thresholding_function(
 Returns a tibble with thresholded cell features. All features are thresholded using the same approach. For binary thresholding features are converted to logical vectors, for multi-level are converted to numeric vectors.
 }
 \description{
-\code{Thresholding_function()} thresholds cell features following several approaches. The user can test this approaches using the \code{\link[=Thresholding_tester_app]{Thresholding_tester_app()}}.
+\code{Thresholding_function()} thresholds cell features following several approaches. The user can test these approaches using the \code{\link[=Thresholding_tester_app]{Thresholding_tester_app()}}.
 Thresholded features can be further processed using the \code{\link[=Marker_combinator_generator]{Marker_combinator_generator()}} and \code{\link[=Phenotype_assigner_function]{Phenotype_assigner_function()}} to obtain cell phenotypes.
 }
 \details{

@@ -13,6 +13,9 @@ Model_cell_phenotyper(DATA, Model_parameters, N_cores = 1)
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 }
+\value{
+A tibble containing a column named 'Phenotype' containing cell phenotype labels
+}
 \description{
 Given a cell feature dataset and a cell phenotype label prediction model, the function assigns cell phenotype labels to all cells in the dataset.
 The model must have been fitted using \code{\link[=Image_based_phenotyper_App_launcher]{Image_based_phenotyper_App_launcher()}}.

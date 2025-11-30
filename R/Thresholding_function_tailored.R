@@ -1,11 +1,11 @@
 #' Thresholds cell features applying a unique approach for every marker
 #'
-#'  In contrast to `Thresholding_function()` this function allows selecting a feature specific approach for thresholding. The user can test this approaches using the [Thresholding_tester_app()].
+#'  In contrast to `Thresholding_function()` this function allows selecting a feature specific approach for thresholding. The user can test these approaches using the [Thresholding_tester_app()].
 #'  Thresholded features can be further processed using the [Marker_combinator_generator()] and [Phenotype_assigner_function()] to obtain cell phenotypes.
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
-#' @param Variables_tibble A dataframe or tibble summarizing thresholding approach for every marker. It must contain the following columns: variable, Strategy, Local_thresholding, Method_autothreshold,
-#' number_iterations_TriClass, Percentile, Defined_threshold, Levels. Values for every of this columns follow the same rules as for [Thresholding_function()].
+#' @param Variables_tibble A dataframe or tibble summarizing the thresholding approach for every marker. It must contain the following columns: variable, Strategy, Local_thresholding, Method_autothreshold,
+#' number_iterations_TriClass, Percentile, Defined_threshold, Levels. Values for every of these columns follow the same rules as for [Thresholding_function()].
 #'
 #' @details
 #' Local thresholding is generally discouraged. It may capture image-specific artifacts or patterns and not true feature positivity.

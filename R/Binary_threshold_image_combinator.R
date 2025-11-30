@@ -8,7 +8,7 @@
 #' @param Operators Character vector indicating how the provided directories should be combined. Accepted values are 'AND', 'OR', 'NOT'
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
-#' @returns Returns a tibble with the total positive pixels per image after combining binary thresholded images
+#' @returns Returns a tibble with the total positive pixels per image after combining binary thresholded images.
 #'
 #' @details
 #' The function will first match the file names in the provided directories. After matching, binary thresholded images will be combined

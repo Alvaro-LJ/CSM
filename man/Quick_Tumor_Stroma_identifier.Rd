@@ -22,7 +22,7 @@ Quick_Tumor_Stroma_identifier(
 
 \item{Min_cell_no}{A integer value indicating the minimum number of cells within a tile to consider the tile positive for a compartment.}
 
-\item{Image_preview}{A character value indicating the name of the image to be used in the preview. If Null a random sample will be selected.}
+\item{Image_preview}{A character value indicating the name of the image to be used in the preview. If NULL a random sample will be selected.}
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 }

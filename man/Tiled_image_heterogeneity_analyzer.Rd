@@ -21,7 +21,7 @@ Tiled_image_heterogeneity_analyzer(
 \item{Threshold}{If Strategy is Quantify_by_Threshold, the arbitrary threshold to be used.}
 }
 \value{
-A tibble containing the summary of the analysis
+A tibble containing the summary of the analysis.
 }
 \description{
 Generates a summary of the heterogeneity by tile

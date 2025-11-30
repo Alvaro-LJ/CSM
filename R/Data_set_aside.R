@@ -6,7 +6,8 @@
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Markers_to_set Character vector indicating the names of the features will be placed aside.
-#' @returns A list with two elements: Aside (containing markers removed from main cell feature dataset) and DATA containing remaining features
+#'
+#' @returns A list with two elements: Aside (containing markers removed from main cell feature dataset) and DATA containing remaining features.
 #'
 #' @examples
 #' \dontrun{

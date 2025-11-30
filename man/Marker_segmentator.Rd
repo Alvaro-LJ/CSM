@@ -27,7 +27,7 @@ Marker_segmentator(
 \item{Var_to_Merge}{(OPTIONAL) if Merge is TRUE, a character indicating the feature name to be combined with the segmented feature.}
 }
 \value{
-Returns a tibble with the new segmented feature
+Returns a tibble with the new segmented feature.
 }
 \description{
 Given a numeric cell feature and user specified cut-off values, a character vector is generated to summarize the feature.

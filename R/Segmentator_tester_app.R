@@ -1,15 +1,14 @@
 #' Launches a shiny APP to explore cell segmentation parameters
 #'
-#' `Segmentator_tester_app()` launches an APP to interactively explore cell segmentation parameters interactively
-#' Parameters can then be used to feed the [Cell_segmentator_quantificator()].
+#' `Segmentator_tester_app()` launches an APP to interactively explore cell segmentation parameters. Parameters can then be used to feed the [Cell_segmentator_quantificator()] function.
 #'
-#' @param Directory Character specifying the path to the folder where images to be segmented are present.
+#' @param Directory Character specifying the path to the folder where images to be segmented are stored.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #'
 #' @seealso [Cell_segmentator_quantificator()]
 #'
 #' @details
-#' Control panel controls the image display settings. If Pre process is active (default) image pre-processing will be applied to the nuclear channels before running segmentation (this can enhance results in some scenarios).
+#' Control panel controls the image display settings. If Pre process is active (default) image pre-processing will be applied to the nuclear channels before running segmentation (this can enhance performance in some scenarios).
 #'
 #' Relevant buttons:
 #' \itemize{
@@ -24,7 +23,7 @@
 #' \item{Upper left: Displays the image (use it to zoom in and out).}
 #' \item{Upper right: Cell boundaries are displayed.}
 #' \item{Lower left: Nucleus are depicted}
-#' \item{Lower right: Heatmap of marker expression by cell. If image is zoomed in, only cells in the field are shown.}
+#' \item{Lower right: Heatmap of marker expression by cell. If image is zoomed in, only cells in the field of view are shown.}
 #' }
 #'
 #'

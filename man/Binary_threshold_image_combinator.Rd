@@ -24,7 +24,7 @@ Binary_threshold_image_combinator(
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 }
 \value{
-Returns a tibble with the total positive pixels per image after combining binary thresholded images
+Returns a tibble with the total positive pixels per image after combining binary thresholded images.
 }
 \description{
 This function can be used to generate binary thresholded images that result from combining several thresholded images using the operators AND, OR, NOT.

@@ -29,6 +29,10 @@ A list containing tile information for every image in DATA.
 \description{
 The function assigns cells to unique tiles. Afterwards, tile information can be used to run subsequent analyses.
 }
+\details{
+There is a one unit overlap between tile edges to account for potential decimal numbers in cell coordinates. Cells are assigned
+to the first tile where they are located. In most scenarios, this 1 unit overlap wont impact the final results.
+}
 \examples{
 \dontrun{
 Image_tiling_processing_function(

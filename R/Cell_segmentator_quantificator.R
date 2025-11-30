@@ -30,7 +30,7 @@
 #' @param Opening_kernel_size (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Opening kernel size (set to 1 if no opening is required).
 #' @param Closing_kernel_size (Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Closing kernel size (set to 1 if no closing is required).
 #'
-#' @returns A tibble containing cell feature data including cell X Y coordinates
+#' @returns A tibble containing cell feature data including cell X Y coordinates.
 #'
 #' @seealso [Segmentator_tester_app()]
 #'

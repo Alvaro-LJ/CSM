@@ -1,7 +1,7 @@
 #' Calculates distance between a single cell of origin and two target cells
 #'
-#' The function calculates the Euclidean distance between three cell phenotypes. One is considered the Cell of Origin (COO) and two others are considered the target cells.
-#' The COO and one of the target cells can be the same cell type.
+#' The function calculates the Euclidean distance between three cell phenotypes. One is considered the Cell of Origin (COO) and the other two are considered the target cells.
+#' The COO and the target cells must be different cell types.
 #'
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @param DATA A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.

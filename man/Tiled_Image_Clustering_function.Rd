@@ -55,7 +55,7 @@ Tiled_Image_Clustering_function(
 
 \item{Minimum_cell_no_per_tile}{An integer indicating the minimum number of cells that a tile must contain. Tiles below the limit will not be included in the analysis.}
 
-\item{Minimum_valid_tiles_per_image}{An integer indicating the minimum number of valid tiles an image must contain. Images below the limits will not be included in the analysis.}
+\item{Minimum_valid_tiles_per_image}{An integer indicating the minimum number of valid tiles an image must contain. Images below the limit will not be included in the analysis.}
 
 \item{Phenotypes_included}{A character vector indicating the cell phenotypes that will be included in the clustering process.}
 
@@ -144,7 +144,7 @@ Returns a list containing the tiles with their corresponding neighborhood assign
 Identifies tiles with recurrent cell patterns. Images must have been previously tiled using \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}} function.
 }
 \details{
-Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then predicting coordinates for all the cells. This can be more computationally efficient.
+Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then used to predict coordinates for all the cells. This can be more computationally efficient.
 
 Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 
@@ -152,9 +152,9 @@ Self Organizing Maps clustering is performed using the FlowSOM::FlowSOM function
 
 For graph based clustering Nearest neighbors graphs are built using bluster::makeSNNGraph and clustered using functions included in the igraph package.
 
-K_Means_Meta_clustering first summarizes cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
+K_Means_Meta_clustering first summarizes cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards, results are generalized to all cells.
 
-Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
+Batch K-means, Gaussian Mixture Models and Clustering Large Applications (CLARA) are all based on the ClusterR package.
 }
 \examples{
 \dontrun{

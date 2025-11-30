@@ -12,7 +12,7 @@ Normalization_diagnostics(Original_DATA, Normalized_DATA)
 \item{Normalized_DATA}{A dataframe or tibble containing normalized feature expression data.}
 }
 \value{
-Generates plots
+Returns summary plots.
 }
 \description{
 The function will analyze normalization performance by comparing the Coefficient of Variation of Otsu thresholds across samples. In theory, if normalization is successful,

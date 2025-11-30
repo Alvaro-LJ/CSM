@@ -1,6 +1,6 @@
 #' Thresholds cell features
 #'
-#' `Thresholding_function()` thresholds cell features following several approaches. The user can test this approaches using the [Thresholding_tester_app()].
+#' `Thresholding_function()` thresholds cell features following several approaches. The user can test these approaches using the [Thresholding_tester_app()].
 #'  Thresholded features can be further processed using the [Marker_combinator_generator()] and [Phenotype_assigner_function()] to obtain cell phenotypes.
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.

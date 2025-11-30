@@ -1,6 +1,6 @@
 #' Launches a shiny APP to explore feature thresholding methods
 #'
-#' `Thresholding_tester_app()` launches an APP to interactively explore thresholding methods interactively. Parameters can then be used in the [Thresholding_function()] or [Thresholding_function_tailored()] functions.
+#' `Thresholding_tester_app()` launches an APP to interactively explore thresholding methods. Parameters can then be used in the [Thresholding_function()] or [Thresholding_function_tailored()] functions.
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Directory Character specifying the path to the folder where images are present.
@@ -9,7 +9,7 @@
 #' @seealso [Thresholding_function()], [Thresholding_function_tailored()]
 #'
 #' @details
-#' Image setting in the control panel allow the user to control the image channel display.
+#' Image settings in the control panel allow the user to control the image channel display.
 #'
 #' Thresholding methods and type of thresholding (GLOBAL or LOCAL) can be toggled using the control panel.
 #'
@@ -21,8 +21,8 @@
 #' \itemize{
 #' \item{Upper left: Displays the image (use it to zoom in and out).}
 #' \item{Upper right: Feature expression by cell. Cells can be selected to explore the % of positive cells from selection.}
-#' \item{Lower left: Cells above threshold for the current selected image. Cells can be selected to explore the % of positive cells from selection.}
-#' \item{Lower right: Sample feature expression histogram with the active trheshold depicted.}
+#' \item{Lower left: Cells above threshold for the currently selected image. Cells can be selected to explore the % of positive cells from selection.}
+#' \item{Lower right: Sample feature expression histogram with the active threshold depicted.}
 #' }
 #'
 #'

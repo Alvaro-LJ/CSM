@@ -3,7 +3,7 @@
 #' The function identifies cell neighborhoods based on message-passed cell obtained using the [UTAG_message_passing()] function.
 #'
 #' @param DATA A dataframe or tibble containing message-passed cell feature data obtained using [UTAG_message_passing()] function.
-#' @param Strategy One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
+#' @param Strategy The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
 #' @param Min_Neighbors A numeric value indicating the minimum amount of neighbors. Cells with a number of neighbors below the threshold will be removed from analysis.
 #'
 #' @param Apply_Denoise A logical value. Specify if a denoising filtering is required before clustering (see details).
@@ -59,7 +59,7 @@
 #' @details
 #' De-noising process does not remove cells from the final output. It rather assigns noise cells to a single phenotype. Otsu thresholding and DBSCAN based denoising are based on EBImage::otsu and dbscan::dbscan functions, respectively.
 #'
-#' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then predicting coordinates for all the cells. This can be more computationally efficient.
+#' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then used to predict coordinates for all the cells. This can be more computationally efficient.
 #'
 #' Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 #'
@@ -69,12 +69,12 @@
 #'
 #' K_Means_Meta_clustering first summarizes cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
 #'
-#' Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
+#' Batch K-means, Gaussian Mixture Models and Clustering Large Applications (CLARA) are all based on the ClusterR package.
 #'
 #' @seealso [UTAG_message_passing()], [DATA_neighborhoods_renamer()], [Neighborhood_Quantifier()], [Neighborhood_voting_function()], [Tiled_neighborhoods_graphicator()]
 #'
 #' @returns Returns a tibble with cell features and a column named 'Neighborhood_assignment' containing cell neighborhoods.
-#' If dimension reduction has been performed returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
+#' If dimension reduction has been performed, returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
 #'
 #' @examples
 #' \dontrun{

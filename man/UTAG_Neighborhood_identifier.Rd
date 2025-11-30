@@ -54,7 +54,7 @@ UTAG_Neighborhood_identifier(
 \arguments{
 \item{DATA}{A dataframe or tibble containing message-passed cell feature data obtained using \code{\link[=UTAG_message_passing]{UTAG_message_passing()}} function.}
 
-\item{Strategy}{One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).}
+\item{Strategy}{The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).}
 
 \item{Min_Neighbors}{A numeric value indicating the minimum amount of neighbors. Cells with a number of neighbors below the threshold will be removed from analysis.}
 
@@ -142,7 +142,7 @@ UTAG_Neighborhood_identifier(
 }
 \value{
 Returns a tibble with cell features and a column named 'Neighborhood_assignment' containing cell neighborhoods.
-If dimension reduction has been performed returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
+If dimension reduction has been performed, returns a list with the cell feature dataset as above and a tibble containing dimension reduction coordinates.
 }
 \description{
 The function identifies cell neighborhoods based on message-passed cell obtained using the \code{\link[=UTAG_message_passing]{UTAG_message_passing()}} function.
@@ -150,7 +150,7 @@ The function identifies cell neighborhoods based on message-passed cell obtained
 \details{
 De-noising process does not remove cells from the final output. It rather assigns noise cells to a single phenotype. Otsu thresholding and DBSCAN based denoising are based on EBImage::otsu and dbscan::dbscan functions, respectively.
 
-Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then predicting coordinates for all the cells. This can be more computationally efficient.
+Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then used to predict coordinates for all the cells. This can be more computationally efficient.
 
 Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 
@@ -160,7 +160,7 @@ For graph based clustering Nearest neighbors graphs are built using bluster::mak
 
 K_Means_Meta_clustering first summarizes cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
 
-Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
+Batch K-means, Gaussian Mixture Models and Clustering Large Applications (CLARA) are all based on the ClusterR package.
 }
 \examples{
 \dontrun{

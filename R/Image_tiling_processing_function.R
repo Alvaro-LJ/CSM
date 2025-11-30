@@ -10,6 +10,11 @@
 #'
 #' @returns A list containing tile information for every image in DATA.
 #'
+#' @details
+#' There is a one unit overlap between tile edges to account for potential decimal numbers in cell coordinates. Cells are assigned
+#' to the first tile where they are located. In most scenarios, this 1 unit overlap wont impact the final results.
+#'
+#'
 #' @seealso [Image_length_calculator()], [Image_tiling_processing_function()]
 #'
 #' @examples

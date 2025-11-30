@@ -7,16 +7,15 @@
 Segmentator_tester_app(Directory, Ordered_Channels)
 }
 \arguments{
-\item{Directory}{Character specifying the path to the folder where images to be segmented are present.}
+\item{Directory}{Character specifying the path to the folder where images to be segmented are stored.}
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
 }
 \description{
-\code{Segmentator_tester_app()} launches an APP to interactively explore cell segmentation parameters interactively
-Parameters can then be used to feed the \code{\link[=Cell_segmentator_quantificator]{Cell_segmentator_quantificator()}}.
+\code{Segmentator_tester_app()} launches an APP to interactively explore cell segmentation parameters. Parameters can then be used to feed the \code{\link[=Cell_segmentator_quantificator]{Cell_segmentator_quantificator()}} function.
 }
 \details{
-Control panel controls the image display settings. If Pre process is active (default) image pre-processing will be applied to the nuclear channels before running segmentation (this can enhance results in some scenarios).
+Control panel controls the image display settings. If Pre process is active (default) image pre-processing will be applied to the nuclear channels before running segmentation (this can enhance performance in some scenarios).
 
 Relevant buttons:
 \itemize{
@@ -31,7 +30,7 @@ The lower panel of the control panel shows the current active parameters.
 \item{Upper left: Displays the image (use it to zoom in and out).}
 \item{Upper right: Cell boundaries are displayed.}
 \item{Lower left: Nucleus are depicted}
-\item{Lower right: Heatmap of marker expression by cell. If image is zoomed in, only cells in the field are shown.}
+\item{Lower right: Heatmap of marker expression by cell. If image is zoomed in, only cells in the field of view are shown.}
 }
 }
 \examples{

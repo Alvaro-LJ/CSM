@@ -7,6 +7,8 @@
 #' @param Model_parameters The model obtained using [Image_based_phenotyper_App_launcher()].
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
+#' @returns A tibble containing a column named 'Phenotype' containing cell phenotype labels
+#'
 #' @seealso [Image_based_phenotyper_App_launcher()]
 #'
 #' @examples

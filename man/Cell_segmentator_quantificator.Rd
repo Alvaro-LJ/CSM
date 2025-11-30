@@ -81,7 +81,7 @@ Cell_segmentator_quantificator(
 \item{Closing_kernel_size}{(Used if Parameters_list is NULL)(Used if Perform_nuclear_channel_processing is TRUE) Closing kernel size (set to 1 if no closing is required).}
 }
 \value{
-A tibble containing cell feature data including cell X Y coordinates
+A tibble containing cell feature data including cell X Y coordinates.
 }
 \description{
 \code{Cell_segmentator_quantificator()} performs cell segmentation according to user defined parameters.

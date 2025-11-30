@@ -12,12 +12,14 @@ Tile_to_image_cell_arrange_function(DATA, Dist_to_edge = NULL)
 \item{Dist_to_edge}{For overlapping tiles, cells closer to tile edge than Dist_to_edge will be removed.}
 }
 \value{
-A tibble containing cell features with modified X and Y coordinates
+A tibble containing cell features with modified X and Y coordinates and Subject_Names information.
 }
 \description{
 \code{Tile_to_image_cell_arrange_function()} modifies cell X and Y coordinates to reflect cell position in the entire image. For cell segmentation pipelines that
-are based on tiled images (those processed using the \code{\link[=Image_tile_deconstruction_function]{Image_tile_deconstruction_function()}} function), the function will return the tile-based X Y coordinates to image-based coordinates.
-The function performs the operation based on the tile X Y coordinates info contained in the Subject_Names variable. If names have been modified the function could return unexpected results.
+are based on tiled images (those processed using the \code{\link[=Image_tile_deconstruction_function]{Image_tile_deconstruction_function()}} function), the function will switch the tile-based X Y coordinates to image-based coordinates.
+The function performs the operation based on the tile X Y coordinates info contained in the Subject_Names variable. If names have been modified the function could return unexpected results. In addition,
+the Subject_Names variable of the dataset is also modified to reflect entire image information. If tiles present overlap, duplicated cells are removed. Further, cells close to the tile edge can
+also be discarded according to user preferences using the 'Dist_to_edge' argument.
 }
 \examples{
 \dontrun{

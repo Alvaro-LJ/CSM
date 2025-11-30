@@ -8,7 +8,8 @@
 #' @param New_labels Character vector specifying the new labels (must be N of cut off - 1).
 #' @param Merge A logical value indicating if the new variable should be merged with another variable.
 #' @param Var_to_Merge (OPTIONAL) if Merge is TRUE, a character indicating the feature name to be combined with the segmented feature.
-#' @returns Returns a tibble with the new segmented feature
+#'
+#' @returns Returns a tibble with the new segmented feature.
 #'
 #' @examples
 #' \dontrun{

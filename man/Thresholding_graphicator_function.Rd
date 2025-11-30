@@ -21,7 +21,7 @@ Thresholding_graphicator_function(
 \item{Image_name}{A character value indicating the image to be plotted.}
 }
 \value{
-Plots individual cells feature expression values and cells that are above threshold
+Plots individual cells feature expression values and cells that are above threshold.
 }
 \description{
 The function generates plots comparing feature expression values and thresholding results for individual images.

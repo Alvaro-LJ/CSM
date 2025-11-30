@@ -6,7 +6,7 @@
 #' @param Original_DATA A dataframe or tibble containing cell feature data before normalization.
 #' @param Normalized_DATA A dataframe or tibble containing normalized feature expression data.
 #'
-#' @returns Generates plots
+#' @returns Returns summary plots.
 #'
 #' @seealso [Normalization_function()], [Normalization_function_parallel()]
 #'

@@ -9,14 +9,14 @@ Thresholding_function_tailored(DATA, Variables_tibble)
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}
 
-\item{Variables_tibble}{A dataframe or tibble summarizing thresholding approach for every marker. It must contain the following columns: variable, Strategy, Local_thresholding, Method_autothreshold,
-number_iterations_TriClass, Percentile, Defined_threshold, Levels. Values for every of this columns follow the same rules as for \code{\link[=Thresholding_function]{Thresholding_function()}}.}
+\item{Variables_tibble}{A dataframe or tibble summarizing the thresholding approach for every marker. It must contain the following columns: variable, Strategy, Local_thresholding, Method_autothreshold,
+number_iterations_TriClass, Percentile, Defined_threshold, Levels. Values for every of these columns follow the same rules as for \code{\link[=Thresholding_function]{Thresholding_function()}}.}
 }
 \value{
 Returns a tibble with thresholded cell features. Every feature is thresholded using specific parameters. For binary thresholding features are converted to logical vectors, for multi-level are converted to numeric vectors.
 }
 \description{
-In contrast to \code{Thresholding_function()} this function allows selecting a feature specific approach for thresholding. The user can test this approaches using the \code{\link[=Thresholding_tester_app]{Thresholding_tester_app()}}.
+In contrast to \code{Thresholding_function()} this function allows selecting a feature specific approach for thresholding. The user can test these approaches using the \code{\link[=Thresholding_tester_app]{Thresholding_tester_app()}}.
 Thresholded features can be further processed using the \code{\link[=Marker_combinator_generator]{Marker_combinator_generator()}} and \code{\link[=Phenotype_assigner_function]{Phenotype_assigner_function()}} to obtain cell phenotypes.
 }
 \details{

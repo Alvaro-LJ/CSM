@@ -6,7 +6,7 @@
 #' @param Index_phenotype A character value indicating the cell phenotype to be used to calculate the tissue compartment.
 #' @param Accuracy A numeric value indicating the size of the tile. Smaller sizes give more accurate result.
 #' @param Min_cell_no A integer value indicating the minimum number of cells within a tile to consider the tile positive for a compartment.
-#' @param Image_preview A character value indicating the name of the image to be used in the preview. If Null a random sample will be selected.
+#' @param Image_preview A character value indicating the name of the image to be used in the preview. If NULL a random sample will be selected.
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
 #' @returns Returns a tibble with cell features and a column named 'Compartment' containing cell location.

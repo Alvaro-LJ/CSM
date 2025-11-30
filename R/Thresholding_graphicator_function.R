@@ -7,7 +7,7 @@
 #' @param Marker_names A character vector indicating features that need to be plotted.
 #' @param Image_name A character value indicating the image to be plotted.
 #'
-#' @returns Plots individual cells feature expression values and cells that are above threshold
+#' @returns Plots individual cells feature expression values and cells that are above threshold.
 #'
 #' @examples
 #' \dontrun{

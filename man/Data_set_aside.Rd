@@ -12,7 +12,7 @@ Data_set_aside(DATA, Markers_to_set)
 \item{Markers_to_set}{Character vector indicating the names of the features will be placed aside.}
 }
 \value{
-A list with two elements: Aside (containing markers removed from main cell feature dataset) and DATA containing remaining features
+A list with two elements: Aside (containing markers removed from main cell feature dataset) and DATA containing remaining features.
 }
 \description{
 The function is used to split cell feature matrix into a tibble containing features that are desired to be used and features that are required to be set aside.

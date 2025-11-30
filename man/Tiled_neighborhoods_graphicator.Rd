@@ -2,7 +2,7 @@
 % Please edit documentation in R/Tiled_neighborhoods_graphicator.R
 \name{Tiled_neighborhoods_graphicator}
 \alias{Tiled_neighborhoods_graphicator}
-\title{Generates a plot illustrating heterogeneity by tile}
+\title{Generates a plot illustrating neighborhoods by tile}
 \usage{
 Tiled_neighborhoods_graphicator(
   DATA_elections,
@@ -21,7 +21,8 @@ Tiled_neighborhoods_graphicator(
 Returns a plot with the tiles and the neighborhood elections results.
 }
 \description{
-Generates a plot illustrating heterogeneity by tile
+Given a dataset of neighborhoods by tile generated using the \code{\link[=Neighborhood_voting_function]{Neighborhood_voting_function()}} function, a graph of the
+elections results will be generated.
 }
 \examples{
 \dontrun{

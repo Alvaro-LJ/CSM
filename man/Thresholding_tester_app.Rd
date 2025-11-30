@@ -14,10 +14,10 @@ Thresholding_tester_app(DATA, Directory, Ordered_Channels)
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
 }
 \description{
-\code{Thresholding_tester_app()} launches an APP to interactively explore thresholding methods interactively. Parameters can then be used in the \code{\link[=Thresholding_function]{Thresholding_function()}} or \code{\link[=Thresholding_function_tailored]{Thresholding_function_tailored()}} functions.
+\code{Thresholding_tester_app()} launches an APP to interactively explore thresholding methods. Parameters can then be used in the \code{\link[=Thresholding_function]{Thresholding_function()}} or \code{\link[=Thresholding_function_tailored]{Thresholding_function_tailored()}} functions.
 }
 \details{
-Image setting in the control panel allow the user to control the image channel display.
+Image settings in the control panel allow the user to control the image channel display.
 
 Thresholding methods and type of thresholding (GLOBAL or LOCAL) can be toggled using the control panel.
 
@@ -29,8 +29,8 @@ Active results are shown in the lower area of the control panel.
 \itemize{
 \item{Upper left: Displays the image (use it to zoom in and out).}
 \item{Upper right: Feature expression by cell. Cells can be selected to explore the \% of positive cells from selection.}
-\item{Lower left: Cells above threshold for the current selected image. Cells can be selected to explore the \% of positive cells from selection.}
-\item{Lower right: Sample feature expression histogram with the active trheshold depicted.}
+\item{Lower left: Cells above threshold for the currently selected image. Cells can be selected to explore the \% of positive cells from selection.}
+\item{Lower right: Sample feature expression histogram with the active threshold depicted.}
 }
 }
 \examples{
