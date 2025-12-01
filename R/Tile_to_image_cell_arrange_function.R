@@ -27,6 +27,7 @@
 #'
 #'
 #' @export
+
 Tile_to_image_cell_arrange_function <-
   function(DATA,
            Dist_to_edge = NULL,
