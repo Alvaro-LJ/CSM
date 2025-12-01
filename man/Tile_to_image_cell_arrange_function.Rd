@@ -4,12 +4,18 @@
 \alias{Tile_to_image_cell_arrange_function}
 \title{Arrange cell coordinates according to position in whole image using tile information}
 \usage{
-Tile_to_image_cell_arrange_function(DATA, Dist_to_edge = NULL)
+Tile_to_image_cell_arrange_function(
+  DATA,
+  Dist_to_edge = NULL,
+  Tile_overlap = NULL
+)
 }
 \arguments{
 \item{DATA}{Dataframe or tibble with cell features. This data should have been processed at some point using \code{\link[=Data_arrange_function]{Data_arrange_function()}}.}
 
-\item{Dist_to_edge}{For overlapping tiles, cells closer to tile edge than Dist_to_edge will be removed.}
+\item{Dist_to_edge}{(OPTIONAL) For overlapping tiles, cells closer to tile edge than Dist_to_edge will be removed.}
+
+\item{Tile_overlap}{(OPTIONAL) A numeric value indicating the tile overlap. If provided, automatic tile overlap detection will be aborted. If a value of 0 is provided, no overlap correction will be performed at all.}
 }
 \value{
 A tibble containing cell features with modified X and Y coordinates and Subject_Names information.
