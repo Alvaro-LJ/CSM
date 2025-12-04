@@ -231,6 +231,12 @@ Clustering_Phenotyper <-
         DATA_NOISE = Pre_processed_data[["DATA_NOISE"]]
         DATA_Reduction = Pre_processed_data[["DATA_Reduction"]]
       }
+
+      #Check again that dimension reduction has been performed if cluster on reduced is TRUE
+      if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
+      if(Cluster_on_Reduced){
+        if(!Perform_Dimension_reduction) stop("If Clustering needs to be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
+      }
     }
 
     ########################################################################
@@ -746,8 +752,7 @@ Clustering_Phenotyper <-
           Distance_radius = Distance_radius,
           Perform_Dimension_reduction = Perform_Dimension_reduction,
           Dimension_reduction = Dimension_reduction,
-          Dimension_reduction_prop = Dimension_reduction_prop,
-          Cluster_on_Reduced = Cluster_on_Reduced
+          Dimension_reduction_prop = Dimension_reduction_prop
         )
 
         #If only De-noising needs to be performed
