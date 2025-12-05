@@ -610,7 +610,7 @@ Clustering_Phenotyper <-
             print("Generating UMAP projections")
             DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
               dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take aome time")
+            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
             #scale and turn into matrix
             Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
             Coords <- uwot::umap_transform(X = DATA  %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix(),
@@ -668,7 +668,7 @@ Clustering_Phenotyper <-
           #Requires previous dimension reduction
           if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
           #Check other arguments
-          if(!all(is.numeric(Min_cell_no), Min_cell_no%%1 == 0, Min_cell_no > 0)) stop("Min_cell_no must be an integer value > 0")
+          if(!all(is.numeric(Min_cell_no), Min_cell_no%%1 == 0, Min_cell_no > 1)) stop("Min_cell_no must be an integer value > 1")
           if(!all(is.numeric(Distance_radius), Distance_radius > 0)) stop("Distance_radius must be a numeric value > 0")
 
           #Proceed with algorithm
@@ -732,7 +732,7 @@ Clustering_Phenotyper <-
       #Generate a specific version of Markers with dimension reduction data for Dimension_SNN
       if(Cluster_on_Reduced){
         #Depending on Denoising Obtain directly from DATA_Reduction or filter first
-        if(!Apply_Denoise) MARKERS <- DATA_Reduction[-"Cell_no"]
+        if(!Apply_Denoise) MARKERS <- DATA_Reduction[-which(names(DATA_Reduction) == "Cell_no")]
         if(Apply_Denoise) MARKERS <- DATA_Reduction[!NOISE_VECTOR, ] %>% dplyr::select(-Cell_no)
       }
 
