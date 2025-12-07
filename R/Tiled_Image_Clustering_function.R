@@ -575,8 +575,8 @@ Tiled_Image_Clustering_function <-
 
         if(Dimension_reduction_prop != 1) {
           print("Generating TSNE projections")
-          DATA_matrix <- Tile_patterns_scaled %>% dplyr::sample_frac(size = Dimension_reduction_prop) %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
+          DATA_matrix <- Tile_patterns_scaled %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
+          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time.")
           #scale and turn into matrix
           Result_TSNE <- snifter::fitsne(DATA_matrix,
                                          simplified = FALSE,
@@ -624,8 +624,8 @@ Tiled_Image_Clustering_function <-
 
         if(Dimension_reduction_prop != 1) {
           print("Generating UMAP projections")
-          DATA_matrix <- Tile_patterns_scaled %>% dplyr::sample_frac(size = Dimension_reduction_prop) %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take aome time")
+          DATA_matrix <- Tile_patterns_scaled %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
+          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
           #scale and turn into matrix
           Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
           Coords <- uwot::umap_transform(X = Tile_patterns_scaled %>% as.matrix(),
@@ -1004,10 +1004,10 @@ Tiled_Image_Clustering_function <-
         )
       }
       if(nrow(DATA_Reduction) > 100000){
-        message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots")
+        message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots.")
         try(plot(
           DATA_Reduction %>%dplyr::mutate(Cluster_assignment = Tile_patterns[["Cluster_assignment"]]) %>%
-            sample_n(size = 100000) %>%
+            dplyr::slice_sample(n = 100000) %>%
             ggplot(aes(x = DIMENSION_1, y = DIMENSION_2, color = as.factor(Cluster_assignment))) +
             geom_point(size = 2, alpha = 0.95) +
             cowplot::theme_cowplot() +

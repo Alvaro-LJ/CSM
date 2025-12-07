@@ -17,7 +17,7 @@ Advanced_Distance_function_A_B_single <-
   function(DATA,
            cell_A,
            cell_B){
-    Tibble_A <- DATA %>% dplyr::filter(Phenotype == cell_A) %>% dplyr::sample_n(size = 1)
+    Tibble_A <- DATA %>% dplyr::filter(Phenotype == cell_A) %>% dplyr::slice_sample(n = 1)
     Tibble_B <- DATA %>% dplyr::filter(Phenotype == cell_B)
     Tibble_interim <- as_tibble(expand.grid(Tibble_A$Cell_no, Tibble_B$Cell_no))
     names(Tibble_interim) <- c("Cell_no", "NOTHING")

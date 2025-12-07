@@ -508,7 +508,7 @@ UTAG_Neighborhood_identifier <-
 
         if(Dimension_reduction_prop != 1) {
           print("Generating TSNE projections")
-          DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::sample_frac(size = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
+          DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
             dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
           if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
           #scale and turn into matrix
@@ -549,7 +549,7 @@ UTAG_Neighborhood_identifier <-
       if(Dimension_reduction == "UMAP"){
         if(Dimension_reduction_prop == 1) {
           print("Generating UMAP projections")
-          if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
+          if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time.")
           #scale and turn into matrix
           DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
           Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L)
@@ -558,9 +558,9 @@ UTAG_Neighborhood_identifier <-
 
         if(Dimension_reduction_prop != 1) {
           print("Generating UMAP projections")
-          DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::sample_frac(size = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
+          DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
             dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take aome time")
+          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time.")
           #scale and turn into matrix
           Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
           Coords <- uwot::umap_transform(X = DATA  %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix(),
@@ -648,7 +648,7 @@ UTAG_Neighborhood_identifier <-
             tibble(Dim_1 = DATA_Reduction[["DIMENSION_1"]], Dim_2 = DATA_Reduction[["DIMENSION_2"]], Cluster = DB_results$cluster) %>%
               dplyr::mutate(Cluster = case_when(Cluster == 0 ~ "Noise",
                                                 TRUE ~ "Approved")) %>%
-              sample_n(size = 100000) %>%
+              dplyr::slice_sample(n = 100000) %>%
               ggplot(aes(x = Dim_1, y = Dim_2, color = Cluster)) + geom_point(size = 1.5) +
               scale_color_manual("", values = c("black", "grey"))+
               cowplot::theme_cowplot()+
@@ -1047,7 +1047,7 @@ UTAG_Neighborhood_identifier <-
       if(nrow(DATA_Phenotypes) > 100000){
         message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots")
         try(plot(
-          dplyr::left_join(DATA_Phenotypes, DATA_Reduction, by = "Cell_no") %>% sample_n(size = 100000) %>%
+          dplyr::left_join(DATA_Phenotypes, DATA_Reduction, by = "Cell_no") %>% dplyr::slice_sample(n = 100000) %>%
             ggplot(aes(x = DIMENSION_1, y = DIMENSION_2, color = Neighborhood_assignment)) +
             geom_point(size = 2, alpha = 0.95) +
             cowplot::theme_cowplot() +
