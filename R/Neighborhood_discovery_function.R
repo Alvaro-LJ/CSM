@@ -122,6 +122,10 @@ Neighborhood_discovery_function <-
            Dimension_reduction_prop = NULL,
            Cluster_on_Reduced = NULL,
 
+           #Perform only Pre_processing
+           Stop_at_preprocessing = FALSE,
+           Pre_processed_data = NULL,
+
            #Strategy for clustering
            Strategy,
 
@@ -172,29 +176,36 @@ Neighborhood_discovery_function <-
            #simple_matching_coefficient, minkowski, hamming, jaccard_coefficient, Rao_coefficient, mahalanobis, cosine
            N_cores = NULL #Number of cores to parallelize your computation
   ) {
-    #Check arguments by generating a argument check vector and message vector
+
+    #General argument check
     Argument_checker <- c(DATA_OK = all(c("min_DIST", "max_DIST", "avg_DIST", "median_DIST") %in% names(DATA)),
-                          Distance_OK = all(c(is.numeric(c(Allowed_max_Dist, Allowed_avg_Dist, Allowed_median_Dist)),
-                                              c(Allowed_max_Dist, Allowed_avg_Dist, Allowed_median_Dist) > 0)),
                           Strategy_OK = Strategy %in% c("Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM", "CLARA_clustering")
     )
     Stop_messages <- c(DATA_OK = "DATA must be obtained from Closest_neighbor_calculator or Tailored_Closest_neighbor_calculator functions",
-                       Distance_OK = "Allowed distances must be numeric and > 0",
                        Strategy_OK = "Strategy must be one of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM, CLARA_clustering")
     #Check arguments and stop if necessary
     if(!all(Argument_checker)){
       stop(cat(Stop_messages[!Argument_checker],
                fill = sum(!Argument_checker)))
     }
-    if(!is.logical(Perform_Dimension_reduction)) stop("Perform_Dimension_reduction must be a logical value")
-    if(Perform_Dimension_reduction){
-      if(!Dimension_reduction %in% c("UMAP", "TSNE", "PCA")) stop("Dimension_reduction must be one of the following: UMAP, TSNE, PCA")
-      if(!all(is.numeric(Dimension_reduction_prop), Dimension_reduction_prop > 0, Dimension_reduction_prop <= 1)) stop("Dimension_reduction_prop must be a numeric value between 0 and 1")
+    #If NO Pre-processed data provided check if Stop_at_pre_processing is logical and other pre-processing variables
+    if(is.null(Pre_processed_data)){
+      if(!is.logical(Stop_at_preprocessing)) stop("Stop_at_preprocessing should be a logical value")
+      if(!all(c(is.numeric(c(Allowed_max_Dist, Allowed_avg_Dist, Allowed_median_Dist)),
+                c(Allowed_max_Dist, Allowed_avg_Dist, Allowed_median_Dist) > 0))
+      ) stop("Allowed distances must be numeric and > 0")
+      if(!is.logical(Perform_Dimension_reduction)) stop("Perform_Dimension_reduction must be a logical value")
+      if(Perform_Dimension_reduction){
+        if(!Dimension_reduction %in% c("UMAP", "TSNE", "PCA")) stop("Dimension_reduction must be one of the following: UMAP, TSNE, PCA")
+        if(!all(is.numeric(Dimension_reduction_prop), Dimension_reduction_prop > 0, Dimension_reduction_prop <= 1)) stop("Dimension_reduction_prop must be a numeric value between 0 and 1")
+      }
+      if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
+      if(Cluster_on_Reduced){
+        if(!Perform_Dimension_reduction) stop("If Clustering needs to be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
+      }
     }
-    if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
-    if(Cluster_on_Reduced){
-      if(!Perform_Dimension_reduction) stop("If Clustering needs to be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
-    }
+
+    ########################################################################
 
     #Check specific arguments and suggested packages
     #Check arguments for Consensus Clustering
@@ -392,30 +403,33 @@ Neighborhood_discovery_function <-
       }
     }
     #Check packages for dimension reduction
-    if(Perform_Dimension_reduction){
-      if(Dimension_reduction == "PCA"){
-        if(!requireNamespace("svd", quietly = FALSE)) stop(
-          paste0("svd CRAN package is required to execute the function. Please install using the following code: ",
-                 expression(install.packages("svd")))
-        )
-      }
-      if(Dimension_reduction == "TSNE"){
-        if(!requireNamespace("snifter", quietly = TRUE)) stop(
-          paste0("snifter Bioconductor package is required to execute the function. Please install using the following code: ",
-                 expression({
-                   if (!require("BiocManager", quietly = TRUE))
-                     install.packages("BiocManager")
-
-                   BiocManager::install("snifter")
-                 })
+    #If pre-processed data is not provided, check suggested packages
+    if(is.null(Pre_processed_data)){
+      if(Perform_Dimension_reduction){
+        if(Dimension_reduction == "PCA"){
+          if(!requireNamespace("svd", quietly = FALSE)) stop(
+            paste0("svd CRAN package is required to execute the function. Please install using the following code: ",
+                   expression(install.packages("svd")))
           )
-        )
-      }
-      if(Dimension_reduction == "UMAP"){
-        if(!requireNamespace("uwot", quietly = FALSE)) stop(
-          paste0("uwot CRAN package is required to execute the function. Please install using the following code: ",
-                 expression(install.packages("uwot")))
-        )
+        }
+        if(Dimension_reduction == "TSNE"){
+          if(!requireNamespace("snifter", quietly = TRUE)) stop(
+            paste0("snifter Bioconductor package is required to execute the function. Please install using the following code: ",
+                   expression({
+                     if (!require("BiocManager", quietly = TRUE))
+                       install.packages("BiocManager")
+
+                     BiocManager::install("snifter")
+                   })
+            )
+          )
+        }
+        if(Dimension_reduction == "UMAP"){
+          if(!requireNamespace("uwot", quietly = FALSE)) stop(
+            paste0("uwot CRAN package is required to execute the function. Please install using the following code: ",
+                   expression(install.packages("uwot")))
+          )
+        }
       }
     }
     #Check complex heatmap package
@@ -430,131 +444,208 @@ Neighborhood_discovery_function <-
       )
     )
 
+    ########################################################################
+
     #Start executing the code
     print("Preparing data for analysis")
-    #Import closest neighbor data
-    DATA_Neighbors <- DATA
 
-    #Filter out cells not whitin a neighborhood
-    DATA_Neighbors <- DATA_Neighbors %>% dplyr::filter(max_DIST <= Allowed_max_Dist, avg_DIST <= Allowed_avg_Dist, median_DIST <= Allowed_median_Dist)
+    #If pre-processed data is not provided, perform data pre-processing
+    if(is.null(Pre_processed_data)){
+      #Import closest neighbor data
+      DATA_Neighbors <- DATA
 
-    #We select only neighbor columns
-    Neighbor_patterns <- DATA_Neighbors %>% dplyr::select(-c(1:5), -contains("N_neighbors"), -c((ncol(DATA_Neighbors)-4):(ncol(DATA_Neighbors))))
-    Neighbor_patterns_scaled <- Neighbor_patterns %>% scale()
+      #Filter out cells not whitin a neighborhood
+      DATA_Neighbors <- DATA_Neighbors %>% dplyr::filter(max_DIST <= Allowed_max_Dist, avg_DIST <= Allowed_avg_Dist, median_DIST <= Allowed_median_Dist)
 
-    #Perform dimension reduction if required
-    if(Perform_Dimension_reduction){
-      #First PCA
-      if(Dimension_reduction == "PCA"){
-        if(Dimension_reduction_prop != 1) stop("PCA must be performed using Dimension_reduction_prop = 1")
-        print("Generating PCA projections")
-        #Scale and turn into matrix
-        DATA_matrix <- Neighbor_patterns_scaled %>% as.matrix()
-        Result_PCA <- svd::propack.svd(DATA_matrix, neig = 2)$u
-        DATA_Reduction <- tibble(DIMENSION_1 = unlist(Result_PCA[,1]), DIMENSION_2 = unlist(Result_PCA[,2]))
+      #We select only neighbor columns
+      Neighbor_patterns <- DATA_Neighbors %>% dplyr::select(-c(1:5), -contains("N_neighbors"), -c((ncol(DATA_Neighbors)-4):(ncol(DATA_Neighbors))))
+      Neighbor_patterns_scaled <- Neighbor_patterns %>% scale()
+
+      #Perform dimension reduction if required
+      if(Perform_Dimension_reduction){
+        #First PCA
+        if(Dimension_reduction == "PCA"){
+          if(Dimension_reduction_prop != 1) stop("PCA must be performed using Dimension_reduction_prop = 1")
+          print("Generating PCA projections")
+          #Scale and turn into matrix
+          DATA_matrix <- Neighbor_patterns_scaled %>% as.matrix()
+          Result_PCA <- svd::propack.svd(DATA_matrix, neig = 2)$u
+          DATA_Reduction <- tibble(DIMENSION_1 = unlist(Result_PCA[,1]), DIMENSION_2 = unlist(Result_PCA[,2]))
+        }
+        #Second TSNE
+        if(Dimension_reduction == "TSNE"){
+          if(Dimension_reduction_prop == 1) {
+            print("Generating TSNE projections")
+            if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
+            #scale and turn into matrix
+            DATA_matrix <- Neighbor_patterns_scaled %>% as.matrix()
+            Result_TSNE <- snifter::fitsne(DATA_matrix,
+                                           simplified = TRUE,
+                                           n_components = 2L,
+                                           n_jobs = 1L,
+                                           perplexity = 30,
+                                           n_iter = 500L,
+                                           initialization = "pca",
+                                           pca = FALSE,
+                                           neighbors = "auto",
+                                           negative_gradient_method = "fft",
+                                           learning_rate = "auto",
+                                           early_exaggeration = 12,
+                                           early_exaggeration_iter = 250L,
+                                           exaggeration = NULL,
+                                           dof = 1,
+                                           theta = 0.5,
+                                           n_interpolation_points = 3L,
+                                           min_num_intervals = 50L,
+                                           ints_in_interval = 1,
+                                           metric = "euclidean",
+                                           metric_params = NULL,
+                                           initial_momentum = 0.5,
+                                           final_momentum = 0.8,
+                                           max_grad_norm = NULL,
+                                           random_state = NULL,
+                                           verbose = FALSE)
+            DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Result_TSNE[,1]), DIMENSION_2 = unlist(Result_TSNE[,2]))
+          }
+
+          if(Dimension_reduction_prop != 1) {
+            print("Generating TSNE projections")
+            DATA_matrix <- Neighbor_patterns_scaled %>% as_tibble %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
+            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time.")
+            #scale and turn into matrix
+            Result_TSNE <- snifter::fitsne(DATA_matrix,
+                                           simplified = FALSE,
+                                           n_components = 2L,
+                                           n_jobs = 1L,
+                                           perplexity = 30,
+                                           n_iter = 500L,
+                                           initialization = "pca",
+                                           pca = FALSE,
+                                           neighbors = "auto",
+                                           negative_gradient_method = "fft",
+                                           learning_rate = "auto",
+                                           early_exaggeration = 12,
+                                           early_exaggeration_iter = 250L,
+                                           exaggeration = NULL,
+                                           dof = 1,
+                                           theta = 0.5,
+                                           n_interpolation_points = 3L,
+                                           min_num_intervals = 50L,
+                                           ints_in_interval = 1,
+                                           metric = "euclidean",
+                                           metric_params = NULL,
+                                           initial_momentum = 0.5,
+                                           final_momentum = 0.8,
+                                           max_grad_norm = NULL,
+                                           random_state = NULL,
+                                           verbose = FALSE)
+            Coords <- snifter::project(Result_TSNE,
+                                       new = Neighbor_patterns_scaled %>% as.matrix(),
+                                       old = DATA_matrix)
+            DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+          }
+        }
+        #Third UMAP
+        if(Dimension_reduction == "UMAP"){
+          if(Dimension_reduction_prop == 1) {
+            print("Generating UMAP projections")
+            if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time.")
+            #scale and turn into matrix
+            DATA_matrix <- Neighbor_patterns_scaled %>% as.matrix()
+            Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L)
+            DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Result_UMAP[,1]), DIMENSION_2 = unlist(Result_UMAP[,2]))
+          }
+
+          if(Dimension_reduction_prop != 1) {
+            print("Generating UMAP projections")
+            DATA_matrix <- Neighbor_patterns_scaled %>% as_tibble() %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
+            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time.")
+            #scale and turn into matrix
+            Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
+            Coords <- uwot::umap_transform(X = Neighbor_patterns_scaled %>% as.matrix(),
+                                           model = Result_UMAP)
+            DATA_Reduction <- dplyr::bind_cols(DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+          }
+        }
       }
 
-      #Second TSNE
-      if(Dimension_reduction == "TSNE"){
-        if(Dimension_reduction_prop == 1) {
-          print("Generating TSNE projections")
-          if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
-          #scale and turn into matrix
-          DATA_matrix <- Neighbor_patterns_scaled %>% as.matrix()
-          Result_TSNE <- snifter::fitsne(DATA_matrix,
-                                         simplified = TRUE,
-                                         n_components = 2L,
-                                         n_jobs = 1L,
-                                         perplexity = 30,
-                                         n_iter = 500L,
-                                         initialization = "pca",
-                                         pca = FALSE,
-                                         neighbors = "auto",
-                                         negative_gradient_method = "fft",
-                                         learning_rate = "auto",
-                                         early_exaggeration = 12,
-                                         early_exaggeration_iter = 250L,
-                                         exaggeration = NULL,
-                                         dof = 1,
-                                         theta = 0.5,
-                                         n_interpolation_points = 3L,
-                                         min_num_intervals = 50L,
-                                         ints_in_interval = 1,
-                                         metric = "euclidean",
-                                         metric_params = NULL,
-                                         initial_momentum = 0.5,
-                                         final_momentum = 0.8,
-                                         max_grad_norm = NULL,
-                                         random_state = NULL,
-                                         verbose = FALSE)
-          DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Result_TSNE[,1]), DIMENSION_2 = unlist(Result_TSNE[,2]))
-        }
+      #Generate a specific version of Markers with dimension reduction data for clustering
+      if(Cluster_on_Reduced)  Neighbor_patterns_scaled <- DATA_Reduction
 
-        if(Dimension_reduction_prop != 1) {
-          print("Generating TSNE projections")
-          DATA_matrix <- Neighbor_patterns_scaled %>% as_tibble %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time.")
-          #scale and turn into matrix
-          Result_TSNE <- snifter::fitsne(DATA_matrix,
-                                         simplified = FALSE,
-                                         n_components = 2L,
-                                         n_jobs = 1L,
-                                         perplexity = 30,
-                                         n_iter = 500L,
-                                         initialization = "pca",
-                                         pca = FALSE,
-                                         neighbors = "auto",
-                                         negative_gradient_method = "fft",
-                                         learning_rate = "auto",
-                                         early_exaggeration = 12,
-                                         early_exaggeration_iter = 250L,
-                                         exaggeration = NULL,
-                                         dof = 1,
-                                         theta = 0.5,
-                                         n_interpolation_points = 3L,
-                                         min_num_intervals = 50L,
-                                         ints_in_interval = 1,
-                                         metric = "euclidean",
-                                         metric_params = NULL,
-                                         initial_momentum = 0.5,
-                                         final_momentum = 0.8,
-                                         max_grad_norm = NULL,
-                                         random_state = NULL,
-                                         verbose = FALSE)
-          Coords <- snifter::project(Result_TSNE,
-                                     new = Neighbor_patterns_scaled %>% as.matrix(),
-                                     old = DATA_matrix)
-          DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
-        }
-      }
+      #If Stop_at_preprocessing is true return the interim results
+      if(Stop_at_preprocessing){
+        #Obtain the arguments
+        Pre_processing_argument <- list(
+          Perform_Dimension_reduction = Perform_Dimension_reduction,
+          Dimension_reduction = Dimension_reduction,
+          Dimension_reduction_prop = Dimension_reduction_prop,
+          Cluster_on_Reduced = Cluster_on_Reduced
+        )
 
-      #Third UMAP
-      if(Dimension_reduction == "UMAP"){
-        if(Dimension_reduction_prop == 1) {
-          print("Generating UMAP projections")
-          if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time.")
-          #scale and turn into matrix
-          DATA_matrix <- Neighbor_patterns_scaled %>% as.matrix()
-          Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L)
-          DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Result_UMAP[,1]), DIMENSION_2 = unlist(Result_UMAP[,2]))
+        #No dim reduction required
+        if(!Perform_Dimension_reduction){
+          #Return the list
+          return(list(Pre_processing_argument = Pre_processing_argument,
+                      DATA_Neighbors = DATA_Neighbors,
+                      Neighbor_patterns = Neighbor_patterns,
+                      Neighbor_patterns_scaled = Neighbor_patterns_scaled
+          ))
         }
-
-        if(Dimension_reduction_prop != 1) {
-          print("Generating UMAP projections")
-          DATA_matrix <- Neighbor_patterns_scaled %>% as_tibble() %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time.")
-          #scale and turn into matrix
-          Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
-          Coords <- uwot::umap_transform(X = Neighbor_patterns_scaled %>% as.matrix(),
-                                         model = Result_UMAP)
-          DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+        #If dim reduction required
+        if(Perform_Dimension_reduction){
+          #Print the graph according to results
+          if(nrow(DATA_Reduction) <= 100000){
+            print("Generating Dimension Reduction Plot")
+            plot(
+              DATA_Reduction %>% ggplot(aes(x = DIMENSION_1, y = DIMENSION_2)) +
+                geom_point(size = 2, alpha = 0.95) +
+                cowplot::theme_cowplot()
+            )
+          }
+          if(nrow(DATA_Reduction) > 100000){
+            print("More than 100K observations. Generating Dimension Reduction Plot on a random subset of the data")
+            plot(
+              DATA_Reduction %>% dplyr::slice_sample(prop = 0.1) %>% ggplot(aes(x = DIMENSION_1, y = DIMENSION_2)) +
+                geom_point(size = 2, alpha = 0.95) +
+                cowplot::theme_cowplot()
+            )
+          }
+          #Return the list
+          return(list(Pre_processing_argument = Pre_processing_argument,
+                      DATA_Neighbors = DATA_Neighbors,
+                      Neighbor_patterns = Neighbor_patterns,
+                      Neighbor_patterns_scaled = Neighbor_patterns_scaled,
+                      DATA_Reduction = DATA_Reduction
+          ))
         }
       }
     }
 
-    #Generate a specific version of Markers with dimension reduction data for clustering
-    if(Cluster_on_Reduced)  Neighbor_patterns_scaled <- DATA_Reduction
+    #If Pre-processed data provided obtain the datasets from the object provided
+    if(!is.null(Pre_processed_data)){
+      message("Pre_processed_data provided. Pre-processing related arguments will be ignored.")
+      if(names(Pre_processed_data)[1] != "Pre_processing_argument") stop("Pre_processing_argument not found in Pre_processed_data object provided")
 
+      Perform_Dimension_reduction <- Pre_processed_data[["Pre_processing_argument"]][["Perform_Dimension_reduction"]]
+
+      #If no dimension reduction required
+      if(!Perform_Dimension_reduction){
+        DATA_Neighbors <- Pre_processed_data[["DATA_Neighbors"]]
+        Neighbor_patterns <- Pre_processed_data[["Neighbor_patterns"]]
+        Neighbor_patterns_scaled <- Pre_processed_data[["Neighbor_patterns_scaled"]]
+
+      }
+      #If dimension reduction is required
+      if(Perform_Dimension_reduction){
+        DATA_Neighbors <- Pre_processed_data[["DATA_Neighbors"]]
+        Neighbor_patterns <- Pre_processed_data[["Neighbor_patterns"]]
+        Neighbor_patterns_scaled <- Pre_processed_data[["Neighbor_patterns_scaled"]]
+        DATA_Reduction <- Pre_processed_data[["DATA_Reduction"]]
+      }
+
+    }
+
+    ########################################################################
 
     #Define what to do if consensus clustering is required
     if(Strategy == "Consensus_Clustering"){
@@ -575,7 +666,7 @@ Neighborhood_discovery_function <-
 
       #Make the user decide the number of neighborhoods according to results
       N_Neighbors <- menu(choices = as.character(1:Max_N_neighborhoods), title = paste0("Check the results at: ", getwd(), ". Then decide the appropiate number of Neighborhoods"))
-      Neighbor_patterns <- Neighbor_patterns %>%dplyr::mutate(Neighborhood_assignment = Neighborhood_result[[as.double(N_Neighbors)]][["consensusClass"]])
+      Neighbor_patterns <- Neighbor_patterns %>% dplyr::mutate(Neighborhood_assignment = Neighborhood_result[[as.double(N_Neighbors)]][["consensusClass"]])
     }
     #Define what to do if SOM is required
     if(Strategy == "SOM"){
@@ -901,9 +992,11 @@ Neighborhood_discovery_function <-
         names(pr_mb) <- "Neighborhood_assignment"
 
         #Generate the data phenotypes tibble
-        Neighbor_patterns <-dplyr::bind_cols(Neighbor_patterns, pr_mb)
+        Neighbor_patterns <- dplyr::bind_cols(Neighbor_patterns, pr_mb)
       }
     }
+
+    ########################################################################
 
     print("Generating plots")
 
@@ -912,7 +1005,7 @@ Neighborhood_discovery_function <-
       #plot dimension reduction according to the number of cells
       if(nrow(DATA_Reduction) <= 100000){
         try(plot(
-          DATA_Reduction %>%dplyr::mutate(Neighborhood_assignment = Neighbor_patterns[["Neighborhood_assignment"]]) %>%
+          DATA_Reduction %>% dplyr::mutate(Neighborhood_assignment = Neighbor_patterns[["Neighborhood_assignment"]]) %>%
             ggplot(aes(x = DIMENSION_1, y = DIMENSION_2, color = as.factor(Neighborhood_assignment))) +
             geom_point(size = 2, alpha = 0.95) +
             cowplot::theme_cowplot() +
@@ -923,7 +1016,7 @@ Neighborhood_discovery_function <-
       if(nrow(DATA_Reduction) > 100000){
         message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots.")
         try(plot(
-          DATA_Reduction %>%dplyr::mutate(Neighborhood_assignment = Neighbor_patterns[["Neighborhood_assignment"]]) %>%
+          DATA_Reduction %>% dplyr::mutate(Neighborhood_assignment = Neighbor_patterns[["Neighborhood_assignment"]]) %>%
             dplyr::slice_sample(n = 100000) %>%
             ggplot(aes(x = DIMENSION_1, y = DIMENSION_2, color = as.factor(Neighborhood_assignment))) +
             geom_point(size = 2, alpha = 0.95) +
@@ -973,5 +1066,4 @@ Neighborhood_discovery_function <-
                                                 Dimension_reduction = DATA_Reduction)
     )
     else return(Final_result)
-
   }
