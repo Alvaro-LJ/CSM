@@ -13,6 +13,9 @@
 #' @param Dimension_reduction_prop A numeric value between 0 and 1 to indicate the percentage of the cells to be used in dimension computation (applicable for TSNE and UMAP).
 #' @param Cluster_on_Reduced A logical value indicating if clustering should be performed on new dimensions.
 #'
+#' @param Stop_at_preprocessing A logical value indicating if the function should stop after Data pre-processing and return the interim results (see details).
+#' @param Pre_processed_data (OPTIONAL) If a pre-processing object is available, it can be provided to skip data pre-processing steps (see details).
+#'
 #' @param Strategy The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
 #'
 #' @param Max_N_neighborhoods If Strategy is Consensus_Clustering: Number of maximum neighborhoods that can be identified.
@@ -56,6 +59,11 @@
 #'
 #' @details
 #' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then predicting coordinates for all the cells. This can be more computationally efficient.
+#'
+#' If the dataset is really large, the pre-processing steps (dimension reduction) and clustering can take a while. This can make the tuning of
+#' clustering parameters tedious (each try takes a lot of time). To tackle this issue, pre-processing and clustering steps can be split into two independent steps.
+#' By setting the Stop_at_preprocessing argument to TRUE, the function will perform only the required pre-processing and will return the result without performing the
+#' clustering. Once the user is satisfied with the pre-processing results, the object can be provided to the function to execute the clustering process.
 #'
 #' Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 #'
