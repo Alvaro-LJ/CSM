@@ -209,6 +209,7 @@ Clustering_Phenotyper <-
 
 
     ########################################################################
+
     #Check specific arguments and suggested packages
     if(Strategy == "Consensus_Clustering"){
       #Check suggested packages
