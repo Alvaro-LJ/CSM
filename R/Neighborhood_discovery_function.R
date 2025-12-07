@@ -541,7 +541,7 @@ Neighborhood_discovery_function <-
 
         if(Dimension_reduction_prop != 1) {
           print("Generating UMAP projections")
-          DATA_matrix <- Neighbor_patterns_scaled %>% as_tibble() %>% dplyr::slice_sample(prop = = Dimension_reduction_prop) %>% as.matrix()
+          DATA_matrix <- Neighbor_patterns_scaled %>% as_tibble() %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
           if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time.")
           #scale and turn into matrix
           Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
