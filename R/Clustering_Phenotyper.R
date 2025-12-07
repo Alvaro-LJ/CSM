@@ -794,7 +794,7 @@ Clustering_Phenotyper <-
 
     #If Pre-processed data provided obtain the datasets from the object provided
     if(!is.null(Pre_processed_data)){
-      if(Stop_at_preprocessing) message("Pre_processed_data provided. Pre-processing related arguments will be ignored.")
+      message("Pre_processed_data provided. Pre-processing related arguments will be ignored.")
       if(names(Pre_processed_data)[1] != "Pre_processing_argument") stop("Pre_processing_argument not found in Pre_processed_data object provided")
 
       Apply_Denoise <- Pre_processed_data[["Pre_processing_argument"]][["Apply_Denoise"]]
