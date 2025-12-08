@@ -184,6 +184,7 @@ Neighborhood_discovery_function <-
            #simple_matching_coefficient, minkowski, hamming, jaccard_coefficient, Rao_coefficient, mahalanobis, cosine
            N_cores = NULL #Number of cores to parallelize your computation
   ) {
+    ##################################GENERAL ARGUMENT CHECK######################################
 
     #General argument check
     Argument_checker <- c(DATA_OK = all(c("min_DIST", "max_DIST", "avg_DIST", "median_DIST") %in% names(DATA)),
@@ -213,7 +214,7 @@ Neighborhood_discovery_function <-
       }
     }
 
-    ########################################################################
+    ##################################SUGGESTED PACKAGE CHECK######################################
 
     #Check specific arguments and suggested packages
     #Check arguments for Consensus Clustering
@@ -452,7 +453,7 @@ Neighborhood_discovery_function <-
       )
     )
 
-    ########################################################################
+    ##################################DATA PRE-PROCESSING######################################
 
     #Start executing the code
     print("Preparing data for analysis")
@@ -653,7 +654,7 @@ Neighborhood_discovery_function <-
 
     }
 
-    ########################################################################
+    ##################################CLUSTERING######################################
 
     #Define what to do if consensus clustering is required
     if(Strategy == "Consensus_Clustering"){
@@ -1004,7 +1005,7 @@ Neighborhood_discovery_function <-
       }
     }
 
-    ########################################################################
+    ##################################RESULT PLOTTING AND FUNCTION EXIT######################################
 
     print("Generating plots")
 

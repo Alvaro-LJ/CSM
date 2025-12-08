@@ -190,6 +190,8 @@ UTAG_Neighborhood_identifier <-
            N_cores = NULL #Number of cores to parallelize your computation
   ){
 
+    ##################################GENERAL ARGUMENT CHECK######################################
+
     #If NO Pre-processed data provided check if Stop_at_pre_processing is logical and other pre-processing variables
     if(is.null(Pre_processed_data)){
       DATA <- DATA
@@ -218,7 +220,7 @@ UTAG_Neighborhood_identifier <-
                         "K_Means_Meta_clustering", "Batch_K_means", "GMM",
                         "CLARA_clustering")) stop("Strategy must be one of the following: Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM, CLARA_clustering")
 
-    ########################################################################
+    ##################################SUGGESTED PACKAGE CHECK######################################
 
     #Check specific arguments and suggested packages
     if(Strategy == "Consensus_Clustering"){
@@ -477,7 +479,7 @@ UTAG_Neighborhood_identifier <-
       )
     )
 
-    ########################################################################
+    ##################################DATA PRE-PROCESSING######################################
 
     #If pre-processed data is not provided, perform data pre-processing
     if(is.null(Pre_processed_data)){
@@ -829,7 +831,7 @@ UTAG_Neighborhood_identifier <-
     }
 
 
-    ########################################################################
+    ##################################CLUSTERING######################################
 
     #Continue with clustering strategies
     if(Strategy == "Consensus_Clustering"){
@@ -1161,7 +1163,7 @@ UTAG_Neighborhood_identifier <-
       }
     }
 
-    ########################################################################
+    ##################################RESULT PLOTTING AND FUNCTION EXIT######################################
 
     #If there are noisy and real cells bind both tibbles
     if(Apply_Denoise){

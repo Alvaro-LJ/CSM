@@ -182,6 +182,8 @@ Clustering_Phenotyper <-
   ) {
     on.exit(gc())
 
+    ##################################GENERAL ARGUMENT CHECK######################################
+
     #Check general arguments
     if(!identical(names(DATA)[1:4], c("Cell_no", "X", "Y", "Subject_Names"))) {
       stop("Please generate an appropiate data object using the Data_arrange_function")
@@ -206,9 +208,7 @@ Clustering_Phenotyper <-
       }
     }
 
-
-
-    ########################################################################
+    ##################################SUGGESTED PACKAGE CHECK######################################
 
     #Check specific arguments and suggested packages
     if(Strategy == "Consensus_Clustering"){
@@ -474,7 +474,7 @@ Clustering_Phenotyper <-
       )
     )
 
-    ########################################################################
+    ##################################DATA PRE-PROCESSING######################################
 
     #If pre-processed data is not provided, perform data pre-processing
     if(is.null(Pre_processed_data)){
@@ -820,7 +820,7 @@ Clustering_Phenotyper <-
       }
     }
 
-    ########################################################################
+    ##################################CLUSTERING######################################
 
     #Continue with clustering strategies
     if(Strategy == "Consensus_Clustering"){
@@ -1154,7 +1154,7 @@ Clustering_Phenotyper <-
       }
     }
 
-    ########################################################################
+    ##################################RESULT PLOTTING AND FUNCTION EXIT######################################
 
     #If there are noisy and real cells bind both tibbles
     if(Apply_Denoise){
