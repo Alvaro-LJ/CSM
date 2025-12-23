@@ -14,7 +14,11 @@
 * CSM depends on many packages. However not all suggested packages are required to perform specific tasks. Functions will return an error if packages they depend on are not installed.
 * CSM includes >100 functions organized in 6+1 modules.
 * CSM provides several images and datasets to test function capabilities.
-* You can install CSM in R using the following code (we encourage users to obtain and read our vignettes by setting the build_vignettes argument to TRUE):
+* You can install CSM in R using the following code:
+```diff
+devtools::install_github(Alvaro-LJ/CSM)
+```
+*You can also download CSM vignettes by setting the build_vignettes argument to TRUE:
 ```diff
 devtools::install_github(Alvaro-LJ/CSM, build_vignettes = TRUE)
 ```
@@ -60,16 +64,16 @@ devtools::install_github(Alvaro-LJ/CSM, build_vignettes = TRUE)
 
 ## Publication
 To see examples of use of CSM you can have a look at CSM associated [*publication*](publicationURL).<br />
-Also this publication has an associated GitHub [*repository*](https://github.com/Alvaro-LJ/Comprehensive-Spatial-Methods-CSM-) where user can find test datasets and examples of use of CSM.
+This publication has an associated GitHub [*repository*](https://github.com/Alvaro-LJ/Comprehensive-Spatial-Methods-CSM-) where user can find test datasets and examples of use of CSM.
 
 ## Citation
 Please cite this paper in case our method or parts of it were helpful in your work.
 ```diff
-@article{XXX,
-  title={XXX},
-  author={XXX},
-  journal={XXX},
-  year={XXX}
+@article{
+  title={Comprehensive Spatial Methods (CSM): a toolbox for spatially analyzing tissues in histopathology},
+  author={Alvaro Lopez-Janeiro, Eduardo Miraval-Wong, Paulo Perez-Dominguez, Raluca Alexandru, Maria Guadalupe García Vazquez, David Hardisson, Alberto Peláez-Garcia, David Ruiz-Guillamon, Ignacio Melero, Carlos E de Andrea}
+  journal={Laboratory Investigation},
+  year={2026}
 }
 ```
 
