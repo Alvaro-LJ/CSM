@@ -4,7 +4,7 @@
 
 ## What you will find in this Repository
 + [Requirements and installation](#Main-features-and-requirements) 
-+ [Main outline of CSM](#Main-outline-of-CSMs) 
++ [Main outline of CSM](#Main-outline-of-CSM) 
 + [Publication and associated datasets](#Publication) 
 + [Citation](#Images) 
 + [Reporting Bugs](#Reporting-Bugs)
