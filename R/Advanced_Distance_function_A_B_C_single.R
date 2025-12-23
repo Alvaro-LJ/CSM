@@ -20,7 +20,7 @@ Advanced_Distance_function_A_B_C_single <-
            cell_B,
            cell_C
   ){
-    Tibble_A <- DATA %>% dplyr::filter(Phenotype == cell_A) %>% sample_n(size = 1)
+    Tibble_A <- DATA %>% dplyr::filter(Phenotype == cell_A) %>% dplyr::slice_sample(n = 1)
     Tibble_B <- DATA %>% dplyr::filter(Phenotype == cell_B)
     Tibble_C <- DATA %>% dplyr::filter(Phenotype == cell_C)
 

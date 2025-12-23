@@ -18,6 +18,8 @@ Clustering_Phenotyper(
   Dimension_reduction = NULL,
   Dimension_reduction_prop = NULL,
   Cluster_on_Reduced = NULL,
+  Stop_at_preprocessing = FALSE,
+  Pre_processed_data = NULL,
   Max_N_phenotypes = NULL,
   Consensus_reps = NULL,
   Consensus_p_Items = NULL,
@@ -76,6 +78,10 @@ Clustering_Phenotyper(
 \item{Dimension_reduction_prop}{A numeric value between 0 and 1 to indicate the percentage of the cells to be used in dimension computation (applicable for TSNE and UMAP).}
 
 \item{Cluster_on_Reduced}{A logical value indicating if clustering should be performed on new dimensions.}
+
+\item{Stop_at_preprocessing}{A logical value indicating if the function should stop after Data pre-processing and return the interim results (see details).}
+
+\item{Pre_processed_data}{(OPTIONAL) If a pre-processing object is available, it can be provided to skip data pre-processing steps (see details).}
 
 \item{Max_N_phenotypes}{If Strategy is Consensus_Clustering: Number of maximum phenotypes that can be identified.}
 
@@ -149,6 +155,11 @@ De-noising process does not remove cells from the final output. It rather assign
 
 Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP, a model can be fitted using a subset of data and then generalized to all the dataset. This can be more computationally efficient.
 The first time TSNE is used, snifter will install a CONDA distribution in yout R library using the basilisk package. The path to the library is relevant. Any non-standard characters in you path may lead to errors (non ASCII characters, spaces...).
+
+If the dataset is really large, the pre-processing steps (de-noising and dimension reduction) and clustering can take a while. This can make the tuning of
+clustering parameters tedious (each try takes a lot of time). To tackle this issue, pre-processing and clustering steps can be split into two independent steps.
+By setting the Stop_at_preprocessing argument to TRUE, the function will perform only the required pre-processing and will return the result without performing the
+clustering. Once the user is satisfied with the pre-processing results, the object can be provided to the function to execute the clustering process.
 
 Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 

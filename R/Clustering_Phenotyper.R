@@ -18,6 +18,9 @@
 #' @param Dimension_reduction_prop A numeric value between 0 and 1 to indicate the percentage of the cells to be used in dimension computation (applicable for TSNE and UMAP).
 #' @param Cluster_on_Reduced A logical value indicating if clustering should be performed on new dimensions.
 #'
+#' @param Stop_at_preprocessing A logical value indicating if the function should stop after Data pre-processing and return the interim results (see details).
+#' @param Pre_processed_data (OPTIONAL) If a pre-processing object is available, it can be provided to skip data pre-processing steps (see details).
+#'
 #' @param Max_N_phenotypes If Strategy is Consensus_Clustering: Number of maximum phenotypes that can be identified.
 #' @param Consensus_reps If Strategy is Consensus_Clustering: Number of iterations to converge.
 #' @param Consensus_p_Items If Strategy is Consensus_Clustering: Percentage of cells that you desire to sample in each iteration.
@@ -60,6 +63,11 @@
 #'
 #' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP, a model can be fitted using a subset of data and then generalized to all the dataset. This can be more computationally efficient.
 #' The first time TSNE is used, snifter will install a CONDA distribution in yout R library using the basilisk package. The path to the library is relevant. Any non-standard characters in you path may lead to errors (non ASCII characters, spaces...).
+#'
+#' If the dataset is really large, the pre-processing steps (de-noising and dimension reduction) and clustering can take a while. This can make the tuning of
+#' clustering parameters tedious (each try takes a lot of time). To tackle this issue, pre-processing and clustering steps can be split into two independent steps.
+#' By setting the Stop_at_preprocessing argument to TRUE, the function will perform only the required pre-processing and will return the result without performing the
+#' clustering. Once the user is satisfied with the pre-processing results, the object can be provided to the function to execute the clustering process.
 #'
 #' Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 #'
@@ -123,6 +131,10 @@ Clustering_Phenotyper <-
            Dimension_reduction_prop = NULL,
            Cluster_on_Reduced = NULL,
 
+           #Perform only Pre_processing
+           Stop_at_preprocessing = FALSE,
+           Pre_processed_data = NULL,
+
            #Parameters for Consensus Clustering
            Max_N_phenotypes = NULL, #Number of maximum neighborhods that you desire to find
            Consensus_reps = NULL, #Number of iterations of the algorithm to try to converge
@@ -170,6 +182,8 @@ Clustering_Phenotyper <-
   ) {
     on.exit(gc())
 
+    ##################################GENERAL ARGUMENT CHECK######################################
+
     #Check general arguments
     if(!identical(names(DATA)[1:4], c("Cell_no", "X", "Y", "Subject_Names"))) {
       stop("Please generate an appropiate data object using the Data_arrange_function")
@@ -177,16 +191,25 @@ Clustering_Phenotyper <-
     if(!Strategy %in% c("Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM", "CLARA_clustering")){
       stop("Strategy must be one of the following: Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM, CLARA_clustering")
     }
-    if(!is.logical(Apply_Denoise)) stop("Apply_Denoise must be a logical value")
-    if(!is.logical(Perform_Dimension_reduction)) stop("Perform_Dimension_reduction must be a logical value")
-    if(Perform_Dimension_reduction){
-      if(!Dimension_reduction %in% c("UMAP", "TSNE", "PCA")) stop("Dimension_reduction must be one of the following: UMAP, TSNE, PCA")
-      if(!all(is.numeric(Dimension_reduction_prop), Dimension_reduction_prop > 0, Dimension_reduction_prop <= 1)) stop("Dimension_reduction_prop must be a numeric value between 0 and 1")
+
+    #If NO Pre-processed data provided check if Stop_at_pre_processing is logical and other pre-processing variables
+    if(is.null(Pre_processed_data)){
+      if(!is.logical(Stop_at_preprocessing)) stop("Stop_at_preprocessing should be a logical value")
+      if(!is.logical(Apply_Denoise)) stop("Apply_Denoise must be a logical value")
+      if(!is.logical(Perform_Dimension_reduction)) stop("Perform_Dimension_reduction must be a logical value")
+      if(all(Stop_at_preprocessing, !Apply_Denoise, !Perform_Dimension_reduction)) message("Stop_at_processing will be ignored as no data pre-processing steps are required")
+      if(Perform_Dimension_reduction){
+        if(!Dimension_reduction %in% c("UMAP", "TSNE", "PCA")) stop("Dimension_reduction must be one of the following: UMAP, TSNE, PCA")
+        if(!all(is.numeric(Dimension_reduction_prop), Dimension_reduction_prop > 0, Dimension_reduction_prop <= 1)) stop("Dimension_reduction_prop must be a numeric value between 0 and 1")
+      }
+      if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
+      if(Cluster_on_Reduced){
+        if(!Perform_Dimension_reduction) stop("If Clustering needs to be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
+      }
     }
-    if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
-    if(Cluster_on_Reduced){
-      if(!Perform_Dimension_reduction) stop("If Clustering needs to be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
-    }
+
+    ##################################SUGGESTED PACKAGE CHECK######################################
+
     #Check specific arguments and suggested packages
     if(Strategy == "Consensus_Clustering"){
       #Check suggested packages
@@ -380,60 +403,63 @@ Clustering_Phenotyper <-
                  fill = sum(!Argument_checker)))
       }
     }
-    if(Apply_Denoise){
-      #check denoising argument is correctly stated
-      if(!Denoising %in% c("Quantile", "Standard_Deviation", "Threshold", "Otsu", "DimRed_DBscan")) {
-        stop("Denoising should be one of Quantile, Standard_Deviation, Threshold, Otsu, DimRed_DBscan")
-      }
-      if(Denoising == "DimRed_DBscan"){
-        #Requires previous dimension reduction
-        if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
-      }
+    #If pre-processed data is not provided, check suggested packages
+    if(is.null(Pre_processed_data)){
+      if(Apply_Denoise){
+        #check denoising argument is correctly stated
+        if(!Denoising %in% c("Quantile", "Standard_Deviation", "Threshold", "Otsu", "DimRed_DBscan")) {
+          stop("Denoising should be one of Quantile, Standard_Deviation, Threshold, Otsu, DimRed_DBscan")
+        }
+        if(Denoising == "DimRed_DBscan"){
+          #Requires previous dimension reduction
+          if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
+        }
 
-      #Check suggested packages
-      if(Denoising == "Otsu"){
-        if(!requireNamespace("EBImage", quietly = TRUE)) stop(
-          paste0("EBImage Bioconductor package is required to execute the function. Please install using the following code: ",
-                 expression({
-                   if (!require("BiocManager", quietly = TRUE))
-                     install.packages("BiocManager")
+        #Check suggested packages
+        if(Denoising == "Otsu"){
+          if(!requireNamespace("EBImage", quietly = TRUE)) stop(
+            paste0("EBImage Bioconductor package is required to execute the function. Please install using the following code: ",
+                   expression({
+                     if (!require("BiocManager", quietly = TRUE))
+                       install.packages("BiocManager")
 
-                   BiocManager::install("EBImage")
-                 })
+                     BiocManager::install("EBImage")
+                   })
+            )
           )
-        )
-      }
-      if(Denoising == "DimRed_DBscan"){
-        if(!requireNamespace("dbscan", quietly = FALSE)) stop(
-          paste0("dbscan CRAN package is required to execute the function. Please install using the following code: ",
-                 expression(install.packages("dbscan")))
-        )
-      }
-    }
-    if(Perform_Dimension_reduction){
-      if(Dimension_reduction == "PCA"){
-        if(!requireNamespace("svd", quietly = FALSE)) stop(
-          paste0("svd CRAN package is required to execute the function. Please install using the following code: ",
-                 expression(install.packages("svd")))
-        )
-      }
-      if(Dimension_reduction == "TSNE"){
-        if(!requireNamespace("snifter", quietly = TRUE)) stop(
-          paste0("snifter Bioconductor package is required to execute the function. Please install using the following code: ",
-                 expression({
-                   if (!require("BiocManager", quietly = TRUE))
-                     install.packages("BiocManager")
-
-                   BiocManager::install("snifter")
-                 })
+        }
+        if(Denoising == "DimRed_DBscan"){
+          if(!requireNamespace("dbscan", quietly = FALSE)) stop(
+            paste0("dbscan CRAN package is required to execute the function. Please install using the following code: ",
+                   expression(install.packages("dbscan")))
           )
-        )
+        }
       }
-      if(Dimension_reduction == "UMAP"){
-        if(!requireNamespace("uwot", quietly = FALSE)) stop(
-          paste0("uwot CRAN package is required to execute the function. Please install using the following code: ",
-                 expression(install.packages("uwot")))
-        )
+      if(Perform_Dimension_reduction){
+        if(Dimension_reduction == "PCA"){
+          if(!requireNamespace("svd", quietly = FALSE)) stop(
+            paste0("svd CRAN package is required to execute the function. Please install using the following code: ",
+                   expression(install.packages("svd")))
+          )
+        }
+        if(Dimension_reduction == "TSNE"){
+          if(!requireNamespace("snifter", quietly = TRUE)) stop(
+            paste0("snifter Bioconductor package is required to execute the function. Please install using the following code: ",
+                   expression({
+                     if (!require("BiocManager", quietly = TRUE))
+                       install.packages("BiocManager")
+
+                     BiocManager::install("snifter")
+                   })
+            )
+          )
+        }
+        if(Dimension_reduction == "UMAP"){
+          if(!requireNamespace("uwot", quietly = FALSE)) stop(
+            paste0("uwot CRAN package is required to execute the function. Please install using the following code: ",
+                   expression(install.packages("uwot")))
+          )
+        }
       }
     }
     #Check complex heatmap package
@@ -448,236 +474,353 @@ Clustering_Phenotyper <-
       )
     )
 
-    #Perform dimension reduction if required
-    if(Perform_Dimension_reduction){
-      #First PCA
-      if(Dimension_reduction == "PCA"){
-        if(Dimension_reduction_prop != 1) stop("PCA must be performed using Dimension_reduction_prop = 1")
-        print("Generating PCA projections")
-        #Scale and turn into matrix
-        DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-        Result_PCA <- svd::propack.svd(DATA_matrix, neig = 2)$u
-        DATA_Reduction <- tibble(Cell_no = DATA$Cell_no, DIMENSION_1 = unlist(Result_PCA[,1]), DIMENSION_2 = unlist(Result_PCA[,2]))
-      }
+    ##################################DATA PRE-PROCESSING######################################
 
-      #Second TSNE
-      if(Dimension_reduction == "TSNE"){
-        if(Dimension_reduction_prop == 1) {
-          print("Generating TSNE projections")
-          if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
-          #scale and turn into matrix
+    #If pre-processed data is not provided, perform data pre-processing
+    if(is.null(Pre_processed_data)){
+      #Perform dimension reduction if required
+      if(Perform_Dimension_reduction){
+        #First PCA
+        if(Dimension_reduction == "PCA"){
+          if(Dimension_reduction_prop != 1) stop("PCA must be performed using Dimension_reduction_prop = 1")
+          print("Generating PCA projections")
+          #Scale and turn into matrix
           DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-          Result_TSNE <- snifter::fitsne(DATA_matrix,
-                                         simplified = TRUE,
-                                         n_components = 2L,
-                                         n_jobs = 1L,
-                                         perplexity = 30,
-                                         n_iter = 500L,
-                                         initialization = "pca",
-                                         pca = FALSE,
-                                         neighbors = "auto",
-                                         negative_gradient_method = "fft",
-                                         learning_rate = "auto",
-                                         early_exaggeration = 12,
-                                         early_exaggeration_iter = 250L,
-                                         exaggeration = NULL,
-                                         dof = 1,
-                                         theta = 0.5,
-                                         n_interpolation_points = 3L,
-                                         min_num_intervals = 50L,
-                                         ints_in_interval = 1,
-                                         metric = "euclidean",
-                                         metric_params = NULL,
-                                         initial_momentum = 0.5,
-                                         final_momentum = 0.8,
-                                         max_grad_norm = NULL,
-                                         random_state = NULL,
-                                         verbose = FALSE)
-          DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Result_TSNE[,1]), DIMENSION_2 = unlist(Result_TSNE[,2]))
+          Result_PCA <- svd::propack.svd(DATA_matrix, neig = 2)$u
+          DATA_Reduction <- tibble(Cell_no = DATA$Cell_no, DIMENSION_1 = unlist(Result_PCA[,1]), DIMENSION_2 = unlist(Result_PCA[,2]))
         }
 
-        if(Dimension_reduction_prop != 1) {
-          print("Generating TSNE projections")
-          DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::sample_frac(size = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
-            dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
-          #scale and turn into matrix
-          Result_TSNE <- snifter::fitsne(DATA_matrix,
-                                         simplified = FALSE,
-                                         n_components = 2L,
-                                         n_jobs = 1L,
-                                         perplexity = 30,
-                                         n_iter = 500L,
-                                         initialization = "pca",
-                                         pca = FALSE,
-                                         neighbors = "auto",
-                                         negative_gradient_method = "fft",
-                                         learning_rate = "auto",
-                                         early_exaggeration = 12,
-                                         early_exaggeration_iter = 250L,
-                                         exaggeration = NULL,
-                                         dof = 1,
-                                         theta = 0.5,
-                                         n_interpolation_points = 3L,
-                                         min_num_intervals = 50L,
-                                         ints_in_interval = 1,
-                                         metric = "euclidean",
-                                         metric_params = NULL,
-                                         initial_momentum = 0.5,
-                                         final_momentum = 0.8,
-                                         max_grad_norm = NULL,
-                                         random_state = NULL,
-                                         verbose = FALSE)
-          Coords <- snifter::project(Result_TSNE,
-                                     new = DATA  %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix(),
-                                     old = DATA_matrix)
-          DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+        #Second TSNE
+        if(Dimension_reduction == "TSNE"){
+          if(Dimension_reduction_prop == 1) {
+            print("Generating TSNE projections")
+            if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
+            #scale and turn into matrix
+            DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
+            Result_TSNE <- snifter::fitsne(DATA_matrix,
+                                           simplified = TRUE,
+                                           n_components = 2L,
+                                           n_jobs = 1L,
+                                           perplexity = 30,
+                                           n_iter = 500L,
+                                           initialization = "pca",
+                                           pca = FALSE,
+                                           neighbors = "auto",
+                                           negative_gradient_method = "fft",
+                                           learning_rate = "auto",
+                                           early_exaggeration = 12,
+                                           early_exaggeration_iter = 250L,
+                                           exaggeration = NULL,
+                                           dof = 1,
+                                           theta = 0.5,
+                                           n_interpolation_points = 3L,
+                                           min_num_intervals = 50L,
+                                           ints_in_interval = 1,
+                                           metric = "euclidean",
+                                           metric_params = NULL,
+                                           initial_momentum = 0.5,
+                                           final_momentum = 0.8,
+                                           max_grad_norm = NULL,
+                                           random_state = NULL,
+                                           verbose = FALSE)
+            DATA_Reduction <- dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Result_TSNE[,1]), DIMENSION_2 = unlist(Result_TSNE[,2]))
+          }
+
+          if(Dimension_reduction_prop != 1) {
+            print("Generating TSNE projections")
+            DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
+              dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
+            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
+            #scale and turn into matrix
+            Result_TSNE <- snifter::fitsne(DATA_matrix,
+                                           simplified = FALSE,
+                                           n_components = 2L,
+                                           n_jobs = 1L,
+                                           perplexity = 30,
+                                           n_iter = 500L,
+                                           initialization = "pca",
+                                           pca = FALSE,
+                                           neighbors = "auto",
+                                           negative_gradient_method = "fft",
+                                           learning_rate = "auto",
+                                           early_exaggeration = 12,
+                                           early_exaggeration_iter = 250L,
+                                           exaggeration = NULL,
+                                           dof = 1,
+                                           theta = 0.5,
+                                           n_interpolation_points = 3L,
+                                           min_num_intervals = 50L,
+                                           ints_in_interval = 1,
+                                           metric = "euclidean",
+                                           metric_params = NULL,
+                                           initial_momentum = 0.5,
+                                           final_momentum = 0.8,
+                                           max_grad_norm = NULL,
+                                           random_state = NULL,
+                                           verbose = FALSE)
+            Coords <- snifter::project(Result_TSNE,
+                                       new = DATA  %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix(),
+                                       old = DATA_matrix)
+            DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+          }
+        }
+
+        #Third UMAP
+        if(Dimension_reduction == "UMAP"){
+          if(Dimension_reduction_prop == 1) {
+            print("Generating UMAP projections")
+            if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
+            #scale and turn into matrix
+            DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
+            Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L)
+            DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Result_UMAP[,1]), DIMENSION_2 = unlist(Result_UMAP[,2]))
+          }
+
+          if(Dimension_reduction_prop != 1) {
+            print("Generating UMAP projections")
+            DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
+              dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
+            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
+            #scale and turn into matrix
+            Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
+            Coords <- uwot::umap_transform(X = DATA  %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix(),
+                                           model = Result_UMAP)
+            DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+          }
         }
       }
 
-      #Third UMAP
-      if(Dimension_reduction == "UMAP"){
-        if(Dimension_reduction_prop == 1) {
-          print("Generating UMAP projections")
-          if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
-          #scale and turn into matrix
-          DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-          Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L)
-          DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Result_UMAP[,1]), DIMENSION_2 = unlist(Result_UMAP[,2]))
+      #If denoising is required apply required function
+      if(Apply_Denoise){
+
+        print("Filtering out noisy cells")
+        #Identify each cell in the experiment with a unique ID
+        DATA <- DATA %>% dplyr::mutate(Unique_ID = 1:nrow(DATA))
+        DATA <- DATA[c(ncol(DATA), 1:(ncol(DATA)-1))]
+
+        #Apply desired filters
+        if(Denoising == "Quantile") {
+          #Check arguments
+          if(Percentile < 0.01 | Percentile > 0.99) stop("Percentile must be between 0.01 and 0.99")
+
+          FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
+            x <= quantile(x, Percentile)
+          })
         }
 
-        if(Dimension_reduction_prop != 1) {
-          print("Generating UMAP projections")
-          DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::sample_frac(size = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
-            dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take aome time")
-          #scale and turn into matrix
-          Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
-          Coords <- uwot::umap_transform(X = DATA  %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix(),
-                                         model = Result_UMAP)
-          DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+        else if(Denoising == "Standard_Deviation"){
+          #Check arguments
+          if(!is.numeric(N_Standard_Deviations)) stop("N_Standard_Deviations must be a numeric value")
+
+          FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
+            x <= (mean(x) - (N_Standard_Deviations*sd(x)))
+          })
+        }
+
+        else if(Denoising == "Threshold"){
+          #Check arguments
+          if(!is.numeric(Selected_threshold)) stop("Selected_threshold must be a numeric value")
+
+          FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
+            x <= Selected_threshold
+          })
+        }
+
+        else if(Denoising == "Otsu"){
+          FILTER <- purrr::map2_df(.x = DATA[-c(1:5)],
+                                   .y =purrr::map_dbl(DATA[-c(1:5)], function(z){
+                                     EBImage::otsu(array(z, dim = c(1, length(z))), range = c(min(z), max(z)), levels = length(unique(z)))
+                                   }),
+                                   function(.x, .y) .x <= .y)
+        }
+
+        else if(Denoising == "DimRed_DBscan"){
+          #Requires previous dimension reduction
+          if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
+          #Check other arguments
+          if(!all(is.numeric(Min_cell_no), Min_cell_no%%1 == 0, Min_cell_no > 1)) stop("Min_cell_no must be an integer value > 1")
+          if(!all(is.numeric(Distance_radius), Distance_radius > 0)) stop("Distance_radius must be a numeric value > 0")
+
+          #Proceed with algorithm
+          DB_results <- dbscan::dbscan(DATA_Reduction[c("DIMENSION_1", "DIMENSION_2")], eps = Distance_radius, minPts = Min_cell_no, borderPoints = FALSE)
+
+          #whole plot for small samples
+          if(length(DB_results$cluster) <= 100000){
+            plot(
+              tibble(Dim_1 = DATA_Reduction[["DIMENSION_1"]], Dim_2 = DATA_Reduction[["DIMENSION_2"]], Cluster = DB_results$cluster) %>%
+                dplyr::mutate(Cluster = case_when(Cluster == 0 ~ "Noise",
+                                                  TRUE ~ "Approved")) %>%
+                ggplot(aes(x = Dim_1, y = Dim_2, color = Cluster)) + geom_point(size = 0.8) +
+                scale_color_manual("", values = c("black", "grey"))+
+                cowplot::theme_cowplot()+
+                theme(panel.grid = element_blank())
+            )
+          }
+
+          #Subsample plot for large dataset
+          if(length(DB_results$cluster) > 100000){
+            message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots")
+            plot(
+              tibble(Dim_1 = DATA_Reduction[["DIMENSION_1"]], Dim_2 = DATA_Reduction[["DIMENSION_2"]], Cluster = DB_results$cluster) %>%
+                dplyr::mutate(Cluster = case_when(Cluster == 0 ~ "Noise",
+                                                  TRUE ~ "Approved")) %>%
+                dplyr::slice_sample(n = 100000) %>%
+                ggplot(aes(x = Dim_1, y = Dim_2, color = Cluster)) + geom_point(size = 1.5) +
+                scale_color_manual("", values = c("black", "grey"))+
+                cowplot::theme_cowplot()+
+                theme(panel.grid = element_blank())
+            )
+          }
+
+          DB_OK <- menu(choices = c("Proceed", "Abort"), title = "Are the results of the filtering OK?")
+          if(DB_OK == 2) stop("Please refine Distance_radius and Min_cell_no parameters and retry")
+
+          #Generate the NOISE column with a logical vector
+          DATA <- DATA %>% dplyr::mutate(NOISE = DB_results$cluster) %>% dplyr::mutate(NOISE = dplyr::case_when(NOISE == 0 ~ TRUE,
+                                                                                                                NOISE != 0 ~ FALSE))
+        }
+
+        #For no DBscan methods apply a row wise method to determine which cells are noise (a logical vector)
+        if(Denoising != "DimRed_DBscan"){
+          #Generate the variable to specify if the cell is noise or not
+          DATA <- DATA %>% dplyr::mutate(NOISE = unlist(apply(FILTER, MARGIN = 1, function(x) sum(x) == ncol(FILTER))))
+        }
+
+        #Generate two tibbles, one with noisy cells and other (DATA) with the actual cells
+        NOISE_VECTOR <- DATA[["NOISE"]] #We generate a NOISE_VECTOR if we require to filter noise cells for Dimension reduction methods
+        DATA_NOISE <- DATA %>% dplyr::filter(NOISE) %>% dplyr::mutate(Phenotype = 1)
+        DATA <- DATA %>% dplyr::filter(!NOISE)
+        MARKERS <- DATA %>% dplyr::select(-Unique_ID, -Cell_no, -X, -Y, -Subject_Names, -NOISE)
+      }
+
+      #If no denoising required obtain MARKERS directly from DATA
+      else{
+        DATA <- DATA
+        MARKERS <- DATA %>% dplyr::select(-Cell_no, -X, -Y, -Subject_Names)
+      }
+
+      #Generate a specific version of Markers with dimension reduction data for Dimension_SNN
+      if(Cluster_on_Reduced){
+        #Depending on Denoising Obtain directly from DATA_Reduction or filter first
+        if(!Apply_Denoise) MARKERS <- DATA_Reduction[-which(names(DATA_Reduction) == "Cell_no")]
+        if(Apply_Denoise) MARKERS <- DATA_Reduction[!NOISE_VECTOR, ] %>% dplyr::select(-Cell_no)
+      }
+
+      #Check that MARKERS is a numeric matrix
+      if(!is.numeric(as.matrix(MARKERS))) stop("DATA provided must contain marker intensity values")
+
+      #If Stop_at_preprocessing is true return the interim results
+      if(Stop_at_preprocessing){
+        #Obtain the arguments
+        Pre_processing_argument <- list(
+          Apply_Denoise = Apply_Denoise,
+          Denoising = Denoising,
+          Percentile = Percentile,
+          N_Standard_Deviations = N_Standard_Deviations,
+          Selected_threshold = Selected_threshold,
+          Min_cell_no = Min_cell_no,
+          Distance_radius = Distance_radius,
+          Perform_Dimension_reduction = Perform_Dimension_reduction,
+          Dimension_reduction = Dimension_reduction,
+          Dimension_reduction_prop = Dimension_reduction_prop,
+          Cluster_on_Reduced = Cluster_on_Reduced
+        )
+
+        #If only De-noising needs to be performed
+        if(Apply_Denoise & !Perform_Dimension_reduction){
+          #Print a message with the results
+          message(paste0(nrow(DATA_NOISE), " cells have been identified as noise"))
+          #Return the list
+          return(list(Pre_processing_argument = Pre_processing_argument,
+                      DATA = DATA,
+                      MARKERS = MARKERS,
+                      DATA_NOISE = DATA_NOISE
+          ))
+        }
+        #If only DIM reduction needs to be performed
+        if(!Apply_Denoise & Perform_Dimension_reduction){
+          #Print the graph according to results
+          if(nrow(DATA_Reduction) <= 100000){
+            print("Generating Dimension Reduction Plot")
+            plot(
+              DATA_Reduction %>% ggplot(aes(x = DIMENSION_1, y = DIMENSION_2)) +
+                geom_point(size = 2, alpha = 0.95) +
+                cowplot::theme_cowplot()
+            )
+          }
+          if(nrow(DATA_Reduction) > 100000){
+            print("More than 100K observations. Generating Dimension Reduction Plot on a random subset of the data")
+            plot(
+              DATA_Reduction %>% dplyr::slice_sample(prop = 0.1) %>% ggplot(aes(x = DIMENSION_1, y = DIMENSION_2)) +
+                geom_point(size = 2, alpha = 0.95) +
+                cowplot::theme_cowplot()
+            )
+          }
+          #Return the list
+          return(list(Pre_processing_argument = Pre_processing_argument,
+                      DATA = DATA,
+                      MARKERS = MARKERS,
+                      DATA_Reduction = DATA_Reduction
+          ))
+        }
+        if(Apply_Denoise & Perform_Dimension_reduction){
+          message(paste0(nrow(DATA_NOISE), " cells have been identified as noise"))
+          #Print the graph according to results
+          if(nrow(DATA_Reduction) <= 100000){
+            print("Generating Dimension Reduction Plot")
+            plot(
+              DATA_Reduction %>% dplyr::mutate(NOISE = NOISE_VECTOR) %>% ggplot(aes(x = DIMENSION_1, y = DIMENSION_2, color = NOISE)) +
+                geom_point(size = 2, alpha = 0.95) +
+                cowplot::theme_cowplot()
+            )
+          }
+          if(nrow(DATA_Reduction) > 100000){
+            print("More than 100K observations. Generating Dimension Reduction Plot on a random subset of the data")
+            plot(
+              DATA_Reduction %>% dplyr::mutate(NOISE = NOISE_VECTOR) %>% dplyr::slice_sample(prop = 0.1) %>% ggplot(aes(x = DIMENSION_1, y = DIMENSION_2, color = NOISE)) +
+                geom_point(size = 2, alpha = 0.95) +
+                cowplot::theme_cowplot()
+            )
+          }
+          #Return the list
+          return(list(Pre_processing_argument = Pre_processing_argument,
+                      DATA = DATA,
+                      MARKERS = MARKERS,
+                      DATA_NOISE = DATA_NOISE,
+                      DATA_Reduction = DATA_Reduction
+          ))
         }
       }
     }
 
-    #If denoising is required apply required function
-    if(Apply_Denoise){
+    #If Pre-processed data provided obtain the datasets from the object provided
+    if(!is.null(Pre_processed_data)){
+      message("Pre_processed_data provided. Pre-processing related arguments will be ignored.")
+      if(names(Pre_processed_data)[1] != "Pre_processing_argument") stop("Pre_processing_argument not found in Pre_processed_data object provided")
 
-      print("Filtering out noisy cells")
-      #Identify each cell in the experiment with a unique ID
-      DATA <- DATA %>% dplyr::mutate(Unique_ID = 1:nrow(DATA))
-      DATA <- DATA[c(ncol(DATA), 1:(ncol(DATA)-1))]
+      Apply_Denoise <- Pre_processed_data[["Pre_processing_argument"]][["Apply_Denoise"]]
+      Perform_Dimension_reduction <- Pre_processed_data[["Pre_processing_argument"]][["Perform_Dimension_reduction"]]
 
-      #Apply desired filters
-      if(Denoising == "Quantile") {
-        #Check arguments
-        if(Percentile < 0.01 | Percentile > 0.99) stop("Percentile must be between 0.01 and 0.99")
+      if(Apply_Denoise & !Perform_Dimension_reduction){
+        DATA <- Pre_processed_data[["DATA"]]
+        MARKERS <- Pre_processed_data[["MARKERS"]]
+        DATA_NOISE <- Pre_processed_data[["DATA_NOISE"]]
 
-        FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
-          x <= quantile(x, Percentile)
-        })
       }
-
-      else if(Denoising == "Standard_Deviation"){
-        #Check arguments
-        if(!is.numeric(N_Standard_Deviations)) stop("N_Standard_Deviations must be a numeric value")
-
-        FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
-          x <= (mean(x) - (N_Standard_Deviations*sd(x)))
-        })
+      if(!Apply_Denoise & Perform_Dimension_reduction){
+        DATA <- Pre_processed_data[["DATA"]]
+        MARKERS <- Pre_processed_data[["MARKERS"]]
+        DATA_Reduction <- Pre_processed_data[["DATA_Reduction"]]
       }
-
-      else if(Denoising == "Threshold"){
-        #Check arguments
-        if(!is.numeric(Selected_threshold)) stop("Selected_threshold must be a numeric value")
-
-        FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
-          x <= Selected_threshold
-        })
+      if(Apply_Denoise & Perform_Dimension_reduction){
+        DATA <- Pre_processed_data[["DATA"]]
+        MARKERS <- Pre_processed_data[["MARKERS"]]
+        DATA_NOISE <- Pre_processed_data[["DATA_NOISE"]]
+        DATA_Reduction <- Pre_processed_data[["DATA_Reduction"]]
       }
-
-      else if(Denoising == "Otsu"){
-        FILTER <-purrr::map2_df(.x = DATA[-c(1:5)],
-                                .y =purrr::map_dbl(DATA[-c(1:5)], function(z){
-                                  EBImage::otsu(array(z, dim = c(1, length(z))), range = c(min(z), max(z)), levels = length(unique(z)))
-                                }),
-                                function(.x, .y) .x <= .y)
-      }
-
-      else if(Denoising == "DimRed_DBscan"){
-        #Requires previous dimension reduction
-        if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
-        #Check other arguments
-        if(!all(is.numeric(Min_cell_no), Min_cell_no%%1 == 0, Min_cell_no > 0)) stop("Min_cell_no must be an integer value > 0")
-        if(!all(is.numeric(Distance_radius), Distance_radius > 0)) stop("Distance_radius must be a numeric value > 0")
-
-        #Proceed with algorithm
-        DB_results <- dbscan::dbscan(DATA_Reduction[c("DIMENSION_1", "DIMENSION_2")], eps = Distance_radius, minPts = Min_cell_no, borderPoints = FALSE)
-
-        #whole plot for small samples
-        if(length(DB_results$cluster) <= 100000){
-          plot(
-            tibble(Dim_1 = DATA_Reduction[["DIMENSION_1"]], Dim_2 = DATA_Reduction[["DIMENSION_2"]], Cluster = DB_results$cluster) %>%
-              dplyr::mutate(Cluster = case_when(Cluster == 0 ~ "Noise",
-                                                TRUE ~ "Approved")) %>%
-              ggplot(aes(x = Dim_1, y = Dim_2, color = Cluster)) + geom_point(size = 0.8) +
-              scale_color_manual("", values = c("black", "grey"))+
-              cowplot::theme_cowplot()+
-              theme(panel.grid = element_blank())
-          )
-        }
-
-        #Subsample plot for large dataset
-        if(length(DB_results$cluster) > 100000){
-          message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots")
-          plot(
-            tibble(Dim_1 = DATA_Reduction[["DIMENSION_1"]], Dim_2 = DATA_Reduction[["DIMENSION_2"]], Cluster = DB_results$cluster) %>%
-              dplyr::mutate(Cluster = case_when(Cluster == 0 ~ "Noise",
-                                                TRUE ~ "Approved")) %>%
-              dplyr::sample_n(size = 100000) %>%
-              ggplot(aes(x = Dim_1, y = Dim_2, color = Cluster)) + geom_point(size = 1.5) +
-              scale_color_manual("", values = c("black", "grey"))+
-              cowplot::theme_cowplot()+
-              theme(panel.grid = element_blank())
-          )
-        }
-
-        DB_OK <- menu(choices = c("Proceed", "Abort"), title = "Are the results of the filtering OK?")
-        if(DB_OK == 2) stop("Please refine Distance_radius and Min_cell_no parameters and retry")
-
-        #Generate the NOISE column with a logical vector
-        DATA <- DATA %>%dplyr::mutate(NOISE = DB_results$cluster) %>%dplyr::mutate(NOISE = case_when(NOISE == 0 ~ TRUE,
-                                                                                                     NOISE != 0 ~ FALSE))
-      }
-
-      #For no DBscan methods apply a row wise method to determine which cells are noise (a logical vector)
-      if(Denoising != "DimRed_DBscan"){
-        #Generate the variable to specify if the cell is noise or not
-        DATA <- DATA %>%dplyr::mutate(NOISE = unlist(apply(FILTER, MARGIN = 1, function(x) sum(x) == ncol(FILTER))))
-      }
-
-      #Generate two tibbles, one with noisy cells and other (DATA) with the actual cells
-      NOISE_VECTOR <- DATA[["NOISE"]] #We generate a NOISE_VECTOR if we require to filter noise cells for Dimension reduction methods
-      DATA_NOISE <- DATA %>% dplyr::filter(NOISE) %>%dplyr::mutate(Phenotype = 1)
-      DATA <- DATA %>% dplyr::filter(!NOISE)
-      MARKERS <- DATA %>% dplyr::select(-Unique_ID, -Cell_no, -X, -Y, -Subject_Names, -NOISE)
     }
 
-    #If no denoising required obtain MARKERS directly from DATA
-    else{
-      DATA <- DATA
-      MARKERS <- DATA %>% dplyr::select(-Cell_no, -X, -Y, -Subject_Names)
-    }
-
-    #Generate a specific version of Markers with dimension reduction data for Dimension_SNN
-    if(Cluster_on_Reduced){
-      #Depending on Denoising Obtain directly from DATA_Reduction or filter first
-      if(!Apply_Denoise) MARKERS <- DATA_Reduction[-"Cell_no"]
-      if(Apply_Denoise) MARKERS <- DATA_Reduction[!NOISE_VECTOR, ] %>% dplyr::select(-Cell_no)
-    }
-
-    #Check that MARKERS is a numeric matrix
-    if(!is.numeric(as.matrix(MARKERS))) stop("DATA provided must contain marker intensity values")
+    ##################################CLUSTERING######################################
 
     #Continue with clustering strategies
     if(Strategy == "Consensus_Clustering"){
@@ -1011,9 +1154,11 @@ Clustering_Phenotyper <-
       }
     }
 
+    ##################################RESULT PLOTTING AND FUNCTION EXIT######################################
+
     #If there are noisy and real cells bind both tibbles
     if(Apply_Denoise){
-      DATA_Phenotypes <- DATA_Phenotypes %>%dplyr::mutate(Phenotype = as.numeric(as.numeric(Phenotype) + 1))
+      DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::mutate(Phenotype = as.numeric(as.numeric(Phenotype) + 1))
       DATA_Phenotypes <-dplyr::bind_rows(DATA_NOISE, DATA_Phenotypes) %>% dplyr::arrange(Unique_ID) %>% dplyr::select(-Unique_ID, -NOISE)
       warning("If denoising is applied, Cluster number 1 contains the noisy cells")
     }
@@ -1036,7 +1181,7 @@ Clustering_Phenotyper <-
       if(nrow(DATA_Phenotypes) > 100000){
         message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots")
         try(plot(
-          dplyr::left_join(DATA_Phenotypes, DATA_Reduction, by = "Cell_no") %>% sample_n(size = 100000) %>%
+          dplyr::left_join(DATA_Phenotypes, DATA_Reduction, by = "Cell_no") %>% dplyr::slice_sample(n = 100000) %>%
             ggplot(aes(x = DIMENSION_1, y = DIMENSION_2, color = Phenotype)) +
             geom_point(size = 2, alpha = 0.95) +
             cowplot::theme_cowplot() +
@@ -1073,7 +1218,7 @@ Clustering_Phenotyper <-
            scale_y_continuous("Marker intensity"))
 
     #Visualize the heatmap of mean by neighborhood
-    Mean_tibble <- DATA_Phenotypes %>% dplyr::select(-c(1:4)) %>% group_by(Phenotype) %>% summarize_all(mean) %>%dplyr::ungroup() #Obtain mean tibble
+    Mean_tibble <- DATA_Phenotypes %>% dplyr::select(-c(1:4)) %>% group_by(Phenotype) %>% summarize_all(mean) %>% dplyr::ungroup() #Obtain mean tibble
     Mean_matrix <- as.matrix(Mean_tibble[-1] %>% scale()) #Scale it and transform it into a  mtrix
     row.names(Mean_matrix) <- Mean_tibble[[1]]
 

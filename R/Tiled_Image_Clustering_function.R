@@ -8,6 +8,9 @@
 #' @param Phenotypes_included A character vector indicating the cell phenotypes that will be included in the clustering process.
 #' @param Cluster_Data Either 'Cell_Density' or 'Cell_Percentage'
 #'
+#' @param Stop_at_preprocessing A logical value indicating if the function should stop after Data pre-processing and return the interim results (see details).
+#' @param Pre_processed_data (OPTIONAL) If a pre-processing object is available, it can be provided to skip data pre-processing steps (see details).
+#'
 #' @param Strategy One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
 #'
 #' @param Perform_Dimension_reduction Logical value. Should Dimension Reduction be performed (see details).
@@ -57,6 +60,11 @@
 #'
 #' @details
 #' Dimension reduction can be performed using PCA (svd::propack.svd function), t-SNE (snifter::fitsne function) and UMAP (uwot::tumap function). For t-SNE and UMAP a model can be build using a subset of data and then used to predict coordinates for all the cells. This can be more computationally efficient.
+#'
+#' If the dataset is really large, the pre-processing steps (dimension reduction) and clustering can take a while. This can make the tuning of
+#' clustering parameters tedious (each try takes a lot of time). To tackle this issue, pre-processing and clustering steps can be split into two independent steps.
+#' By setting the Stop_at_preprocessing argument to TRUE, the function will perform only the required pre-processing and will return the result without performing the
+#' clustering. Once the user is satisfied with the pre-processing results, the object can be provided to the function to execute the clustering process.
 #'
 #' Consensus clustering is performed using the ConsensusClusterPlus::ConsensusClusterPlus function.
 #'
@@ -123,6 +131,10 @@ Tiled_Image_Clustering_function <-
            Dimension_reduction_prop = NULL,
            Cluster_on_Reduced = NULL,
 
+           #Perform only Pre_processing
+           Stop_at_preprocessing = FALSE,
+           Pre_processed_data = NULL,
+
            #Clustering strategy
            Strategy,
 
@@ -174,25 +186,35 @@ Tiled_Image_Clustering_function <-
            #simple_matching_coefficient, minkowski, hamming, jaccard_coefficient, Rao_coefficient, mahalanobis, cosine
            N_cores = NULL #Number of cores to parallelize your computation
   ) {
-    #Check arguments
-    if(!all(Phenotypes_included %in% unique(unlist(purrr::map(Tiled_images, function(df) df[[2]]$Phenotype))))) {
-      stop(paste0("Phenotypes included must be any of: ", stringr::str_c(unique(unlist(purrr::map(Tiled_images, function(df) df[[2]]$Phenotype))), collapse = ", ")))
+
+    ##################################GENERAL ARGUMENT CHECK######################################
+
+    #If NO Pre-processed data provided check if Stop_at_pre_processing is logical and other pre-processing variables
+    if(is.null(Pre_processed_data)){
+      if(!is.logical(Stop_at_preprocessing)) stop("Stop_at_preprocessing should be a logical value")
+      if(!all(Phenotypes_included %in% unique(unlist(purrr::map(Tiled_images, function(df) df[[2]]$Phenotype))))) {
+        stop(paste0("Phenotypes included must be any of: ", stringr::str_c(unique(unlist(purrr::map(Tiled_images, function(df) df[[2]]$Phenotype))), collapse = ", ")))
+      }
+      if(!all(Minimum_cell_no_per_tile >= 1 & Minimum_cell_no_per_tile%%1 == 0)) stop("Minimum_cell_no_per_tile must be a integer value > 0")
+      if(!all(Minimum_valid_tiles_per_image >= 1 & Minimum_valid_tiles_per_image%%1 == 0)) stop("Minimum_valid_tiles_per_image must be a integer value > 0")
+      if(!Cluster_Data %in% c("Cell_Density", "Cell_Percentage")) stop("Cluster_Data must be any of the following: Cell_Density, Cell_Percentage")
+      if(!is.logical(Perform_Dimension_reduction)) stop("Perform_Dimension_reduction must be a logical value")
+      if(Perform_Dimension_reduction){
+        if(!Dimension_reduction %in% c("UMAP", "TSNE", "PCA")) stop("Dimension_reduction must be one of the following: UMAP, TSNE, PCA")
+        if(!all(is.numeric(Dimension_reduction_prop), Dimension_reduction_prop > 0, Dimension_reduction_prop <= 1)) stop("Dimension_reduction_prop must be a numeric value between 0 and 1")
+      }
+      if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
+      if(Cluster_on_Reduced){
+        if(!Perform_Dimension_reduction) stop("If Clustering needst o be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
+      }
     }
-    if(!all(Minimum_cell_no_per_tile >= 1 & Minimum_cell_no_per_tile%%1 == 0)) stop("Minimum_cell_no_per_tile must be a integer value > 0")
-    if(!all(Minimum_valid_tiles_per_image >= 1 & Minimum_valid_tiles_per_image%%1 == 0)) stop("Minimum_valid_tiles_per_image must be a integer value > 0")
-    if(!Cluster_Data %in% c("Cell_Density", "Cell_Percentage")) stop("Cluster_Data must be any of the following: Cell_Density, Cell_Percentage")
+
+    #Strategy is always checked
     if(!Strategy %in% c("Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM", "CLARA_clustering")){
       stop("Strategy must be any of the following: Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM, CLARA_clustering")
     }
-    if(!is.logical(Perform_Dimension_reduction)) stop("Perform_Dimension_reduction must be a logical value")
-    if(Perform_Dimension_reduction){
-      if(!Dimension_reduction %in% c("UMAP", "TSNE", "PCA")) stop("Dimension_reduction must be one of the following: UMAP, TSNE, PCA")
-      if(!all(is.numeric(Dimension_reduction_prop), Dimension_reduction_prop > 0, Dimension_reduction_prop <= 1)) stop("Dimension_reduction_prop must be a numeric value between 0 and 1")
-    }
-    if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
-    if(Cluster_on_Reduced){
-      if(!Perform_Dimension_reduction) stop("If Clustering needst o be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
-    }
+
+    ##################################SUGGESTED PACKAGE CHECK######################################
 
     #Check specific arguments and suggested packages
     #Check arguments for Consensus Clustering
@@ -389,33 +411,38 @@ Tiled_Image_Clustering_function <-
                  fill = sum(!Argument_checker)))
       }
     }
-    #Check dimension reduction strategies
-    if(Perform_Dimension_reduction){
-      if(Dimension_reduction == "PCA"){
-        if(!requireNamespace("svd", quietly = FALSE)) stop(
-          paste0("svd CRAN package is required to execute the function. Please install using the following code: ",
-                 expression(install.packages("svd")))
-        )
-      }
-      if(Dimension_reduction == "TSNE"){
-        if(!requireNamespace("snifter", quietly = TRUE)) stop(
-          paste0("snifter Bioconductor package is required to execute the function. Please install using the following code: ",
-                 expression({
-                   if (!require("BiocManager", quietly = TRUE))
-                     install.packages("BiocManager")
 
-                   BiocManager::install("snifter")
-                 })
+    #If pre-processed data is not provided, check suggested packages
+    if(is.null(Pre_processed_data)){
+      #Check dimension reduction strategies
+      if(Perform_Dimension_reduction){
+        if(Dimension_reduction == "PCA"){
+          if(!requireNamespace("svd", quietly = FALSE)) stop(
+            paste0("svd CRAN package is required to execute the function. Please install using the following code: ",
+                   expression(install.packages("svd")))
           )
-        )
-      }
-      if(Dimension_reduction == "UMAP"){
-        if(!requireNamespace("uwot", quietly = FALSE)) stop(
-          paste0("uwot CRAN package is required to execute the function. Please install using the following code: ",
-                 expression(install.packages("uwot")))
-        )
+        }
+        if(Dimension_reduction == "TSNE"){
+          if(!requireNamespace("snifter", quietly = TRUE)) stop(
+            paste0("snifter Bioconductor package is required to execute the function. Please install using the following code: ",
+                   expression({
+                     if (!require("BiocManager", quietly = TRUE))
+                       install.packages("BiocManager")
+
+                     BiocManager::install("snifter")
+                   })
+            )
+          )
+        }
+        if(Dimension_reduction == "UMAP"){
+          if(!requireNamespace("uwot", quietly = FALSE)) stop(
+            paste0("uwot CRAN package is required to execute the function. Please install using the following code: ",
+                   expression(install.packages("uwot")))
+          )
+        }
       }
     }
+
     #Check complex heatmap package
     if(!requireNamespace("ComplexHeatmap", quietly = TRUE)) stop(
       paste0("ComplexHeatmap Bioconductor package is required to execute the function. Please install using the following code: ",
@@ -428,218 +455,300 @@ Tiled_Image_Clustering_function <-
       )
     )
 
-    #Else proceed with analysis. First calculate the total cells and the percentage by tile
-    Cell_counts_by_tile <-
-      purrr::map(Tiled_images, function(x) {
-        Interim <- x[[2]] %>% dplyr::filter(Phenotype %in% Phenotypes_included)
+    ##################################DATA PRE-PROCESSING######################################
+    if(is.null(Pre_processed_data)){
+      #Else proceed with analysis. First calculate the total cells and the percentage by tile
+      Cell_counts_by_tile <-
+        purrr::map(Tiled_images, function(x) {
+          Interim <- x[[2]] %>% dplyr::filter(Phenotype %in% Phenotypes_included)
 
-        Filtered_tiles <-
-          Interim  %>%
-          group_by(tile_id) %>% dplyr::count() %>%dplyr::ungroup() %>% dplyr::filter(n >= Minimum_cell_no_per_tile) #Filter out tiles with less than minimum cells per tile
+          Filtered_tiles <-
+            Interim  %>%
+            group_by(tile_id) %>% dplyr::count() %>%dplyr::ungroup() %>% dplyr::filter(n >= Minimum_cell_no_per_tile) #Filter out tiles with less than minimum cells per tile
 
 
-        #Build cell count by tile matrix
-        Interim2 <-
-          Interim %>% dplyr::filter(tile_id %in% Filtered_tiles[[1]]) %>% group_by(tile_id, Phenotype) %>% dplyr::count() %>%
-          tidyr::pivot_wider(id_cols = tile_id,
-                      names_from = Phenotype,
-                      values_from = n)
-        Interim2[is.na(Interim2)] <- 0
+          #Build cell count by tile matrix
+          Interim2 <-
+            Interim %>% dplyr::filter(tile_id %in% Filtered_tiles[[1]]) %>% group_by(tile_id, Phenotype) %>% dplyr::count() %>%
+            tidyr::pivot_wider(id_cols = tile_id,
+                               names_from = Phenotype,
+                               values_from = n)
+          Interim2[is.na(Interim2)] <- 0
 
-        #Calculate the percentage of the total cells in the tile that belong to each phenotype and build a tibble with the info
-        Interim_per <-purrr::map_dfc(Interim2[-1], function(Column) Column / rowSums(Interim2[-1]))
-        names(Interim_per) <-stringr::str_c("PER_", names(Interim2)[-1], sep = "")
+          #Calculate the percentage of the total cells in the tile that belong to each phenotype and build a tibble with the info
+          Interim_per <-purrr::map_dfc(Interim2[-1], function(Column) Column / rowSums(Interim2[-1]))
+          names(Interim_per) <-stringr::str_c("PER_", names(Interim2)[-1], sep = "")
 
-        #Calculate the total cells per tile
-        Total_cells_tibble <- tibble(n_cells = rowSums(Interim2[-1]))
+          #Calculate the total cells per tile
+          Total_cells_tibble <- tibble(n_cells = rowSums(Interim2[-1]))
 
-        #Obtain the results tibble
-        Results <-dplyr::bind_cols(
-          Interim2[1],
-          Interim2[-1],
-          Total_cells_tibble,
-          Interim_per
+          #Obtain the results tibble
+          Results <-dplyr::bind_cols(
+            Interim2[1],
+            Interim2[-1],
+            Total_cells_tibble,
+            Interim_per
+          )
+
+          #Bind results to the tile info matrix and eliminate rows with NA
+          return(left_join(x[[1]], Results, by = "tile_id") %>% na.omit())
+
+        }, .progress = list(clear = F,
+                            name = "Counting cells in each tile",
+                            show_after = 1,
+                            type = "iterator"))
+
+      #Check how many images in the experiment have passed the filtering steps before proceeding
+      #First stop the function if no images have survived the thresholds
+      if(all(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)){
+        stop("No images with adequate number of evaluable tiles. Please refine tiling strategy, or the following parameters: Minimum_cell_no_per_tile or Minimum_valid_tiles_per_image")
+      }
+
+      #If at least some images have survived the threshold then ask the user if they want to proceed
+      if(any(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)){
+        User_choice <- menu(choices = c("Proceed", "Stop"), title = paste0(as.character(sum(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)),
+                                                                           " out of ",
+                                                                           as.character(length(Cell_counts_by_tile)),
+                                                                           " images do not have enough evaluable tiles. Do you want to proceed with the analysis"
         )
+        )
+        if(User_choice == 2) {stop("Please refine tiling strategy, or the following parameters: Minimum_cell_no_per_tile or Minimum_valid_tiles_per_image")}
+      }
 
-        #Bind results to the tile info matrix and eliminate rows with NA
-        return(left_join(x[[1]], Results, by = "tile_id") %>% na.omit())
+      #If the user decides to proceed and there are images that have to be removed from the analysis print a warning message accordingly and remove the invalid images
+      if(any(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)) {
+        warning(paste0("The following images will be removed from the analysis: ",
+                       stringr::str_c(names(Cell_counts_by_tile[map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image]), collapse = ", ")
+        )
+        )
+        Cell_counts_by_tile <- Cell_counts_by_tile[map_dbl(Cell_counts_by_tile, nrow) >= Minimum_valid_tiles_per_image]
+      }
 
+      #Now we prepare the matrix we are going to submit to clustering
+      Aggregated_tile_tibble <-purrr::map_dfr(1:length(Cell_counts_by_tile), function(Image){
+        #First filter the desired columns of the data
+        if(Cluster_Data == "Cell_Density") {
+          Results <-dplyr::bind_cols(Cell_counts_by_tile[[Image]][1:7],
+                                     Cell_counts_by_tile[[Image]] %>% dplyr::select(-c(1:7), -n_cells) %>% dplyr::select(-contains("PER_"))
+          )
+        }
+        else if(Cluster_Data == "Cell_Percentage") {
+          Results <-dplyr::bind_cols(Cell_counts_by_tile[[Image]][1:7],
+                                     Cell_counts_by_tile[[Image]] %>% dplyr::select(-c(1:7), -n_cells) %>% dplyr::select(contains("PER_"))
+          )
+          Results[-c(1:7)] <- round(Results[-c(1:7)], digits = 3)
+        }
+
+        #Now add Subject_Names, reorder columns and return
+        Results$Subject_Names <- names(Cell_counts_by_tile)[Image]
+        Results <- Results[c(ncol(Results), 1:7, 8:(ncol(Results)-1))]
+        return(Results)
       }, .progress = list(clear = F,
-                          name = "Counting cells in each tile",
+                          name = "Preparing matrix for clustering",
                           show_after = 1,
                           type = "iterator"))
 
-    #Check how many images in the experiment have passed the filtering steps before proceeding
-    #First stop the function if no images have survived the thresholds
-    if(all(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)){
-      stop("No images with adequate number of evaluable tiles. Please refine tiling strategy, or the following parameters: Minimum_cell_no_per_tile or Minimum_valid_tiles_per_image")
-    }
+      #Replace NA values for 0
+      Aggregated_tile_tibble[is.na(Aggregated_tile_tibble)] <- 0
+      #Generate final data matrix and it's scaled variant
+      Tile_patterns <- Aggregated_tile_tibble %>% dplyr::select(-c(1:8))
+      Tile_patterns_scaled <- Tile_patterns %>% scale()
 
-    #If at least some images have survived the threshold then ask the user if they want to proceed
-    if(any(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)){
-      User_choice <- menu(choices = c("Proceed", "Stop"), title = paste0(as.character(sum(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)),
-                                                                         " out of ",
-                                                                         as.character(length(Cell_counts_by_tile)),
-                                                                         " images do not have enough evaluable tiles. Do you want to proceed with the analysis"
-      )
-      )
-      if(User_choice == 2) {stop("Please refine tiling strategy, or the following parameters: Minimum_cell_no_per_tile or Minimum_valid_tiles_per_image")}
-    }
-
-    #If the user decides to proceed and there are images that have to be removed from the analysis print a warning message accordingly and remove the invalid images
-    if(any(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)) {
-      warning(paste0("The following images will be removed from the analysis: ",
-                     stringr::str_c(names(Cell_counts_by_tile[map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image]), collapse = ", ")
-      )
-      )
-      Cell_counts_by_tile <- Cell_counts_by_tile[map_dbl(Cell_counts_by_tile, nrow) >= Minimum_valid_tiles_per_image]
-    }
-
-    #Now we prepare the matrix we are going to submit to clustering
-    Aggregated_tile_tibble <-purrr::map_dfr(1:length(Cell_counts_by_tile), function(Image){
-      #First filter the desired columns of the data
-      if(Cluster_Data == "Cell_Density") {
-        Results <-dplyr::bind_cols(Cell_counts_by_tile[[Image]][1:7],
-                                   Cell_counts_by_tile[[Image]] %>% dplyr::select(-c(1:7), -n_cells) %>% dplyr::select(-contains("PER_"))
-        )
-      }
-      else if(Cluster_Data == "Cell_Percentage") {
-        Results <-dplyr::bind_cols(Cell_counts_by_tile[[Image]][1:7],
-                                   Cell_counts_by_tile[[Image]] %>% dplyr::select(-c(1:7), -n_cells) %>% dplyr::select(contains("PER_"))
-        )
-        Results[-c(1:7)] <- round(Results[-c(1:7)], digits = 3)
-      }
-
-      #Now add Subject_Names, reorder columns and return
-      Results$Subject_Names <- names(Cell_counts_by_tile)[Image]
-      Results <- Results[c(ncol(Results), 1:7, 8:(ncol(Results)-1))]
-      return(Results)
-    }, .progress = list(clear = F,
-                        name = "Preparing matrix for clustering",
-                        show_after = 1,
-                        type = "iterator"))
-
-    #Replace NA values for 0
-    Aggregated_tile_tibble[is.na(Aggregated_tile_tibble)] <- 0
-    #Generate final data matrix and it's scaled variant
-    Tile_patterns <- Aggregated_tile_tibble %>% dplyr::select(-c(1:8))
-    Tile_patterns_scaled <- Tile_patterns %>% scale()
-
-    #Perform dimension reduction if required
-    if(Perform_Dimension_reduction){
-      #First PCA
-      if(Dimension_reduction == "PCA"){
-        if(Dimension_reduction_prop != 1) stop("PCA must be performed using Dimension_reduction_prop = 1")
-        print("Generating PCA projections")
-        #Scale and turn into matrix
-        DATA_matrix <- Tile_patterns_scaled %>% as.matrix()
-        Result_PCA <- svd::propack.svd(DATA_matrix, neig = 2)$u
-        DATA_Reduction <- tibble(DIMENSION_1 = unlist(Result_PCA[,1]), DIMENSION_2 = unlist(Result_PCA[,2]))
-      }
-
-      #Second TSNE
-      if(Dimension_reduction == "TSNE"){
-        if(Dimension_reduction_prop == 1) {
-          print("Generating TSNE projections")
-          if(nrow(Tile_patterns_scaled) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
-          #scale and turn into matrix
+      #Perform dimension reduction if required
+      if(Perform_Dimension_reduction){
+        #First PCA
+        if(Dimension_reduction == "PCA"){
+          if(Dimension_reduction_prop != 1) stop("PCA must be performed using Dimension_reduction_prop = 1")
+          print("Generating PCA projections")
+          #Scale and turn into matrix
           DATA_matrix <- Tile_patterns_scaled %>% as.matrix()
-          Result_TSNE <- snifter::fitsne(DATA_matrix,
-                                         simplified = TRUE,
-                                         n_components = 2L,
-                                         n_jobs = 1L,
-                                         perplexity = 30,
-                                         n_iter = 500L,
-                                         initialization = "pca",
-                                         pca = FALSE,
-                                         neighbors = "auto",
-                                         negative_gradient_method = "fft",
-                                         learning_rate = "auto",
-                                         early_exaggeration = 12,
-                                         early_exaggeration_iter = 250L,
-                                         exaggeration = NULL,
-                                         dof = 1,
-                                         theta = 0.5,
-                                         n_interpolation_points = 3L,
-                                         min_num_intervals = 50L,
-                                         ints_in_interval = 1,
-                                         metric = "euclidean",
-                                         metric_params = NULL,
-                                         initial_momentum = 0.5,
-                                         final_momentum = 0.8,
-                                         max_grad_norm = NULL,
-                                         random_state = NULL,
-                                         verbose = FALSE)
-          DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Result_TSNE[,1]), DIMENSION_2 = unlist(Result_TSNE[,2]))
+          Result_PCA <- svd::propack.svd(DATA_matrix, neig = 2)$u
+          DATA_Reduction <- tibble(DIMENSION_1 = unlist(Result_PCA[,1]), DIMENSION_2 = unlist(Result_PCA[,2]))
         }
 
-        if(Dimension_reduction_prop != 1) {
-          print("Generating TSNE projections")
-          DATA_matrix <- Tile_patterns_scaled %>% dplyr::sample_frac(size = Dimension_reduction_prop) %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
-          #scale and turn into matrix
-          Result_TSNE <- snifter::fitsne(DATA_matrix,
-                                         simplified = FALSE,
-                                         n_components = 2L,
-                                         n_jobs = 1L,
-                                         perplexity = 30,
-                                         n_iter = 500L,
-                                         initialization = "pca",
-                                         pca = FALSE,
-                                         neighbors = "auto",
-                                         negative_gradient_method = "fft",
-                                         learning_rate = "auto",
-                                         early_exaggeration = 12,
-                                         early_exaggeration_iter = 250L,
-                                         exaggeration = NULL,
-                                         dof = 1,
-                                         theta = 0.5,
-                                         n_interpolation_points = 3L,
-                                         min_num_intervals = 50L,
-                                         ints_in_interval = 1,
-                                         metric = "euclidean",
-                                         metric_params = NULL,
-                                         initial_momentum = 0.5,
-                                         final_momentum = 0.8,
-                                         max_grad_norm = NULL,
-                                         random_state = NULL,
-                                         verbose = FALSE)
-          Coords <- snifter::project(Result_TSNE,
-                                     new = Tile_patterns_scaled %>% as.matrix(),
-                                     old = DATA_matrix)
-          DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+        #Second TSNE
+        if(Dimension_reduction == "TSNE"){
+          if(Dimension_reduction_prop == 1) {
+            print("Generating TSNE projections")
+            if(nrow(Tile_patterns_scaled) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
+            #scale and turn into matrix
+            DATA_matrix <- Tile_patterns_scaled %>% as.matrix()
+            Result_TSNE <- snifter::fitsne(DATA_matrix,
+                                           simplified = TRUE,
+                                           n_components = 2L,
+                                           n_jobs = 1L,
+                                           perplexity = 30,
+                                           n_iter = 500L,
+                                           initialization = "pca",
+                                           pca = FALSE,
+                                           neighbors = "auto",
+                                           negative_gradient_method = "fft",
+                                           learning_rate = "auto",
+                                           early_exaggeration = 12,
+                                           early_exaggeration_iter = 250L,
+                                           exaggeration = NULL,
+                                           dof = 1,
+                                           theta = 0.5,
+                                           n_interpolation_points = 3L,
+                                           min_num_intervals = 50L,
+                                           ints_in_interval = 1,
+                                           metric = "euclidean",
+                                           metric_params = NULL,
+                                           initial_momentum = 0.5,
+                                           final_momentum = 0.8,
+                                           max_grad_norm = NULL,
+                                           random_state = NULL,
+                                           verbose = FALSE)
+            DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Result_TSNE[,1]), DIMENSION_2 = unlist(Result_TSNE[,2]))
+          }
+
+          if(Dimension_reduction_prop != 1) {
+            print("Generating TSNE projections")
+            DATA_matrix <- Tile_patterns_scaled %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
+            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time.")
+            #scale and turn into matrix
+            Result_TSNE <- snifter::fitsne(DATA_matrix,
+                                           simplified = FALSE,
+                                           n_components = 2L,
+                                           n_jobs = 1L,
+                                           perplexity = 30,
+                                           n_iter = 500L,
+                                           initialization = "pca",
+                                           pca = FALSE,
+                                           neighbors = "auto",
+                                           negative_gradient_method = "fft",
+                                           learning_rate = "auto",
+                                           early_exaggeration = 12,
+                                           early_exaggeration_iter = 250L,
+                                           exaggeration = NULL,
+                                           dof = 1,
+                                           theta = 0.5,
+                                           n_interpolation_points = 3L,
+                                           min_num_intervals = 50L,
+                                           ints_in_interval = 1,
+                                           metric = "euclidean",
+                                           metric_params = NULL,
+                                           initial_momentum = 0.5,
+                                           final_momentum = 0.8,
+                                           max_grad_norm = NULL,
+                                           random_state = NULL,
+                                           verbose = FALSE)
+            Coords <- snifter::project(Result_TSNE,
+                                       new = Tile_patterns_scaled %>% as.matrix(),
+                                       old = DATA_matrix)
+            DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+          }
+        }
+
+        #Third UMAP
+        if(Dimension_reduction == "UMAP"){
+          if(Dimension_reduction_prop == 1) {
+            print("Generating UMAP projections")
+            if(nrow(Tile_patterns_scaled) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
+            #scale and turn into matrix
+            DATA_matrix <- Tile_patterns_scaled %>% as.matrix()
+            Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L)
+            DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Result_UMAP[,1]), DIMENSION_2 = unlist(Result_UMAP[,2]))
+          }
+
+          if(Dimension_reduction_prop != 1) {
+            print("Generating UMAP projections")
+            DATA_matrix <- Tile_patterns_scaled %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% as.matrix()
+            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
+            #scale and turn into matrix
+            Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
+            Coords <- uwot::umap_transform(X = Tile_patterns_scaled %>% as.matrix(),
+                                           model = Result_UMAP)
+            DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+          }
         }
       }
 
-      #Third UMAP
-      if(Dimension_reduction == "UMAP"){
-        if(Dimension_reduction_prop == 1) {
-          print("Generating UMAP projections")
-          if(nrow(Tile_patterns_scaled) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
-          #scale and turn into matrix
-          DATA_matrix <- Tile_patterns_scaled %>% as.matrix()
-          Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L)
-          DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Result_UMAP[,1]), DIMENSION_2 = unlist(Result_UMAP[,2]))
+      #If clustering on dimension reduction is required
+      if(Cluster_on_Reduced){
+        #Depending on Denoising Obtain directly from DATA_Reduction or filter first
+        Tile_patterns_scaled <- DATA_Reduction
+      }
+
+      #If Stop_at_preprocessing is true return the interim results
+      if(Stop_at_preprocessing){
+        #Obtain the arguments
+        Pre_processing_argument <- list(
+          Minimum_cell_no_per_tile = Minimum_cell_no_per_tile,
+          Minimum_valid_tiles_per_image = Minimum_valid_tiles_per_image,
+          Phenotypes_included = Phenotypes_included,
+          Cluster_Data = Cluster_Data,
+          Perform_Dimension_reduction = Perform_Dimension_reduction,
+          Dimension_reduction = Dimension_reduction,
+          Dimension_reduction_prop = Dimension_reduction_prop,
+          Cluster_on_Reduced = Cluster_on_Reduced
+        )
+
+        #No dim reduction required
+        if(!Perform_Dimension_reduction){
+          #Return the list
+          return(list(Pre_processing_argument = Pre_processing_argument,
+                      Tile_patterns_scaled = Tile_patterns_scaled,
+                      Tile_patterns = Tile_patterns,
+                      Aggregated_tile_tibble = Aggregated_tile_tibble
+          ))
         }
 
-        if(Dimension_reduction_prop != 1) {
-          print("Generating UMAP projections")
-          DATA_matrix <- Tile_patterns_scaled %>% dplyr::sample_frac(size = Dimension_reduction_prop) %>% as.matrix()
-          if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take aome time")
-          #scale and turn into matrix
-          Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
-          Coords <- uwot::umap_transform(X = Tile_patterns_scaled %>% as.matrix(),
-                                         model = Result_UMAP)
-          DATA_Reduction <-dplyr::bind_cols(DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
+        #If dim reduction required
+        if(Perform_Dimension_reduction){
+          #Print the graph according to results
+          if(nrow(DATA_Reduction) <= 100000){
+            print("Generating Dimension Reduction Plot")
+            plot(
+              DATA_Reduction %>% ggplot(aes(x = DIMENSION_1, y = DIMENSION_2)) +
+                geom_point(size = 2, alpha = 0.95) +
+                cowplot::theme_cowplot()
+            )
+          }
+          if(nrow(DATA_Reduction) > 100000){
+            print("More than 100K observations. Generating Dimension Reduction Plot on a random subset of the data")
+            plot(
+              DATA_Reduction %>% dplyr::slice_sample(prop = 0.1) %>% ggplot(aes(x = DIMENSION_1, y = DIMENSION_2)) +
+                geom_point(size = 2, alpha = 0.95) +
+                cowplot::theme_cowplot()
+            )
+          }
+          #Return the list
+          return(list(Pre_processing_argument = Pre_processing_argument,
+                      Tile_patterns_scaled = Tile_patterns_scaled,
+                      Tile_patterns = Tile_patterns,
+                      Aggregated_tile_tibble = Aggregated_tile_tibble,
+                      DATA_Reduction = DATA_Reduction
+          ))
         }
       }
     }
 
-    #If clustering on dimension reduction is required
-    if(Cluster_on_Reduced){
-      #Depending on Denoising Obtain directly from DATA_Reduction or filter first
-      Tile_patterns_scaled <- DATA_Reduction
+    #If Pre-processed data provided obtain the datasets from the object provided
+    if(!is.null(Pre_processed_data)){
+      message("Pre_processed_data provided. Pre-processing related arguments will be ignored.")
+      if(names(Pre_processed_data)[1] != "Pre_processing_argument") stop("Pre_processing_argument not found in Pre_processed_data object provided")
+
+      Perform_Dimension_reduction <- Pre_processed_data[["Pre_processing_argument"]][["Perform_Dimension_reduction"]]
+
+      #If no dimension reduction required
+      if(!Perform_Dimension_reduction){
+        Tile_patterns_scaled <- Pre_processed_data[["Tile_patterns_scaled"]]
+        Tile_patterns <- Pre_processed_data[["Tile_patterns"]]
+        Aggregated_tile_tibble <- Pre_processed_data[["Aggregated_tile_tibble"]]
+
+      }
+      #If dimension reduction is required
+      if(Perform_Dimension_reduction){
+        Tile_patterns_scaled <- Pre_processed_data[["Tile_patterns_scaled"]]
+        Tile_patterns <- Pre_processed_data[["Tile_patterns"]]
+        Aggregated_tile_tibble <- Pre_processed_data[["Aggregated_tile_tibble"]]
+        DATA_Reduction <- Pre_processed_data[["DATA_Reduction"]]
+      }
+
     }
+
+    ##################################CLUSTERING######################################
 
     #Perform the actual clustering
     #First define what to do if consensus clustering is required
@@ -937,7 +1046,7 @@ Tiled_Image_Clustering_function <-
         names(pr_mb) <- "Cluster_assignment"
 
         #Generate the data phenotypes tibble
-        Tile_patterns <-dplyr::bind_cols(Tile_patterns, pr_mb)
+        Tile_patterns <- dplyr::bind_cols(Tile_patterns, pr_mb)
       }
     }
     #Define what to do if CLARA clustering is required
@@ -988,6 +1097,8 @@ Tiled_Image_Clustering_function <-
       }
     }
 
+    ##################################RESULT PLOTTING AND FUNCTION EXIT######################################
+
     print("Generating Plots")
 
     #Plot dimension reduction scatter point
@@ -1004,10 +1115,10 @@ Tiled_Image_Clustering_function <-
         )
       }
       if(nrow(DATA_Reduction) > 100000){
-        message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots")
+        message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots.")
         try(plot(
           DATA_Reduction %>%dplyr::mutate(Cluster_assignment = Tile_patterns[["Cluster_assignment"]]) %>%
-            sample_n(size = 100000) %>%
+            dplyr::slice_sample(n = 100000) %>%
             ggplot(aes(x = DIMENSION_1, y = DIMENSION_2, color = as.factor(Cluster_assignment))) +
             geom_point(size = 2, alpha = 0.95) +
             cowplot::theme_cowplot() +
@@ -1038,16 +1149,24 @@ Tiled_Image_Clustering_function <-
     )
 
     #Generate the final tibble
-    Final_result <-dplyr::bind_cols(Aggregated_tile_tibble, Tile_patterns["Cluster_assignment"])
+    Final_result <- dplyr::bind_cols(Aggregated_tile_tibble, Tile_patterns["Cluster_assignment"])
 
     #Print the Neighborhood quantification
     print(Final_result %>% dplyr::count(Cluster_assignment) %>% dplyr::arrange(desc(n)))
     Final_result$Cluster_assignment <- as.factor(Final_result$Cluster_assignment)
 
     #Return a list with each of the tiled images
-    Final_result_list <-purrr::map(unique(Final_result$Subject_Names), function(Image){
+    Final_result_list <- purrr::map(unique(Final_result$Subject_Names), function(Image){
       Final_result %>% dplyr::filter(Subject_Names == Image)
     })
     names(Final_result_list) <- unique(Final_result$Subject_Names)
-    return(Final_result_list)
+
+    #Return results according to dimension reduction parameters
+    if(!Perform_Dimension_reduction) return(Final_result_list)
+    if(Perform_Dimension_reduction){
+      Dimension_Reduction_tibble <- dplyr::bind_cols(Aggregated_tile_tibble[c(1,4)], DATA_Reduction)
+      return(list(Result = Final_result_list,
+                  Dimension_reduction = Dimension_Reduction_tibble)
+      )
+    }
   }

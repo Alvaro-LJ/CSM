@@ -97,7 +97,7 @@ Normalization_diagnostics <-
           EBImage::otsu(array(z, dim = c(1, length(z))), range = c(min(z), max(z)), levels = length(unique(z)))
         })
       }, .progress = list(clear = F,
-                          name = "Calculating Otsu thresholds by sample in normalied data",
+                          name = "Calculating Otsu thresholds by sample in normalized data",
                           show_after = 2,
                           type = "iterator"))
     )

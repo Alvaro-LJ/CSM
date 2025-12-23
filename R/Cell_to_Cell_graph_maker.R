@@ -105,6 +105,7 @@ Cell_to_Cell_graph_maker <-
       DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == Image_name)
       DATA_Distances <- DATA_Distances[[Image_name]]
 
+
       #Define the COO and Target_Cell
       COO <- DATA_Distances[[1]][[1,1]]
       Target_Cell <- DATA_Distances[[1]][[2,1]]
@@ -114,24 +115,30 @@ Cell_to_Cell_graph_maker <-
       Target_tibble <- DATA_Phenotypes %>% dplyr::filter(Phenotype == Target_Cell)
       COO_tibble <- DATA_Phenotypes %>% dplyr::filter(Phenotype == COO)
 
-      #Calculate the min distance
-      For_Join <-dplyr::bind_cols(DATA_Distances[[2]][1],
-                                  purrr::map_dbl(1:nrow(DATA_Distances[[2]]), function(Row){
-                                    min(DATA_Distances[[2]][Row,-1])
-                                  })
-      )
-      names(For_Join) <- c("Cell_no", "Min_Distance")
-
-      #Join the min distance with the COO tibble
-      COO_tibble <-dplyr::left_join(COO_tibble, For_Join, by = "Cell_no") %>% dplyr::filter(!is.na(Min_Distance))
+      #Build the tibble with the COO and closest Target coordinates
+      COO_Target_Coordinates <- tibble::tibble(COO_no = DATA_Distances[[2]]$Cell_Of_Origin_no)
+      COO_Target_Coordinates <-
+        dplyr::left_join(COO_Target_Coordinates, DATA_Phenotypes %>% dplyr::select(Cell_no, X, Y),
+                         by = dplyr::join_by(COO_no == Cell_no))
+      names(COO_Target_Coordinates)[2:3] <- c("X_COO", "Y_COO")
+      COO_Target_Coordinates$Target_no <- names(DATA_Distances[[2]][-1])[max.col(DATA_Distances[[2]][-1]*-1, ties.method = "random")]
+      COO_Target_Coordinates <-
+        dplyr::left_join(COO_Target_Coordinates, DATA_Phenotypes %>% dplyr::select(Cell_no, X, Y),
+                         by = dplyr::join_by(Target_no == Cell_no))
+      names(COO_Target_Coordinates)[5:6] <- c("X_Target", "Y_Target")
 
       #Build the plot
       PLOT <-
         ggplot() +
         geom_point(aes(x = X, y = Y), color = "lightgrey", data = Other_tibble) +
-        ggforce::geom_circle(aes(x0 = X, y0 = Y, r = Min_Distance, fill = Min_Distance), alpha = 0.3, color = NA, data = COO_tibble)+
         geom_point(aes(x = X, y = Y), size = 2, color = "red", data = Target_tibble) +
         geom_point(aes(x = X, y = Y), size = 2, color = "blue", data = COO_tibble) +
+        geom_segment(aes(x = X_COO, y = Y_COO, xend = X_Target, yend = Y_Target),
+                     arrow = grid::arrow(length = unit(3, "pt"), type = "closed"),
+                     color = "black",
+                     linewidth = 0.75,
+                     alpha = 0.5,
+                     data = COO_Target_Coordinates) +
         cowplot::theme_cowplot() +
         scale_x_continuous("", labels = NULL)+
         scale_y_continuous("", labels = NULL)+
@@ -176,22 +183,22 @@ Cell_to_Cell_graph_maker <-
       #Build the plot
       PLOT <-
         ggplot() +
-          geom_point(aes(x = X, y = Y), color = "lightgrey", data = Other_tibble) +
-          ggforce::geom_circle(aes(x0 = X, y0 = Y, r = Average_Distance, fill = Average_Distance), alpha = 0.3, color = NA, data = COO_tibble)+
-          geom_point(aes(x = X, y = Y), size = 2, color = "red", data = Target_tibble) +
-          geom_point(aes(x = X, y = Y), size = 2, color = "blue", data = COO_tibble) +
-          cowplot::theme_cowplot() +
-          scale_x_continuous("", labels = NULL)+
-          scale_y_continuous("", labels = NULL)+
-          scale_fill_viridis_c("Average dist to target")+
-          ggtitle(Image_name)+
-          theme(panel.grid = element_blank(),
-                axis.line = element_blank(),
-                axis.ticks = element_blank(),
-                legend.text = element_text(size = 15),
-                legend.title = element_text(size = 20),
-                legend.position = "bottom",
-                plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
+        geom_point(aes(x = X, y = Y), color = "lightgrey", data = Other_tibble) +
+        ggforce::geom_circle(aes(x0 = X, y0 = Y, r = Average_Distance, fill = Average_Distance), alpha = 0.3, color = NA, data = COO_tibble)+
+        geom_point(aes(x = X, y = Y), size = 2, color = "red", data = Target_tibble) +
+        geom_point(aes(x = X, y = Y), size = 2, color = "blue", data = COO_tibble) +
+        cowplot::theme_cowplot() +
+        scale_x_continuous("", labels = NULL)+
+        scale_y_continuous("", labels = NULL)+
+        scale_fill_viridis_c("Average dist to target")+
+        ggtitle(Image_name)+
+        theme(panel.grid = element_blank(),
+              axis.line = element_blank(),
+              axis.ticks = element_blank(),
+              legend.text = element_text(size = 15),
+              legend.title = element_text(size = 20),
+              legend.position = "bottom",
+              plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
       return(invisible(PLOT))
     }
@@ -224,22 +231,22 @@ Cell_to_Cell_graph_maker <-
       #Build the plot
       PLOT <-
         ggplot() +
-          geom_point(aes(x = X, y = Y), color = "lightgrey", data = Other_tibble) +
-          ggforce::geom_circle(aes(x0 = X, y0 = Y, r = Max_Distance, fill = Max_Distance), alpha = 0.3, color = NA, data = COO_tibble)+
-          geom_point(aes(x = X, y = Y), size = 2, color = "red", data = Target_tibble) +
-          geom_point(aes(x = X, y = Y), size = 2, color = "blue", data = COO_tibble) +
-          cowplot::theme_cowplot() +
-          scale_x_continuous("", labels = NULL)+
-          scale_y_continuous("", labels = NULL)+
-          scale_fill_viridis_c("Max dist to target")+
-          ggtitle(Image_name)+
-          theme(panel.grid = element_blank(),
-                axis.line = element_blank(),
-                axis.ticks = element_blank(),
-                legend.text = element_text(size = 15),
-                legend.title = element_text(size = 20),
-                legend.position = "bottom",
-                plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
+        geom_point(aes(x = X, y = Y), color = "lightgrey", data = Other_tibble) +
+        ggforce::geom_circle(aes(x0 = X, y0 = Y, r = Max_Distance, fill = Max_Distance), alpha = 0.3, color = NA, data = COO_tibble)+
+        geom_point(aes(x = X, y = Y), size = 2, color = "red", data = Target_tibble) +
+        geom_point(aes(x = X, y = Y), size = 2, color = "blue", data = COO_tibble) +
+        cowplot::theme_cowplot() +
+        scale_x_continuous("", labels = NULL)+
+        scale_y_continuous("", labels = NULL)+
+        scale_fill_viridis_c("Max dist to target")+
+        ggtitle(Image_name)+
+        theme(panel.grid = element_blank(),
+              axis.line = element_blank(),
+              axis.ticks = element_blank(),
+              legend.text = element_text(size = 15),
+              legend.title = element_text(size = 20),
+              legend.position = "bottom",
+              plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
       return(invisible(PLOT))
     }
@@ -274,22 +281,22 @@ Cell_to_Cell_graph_maker <-
       #Build the plot
       PLOT <-
         ggplot() +
-          geom_point(aes(x = X, y = Y), color = "lightgrey", data = Other_tibble) +
-          ggforce::geom_circle(aes(x0 = X, y0 = Y, r = Radius, fill = Cells_in_Radius), alpha = 0.3, color = NA, data = COO_tibble)+
-          geom_point(aes(x = X, y = Y), size = 2, color = "red", data = Target_tibble) +
-          geom_point(aes(x = X, y = Y), size = 2, color = "blue", data = COO_tibble) +
-          cowplot::theme_cowplot() +
-          scale_x_continuous("", labels = NULL)+
-          scale_y_continuous("", labels = NULL)+
-          scale_fill_viridis_c(stringr::str_c("Cells in ", as.character(Radius), " radius"))+
-          ggtitle(Image_name)+
-          theme(panel.grid = element_blank(),
-                axis.line = element_blank(),
-                axis.ticks = element_blank(),
-                legend.text = element_text(size = 15),
-                legend.title = element_text(size = 20),
-                legend.position = "bottom",
-                plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
+        geom_point(aes(x = X, y = Y), color = "lightgrey", data = Other_tibble) +
+        ggforce::geom_circle(aes(x0 = X, y0 = Y, r = Radius, fill = Cells_in_Radius), alpha = 0.3, color = NA, data = COO_tibble)+
+        geom_point(aes(x = X, y = Y), size = 2, color = "red", data = Target_tibble) +
+        geom_point(aes(x = X, y = Y), size = 2, color = "blue", data = COO_tibble) +
+        cowplot::theme_cowplot() +
+        scale_x_continuous("", labels = NULL)+
+        scale_y_continuous("", labels = NULL)+
+        scale_fill_viridis_c(stringr::str_c("Cells in ", as.character(Radius), " radius"))+
+        ggtitle(Image_name)+
+        theme(panel.grid = element_blank(),
+              axis.line = element_blank(),
+              axis.ticks = element_blank(),
+              legend.text = element_text(size = 15),
+              legend.title = element_text(size = 20),
+              legend.position = "bottom",
+              plot.title = element_text(size = 25, hjust = 0.5, vjust = -3))
       plot(PLOT)
       return(invisible(PLOT))
     }
