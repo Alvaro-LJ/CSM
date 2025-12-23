@@ -18,7 +18,7 @@
 ```diff
 devtools::install_github(Alvaro-LJ/CSM)
 ```
-*You can also download CSM vignettes by setting the build_vignettes argument to TRUE:
+* You can also download CSM vignettes by setting the build_vignettes argument to TRUE:
 ```diff
 devtools::install_github(Alvaro-LJ/CSM, build_vignettes = TRUE)
 ```
