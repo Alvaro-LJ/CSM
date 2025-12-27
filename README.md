@@ -16,11 +16,11 @@
 * CSM provides several images and datasets to test function capabilities.
 * You can install CSM package in R using the following code:
 ```diff
-devtools::install_github(Alvaro-LJ/CSM)
+devtools::install_github("Alvaro-LJ/CSM")
 ```
 * You can also download CSM vignettes by setting the build_vignettes argument to TRUE:
 ```diff
-devtools::install_github(Alvaro-LJ/CSM, build_vignettes = TRUE)
+devtools::install_github("Alvaro-LJ/CSM", build_vignettes = TRUE)
 ```
 
 ## Main outline of CSM
