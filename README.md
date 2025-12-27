@@ -27,8 +27,8 @@ devtools::install_github(Alvaro-LJ/CSM, build_vignettes = TRUE)
 <img src="man/figures/CSM_OUTLINE.png" width="750" style = "align-items: center">
 
 - MODULE 0: Data generation and formatting
-  - Divide large images into tiles. Useful to work with whole slide tissue samples.
-  - Perform pixel thresholding and quantification. Used to work with extra-cellular biomolecules.
+  - Divide large images into tiles. Useful to work with whole slide images.
+  - Perform pixel thresholding and quantification. Aimed at scoring extra-cellular biomolecules.
   - Extract color channels from RGB images. May be required to work with HE, IHC or other histochemical staining techniques.
   - Perform cell segmentation and feature extraction from images.
   - Arrange cell feature matrices into an adequate format.
@@ -36,34 +36,34 @@ devtools::install_github(Alvaro-LJ/CSM, build_vignettes = TRUE)
   - Perform general quality checks and check computational resources available.
   
 - MODULE 1: Data normalization
-  - Normalize cell feature expression data according to image and slide belonging.
+  - Normalize cell feature expression data to account for image and slide belonging.
   
 - MODULE 2: Data thresholding
   - Define positive thresholds for features of interest. Thresholded data can be used to assign cell labels.
   
 - MODULE 3: Cell phenotype labeling
-  - Define cell phenotype labels based on thresholded features (see MODULE 2)
+  - Define cell phenotype labels based on thresholded features (see MODULE 2).
   - Define cell phenotype labels based on unsupervised clustering.
   - Define cell phenotype labels based on semi-supervised clustering.
   - Define cell phenotype labels based on user trained algorithms.
   - Check concordance between different cell phenotyping methods.
-  - Assign cell phenotype labels by merging various methods.
+  - Assign cell phenotype labels by reaching a consensus using various methods.
   - Quantify cell phenotypes and find associations with image metadata.
 
 - MODULE 4: Heterogeneity assessment
-  - Calculate global cell composition heterogeneity
-  - Calculate spatial heterogeneity using tiling approaches as well as texture features
+  - Calculate global cell composition heterogeneity.
+  - Calculate spatial heterogeneity using tiling approaches as well as texture feature analysis.
   
 - MODULE 5: Cell-Cell spatial associations
-  - Calculate spatial associations between pairs of cell types and thriads.
+  - Calculate spatial associations between pairs and thriads of cell types.
   - Calculate spatial association occurring by chance.
   
 - MODULE 6: Neighborhood analysis and tissue structures
-  - Calculate cellular neighborhoods using various algorithms
+  - Calculate cellular neighborhoods using various algorithms.
   - Divide tissue into compartments according to a single cell type (for example Tumor/Stromal compartments).
 
 ## Publication
-To see examples of use of CSM you can have a look at CSM associated [*publication*](publicationURL).<br />
+To see examples of use of CSM you can have a look at CSM associated [*publication*](10.1016/j.labinv.2025.104276).<br />
 This publication has an associated GitHub [*repository*](https://github.com/Alvaro-LJ/Comprehensive-Spatial-Methods-CSM-) where user can find test datasets and examples of use of CSM.
 
 ## Citation
