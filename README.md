@@ -63,7 +63,7 @@ devtools::install_github(Alvaro-LJ/CSM, build_vignettes = TRUE)
   - Divide tissue into compartments according to a single cell type (for example Tumor/Stromal compartments).
 
 ## Publication
-To see examples of use of CSM you can have a look at CSM associated [*publication*](10.1016/j.labinv.2025.104276).<br />
+To see examples of use of CSM you can have a look at CSM associated [*publication*](https://www.laboratoryinvestigation.org/article/S0023-6837(25)00187-4/fulltext).<br />
 This publication has an associated GitHub [*repository*](https://github.com/Alvaro-LJ/Comprehensive-Spatial-Methods-CSM-) where user can find test datasets and examples of use of CSM.
 
 ## Citation
