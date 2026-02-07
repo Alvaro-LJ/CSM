@@ -7,6 +7,7 @@
 #' @param Hull_ratio A numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.
 #' @param Distance_to_edge A numeric value indicating the maximum distance to tissue edge allowed.
 #' @param Image_preview A character value indicating which Subject_Names will be used in the quick test. If NULL a random image will be selected.
+#'
 #' @returns Returns a tibble with cell features without cells closer to the edge than Distance_to_edge.
 #'
 #' @examples
