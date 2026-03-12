@@ -21,15 +21,15 @@ Tissue_mask_generator <-
            Blurr = NULL,
            Sigma = NULL){
 
-    #First if Image has more than 1 frame sum all frames into 1 and normalize result
+    #First if Image has more than 1 frame sum all frames into 1 and normalize result by dividing it to the total potential sum
     if(EBImage::numberOfFrames(Image) > 1) {
       Image <- purrr::reduce(EBImage::getFrames(Image),
                              function(Image1, Image2) Image1 + Image2)
-      Image <- Image / max(Image)
+      Image <- Image / EBImage::numberOfFrames(Image)
     }
-    #If not normalized to max Image value
+    #If not normalized to 1 (max image value)
     else{
-      Image <- Image / max(Image)
+      Image <- Image / 1
     }
 
     #Perform image blurring if required
@@ -57,3 +57,4 @@ Tissue_mask_generator <-
       return(Image)
     }
   }
+

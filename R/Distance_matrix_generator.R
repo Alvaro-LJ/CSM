@@ -66,7 +66,7 @@ Distance_matrix_generator <-
               Target_Cell %in% unique(DATA_Phenotypes$Phenotype)
     )
     )) { #Check if provided cell types are in the phenotype variable
-      stop(paste0("Cell of origin provided and Target cells should be one of: ", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = ", ")))
+      stop(paste0("Cell of origin provided and Target cells should be one of: ", "\n", stringr::str_c(sort(unique(DATA_Phenotypes$Phenotype)), collapse = "\n")))
     }
     if(!is.logical(Allow_Cero_Distance)) stop("Allow_Cero_Distance must be a logical value")
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
@@ -111,9 +111,17 @@ Distance_matrix_generator <-
         Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
         #Calculate cells in border
         COO_in_Border_vector <- Image_tibble$Phenotype == Cell_Of_Origin  & Cells_in_Border_vector
+        
+        #Prepare message
+        N_cells_in_border <- sum(COO_in_Border_vector)
+        N_COO <- sum(Image_tibble$Phenotype == Cell_Of_Origin)
+        
 
         #Print message to warn COO removed in analysis
-        message(paste0("Sample ", as.character(x), ": ", sum(COO_in_Border_vector), " / ", sum(Image_tibble$Phenotype == Cell_Of_Origin), " ", Cell_Of_Origin, " cell/s will be removed due to edge proximity."))
+        if(N_cells_in_border < N_COO) Colored_print(paste0("\n", "Sample ", as.character(x), ": ", N_cells_in_border, " / ", N_COO, " ", Cell_Of_Origin, " cell/s will be removed due to edge proximity."),
+                                                    color = "green")
+        if(all(N_cells_in_border == N_COO, N_COO >= 1)) Colored_print(paste0("\n", "Sample ", as.character(x), ": ", N_cells_in_border, " / ", N_COO, " ", Cell_Of_Origin, " cell/s will be removed due to edge proximity."),
+                                                    color = "red")
 
         #Return a vector with the cells to keep (either no COO or COO not in edge)
         return(!COO_in_Border_vector)
@@ -144,7 +152,7 @@ Distance_matrix_generator <-
 
         Pre_Cell_counts <- Image_tibble %>% dplyr::count(Phenotype) %>% dplyr::filter(Phenotype %in% c(Cell_Of_Origin, Target_Cell))#Select cells of interest
         #Build a DF where the first row is the COO cell count and the second row is the Target cell count
-        Cell_counts <-dplyr::bind_rows(Pre_Cell_counts %>% dplyr::filter(Phenotype == Cell_Of_Origin),
+        Cell_counts <- dplyr::bind_rows(Pre_Cell_counts %>% dplyr::filter(Phenotype == Cell_Of_Origin),
                                        Pre_Cell_counts %>% dplyr::filter(Phenotype == Target_Cell))
 
         #Acount for samples without any COO or Target Cell
@@ -188,13 +196,16 @@ Distance_matrix_generator <-
     names(RESULTS) <- unique(DATA_Phenotypes$Subject_Names)
 
     #Calculate which samples have NA values and should be removed
-    Samples_to_remove <-purrr::map_lgl(RESULTS, function(x) is.na(x[[2]][[1,1]]))
+    Samples_to_remove <- purrr::map_lgl(RESULTS, function(x) is.na(x[[2]][[1,1]]))
 
     #If present print a warning and remove the samples
     if(sum(Samples_to_remove) > 0) {
-      warning(paste0("Samples without COO or target cells will be removed from the analysis. ",
-                     "The following samples will be removed: ", stringr::str_c(names(RESULTS)[Samples_to_remove], collapse = ", ")
-      )
+      Colored_print(paste0("\n",
+                           "Samples without COO or target cells will be removed from the analysis. ",
+                           "The following samples will be removed: ", "\n",
+                           stringr::str_c(names(RESULTS)[Samples_to_remove], collapse = "\n")
+      ),
+      color = "red"
       )
       return(RESULTS[!Samples_to_remove])
     }

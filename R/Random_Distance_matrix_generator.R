@@ -95,8 +95,8 @@ Random_Distance_matrix_generator <-
         Image_tibble <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == Images)
         Pre_Cell_counts <- Image_tibble %>% dplyr::count(Phenotype) %>% dplyr::filter(Phenotype %in% c(Cell_Of_Origin, Target_Cell))#Select cells of interest
         #Build a DF where the first row is the COO cell count and the second row is the Target cell count
-        Cell_counts <-dplyr::bind_rows(Pre_Cell_counts %>% dplyr::filter(Phenotype == Cell_Of_Origin),
-                                       Pre_Cell_counts %>% dplyr::filter(Phenotype == Target_Cell))
+        Cell_counts <- dplyr::bind_rows(Pre_Cell_counts %>% dplyr::filter(Phenotype == Cell_Of_Origin),
+                                        Pre_Cell_counts %>% dplyr::filter(Phenotype == Target_Cell))
 
         #Acount for samples without any COO or Target Cell
         if(nrow(Cell_counts) < 2) {
@@ -171,9 +171,12 @@ Random_Distance_matrix_generator <-
 
     #If samples to remove are present print a warning and proceed to remove required samples
     if(sum(Samples_to_remove) > 0) {
-      warning(paste0("Samples without COO or target cells will be removed from the analysis. ",
-                     "The following samples will be removed: ", stringr::str_c(names(RESULTS)[Samples_to_remove], collapse = ", ")
-      )
+      Colored_print(paste0("\n",
+                           "Samples without COO or target cells will be removed from the analysis. ",
+                           "The following samples will be removed: ", "\n", 
+                           stringr::str_c(names(RESULTS)[Samples_to_remove], collapse = "\n")
+                           ),
+                    color = "red"
       )
       return(RESULTS[!Samples_to_remove])
     }

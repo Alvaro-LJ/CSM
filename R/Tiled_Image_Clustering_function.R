@@ -517,9 +517,10 @@ Tiled_Image_Clustering_function <-
 
       #If the user decides to proceed and there are images that have to be removed from the analysis print a warning message accordingly and remove the invalid images
       if(any(purrr::map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image)) {
-        warning(paste0("The following images will be removed from the analysis: ",
-                       stringr::str_c(names(Cell_counts_by_tile[map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image]), collapse = ", ")
-        )
+        Colored_print(paste0("The following images will be removed from the analysis: ", "\n",
+                       stringr::str_c(names(Cell_counts_by_tile[map_dbl(Cell_counts_by_tile, nrow) < Minimum_valid_tiles_per_image]), collapse = "\n")
+                       ),
+                      color = "red"
         )
         Cell_counts_by_tile <- Cell_counts_by_tile[map_dbl(Cell_counts_by_tile, nrow) >= Minimum_valid_tiles_per_image]
       }

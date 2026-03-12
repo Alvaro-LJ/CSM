@@ -251,7 +251,7 @@ Image_tile_deconstruction_function <-
       if(RGB_Color_images) EBImage::colorMode(Image_subset) <- "Color"
       #Subset the channels and write the image
       Image_subset <- Image_subset[,,Channels_to_keep_index]
-      EBImage::writeImage(Image_subset, file_path)
+      EBImage::writeImage(Image_subset, file_path, bits.per.sample = 16, compression = "LZW")
       #Retrieve information
       File_info <- file.info(file_path)
       #Remove the temporary directory
@@ -351,7 +351,7 @@ Image_tile_deconstruction_function <-
               if(!RGB_Color_images) EBImage::colorMode(Tile_image) <- "Grayscale"
               if(RGB_Color_images) EBImage::colorMode(Tile_image) <- "Color"
               Tile_image <- Tile_image[,,Channels_to_keep_index]
-              EBImage::writeImage(Tile_image, paste0(Output_directory, "/", Tile_Image_name))
+              EBImage::writeImage(Tile_image, paste0(Output_directory, "/", Tile_Image_name), bits.per.sample = 16, compression = "LZW")
 
 
             },
@@ -405,7 +405,7 @@ Image_tile_deconstruction_function <-
             if(!RGB_Color_images) EBImage::colorMode(Tile_image) <- "Grayscale"
             if(RGB_Color_images) EBImage::colorMode(Tile_image) <- "Color"
             Tile_image <- Tile_image[,,Channels_to_keep_index]
-            EBImage::writeImage(Tile_image, paste0(Output_directory, "/", Tile_Image_name))
+            EBImage::writeImage(Tile_image, paste0(Output_directory, "/", Tile_Image_name), bits.per.sample = 16, compression = "LZW")
 
 
           },

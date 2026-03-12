@@ -279,7 +279,8 @@ Binary_threshold_image_combinator <-
       if(Save_processed_images){
         EBImage::writeImage(Images, paste0(Output_Directory, "/", Image_names_intersect[Row], "_",
                                            "CombinedThreshold", stringr::str_c(gsub("-", ".", Intercalated_vector), collapse = "-"),
-                                           ".tiff"))
+                                           ".tiff"), 
+                            compression = "LZW")
       }
 
       #Generate the summary tibble

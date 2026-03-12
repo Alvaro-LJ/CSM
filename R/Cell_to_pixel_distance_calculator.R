@@ -43,7 +43,7 @@ Cell_to_pixel_distance_calculator <-
              Phenotypes_included,
              Pixel_distance_ratio = NULL){
 
-      #Check suggested packages
+      #######Check suggested packages#######
       {
         if(!requireNamespace("magick", quietly = FALSE)) stop(
           paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
@@ -66,13 +66,13 @@ Cell_to_pixel_distance_calculator <-
       }
 
 
-      #Specify that on exit rerturn to single core and run gc
+      #######Specify that on exit return to single core and run gc#######
       on.exit({
         future::plan("future::sequential")
         gc()
       })
 
-      #Argument check general arguments
+      #######Argument check general arguments#######
       Argument_checker <- c(N_cores_OK = (N_cores >= 1 & N_cores%%1 == 0),
                             Empty_directory_OK = length(dir(Directory)) >= 1,
                             Image_rotate_OK = if(!is.null(Image_rotate)) {
@@ -144,9 +144,10 @@ Cell_to_pixel_distance_calculator <-
                     ". A single threshold strategy must be selected."))
       }
       #Check that image names are present in DATA Subject_Names calculating the closest
-      Subject_names_in_images <-purrr::map_chr(Image_names_selected_list, ~.[[2]])
+      Subject_names_in_images <- purrr::map_chr(Image_names_selected_list, ~.[[2]])
       Subject_names_in_data <- unique(DATA$Subject_Names)
-
+      
+      #######Look up table generation#######
       #Generate a look up tibble with the image name, the closest name in data$Subject_Names and the image path
       #Evaluate which subject name in data is the closest one to the subject name in images
       Closest_name_vector <-purrr::map_dbl(Subject_names_in_images, function(Image_name){
@@ -190,6 +191,7 @@ Cell_to_pixel_distance_calculator <-
       Target_being_measured <- Image_names_selected_list[[1]][[3]]
 
       #Check that thresholded images have positive pixels and check that images have adequate number of target cells
+      print("Removing samples without target cells")
       #If no phenotypes present in image remove images
       Images_with_cells <-
         purrr::map_lgl(Names_tibble$Subject_names_in_data, function(Image_name_in_subject){
@@ -204,6 +206,9 @@ Cell_to_pixel_distance_calculator <-
         Names_tibble <- Names_tibble[Images_with_cells, ]
       }
       if(!nrow(Names_tibble) > 0) stop("No images with adequate number of cells.")
+      
+      #######Check that images have positive pixels#######
+      print("Removing images without non-cero value pixels")
 
       #Check that images have positive pixels
       #Will iterate for every image in the names tibble
@@ -219,54 +224,71 @@ Cell_to_pixel_distance_calculator <-
       future::plan("future::sequential")
       gc()
       if(!all(Images_with_pixels)){
-        message(paste0("The following image do not have positive pixels. They will be removed: ",
-                       stringr::str_c(Names_tibble$Subject_names_in_data[!Images_with_pixels], collapse = ", "))
-        )
+        Colored_print(paste0("\n", "The following image/s do not have positive pixels. They will be removed: ",
+                       stringr::str_c("\n", Names_tibble$Subject_names_in_data[!Images_with_pixels], collapse = ", ")),
+                      color = "red"
+                      )
         Names_tibble <- Names_tibble[Images_with_pixels, ]
       }
       if(!nrow(Names_tibble) > 0) stop("No images with adequate number of pixels and/or cells.")
-
-
-
+      
+      
+      #######RANDOM TEST#######
       #Run a random test with the image with the lowest cell counts
-      Smallest_sample <- (DATA %>% dplyr::count(Subject_Names) %>% dplyr::arrange(n))[[1,1]]
-      DATA_smallest <- DATA %>% dplyr::filter(Subject_Names == Smallest_sample)
-      Image_path <- Names_tibble[[which(Names_tibble$Subject_names_in_data == Smallest_sample), 4]]
-      Image <- magick::image_read(as.character(Image_path))
-      if(!is.null(Image_rotate)) Image <- Image %>% magick::image_rotate(degrees = Image_rotate)
-      Image <- Image %>% magick::as_EBImage()
-      Test_image_tibble <- as_tibble(expand.grid(1:dim(Image)[[1]], 1:dim(Image)[[2]]))
-      names(Test_image_tibble) <- c("Y", "X")
-      Test_image_tibble <- Test_image_tibble[c("X", "Y")]
-      Test_image_tibble$Value <- as.vector(Image)
-      if(Image_x_flip) Test_image_tibble$X <- rev(Test_image_tibble$X)
-      if(Image_y_flip) Test_image_tibble$Y <- rev(Test_image_tibble$Y)
-      rm(Image)
-      gc()
-      Test_image_tibble <- Test_image_tibble %>% dplyr::filter(Value != 0)#Remove zero-values
-      if(!is.null(Pixel_distance_ratio)) Test_image_tibble <- Test_image_tibble %>%dplyr::mutate(X = X*Pixel_distance_ratio, Y = Y*Pixel_distance_ratio)#Apply pixel distance ratio if required
-
-      #plot both results
-      print(paste0("Generating a sample overlay image using ", Smallest_sample))
-      plot(
-        ggplot() +
-          geom_tile(aes(x = X, y = Y, color = Value), data = Test_image_tibble)+
-          geom_point(aes(x = X, y = Y), color = "red", data = DATA_smallest) +
-          theme_minimal() +
-          guides(color = "none") +
-          scale_x_continuous("", labels = NULL) +
-          scale_y_continuous("", labels = NULL) +
-          theme(panel.grid = element_blank(),
-                panel.background = element_rect(fill = "black"))
-      )
-
-      #Generate a menu to proceed with compuation
-      answer <- menu(c("Proceed", "Abort"), title = "Check parameters provided and sample image generated. Should the analysis proceed?")
-      #If user decides to stop then abort function and return stop message
-      if(answer == 2) stop("The function has been stopped. Please tune parameters and try again")
+      #Find the names of all the samples
+      Sample_names <- (DATA %>% dplyr::filter(Subject_Names %in% unique(Names_tibble$Subject_names_in_data)) %>%
+                            dplyr::count(Subject_Names) %>% dplyr::arrange(n))[[1]]
+      
+      Answer_value <- 3
+      while(Answer_value == 3){
+        Selected_sample <- sample(Sample_names, size = 1)
+        #Obtain the points in the sample
+        DATA_test <- DATA %>% dplyr::filter(Subject_Names == Selected_sample)
+        #Obtain the path to the image
+        Image_path <- Names_tibble$Image_URL[which(Names_tibble$Subject_names_in_data == Selected_sample)]
+        
+        #get the image
+        Image <- magick::image_read(as.character(Image_path))
+        
+        #Execute rotation if required
+        if(!is.null(Image_rotate)) Image <- Image %>% magick::image_rotate(degrees = Image_rotate)
+        #Execute x or y flip if required
+        if(Image_x_flip) Image <- Image %>% magick::image_flop()
+        if(Image_y_flip) Image <- Image %>% magick::image_flip() #Here we will flip the image as required by user as annotation_raster will flip it for plotting purposes
+        
+        #obtain the max width and height
+        X_max <- magick::image_info(Image)$width
+        Y_max <- magick::image_info(Image)$height
+        
+        #plot both results
+        print(paste0("Generating a sample overlay image using ", Selected_sample))
+        plot(
+          ggplot() +
+            annotation_raster(Image, xmin = 1, xmax = X_max, ymin = 0, ymax = Y_max) +
+            geom_point(aes(x = X, y = Y), color = "red", data = DATA_test) +
+            theme_minimal() +
+            guides(color = "none") +
+            scale_x_continuous("", labels = NULL, limits = c(1, X_max)) +
+            scale_y_continuous("", labels = NULL, limits = c(1, Y_max)) +
+            ggtitle(Selected_sample) +
+            theme(panel.grid = element_blank(),
+                  panel.background = element_rect(fill = "black"),
+                  plot.title = element_text(hjust = 0.5))
+        )
+        
+        #Generate a menu to proceed with compuation
+        answer <- menu(c("Proceed", "Abort", "Test again"), title = "Check parameters provided and sample image generated. Should the analysis proceed?")
+        #If user decides to stop then abort function and return stop message
+        if(answer == 2) stop("The function has been stopped. Please tune parameters and try again")
+        if(answer == 1) Answer_value <- "Proceed"
+      }
+      
 
       #If OK then run the final analysis
       print("Running distance to positive pixel computation")
+      
+      
+      #######COMPUTE THE ACTUAL DISTANCE BETWEEN CELLS AND PIXELS#######
 
       #Will iterate for every image in the names tibble
       future::plan("future::multisession", workers = N_cores)
@@ -283,21 +305,27 @@ Cell_to_pixel_distance_calculator <-
 
           #Import Image
           Image <- magick::image_read(Names_tibble$Image_URL[[Index_image]])
-          #Apply the image transformations as required by user
+          
+          #Execute rotation if required
           if(!is.null(Image_rotate)) Image <- Image %>% magick::image_rotate(degrees = Image_rotate)
-          Image <- Image %>% magick::as_EBImage()
-          Image_tibble <- as_tibble(expand.grid(1:dim(Image)[[1]], 1:dim(Image)[[2]]))
-          names(Image_tibble) <- c("Y", "X")
-          Image_tibble <- Image_tibble[c("X", "Y")]
+          #Execute x or y flip if required
+          if(Image_x_flip) Image <- Image %>% magick::image_flop()
+          if(!Image_y_flip) Image <- Image %>% magick::image_flip() #Since the function is prepared to work with native Y axis keep it as it is if the user decides to flip it
+          
+          #Turn to an EBImage object
+          Image <- magick::as_EBImage(Image)
+          #Colapse it to a tibble
+          Image_tibble <- as_tibble(expand.grid(X = 1:dim(Image)[[1]], Y = 1:dim(Image)[[2]]))
           Image_tibble$Value <- as.vector(Image)
-          if(Image_x_flip) Image_tibble$X <- rev(Image_tibble$X)
-          if(Image_y_flip) Image_tibble$Y <- rev(Image_tibble$Y)
-          Image_tibble <- Image_tibble %>% dplyr::filter(Value != 0)
-          if(!is.null(Pixel_distance_ratio)) Image_mage_tibble <- Image_mage_tibble %>%dplyr::mutate(X = X*Pixel_distance_ratio, Y = Y*Pixel_distance_ratio)
-
-          #Remove image
+          
+          #remove the image and run gc
           rm(Image)
           gc()
+          
+          #Keep non-0 values 
+          Image_tibble <- Image_tibble %>% dplyr::filter(Value != 0)
+          #If the pixel distance ratio is provided modify the values of the positive pixel values
+          if(!is.null(Pixel_distance_ratio)) Image_mage_tibble <- Image_mage_tibble %>%dplyr::mutate(X = X*Pixel_distance_ratio, Y = Y*Pixel_distance_ratio)
 
           #Cells will be origin, pixels will be targets.
           COO_info <- cbind(DATA_image[["X"]], DATA_image[["Y"]])
@@ -361,3 +389,4 @@ Cell_to_pixel_distance_calculator <-
       return(RESULTS)
 
     }
+
