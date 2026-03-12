@@ -1,0 +1,50 @@
+---
+title: "Image-QC-flagging"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Image-QC-flagging}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Index
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Examples](#examples)
+
+## Introduction
+Checking if images or image-channels have any quality issues is an essential, yet unresolved aspect of image analysis. 
+Signal that is not derived from true presence of a target tissue bio-molecule is commonly referred as 'noise'. Noise is commonplace
+in spatial proteomics and transcriptomics. 
+
+The sources of noise are variable:
+
+* __Pre-analysis:__ Include tissue processing issues (cold ischemia, fixation, freezing and thawing...), tissue folding artifacts or presence of
+noise-producing cell types (for example erythrocytes show high peroxidase activity or cells rich in cytochromes show high autofluorescence).
+* __Analysis:__ Include issues with antibody-antigen non-specific binding (for antibody-based protein detection methods), probe non-specific binding (for hibridization-based methods),
+Or issues with analytical contaminants (like heavy metals in mass cytometry based analyses)
+* __Imaging:__ Includes issues with illumination (non-even illumination), under or over-exposure, focusing issues, issues with light filters or image sensor overheating.
+
+
+
+However, identifying and quantifying 
+
+  
+
