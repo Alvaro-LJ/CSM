@@ -25,7 +25,7 @@
 #'
 #' @export
 
-Cell_in_edge_remover2 <-
+Cell_in_edge_remover <-
   function(N_cores = 1,
            DATA,
            Hull_ratio,
@@ -54,9 +54,9 @@ Cell_in_edge_remover2 <-
     Cells_sf <- sf::st_as_sf(Sample , coords = c("X", "Y"))
     Edge_line <- sf::st_cast((Cells_sf %>% summarise() %>% sf::st_concave_hull(ratio = Hull_ratio) %>% summarise), "LINESTRING")
     Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
-    
+
     plot(Sample %>%
-           dplyr::mutate(Removed = as.vector(Cells_in_Border_vector)) %>% 
+           dplyr::mutate(Removed = as.vector(Cells_in_Border_vector)) %>%
            dplyr::mutate(Removed = case_when(Removed ~ "Removed",
                                              TRUE ~ "Included")) %>%
            ggplot(aes(x = X, y = Y, color = Removed)) +
