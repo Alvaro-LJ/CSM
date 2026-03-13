@@ -108,6 +108,18 @@ Channel_Sample_diagnostics(
 )
 
 #Example with cell feature matrix
+Cell_correlation_hubs <- list(Lymphocyte_markers = c("CD8a_AVERAGE", "GZMB_AVERAGE"))
+
+Channel_Sample_diagnostics(
+  N_cores = 1,
+
+  Directory = NULL,
+
+  DATA = CSM::CSM_Arrangedcellfeaturedata_test,
+
+  List_correlation_hubs = Cell_correlation_hubs,
+  Spearman_threshold = 0.05
+)
 
 ```
 

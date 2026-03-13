@@ -170,7 +170,7 @@ Binary_threshold_image_combinator <-
     if(!all(purrr::map_lgl(Directory_list, function(Directory){
       length(dir(Directory, full.names = FALSE, pattern = "BinaryThresholded")) > 0
     }))){
-      Problematic_directories <- Directory_list[map_lgl(Directory_list, function(Directory){
+      Problematic_directories <- Directory_list[purrr::map_lgl(Directory_list, function(Directory){
         length(dir(Directory, full.names = FALSE, pattern = "BinaryThresholded")) == 0
       })]
       stop(paste0("The following directories do not contain BinaryThresholded images: ", stringr::str_c(Problematic_directories, collapse = ", ")))
@@ -198,7 +198,7 @@ Binary_threshold_image_combinator <-
     })
     #Check that each directory contains images from a single marker
     if(!all(purrr::map_lgl(Marker_names, ~length(unique(.)) == 1))){
-      Problematic_directories <- Directory_list[map_lgl(Marker_names, ~length(unique(.)) != 1)]
+      Problematic_directories <- Directory_list[purrr::map_lgl(Marker_names, ~length(unique(.)) != 1)]
       stop(paste0("The following directories contain thresholded images from several markers: ", stringr::str_c(Problematic_directories, collapse = ", ")))
     }
 
@@ -206,7 +206,7 @@ Binary_threshold_image_combinator <-
     Image_names_intersect <- purrr::reduce(Image_names, function(x, y) intersect(x, y))
     #Check that all intersect names are in all directories provided if not generate a message
     if(!all(purrr::map_lgl(Image_names, ~all(. %in% Image_names_intersect)))){
-      Problematic_directories <- Directory_list[!map_lgl(Image_names, ~all(. %in% Image_names_intersect))]
+      Problematic_directories <- Directory_list[!purrr::map_lgl(Image_names, ~all(. %in% Image_names_intersect))]
       message("Absence of matching images accross all directories have been found. Only images present in all directories will be used")
     }
 
@@ -279,7 +279,7 @@ Binary_threshold_image_combinator <-
       if(Save_processed_images){
         EBImage::writeImage(Images, paste0(Output_Directory, "/", Image_names_intersect[Row], "_",
                                            "CombinedThreshold", stringr::str_c(gsub("-", ".", Intercalated_vector), collapse = "-"),
-                                           ".tiff"), 
+                                           ".tiff"),
                             compression = "LZW")
       }
 

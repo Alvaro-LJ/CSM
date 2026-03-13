@@ -114,11 +114,11 @@ Cell_to_pixel_distance_calculator <-
 
       #Check that all have been processed using the Pixel_Threshold_calculator
       if(!all(purrr::map_lgl(Image_names_selected_list, ~.[[1]] == "Processed"))){
-        Problematic_images <- Image_names_selected[!map_lgl(Image_names_selected_list, ~.[[1]] == "Processed")]
+        Problematic_images <- Image_names_selected[!purrr::map_lgl(Image_names_selected_list, ~.[[1]] == "Processed")]
         stop(paste0("According to image names, the following images have not been processed using the Pixel_Threshold_calculator: ", stringr::str_c(Problematic_images, collapse = ", ")))
       }
       if(!all(purrr::map_lgl(Image_names_selected_list, ~length(.) == 4))){
-        Problematic_images <- Image_names_selected[!map_lgl(Image_names_selected_list, ~length(.) == 4)]
+        Problematic_images <- Image_names_selected[!purrr::map_lgl(Image_names_selected_list, ~length(.) == 4)]
         stop(paste0("According to image names, the following images have not been processed using the Pixel_Threshold_calculator: ",
                     stringr::str_c(Problematic_images, collapse = ", ")))
       }
@@ -146,7 +146,7 @@ Cell_to_pixel_distance_calculator <-
       #Check that image names are present in DATA Subject_Names calculating the closest
       Subject_names_in_images <- purrr::map_chr(Image_names_selected_list, ~.[[2]])
       Subject_names_in_data <- unique(DATA$Subject_Names)
-      
+
       #######Look up table generation#######
       #Generate a look up tibble with the image name, the closest name in data$Subject_Names and the image path
       #Evaluate which subject name in data is the closest one to the subject name in images
@@ -206,7 +206,7 @@ Cell_to_pixel_distance_calculator <-
         Names_tibble <- Names_tibble[Images_with_cells, ]
       }
       if(!nrow(Names_tibble) > 0) stop("No images with adequate number of cells.")
-      
+
       #######Check that images have positive pixels#######
       print("Removing images without non-cero value pixels")
 
@@ -231,14 +231,14 @@ Cell_to_pixel_distance_calculator <-
         Names_tibble <- Names_tibble[Images_with_pixels, ]
       }
       if(!nrow(Names_tibble) > 0) stop("No images with adequate number of pixels and/or cells.")
-      
-      
+
+
       #######RANDOM TEST#######
       #Run a random test with the image with the lowest cell counts
       #Find the names of all the samples
       Sample_names <- (DATA %>% dplyr::filter(Subject_Names %in% unique(Names_tibble$Subject_names_in_data)) %>%
                             dplyr::count(Subject_Names) %>% dplyr::arrange(n))[[1]]
-      
+
       Answer_value <- 3
       while(Answer_value == 3){
         Selected_sample <- sample(Sample_names, size = 1)
@@ -246,20 +246,20 @@ Cell_to_pixel_distance_calculator <-
         DATA_test <- DATA %>% dplyr::filter(Subject_Names == Selected_sample)
         #Obtain the path to the image
         Image_path <- Names_tibble$Image_URL[which(Names_tibble$Subject_names_in_data == Selected_sample)]
-        
+
         #get the image
         Image <- magick::image_read(as.character(Image_path))
-        
+
         #Execute rotation if required
         if(!is.null(Image_rotate)) Image <- Image %>% magick::image_rotate(degrees = Image_rotate)
         #Execute x or y flip if required
         if(Image_x_flip) Image <- Image %>% magick::image_flop()
         if(Image_y_flip) Image <- Image %>% magick::image_flip() #Here we will flip the image as required by user as annotation_raster will flip it for plotting purposes
-        
+
         #obtain the max width and height
         X_max <- magick::image_info(Image)$width
         Y_max <- magick::image_info(Image)$height
-        
+
         #plot both results
         print(paste0("Generating a sample overlay image using ", Selected_sample))
         plot(
@@ -275,19 +275,19 @@ Cell_to_pixel_distance_calculator <-
                   panel.background = element_rect(fill = "black"),
                   plot.title = element_text(hjust = 0.5))
         )
-        
+
         #Generate a menu to proceed with compuation
         answer <- menu(c("Proceed", "Abort", "Test again"), title = "Check parameters provided and sample image generated. Should the analysis proceed?")
         #If user decides to stop then abort function and return stop message
         if(answer == 2) stop("The function has been stopped. Please tune parameters and try again")
         if(answer == 1) Answer_value <- "Proceed"
       }
-      
+
 
       #If OK then run the final analysis
       print("Running distance to positive pixel computation")
-      
-      
+
+
       #######COMPUTE THE ACTUAL DISTANCE BETWEEN CELLS AND PIXELS#######
 
       #Will iterate for every image in the names tibble
@@ -305,24 +305,24 @@ Cell_to_pixel_distance_calculator <-
 
           #Import Image
           Image <- magick::image_read(Names_tibble$Image_URL[[Index_image]])
-          
+
           #Execute rotation if required
           if(!is.null(Image_rotate)) Image <- Image %>% magick::image_rotate(degrees = Image_rotate)
           #Execute x or y flip if required
           if(Image_x_flip) Image <- Image %>% magick::image_flop()
           if(!Image_y_flip) Image <- Image %>% magick::image_flip() #Since the function is prepared to work with native Y axis keep it as it is if the user decides to flip it
-          
+
           #Turn to an EBImage object
           Image <- magick::as_EBImage(Image)
           #Colapse it to a tibble
           Image_tibble <- as_tibble(expand.grid(X = 1:dim(Image)[[1]], Y = 1:dim(Image)[[2]]))
           Image_tibble$Value <- as.vector(Image)
-          
+
           #remove the image and run gc
           rm(Image)
           gc()
-          
-          #Keep non-0 values 
+
+          #Keep non-0 values
           Image_tibble <- Image_tibble %>% dplyr::filter(Value != 0)
           #If the pixel distance ratio is provided modify the values of the positive pixel values
           if(!is.null(Pixel_distance_ratio)) Image_mage_tibble <- Image_mage_tibble %>%dplyr::mutate(X = X*Pixel_distance_ratio, Y = Y*Pixel_distance_ratio)
