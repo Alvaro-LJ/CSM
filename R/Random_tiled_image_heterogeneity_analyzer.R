@@ -78,7 +78,7 @@ Random_tiled_image_heterogeneity_analyzer <-
     Available_metrics <- unique(unlist(purrr::map(Random_tiled_heterogeneity_DATA[[2]], function(Image){
       purrr::map(Image, ~names(.)[-c(1:7)])
     })))
-    if(!Metric %in% Available_metrics) stop(paste0("Metric must be one of the following: \n", str_c(Available_metrics, collapse = "\n")))
+    if(!Metric %in% Available_metrics) stop(paste0("Metric must be one of the following: \n", stringr::str_c(Available_metrics, collapse = "\n")))
 
 
     #####Compute the metrics

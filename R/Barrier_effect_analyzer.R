@@ -1,11 +1,11 @@
 #' Computes sample summary metrics of barrier elements
 #'
-#' Givena dataset obtained using the [Barrier_effect_calculator()], the function computes sample summary metrics for every element analyzed. 
+#' Givena dataset obtained using the [Barrier_effect_calculator()], the function computes sample summary metrics for every element analyzed.
 #'
-#' 
+#'
 #' @param DATA A tibble containing barrier cell data obtained using the [Barrier_effect_calculator()] function.
 #' @param Analysis_type A character value indicating the type of metric to be summarized. One of the following: 'Area' (default), 'Distance', 'N_targets'.
-#' 
+#'
 #' @returns A list containing tibbles with by sample summary metrics.
 #'
 #' @seealso [Barrier_effect_calculator()], [Barrier_graph_maker()]
@@ -41,40 +41,40 @@
 #' #Compute the cells and pixels in the barrier------------------------------
 #' Barrier_DATA <- Barrier_effect_calculator(
 #'  N_cores = 1,
-#'  
+#'
 #'  DATA = CSM_Phenotypecell_test,
-#'  
-#'  
+#'
+#'
 #'  Cell_Of_Origin = "CD8_GZMBneg",
 #'  Target_Cell = "TUMOR",
 #'  Barrier_Cell = c("OTHER", "CD8_GZMBpos"),
 #'  Image_parameter_list = Image_Parameters,
-#'  
+#'
 #'  Distance_sampled = 30,
-#'  
+#'
 #'  Perform_edge_correction = FALSE,
-#'  
+#'
 #'  Polygon_angle = 30,
 #'  Target_cell_Angle_tolerance = 30
 #' )
-#' 
+#'
 #' #Summarize the results by sample------------------------------
 #' Barrier_effect_analyzer(
 #'  DATA = Barrier_DATA,
 #'  Analysis_type = "Area"
 #'  )
-#'  
+#'
 #' #Plot the results------------------------------
 #' Barrier_graph_maker(
 #'   DATA_Phenotypes = CSM_Phenotypecell_test,
 #'   Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
-#' 
+#'
 #'   Barrier_DATA = Barrier_DATA,
 #'   Image_name = "ABCM22001_B14_MiniCrop.tif",
-#' 
+#'
 #'   Color_by = "GZMB_PixelValueSum_Area_Ratio",
 #'   Point_size = 2,
-#' 
+#'
 #'   Image_directory = dir(Input_Dir, full.names = TRUE)[[2]],
 #'   Pixel_distance_ratio = NULL,
 #'   Channel_to_display = 3,
@@ -86,10 +86,10 @@
 #'
 #' @export
 
-Barrier_effect_analyzer <- 
+Barrier_effect_analyzer <-
   function(DATA = NULL,
            Analysis_type = "Area"){
-    
+
     #Check arguments
     if(!identical(names(DATA)[1:5],  c("Cell_no", "COO_X", "COO_Y", "Subject_Names", "Phenotype"))) { #Check if Data is correctly formatted
       stop("DATA provided should have been generated using the Barrier_effect_calculator function")
@@ -98,21 +98,21 @@ Barrier_effect_analyzer <-
       stop("DATA provided should have been generated using the Barrier_effect_calculator function")
     }
     if(!any(Analysis_type %in% c("Area", "Distance", "N_targets"))) stop("Analysis_type must be one of the following: 'Area', 'Distance', 'N_targets")
-    
+
     #Obtain the requested data
     if(Analysis_type == "N_targets") DATA_analysis <- DATA %>% dplyr::select(1:5, "Analyzed_N_Targets", dplyr::ends_with("_TargetCell_Ratio"))
     if(Analysis_type == "Distance") DATA_analysis <- DATA %>% dplyr::select(1:5, "Cumulative_distance", dplyr::ends_with("_Distance_Ratio"))
     if(Analysis_type == "Area") DATA_analysis <- DATA %>% dplyr::select(1:5, "Analyzed_Area", dplyr::ends_with("_Area_Ratio"))
-    
+
     #Generate the list with results
-    
-    Result_list <- 
-      map(DATA_analysis[-c(1:6)],
+
+    Result_list <-
+      purrr::map(DATA_analysis[-c(1:6)],
           function(Feature){
             Interim <- tibble(Subject_Names = DATA_analysis$Subject_Names,
                               Normalization = DATA_analysis[[6]],
                               Feature = Feature)
-            
+
             if(Analysis_type == "N_targets"){
               return(
                 Interim %>% dplyr::group_by(Subject_Names) %>%
@@ -133,7 +133,7 @@ Barrier_effect_analyzer <-
                                                              TRUE ~ Sample_mean_05CI))
               )
             }
-            
+
             if(Analysis_type == "Distance"){
               return(
               Interim %>% dplyr::group_by(Subject_Names) %>%
@@ -154,7 +154,7 @@ Barrier_effect_analyzer <-
                                                            TRUE ~ Sample_mean_05CI))
               )
             }
-            
+
             if(Analysis_type == "Area"){
               return(
                 Interim %>% dplyr::group_by(Subject_Names) %>%
@@ -176,7 +176,7 @@ Barrier_effect_analyzer <-
               )
             }
           })
-    
+
     #Return the final result
     return(Result_list)
   }

@@ -106,6 +106,9 @@ Channel_Sample_diagnostics(
   List_correlation_hubs = Correlation_hubs,
   Spearman_threshold = 0.05
 )
+
+#Example with cell feature matrix
+
 ```
 
 Given the small size of the dataset it is hard to identify robust quality issues. However, it is worth mentioning that quality issues raised by `Channel_Sample_diagnostics()` should not be given for

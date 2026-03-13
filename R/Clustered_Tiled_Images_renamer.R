@@ -54,7 +54,7 @@ Clustered_Tiled_Images_renamer <-
     else{
       if(length(Old_names) != length(New_names)) stop("New_names length and Old_names length are not equal")
 
-      All_old_names <- unique(unlist(map(Tiled_images, ~.$Cluster_assignment)))
+      All_old_names <- unique(unlist(purrr::map(Tiled_images, ~.$Cluster_assignment)))
       if(!all(Old_names %in% All_old_names)){
         Problematic_names <- Old_names[!Old_names %in% All_old_names]
         stop(paste0("The following Old_names are not present in data: ",
@@ -62,7 +62,7 @@ Clustered_Tiled_Images_renamer <-
       }
 
       #If everything OK proceed
-      New_results <- map(Tiled_images, function(Image){
+      New_results <- purrr::map(Tiled_images, function(Image){
         Image <- Image
         for(i in 1:length(New_names)){
           Image$Cluster_assignment[Image$Cluster_assignment == Old_names[i]] <- New_names[i]

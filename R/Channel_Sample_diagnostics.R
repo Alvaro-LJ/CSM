@@ -222,7 +222,7 @@ Channel_Sample_diagnostics <-
           scale_x_continuous("", labels = NULL, limits = c(1, Image_width)) +
           scale_y_continuous("", labels = NULL, limits = c(1, Image_height)) +
           theme_minimal() +
-          ggtitle(str_c(Image_names[Random_image_index], Channel_for_test, sep = " - "),
+          ggtitle(stringr::str_c(Image_names[Random_image_index], Channel_for_test, sep = " - "),
                   "Original image")+
           theme(panel.grid = element_blank(),
                 axis.ticks = element_blank(),
@@ -233,7 +233,7 @@ Channel_Sample_diagnostics <-
           scale_x_continuous("", labels = NULL, limits = c(1, Image_width)) +
           scale_y_continuous("", labels = NULL, limits = c(1, Image_height)) +
           theme_minimal() +
-          ggtitle(str_c(Image_names[Random_image_index], Channel_for_test, sep = " - "),
+          ggtitle(stringr::str_c(Image_names[Random_image_index], Channel_for_test, sep = " - "),
                   "Downsized image")+
           theme(panel.grid = element_blank(),
                 axis.ticks = element_blank(),
@@ -314,23 +314,23 @@ Channel_Sample_diagnostics <-
       #Return to single core
       future::plan("future::sequential")
       gc()
+
+      #####DEALING WITH TILES####
+      print("Detecting if dealing with tiled images...")
+
+      #Detect if (TileX-) is present in image names
+      Pattern_identified <- stringr::str_detect(unique(INFO_tibble$Subject_Names), "^.*\\(Tile.*\\)\\.tiff$")
+
+      #If tiles have been identified then ask the user if pixels should be re-grouped by original image
+      if(any(Pattern_identified)){
+        Answer <- menu(choices = c("Proceed", "Don't do anything"), title = "\nTiled images have been identified. Pixel information will be analyzed taking into account the orignal images. Should the analysis proceed?")
+        if(Answer == 1) INFO_tibble$Subject_Names <- gsub("\\(Tile[^)]*\\)", "", INFO_tibble$Subject_Names)
+      }
+
+      #If no Tile patterns found then print message and proceed
+      else print("No tiled images identified")
     }
 
-
-    #####DEALING WITH TILES####
-    print("Detecting if dealing with tiled images...")
-
-    #Detect if (TileX-) is present in image names
-    Pattern_identified <- stringr::str_detect(unique(INFO_tibble$Subject_Names), "^.*\\(Tile.*\\)\\.tiff$")
-
-    #If tiles have been identified then ask the user if pixels should be re-grouped by original image
-    if(any(Pattern_identified)){
-      Answer <- menu(choices = c("Proceed", "Don't do anything"), title = "\nTiled images have been identified. Pixel information will be analyzed taking into account the orignal images. Should the analysis proceed?")
-      if(Answer == 1) INFO_tibble$Subject_Names <- gsub("\\(Tile[^)]*\\)", "", INFO_tibble$Subject_Names)
-    }
-
-    #If no Tile patterns found then print message and proceed
-    else print("No tiled images identified")
 
     #######ANALYZE THE CORRELATION HUBS#######
     #First for images
@@ -359,7 +359,7 @@ Channel_Sample_diagnostics <-
 
           ####GLOBAL CORRELATION IMAGES####
           #Compute the global correlation for foreground pixels
-          Global_correlation_foreground <- map_dbl(1:nrow(Correlation_strategy_tibble), function(Correlation_tibble_row){
+          Global_correlation_foreground <- purrr::map_dbl(1:nrow(Correlation_strategy_tibble), function(Correlation_tibble_row){
             #Get marker 1 and marker 2 names
             Marker_1 <- Correlation_strategy_tibble[[Correlation_tibble_row, 1]]
             Marker_2 <- Correlation_strategy_tibble[[Correlation_tibble_row, 2]]
@@ -384,7 +384,7 @@ Channel_Sample_diagnostics <-
               #If not enough foreground pixels substitute for NA
               if(sum(HUB_tibble_subject$Foreground_pixel) < 2) Local_correlation_foreground <- NA
               else{
-                Local_correlation_foreground <- map_dbl(1:nrow(Correlation_strategy_tibble), function(Correlation_tibble_row){
+                Local_correlation_foreground <- purrr::map_dbl(1:nrow(Correlation_strategy_tibble), function(Correlation_tibble_row){
                   #Get marker 1 and marker 2 names
                   Marker_1 <- Correlation_strategy_tibble[[Correlation_tibble_row, 1]]
                   Marker_2 <- Correlation_strategy_tibble[[Correlation_tibble_row, 2]]
@@ -443,7 +443,7 @@ Channel_Sample_diagnostics <-
           #Global plot
           Global_hub_correlation <-
             Global_cor_tibble %>%
-            ggplot(aes(x = Var1, y = fct_reorder(Var2, Var1), fill = Foreground)) +
+            ggplot(aes(x = Var1, y = forcats::fct_reorder(Var2, Var1), fill = Foreground)) +
             geom_tile() +
             geom_text(aes(label = round(Foreground, digits = 2))) +
             scale_x_discrete("") +
@@ -467,9 +467,9 @@ Channel_Sample_diagnostics <-
           #Individual image plot
           Image_correlation_tibble <-
             purrr::map_dfr(LOCAL_Correlation_List, dplyr::bind_rows) %>%
-            dplyr::mutate(Comparisons = str_c(Var1, Var2, sep = " - "))
+            dplyr::mutate(Comparisons = stringr::str_c(Var1, Var2, sep = " - "))
 
-          Global_cor_tibble <- Global_cor_tibble %>% mutate(Comparisons = str_c(Var1, Var2, sep = " - "))
+          Global_cor_tibble <- Global_cor_tibble %>% mutate(Comparisons = stringr::str_c(Var1, Var2, sep = " - "))
 
           Shadding_tibble <- as_tibble(expand.grid(Comparisons = Global_cor_tibble$Comparisons,
                                                    Foreground = seq(from = -1, to = 1, by = 0.05)))
@@ -532,7 +532,7 @@ Channel_Sample_diagnostics <-
 
           ####GLOBAL CORRELATION CELLS####
           #Compute the global correlation for all CELLS
-          Global_correlation_foreground <- map_dbl(1:nrow(Correlation_strategy_tibble), function(Correlation_tibble_row){
+          Global_correlation_foreground <- purrr::map_dbl(1:nrow(Correlation_strategy_tibble), function(Correlation_tibble_row){
             #Get marker 1 and marker 2 names
             Marker_1 <- Correlation_strategy_tibble[[Correlation_tibble_row, 1]]
             Marker_2 <- Correlation_strategy_tibble[[Correlation_tibble_row, 2]]
@@ -556,7 +556,7 @@ Channel_Sample_diagnostics <-
               #If not enough foreground pixels substitute for NA
               if(nrow(HUB_tibble_subject) < 2) Local_correlation <- NA
               else{
-                Local_correlation <- map_dbl(1:nrow(Correlation_strategy_tibble), function(Correlation_tibble_row){
+                Local_correlation <- purrr::map_dbl(1:nrow(Correlation_strategy_tibble), function(Correlation_tibble_row){
                   #Get marker 1 and marker 2 names
                   Marker_1 <- Correlation_strategy_tibble[[Correlation_tibble_row, 1]]
                   Marker_2 <- Correlation_strategy_tibble[[Correlation_tibble_row, 2]]
@@ -618,7 +618,7 @@ Channel_Sample_diagnostics <-
           #Global plot
           Global_hub_correlation <-
             Global_cor_tibble %>%
-            ggplot(aes(x = Var1, y = fct_reorder(Var2, Var1), fill = Spearman_rho_GLOBAL)) +
+            ggplot(aes(x = Var1, y = forcats::fct_reorder(Var2, Var1), fill = Spearman_rho_GLOBAL)) +
             geom_tile() +
             geom_text(aes(label = round(Spearman_rho_GLOBAL, digits = 2))) +
             scale_x_discrete("") +
@@ -642,9 +642,9 @@ Channel_Sample_diagnostics <-
           #Individual image plot
           Image_correlation_tibble <-
             purrr::map_dfr(LOCAL_Correlation_List, dplyr::bind_rows) %>%
-            dplyr::mutate(Comparisons = str_c(Var1, Var2, sep = " - "))
+            dplyr::mutate(Comparisons = stringr::str_c(Var1, Var2, sep = " - "))
 
-          Global_cor_tibble <- Global_cor_tibble %>% mutate(Comparisons = str_c(Var1, Var2, sep = " - "))
+          Global_cor_tibble <- Global_cor_tibble %>% mutate(Comparisons = stringr::str_c(Var1, Var2, sep = " - "))
 
           Shadding_tibble <- as_tibble(expand.grid(Comparisons = Global_cor_tibble$Comparisons,
                                                    Spearman_rho_LOCAL = seq(from = -1, to = 1, by = 0.05)))

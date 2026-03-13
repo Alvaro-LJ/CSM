@@ -230,10 +230,10 @@ Random_image_tiling_processing_function <-
 
           #Get the results and change names
           Tile_info <- Tiles[[1]][[1]]
-          names(Tile_info)[3] <- str_c("tile_id", "iteration", Iteration_index, sep = "_")
+          names(Tile_info)[3] <- stringr::str_c("tile_id", "iteration", Iteration_index, sep = "_")
 
           Cell_info <- Tiles[[1]][[2]] %>% dplyr::select(Cell_no, Subject_Names, tile_id, dplyr::all_of(Variables_to_keep))
-          names(Cell_info)[3] <- str_c("tile_id", "iteration", Iteration_index, sep = "_")
+          names(Cell_info)[3] <- stringr::str_c("tile_id", "iteration", Iteration_index, sep = "_")
 
           return(list(Tile_info = Tile_info,
                       Cell_info = Cell_info))
@@ -246,7 +246,7 @@ Random_image_tiling_processing_function <-
         gc()
 
         #Add iteration_name
-        names(Iteration_results) <- str_c("Iteration", 1:N_iterations, sep = "_")
+        names(Iteration_results) <- stringr::str_c("Iteration", 1:N_iterations, sep = "_")
 
         return(Iteration_results)
       })
