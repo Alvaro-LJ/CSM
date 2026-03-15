@@ -14,7 +14,7 @@
 #' @param Pixel_distance_ratio (OPTIONAL if pixel quantification is required) A numeric value indicating the ratio between pixel size / cell coordinates. Use this argument when cell coordinates have been transformed to a distance unit like microns.
 #'
 #' @param Distance_sampled The maximum distance allowed to consider a target cell in proximity to a COO.
-#' @param Perform_edge_correction A logical value indicating if COO close to the edge of the tissue should be removed from the analysis. If TRUE COO that are less than the Distance_sampled to the edge will be removed.
+#' @param Perform_edge_correction A logical value indicating if COO close to the edge of the tissue should be removed from the analysis. If TRUE, COO that are less than the Distance_sampled to the edge will be removed.
 #' @param Hull_ratio If edge correction needs to be performed, a numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.
 #' @param Polygon_angle A numeric value indicating the angle used to triangulate COO-target space. Higher values will result in coarser space polygons.
 #' @param Target_cell_Angle_tolerance (OPTIONAL) If not NULL, a numeric value indicating the amount of angular distance required to keep two target cells. If below the tolerance value, only the closest target cell to the COO will be kept in the analysis.

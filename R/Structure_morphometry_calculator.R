@@ -249,11 +249,12 @@ Structure_morphometry_calculator <-
     #Compute if tiles are squared
     Is_squared_tiles <-
       purrr::map_lgl(Tiled_Images, function(Image){
-        Tile_width <- unique(Image$tile_xmax - Image$tile_xmin)
-        Tile_height <- unique(Image$tile_ymax - Image$tile_ymin)
+        Tile_width <- Image$tile_xmax[1] - Image$tile_xmin[1]
+        Tile_height <- Image$tile_ymax[1] - Image$tile_ymin[1]
 
-        Tile_width == Tile_height
+        return(near(Tile_width, Tile_height, tol = 2)) #sometimes tiles are minimally different even if created with equal size and height
       })
+
     #If any non-squared stop the computation
     if(!all(Is_squared_tiles)){
       Problematic_tiles <- names(Is_squared_tiles)[!Is_squared_tiles]

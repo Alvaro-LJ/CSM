@@ -34,6 +34,7 @@ library(CSM)
     - [UTAG](#utag)
     - [Quantification](#quantification)
 - [Tiled-based approach](#tiled-based-approach)
+- [Analyzing neighborhood morphology](#morphology-analysis)
 - [Global interaction pattern (imcRtools)](#global-interaction-pattern-imcrtools)
 - [SPIAT-based](#spiat-based)
 
@@ -444,6 +445,9 @@ Finally, the results can be graphicated.
 Clustered_Tiled_Images_graphicator(Tiled_images = Neighborhood_tiles_result,
                                    Image_name = "ABCM22001_B14_MiniCrop.tif")
 ```
+
+
+## Morphology analysis
 
 ## Global interaction pattern-imcRtools
 This approach is based on counting the spatial interaction between cell type pairs based on the `imcRtools::countInteractions()` function. After analyzing sample-wise cell pair interactions, sample-wise clustering can be performed to identify recurrent patterns.
