@@ -22,8 +22,6 @@ Structure_morphometry_graph_maker(
 \item{Image_name}{A single character value specifying the name of the image to be plotted.}
 
 \item{Color_by}{A single character value indicating the variable defining the color of the structures.}
-
-\item{N_cores}{Integer. Number of cores to parallelize your computation.}
 }
 \value{
 Plots the resulting graphs and returns a list with the graphs.

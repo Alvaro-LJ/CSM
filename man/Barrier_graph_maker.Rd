@@ -26,6 +26,8 @@ Barrier_graph_maker(
 
 \item{Barrier_DATA}{A tibble containing barrier cell data obtained using the \code{\link[=Barrier_effect_calculator]{Barrier_effect_calculator()}} function.}
 
+\item{Image_name}{A character value indicating the image to be plotted (it must be present in DATA_Phenotypes and Barrier_DATA).}
+
 \item{Color_by}{A character value indicating the column name in Barrier_DATA that should be used to color cell points.}
 
 \item{Point_size}{A numeric value indicating the size of the points.}
@@ -41,8 +43,6 @@ Barrier_graph_maker(
 \item{Image_x_flip}{A logical value indicating if X image flip should be performed.}
 
 \item{Image_y_flip}{A logical value indicating if Y image flip should be performed.}
-
-\item{Image_nameA}{A character value indicating the image to be plotted (it must be present in DATA_Phenotypes and Barrier_DATA).}
 }
 \value{
 A plot of the barrier effect for a given sample.
