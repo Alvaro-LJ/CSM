@@ -70,7 +70,7 @@ purrr::map(1:2,
             EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
                                file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
           })
-          
+
 #Generate list of correlation hubs
 Correlation_hubs <- list(Nuclear_markers = c("DAPI", "FOXP3"),
                         Tumor_markers = c("CK-EPCAM", "PDL1"),
@@ -80,9 +80,9 @@ Correlation_hubs <- list(Nuclear_markers = c("DAPI", "FOXP3"),
 #Run the test
 Channel_Sample_diagnostics(
   N_cores = 1,
- 
+
   Directory = Input_Dir,
-  Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3", "RANDOM_1", "RANDOM_2", "RANDOM_3", "RANDOM_4"),
+  Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
   Pixel_downsize = 0.2,
   Channel_for_test = "DAPI",
   Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
@@ -90,9 +90,9 @@ Channel_Sample_diagnostics(
   Threshold_value_tissueMask = 0.05,
   Blurr_tissueMask = FALSE,
   Sigma_tissueMask = NULL,
- 
+
   DATA = NULL,
- 
+
   List_correlation_hubs = Correlation_hubs,
   Spearman_threshold = 0.05
 )

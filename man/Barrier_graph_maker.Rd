@@ -85,19 +85,19 @@ Image_Parameters <- list(
 #Compute the cells and pixels in the barrier------------------------------
 Barrier_DATA <- Barrier_effect_calculator(
  N_cores = 1,
- 
+
  DATA = CSM_Phenotypecell_test,
- 
- 
+
+
  Cell_Of_Origin = "CD8_GZMBneg",
  Target_Cell = "TUMOR",
  Barrier_Cell = c("OTHER", "CD8_GZMBpos"),
  Image_parameter_list = Image_Parameters,
- 
+
  Distance_sampled = 30,
- 
+
  Perform_edge_correction = FALSE,
- 
+
  Polygon_angle = 30,
  Target_cell_Angle_tolerance = 30
 )
@@ -107,7 +107,7 @@ Barrier_effect_analyzer(
  DATA = Barrier_DATA,
  Analysis_type = "Area"
  )
- 
+
 #Plot the results------------------------------
 Barrier_graph_maker(
   DATA_Phenotypes = CSM_Phenotypecell_test,

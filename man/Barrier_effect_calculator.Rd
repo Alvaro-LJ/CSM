@@ -36,7 +36,7 @@ Barrier_effect_calculator(
 
 \item{Distance_sampled}{The maximum distance allowed to consider a target cell in proximity to a COO.}
 
-\item{Perform_edge_correction}{A logical value indicating if COO close to the edge of the tissue should be removed from the analysis. If TRUE COO that are less than the Distance_sampled to the edge will be removed.}
+\item{Perform_edge_correction}{A logical value indicating if COO close to the edge of the tissue should be removed from the analysis. If TRUE, COO that are less than the Distance_sampled to the edge will be removed.}
 
 \item{Hull_ratio}{If edge correction needs to be performed, a numeric value indicating the hull ratio. Smaller values calculate more precise edge silhouettes at the cost of being more computationally demanding.}
 
@@ -95,19 +95,19 @@ Image_Parameters <- list(
 #Compute the cells and pixels in the barrier------------------------------
 Barrier_DATA <- Barrier_effect_calculator(
  N_cores = 1,
- 
+
  DATA = CSM_Phenotypecell_test,
- 
- 
+
+
  Cell_Of_Origin = "CD8_GZMBneg",
  Target_Cell = "TUMOR",
  Barrier_Cell = c("OTHER", "CD8_GZMBpos"),
  Image_parameter_list = Image_Parameters,
- 
+
  Distance_sampled = 30,
- 
+
  Perform_edge_correction = FALSE,
- 
+
  Polygon_angle = 30,
  Target_cell_Angle_tolerance = 30
 )

@@ -45,16 +45,16 @@ Image_tiling_processing_function(
  Variables_to_keep = "Phenotype")
 
 #Try to identify morphological structures for OTHER cells according to tile distribution
-Structures <- 
+Structures <-
 Structure_morphometry_calculator(N_cores = 1,
-                                
+
                                 Tiled_Images = Tiled_Images,
                                 Variable_name = "Phenotype",
                                 Feature_to_analyze = "OTHER",
-                                
-                                Min_tile_number = 1, 
-                                Smooth_amount = 0.01, 
-                                Tolerance_value = 1, 
+
+                                Min_tile_number = 1,
+                                Smooth_amount = 0.01,
+                                Tolerance_value = 1,
                                 Neighborhood_distance = 1,
                                 Minimum_cell_no_per_tile = 2)
 
