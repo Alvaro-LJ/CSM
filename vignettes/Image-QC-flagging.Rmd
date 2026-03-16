@@ -1,0 +1,127 @@
+---
+title: "Image-QC-flagging"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Image-QC-flagging}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide'}
+library(CSM)
+```
+
+## Index
+- [Introduction](#introduction)
+- [Test dataset info](#test-datasets)
+- [Background and examples](#background-and-examples)
+
+## Introduction
+
+Checking if images or image-channels have any quality issues is an essential, yet unresolved aspect of image analysis. 
+Signal that is not derived from true presence of a target tissue bio-molecule is commonly referred as 'noise'. Noise is commonplace
+in spatial proteomics and transcriptomics. 
+
+## Test datasets
+
+The test datasets consists of two small 500x500 pixels breast carcinoma TIFF images. They have been 
+stained with a multiplexed immunofluorescence protocol for the following markers: 
+"DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3". 
+The original images can be found at: https://immunoatlas.org/.
+
+
+## Background and examples
+
+The sources of noise are variable:
+
+* __Pre-analysis:__ Include tissue processing issues (cold ischemia, fixation, freezing and thawing...), tissue folding artifacts or presence of
+noise-producing cell types (for example erythrocytes show high peroxidase activity or cells rich in cytochromes show high autofluorescence).
+* __Analysis:__ Include issues with antibody-antigen non-specific binding (for antibody-based protein detection methods), probe non-specific binding (for hibridization-based methods),
+Or issues with analytical contaminants (like heavy metals in mass cytometry based analyses)
+* __Imaging:__ Includes issues with illumination (non-even illumination), under or over-exposure, focusing issues, issues with light filters, image sensor overheating or image stiching artifacts.
+
+Perfect images contain only true biological signal and no noise. However all noisy images are biased __in their own way__. This means that there is no universal way of quantifying and correcting
+image noise. 
+
+In stead of taking into account all potential sources of image noise (which would require several modelling approaches), CSM identifies gross quality issues based on the 
+pixel information contained in the images. In every biological system there is a degree of expected spatial correlation (co-localiation) of biomolecules. For example, if two proteins
+have a nuclear subcellular localization, they are expected to be spatially correlated. 
+
+The `Channel_Sample_diagnostics()` function implemented in CSM is founded on the prior knowledge of biomolecule co-localization. In order to generate adequate results the user must provide
+a list of expected correlation hubs (image channels containing protein information that are expected to show spatial correlation).
+
+```{r Correlation hubs, eval = FALSE}
+#Generate list of correlation hubs
+Correlation_hubs <- list(Nuclear_markers = c("DAPI", "FOXP3"),
+                        Tumor_markers = c("CK-EPCAM", "PDL1"),
+                        Lymphocyte_markers = c("CD8a", "GZMB", "PD1"))
+```
+
+Afterwards, spatial autocorrelation can be tested. `Channel_Sample_diagnostics()` works also with tiled images. In order to ameliorate computational burden, images can be downsized to reduce the 
+amount of pixels. Downsizing also allows the identification of more gross quality issues, reducing the chances of overestimating minor non-significant noise. The function will first compute a tissue
+mask in a similar way as `Pixel_Threshold_calculator()` does. Spatial correlation will be computed using foreground pixels.
+Although the function has been developed to work with images, `Channel_Sample_diagnostics()` can also deal with cell feature matrices, identifying spatial correlation on cell data in stead of pixels.
+
+```{r Evaluation, eval = FALSE}
+#Create temporary input and output directories------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+          function(Image){
+            EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+                               file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+          })
+
+#Run the test
+Channel_Sample_diagnostics(
+  N_cores = 1,
+ 
+  Directory = Input_Dir,
+  Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+  Pixel_downsize = 0.2,
+  Channel_for_test = "DAPI",
+  Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+  Threshold_type_tissueMask = "Arbitrary",
+  Threshold_value_tissueMask = 0.05,
+  Blurr_tissueMask = FALSE,
+  Sigma_tissueMask = NULL,
+ 
+  DATA = NULL,
+ 
+  List_correlation_hubs = Correlation_hubs,
+  Spearman_threshold = 0.05
+)
+
+#Example with cell feature matrix
+Cell_correlation_hubs <- list(Lymphocyte_markers = c("CD8a_AVERAGE", "GZMB_AVERAGE"))
+
+Channel_Sample_diagnostics(
+  N_cores = 1,
+
+  Directory = NULL,
+
+  DATA = CSM::CSM_Arrangedcellfeaturedata_test,
+
+  List_correlation_hubs = Cell_correlation_hubs,
+  Spearman_threshold = 0.05
+)
+
+```
+
+Given the small size of the dataset it is hard to identify robust quality issues. However, it is worth mentioning that quality issues raised by `Channel_Sample_diagnostics()` should not be given for
+granted without proper user inspection of problematic images or channels.

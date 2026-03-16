@@ -53,6 +53,7 @@ devtools::install_github("Alvaro-LJ/CSM", build_vignettes = TRUE)
 - MODULE 4: Heterogeneity assessment
   - Calculate global cell composition heterogeneity.
   - Calculate spatial heterogeneity using tiling approaches as well as texture feature analysis.
+  - Estimate the modifiable areal unit problem (MAUP) associated with image tiling.
   
 - MODULE 5: Cell-Cell spatial associations
   - Calculate spatial associations between pairs and thriads of cell types.
@@ -60,6 +61,7 @@ devtools::install_github("Alvaro-LJ/CSM", build_vignettes = TRUE)
   
 - MODULE 6: Neighborhood analysis and tissue structures
   - Calculate cellular neighborhoods using various algorithms.
+  - Analyze morphologic characteristics of discrete tissue cellular structures.
   - Divide tissue into compartments according to a single cell type (for example Tumor/Stromal compartments).
 
 ## Publication

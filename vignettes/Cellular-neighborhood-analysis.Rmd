@@ -34,6 +34,7 @@ library(CSM)
     - [UTAG](#utag)
     - [Quantification](#quantification)
 - [Tiled-based approach](#tiled-based-approach)
+- [Analyzing neighborhood morphology](#morphology-analysis)
 - [Global interaction pattern (imcRtools)](#global-interaction-pattern-imcrtools)
 - [SPIAT-based](#spiat-based)
 
@@ -443,6 +444,81 @@ Finally, the results can be graphicated.
 ```{r Tiled_clustering_graphs, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 Clustered_Tiled_Images_graphicator(Tiled_images = Neighborhood_tiles_result,
                                    Image_name = "ABCM22001_B14_MiniCrop.tif")
+```
+
+
+
+## Morphology analysis
+Cells and cellular neighborhood may organize themselves into discrete tissue structures. For example, lymphoid follicles in lymph nodes are discrete spheric to oval tissue structures.
+CSM implements a tool to identify and measure morphological properties (size, shape...) of discrete tissue structures. Although described here, morphology analysis can be performed for
+single cell types in addition to cellular neighborhoods.
+
+In order two perform morphology analysis discrete tissue structures must be present. The morphology analysis implemented in CSM requires a watershed-based segmentation step. If target tissue
+structures are ill-defined, they wont be spotted by the algorithm. In addition, if tissue structures show extreme morphological variations (striking differences in size or shape), no single 
+watershed algorithm will be able to detect all structures at once.
+
+The analysis works in the following way:
+
+* __1<sup>st</sup>:__ Generate a tiled version of your cell data (using the `Image_tiling_processing_function()` or data generated using the `Tiled_Image_Clustering_function()`). The user
+must also decided the neighborhood-type that is going to be analyzed.
+* __2<sup>nd</sup>:__ Identify tissue structures using the `Structure_morphometry_calculator()`. It will require the user to specify the minimum number of tiles required to consider
+a tissue structure as real, and the minimum number of cells belonging to the desired neighborhood that must be present in each tile to consider the tile as 'positive'. Other parameters 
+conditioning the segmentation result must also be specified (smoothening, tolerance and minimum neighbor distance).
+* __3<sup>rd</sup>:__ The results can be summarized by sample using the `Structure_morphometry_analyzer()`. In addition, tissue structures can be plotted according to desired 
+features using the `Structure_morphometry_graph_maker()`.
+
+First datasets containing cellular neighborhood labels must be arranged into tiles.
+```{r Neighborhoods into tiles, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Tiled_images <- Image_tiling_processing_function(N_cores = 1,
+                                                 DATA = DATA_Neighborhoods_names,
+                                                 Tile_width = 25,
+                                                 Tile_height = 25,
+                                                 Variables_to_keep = "Neighborhood_assignment"
+)
+```
+
+Then, structures can be identified. In this example we will try to find tissue structures composed of CD8 negative rich areas.
+```{r Tissue structures, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Structures <-
+  Structure_morphometry_calculator(N_cores = 1,
+
+                                   Tiled_Images = Tiled_images,
+                                   Variable_name = "Neighborhood_assignment",
+                                   Feature_to_analyze = "CD8_NEG_RICH",
+
+                                   Min_tile_number = 1,
+                                   Smooth_amount = 0.01,
+                                   Tolerance_value = 1,
+                                   Neighborhood_distance = 1,
+                                   Minimum_cell_no_per_tile = 1)
+```
+
+Finally, identified structures can be summarized and graphs can be generated.
+
+```{r Tissue structure analysis, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Analyze tissue structure
+Structure_morphometry_analyzer(DATA = Structures)
+
+#Graph and color structures according to structure ID
+Structure_morphometry_graph_maker(Tiled_Images = Tiled_images,
+                                  Variable_name = "Neighborhood_assignment",
+                                  DATA_Morphometry = Structures,
+                                  Color_by = "Structure_ID",
+                                  Image_name = "ABCM22001_B14_MiniCrop.tif")
+
+#Graph and color structures according to structure perimeter size
+Structure_morphometry_graph_maker(Tiled_Images = Tiled_images,
+                                  Variable_name = "Neighborhood_assignment",
+                                  DATA_Morphometry = Structures,
+                                  Color_by = "s.perimeter",
+                                  Image_name = "ABCM22001_B14_MiniCrop.tif")
+
+#Graph and color structures according to structure sphericity
+Structure_morphometry_graph_maker(Tiled_Images = Tiled_images,
+                                  Variable_name = "Neighborhood_assignment",
+                                  DATA_Morphometry = Structures,
+                                  Color_by = "m.eccentricity",
+                                  Image_name = "ABCM22001_B14_MiniCrop.tif")
 ```
 
 ## Global interaction pattern-imcRtools

@@ -44,7 +44,8 @@ Image_tiling_processing_function(
 )
 
 #Calculate heterogeneity by tile----
-Tiled_image_heterogeneity_calculator(
+Heterogeneity_by_tile <-
+ Tiled_image_heterogeneity_calculator(
     Tiled_images = Tiled_Images,
     Minimum_cell_no_per_tile = 3,
     Phenotypes_included = c("TUMOR", "CD8_GZMBneg", "CD8_GZMBpos", "OTHER")

@@ -15,7 +15,7 @@
 #' to the first tile where they are located. In most scenarios, this 1 unit overlap wont impact the final results.
 #'
 #'
-#' @seealso [Image_length_calculator()], [Image_tiling_processing_function()]
+#' @seealso [Image_length_calculator()], [Suggested_Tile_Size_Calculator()]
 #'
 #' @examples
 #' \dontrun{

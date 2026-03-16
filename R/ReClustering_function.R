@@ -135,7 +135,7 @@ ReClustering_function <-
     }
     #Check that all variables are numeric
     if(!all(purrr::map_lgl(DATA_variables[-1], function(Column) is.numeric(Column)))){
-      Problematic_variable <- names(DATA_variables[-1])[!map_lgl(DATA_variables[-1], function(Column) is.numeric(Column))]
+      Problematic_variable <- names(DATA_variables[-1])[!purrr::map_lgl(DATA_variables[-1], function(Column) is.numeric(Column))]
       stop(paste0("The following variables are not numeric and cannot be included in the reclustering process: ", stringr::str_c(Problematic_variable, collapse = ", ")))
     }
 

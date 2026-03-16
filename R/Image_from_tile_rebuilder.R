@@ -164,7 +164,7 @@ Image_from_tile_rebuilder <-
       if(!RGB_Color_images) EBImage::colorMode(Final_image) <- "Grayscale"
       if(RGB_Color_images) EBImage::colorMode(Final_image) <- "Color"
 
-      EBImage::writeImage(Final_image, paste0(Output_directory, "/", Image, ".tiff"))
+      EBImage::writeImage(Final_image, paste0(Output_directory, "/", Image, ".tif"), bits.per.sample = 16, compression = "LZW")
     }, .progress = TRUE)
 
     future::plan("future::sequential")

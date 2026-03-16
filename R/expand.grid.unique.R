@@ -9,8 +9,10 @@
 #' @details
 #' Used in [Concordance_calculator()], [Neighborhood_discovery_function()], [Tiled_Image_Clustering_function()], [Clustered_Tiled_Images_analyzer()]
 #'
+#' The code is based on Ferdinand.kraft's answer to stack overflow forum question
+#' https://stackoverflow.com/questions/17171148/non-redundant-version-of-expand-grid
 #'
-#' @returns A dataframe containing unique combinations
+#' @returns A dataframe containing unique combinations.
 #'
 #' @keywords Internal
 

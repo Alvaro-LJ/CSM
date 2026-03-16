@@ -66,7 +66,8 @@ Trio_Random_Distance_matrix_generator <-
     if(!all(c(Cell_Of_Origin %in% unique(DATA_Phenotypes$Phenotype),
               Target_Cell_1 %in% unique(DATA_Phenotypes$Phenotype),
               Target_Cell_2 %in% unique(DATA_Phenotypes$Phenotype)))
-    ) stop(paste0("Cell of origin provided and Target cells should be one of: ", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = ", ")))
+    ) stop(paste0("Cell of origin provided and Target cells should be one of: ", "\n", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = "\n")))
+    if(Target_Cell_1 == Target_Cell_2) stop("Target_Cell_1 cannot be the same as Target_Cell_2")
     if(!all(Random_cells_per_sample%%1 == 0, Random_cells_per_sample > 0)) stop("Random_cells_per_sample must be an integer value > 0")
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
     if(!is.logical(Perform_edge_correction)) stop("Perform_edge_correction must be a logical value")
@@ -180,10 +181,12 @@ Trio_Random_Distance_matrix_generator <-
 
     #If samples to remove are present print a warning and proceed to remove required samples
     if(sum(Samples_to_remove) > 0) {
-      warning(paste0("Samples without COO or target cells will be removed from the analysis. ",
-                     "The following samples will be removed: ", stringr::str_c(names(RESULTS)[Samples_to_remove], collapse = ", ")
-      )
-      )
+      Colored_print(paste0("Samples without COO or target cells will be removed from the analysis. ",
+                     "The following samples will be removed: ", "\n",
+                     stringr::str_c(names(RESULTS)[Samples_to_remove], collapse = "\n")
+                     ),
+                    color = "red"
+                    )
       return(RESULTS[!Samples_to_remove])
     }
 

@@ -46,5 +46,5 @@ Image_tiling_processing_function(
 
 }
 \seealso{
-\code{\link[=Image_length_calculator]{Image_length_calculator()}}, \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}
+\code{\link[=Image_length_calculator]{Image_length_calculator()}}, \code{\link[=Suggested_Tile_Size_Calculator]{Suggested_Tile_Size_Calculator()}}
 }

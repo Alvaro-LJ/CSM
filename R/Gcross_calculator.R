@@ -89,9 +89,11 @@ Gcross_calculator <-
     #If required, remove the troublesome samples and print a warning
     if(sum(Samples_to_remove) > 0){
       DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::filter(!(Subject_Names %in% unique(DATA_Phenotypes$Subject_Names)[Samples_to_remove]))
-      warning(paste0("Samples without COO or target cells will be removed from the analysis. ",
-                     "The following samples will be removed: ", stringr::str_c(unique(DATA$Subject_Names)[Samples_to_remove], collapse = ", ")
-      ))
+      Colored_print(paste0("Samples without COO or target cells will be removed from the analysis. ",
+                     "The following samples will be removed: ", "\n",
+                     stringr::str_c(unique(DATA$Subject_Names)[Samples_to_remove], collapse = "\n")
+      ),
+      color = "red")
     }
 
     #If not require continue with the analysis

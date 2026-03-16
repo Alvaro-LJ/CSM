@@ -4,12 +4,18 @@
 \alias{Texture_features_calculator}
 \title{Calculates the average texture features of a single cell type}
 \usage{
-Texture_features_calculator(Tiled_images, Phenotype_included)
+Texture_features_calculator(
+  Tiled_images,
+  Variable_name = "Phenotype",
+  Phenotype_included
+)
 }
 \arguments{
 \item{Tiled_images}{A list containing tiled images obtained using \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}.}
 
-\item{Phenotype_included}{A character value indicating which cell phenotype to analyze.}
+\item{Variable_name}{A character value indicating the column in the tiled dataset where the cell label to analyzed is located ("Phenotype" by default).}
+
+\item{Phenotype_included}{A character value indicating which cell phenotype (or neighborhood type) to analyze.}
 }
 \value{
 A tibble containing averaged texture features by image.
@@ -36,6 +42,7 @@ Image_tiling_processing_function(
 #Calculate average texture features for a given cell phenotype---
 Texture_features_calculator(
     Tiled_images = Tiled_Images,
+    Variable_name = "Phenotype",
     Phenotype_included = "CD8_GZMBneg"
 )
 }

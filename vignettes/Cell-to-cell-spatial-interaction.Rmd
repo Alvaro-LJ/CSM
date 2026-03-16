@@ -35,7 +35,8 @@ library(CSM)
     - [Gcross function](#gcross-function)
     - [Ripley's K](#ripleys-k-function)
 - [Multi-level modelling](#multi-level-modelling)
-- [Three better than two](#thriad-analysis)
+- [Three better than two](#triad-analysis)
+- [Measuring barrier effect](#barrier-effect-analysis)
 - [SPIAT-based](#spiat-based)
 - [Distance to Pixels](#distance-to-pixels)
 
@@ -359,7 +360,7 @@ Multi_level_modelling_function(
 Calculating p values in multi-level modelling is not straightforward. Pseudo R2 can be computed using the 
 `Multi_level_modelling_function()`. This can be very computationally intensive. 
 
-## Thriad analysis
+## Triad analysis
 Thriad analysis follows the same rules as those exposed in 
 [Cell-to-cell spatial interaction analysis](#cell-to-cell-spatial-interaction-analysis). However, this approach
 requires defining a single COO and two types of target cells.
@@ -479,6 +480,107 @@ Trio_graph_maker(
    Strategy = "TRIO_in_Radius",
    TRIO_Cumulative = TRIO_cumulative_interaction,
    Radius = 75
+)
+```
+
+
+## Barrier effect analysis
+
+Barrier effect analysis is a special type of triad analysis. It measures the spatial interaction of three cell types but taking into account their spatial dependency.
+Barrier effect analysis measures how a cell population interferes with the spatial interaction occurring between two other cell types.
+
+The barrier effect function works in a multi-step manner:
+
+* __1<sup>st</sup>:__ Define Cell of Origin (COO), target cell and distance search. The function will find target cells within the search distance for all COO contained in the image.
+* __2<sup>nd</sup>:__ Target cells within distance can be filtered according to tolerance angles. This means that if two target cells are close to each other in taking into account their
+angular distance, the closest target cell will be kept in the analysis. This is helpful to precisely compute the space required for the COO to reach it's closest targets. 
+* __3<sup>rd</sup>:__ For every COO and it's interacting target cells, compute the area where potential barrier cells (or other molecules) could be interfering with the spatial interaction. This is computed by overlying triangular polygons between the COO and target cells according to a user defined angle.
+* __4<sup>th</sup>:__ Quantify the number of barrier cells (or other molecules) that are present within this area.
+
+The `Barrier_effect_calculator()` is the function in charge of doing this computation. This function can compute barrier cells and also compute barrier positive pixels 
+(can either work with thresholded or non-thresholded images). The function will return the number of barrier cells or sum of pixel values. In addition, the function will normalize these metrics 
+by the total target cells analyzed, the cumulative distance between the COO and target cells and the area analyzed.
+
+If barrier pixels need to be analyzed, the user must provide a named list of parameters indicating the path to the folder containing the images, and any image pre-processing steps required.
+
+```{r Barrier calculator, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+# Generate the imput directory
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+           function(Image){
+             EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+                                 file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+           })
+
+#Generate the Image_parameter_list------------------------------
+Image_Parameters <- list(
+  PDL1 = list(
+    Directory = Input_Dir,
+    Channel = 2,
+    Image_rotate = NULL,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE),
+  GZMB = list(
+    Directory = Input_Dir,
+    Channel = 3,
+    Image_rotate = NULL,
+    Image_x_flip = FALSE,
+    Image_y_flip = TRUE))
+
+#Compute the cells and pixels in the barrier (CAN ONLY RUN INTERACTIVELY)
+Barrier_DATA <- Barrier_effect_calculator(
+  N_cores = 1,
+
+  DATA = CSM_Phenotypecell_test,
+
+
+  Cell_Of_Origin = "CD8_GZMBneg",
+  Target_Cell = "TUMOR",
+  Barrier_Cell = c("OTHER", "CD8_GZMBpos"),
+  Image_parameter_list = Image_Parameters,
+
+  Distance_sampled = 30,
+
+  Perform_edge_correction = FALSE,
+
+  Polygon_angle = 30,
+  Target_cell_Angle_tolerance = 30
+)
+```
+
+Once we have our barrier cell or barrier pixel data generated, it can be convenient to summarize results by sample. The `Barrier_effect_analyzer()` will generate
+sample-wise summaries for barrier cells or pixels.
+
+```{r Barrier evaluation, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Barrier_effect_analyzer(
+  DATA = Barrier_DATA,
+  Analysis_type = "Area"
+)
+```
+
+Finally, graphs depicting the barrier cell density can also be generated using the `Barrier_graph_maker()`. This function supports including an image in the background, which can be
+useful to demonstrate pixel-based barrier effect results.
+
+```{r Barrier plot, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Barrier_graph_maker(
+  DATA_Phenotypes = CSM_Phenotypecell_test,
+  Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+
+  Barrier_DATA = Barrier_DATA,
+  Image_name = "ABCM22001_B14_MiniCrop.tif",
+
+  Color_by = "GZMB_PixelValueSum_Area_Ratio",
+  Point_size = 2,
+
+  Image_directory = dir(Input_Dir, full.names = TRUE)[[2]], #Select the appropriate image
+  Pixel_distance_ratio = NULL,
+  Channel_to_display = 3, #Select the GZMB channel
+  Image_rotate = 0,
+  Image_x_flip = FALSE,
+  Image_y_flip = TRUE
 )
 ```
 

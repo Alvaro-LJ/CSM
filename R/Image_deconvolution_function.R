@@ -187,7 +187,7 @@ Image_deconvolution_function <-
       FINAL_Image <- EBImage::combine(List_of_image_channel)
       FINAL_Image_Name <- stringr::str_c(Output_directory, "/", dir(Directory, full.names = FALSE)[Image_index], "_Channels.tiff")
 
-      EBImage::writeImage(FINAL_Image, FINAL_Image_Name, type = "tiff")
+      EBImage::writeImage(FINAL_Image, FINAL_Image_Name, type = "tiff", bits.per.sample = 16, compression = "LZW")
     },
     .progress = TRUE)
 

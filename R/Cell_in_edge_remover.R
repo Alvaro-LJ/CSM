@@ -56,17 +56,20 @@ Cell_in_edge_remover <-
     Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
 
     plot(Sample %>%
-           dplyr::mutate(Removed = Cells_in_Border_vector) %>%
-           ggplot(aes(x = X, y = Y, color = Cells_in_Border_vector)) +
+           dplyr::mutate(Removed = as.vector(Cells_in_Border_vector)) %>%
+           dplyr::mutate(Removed = case_when(Removed ~ "Removed",
+                                             TRUE ~ "Included")) %>%
+           ggplot(aes(x = X, y = Y, color = Removed)) +
            geom_point() +
-           scale_color_manual("", labels = c("Included", "Removed"), values = c("black", "grey")) +
+           scale_color_manual("", values = c("Included" = "black", "Removed" = "grey")) +
            theme_minimal() +
            scale_x_continuous("") +
            scale_y_continuous("") +
            theme(panel.grid = element_blank(),
                  axis.text = element_blank(),
                  legend.position = "bottom",
-                 legend.text = element_text(size = 12)))
+                 legend.text = element_text(size = 12))
+    )
 
     #Ask the user if the algorihtm should proceed
     answer <- menu(c("Proceed", "Abort"), title = "Should the analysis proceed")
@@ -97,7 +100,10 @@ Cell_in_edge_remover <-
 
 
         #Print message to warn COO removed in analysis
-        message(paste0("Sample ", as.character(x), ": ", sum(Cells_in_Border_vector), " / ", nrow(Image_tibble), " cell/s will be removed due to edge proximity."))
+        Removed_cells_N <- sum(Cells_in_Border_vector)
+        Total_cells_N <- nrow(Image_tibble)
+        if(Removed_cells_N < Total_cells_N) Colored_print(paste0("\n", "Sample ", as.character(x), ": ", sum(Cells_in_Border_vector), " / ", nrow(Image_tibble), " cell/s will be removed due to edge proximity."),  color = "green")
+        if(Removed_cells_N == Total_cells_N) Colored_print(paste0("\n", "Sample ", as.character(x), ": ", sum(Cells_in_Border_vector), " / ", nrow(Image_tibble), " cell/s will be removed due to edge proximity."), color = "red")
 
         #Return the Tibble with the cells that are not in the border
         return(Image_tibble[!Cells_in_Border_vector,])

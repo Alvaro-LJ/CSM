@@ -49,15 +49,15 @@ Pixel_Threshold_calculator(
 
 \item{Threshold_type_tissueMask}{Type of threshold to performe tissue mask. Either 'Otsu', 'Arbitrary' or 'Absolute'.}
 
-\item{Threshold_value_tissueMask}{Numeric value used if Arbitrary is the threshold type of choice}
+\item{Threshold_value_tissueMask}{Numeric value used if Arbitrary is the threshold type of choice.}
 
-\item{Blurr_tissueMask}{Logical value indicating if image blurring be performed before tissue mask generation}
+\item{Blurr_tissueMask}{Logical value indicating if image blurring be performed before tissue mask generation.}
 
-\item{Sigma_tissueMask}{Numeric value indicating the sigma value to perform Gaussian blurring}
+\item{Sigma_tissueMask}{Numeric value indicating the sigma value to perform Gaussian blurring.}
 
-\item{Blurr_target}{Logical value indicating if image blurring be performed before target thresholding}
+\item{Blurr_target}{Logical value indicating if image blurring be performed before target thresholding.}
 
-\item{Sigma_target}{Numeric value indicating the sigma value to perform Gaussian blurring}
+\item{Sigma_target}{Numeric value indicating the sigma value to perform Gaussian blurring.}
 }
 \value{
 Returns a tibble with the total foreground pixels and pixels above threshold per image.
@@ -69,6 +69,8 @@ Generates binary or multi-level images based on pixel thresholding.
 If processed images are saved, these can be further combined with cell position data using \code{\link[=Cell_to_pixel_distance_calculator]{Cell_to_pixel_distance_calculator()}}.
 Local thresholding calculates a threshold value for every image in the experiment. If set to FALSE, global thresholding will be applied, and a unique threshold value will be calculated for all images.
 Otsu threshold is calculated using the EBImage::otsu function. Automatic multilevel threshold is calculated using the imagerExtra::ThresholdML function.
+
+The Multi_score for multilevel modelling is computed as ∑(Pixel value * N pixels with value)/Total number of foreground pixels.
 }
 \examples{
 \dontrun{
