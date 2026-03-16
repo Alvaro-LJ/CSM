@@ -5,8 +5,6 @@
 #' and the structures identified. Structures can be identified can be colored by different structure metrics.
 #'
 #'
-#' @param N_cores Integer. Number of cores to parallelize your computation.
-#'
 #' @param Tiled_Images A list containing tiled images obtained using [Image_tiling_processing_function()] or the [Tiled_Image_Clustering_function()].
 #' @param Variable_name A character value indicating the column name containing the cell labels.
 #' @param DATA_Morphometry A list containing structure morphometry data (generated using the [Structure_morphometry_calculator()]).

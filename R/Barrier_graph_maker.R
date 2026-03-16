@@ -1,11 +1,12 @@
 #' Generate a plot of the barrier metrics of single samples
 #'
 #'
+#'
 #' @param DATA_Phenotypes A dataframe or tibble containing a column named 'Phenotype' containing cell phenotype labels.
 #' @param Phenotypes_included A character vector indicating the cell phenotypes that will be included in the plot.
 #'
 #' @param Barrier_DATA A tibble containing barrier cell data obtained using the [Barrier_effect_calculator()] function.
-#' @param Image_nameA A character value indicating the image to be plotted (it must be present in DATA_Phenotypes and Barrier_DATA).
+#' @param Image_name A character value indicating the image to be plotted (it must be present in DATA_Phenotypes and Barrier_DATA).
 #' @param Color_by A character value indicating the column name in Barrier_DATA that should be used to color cell points.
 #' @param Point_size A numeric value indicating the size of the points.
 #'
