@@ -32,6 +32,7 @@ library(CSM)
 - [Spatial heterogeneity](#spatial-heterogeneity)
     - [Tile-based](#tile-based)
     - [Texture features](#texture-features)
+    - [Estimating MAUP](#estimating-maup)
     - [SPIAT-based](#spiat-based)
 
 ***
@@ -134,7 +135,7 @@ on the result. Aggregating data into tiles is associated with an inherent bias u
 (https://en.wikipedia.org/wiki/Modifiable_areal_unit_problem). Any modification in the shape (widht/height ratio) or size of our tiles will have an
 effect on the final result. Any time we aggregate cell information into tiles we are imposing a structure on the data. However, users should not refrain
 from tiling their data just because there is a potential bias. Just take into account this potential bias. Therefore, it is always a good idea to check how
-tiling strategies may modify the final conclusions of the analysis.
+tiling strategies may modify the final conclusions of the analysis (please see [Estimating MAUP](#estimating-maup) for more information).
 
 First the size of the tissue can be obtained using the `Image_length_calculator()` function.
 ```{r length, eval = TRUE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
@@ -251,6 +252,68 @@ Tiled_images_graphicator(
    Image_name = "ABCM22001_B14_MiniCrop.tif",
    Phenotypes_included = c( "CD8_GZMBneg", "TUMOR")
 )
+```
+
+
+### Estimating MAUP
+
+CSM implements several tools to evaluate the influence of the Modifiable areal unit problem (MAUP) in the final result of spatial heterogeneity metrics (both tile-based and texture features).
+These estimations may aid the user to judge if results are robust or are unstable if minor modifications to the tiling parameters are made. MAUP estimation should not be interpreted
+as the confidence interval of heterogeneity metrics. The method described below has nothing to do with generalization of metrics from sample to global population.
+
+The MAUP estimation process implemented in CSM works in several steps:
+
+* __1<sup>st</sup>:__ Cell-data with phenotype labels will be tiled according to several randomly generated parameters. Parameters include the tile width and height, and cell coordinate
+rotation and flipping. The user may select the amount of random variation of tile width and height. The larger the number of random iterations requested, the higher the computational burden.
+Of note the tiled cell-data iterations generated will only differ in their tiling strategy parameters. Cell-data information is __kept intact__ during the whole process.
+* __2<sup>nd</sup>:__ Compute metrics using these tiled data. Either heterogeneity by tile or texture features.
+* __3<sup>rd</sup>:__ Analyze the data summarizing the results for every sample. 
+
+As an example we can generate 10 random tile parameter iterations.
+
+```{r Random Tiles, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+#Can only run interactively
+Random_tile_DATA <-
+  Random_image_tiling_processing_function(
+    N_cores =  1,
+    DATA = CSM::CSM_Phenotypecell_test,
+    Tile_width = 100,
+    Tile_height = 100,
+    Variables_to_keep = "Phenotype",
+
+    N_iterations = 10,
+    Max_tile_size_variation = 1.1,
+    Force_squared_tiles = TRUE
+  )
+```
+
+
+Afterwards, these tiled data structures can be analyzed. For example we can first compute heterogeneity metrics for every tile and then analyze the results using the 
+`Random_tiled_image_heterogeneity_calculator()` and the `Random_tiled_image_heterogeneity_analyzer()`.
+
+```{r Random heterogeneity, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Tiled_heterogeneity_DATA <-
+  Random_tiled_image_heterogeneity_calculator(
+    N_cores = 1,
+    Random_tiled_images = Random_tile_DATA,
+    Minimum_cell_no_per_tile = 1,
+    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype)
+  )
+
+Random_tiled_image_heterogeneity_analyzer(
+  Random_tiled_heterogeneity_DATA = Tiled_heterogeneity_DATA,
+  Strategy = "Overall_Summary",
+  Metric = "Shannon"
+)
+```
+
+In addition, it is also possible to compute the texture features in these tiled structures using the `Random_texture_features_calculator()`.
+```{r Random texture, eval = FALSE, fig.align='center', out.width='100%', fig.width=6, fig.height=4}
+Random_texture_features_calculator(
+          N_cores = 1,
+          Random_tiled_images = Random_tile_DATA,
+          Phenotype_included = "CD8_GZMBneg"
+  )
 ```
 
 ### SPIAT-based
