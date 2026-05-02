@@ -343,9 +343,8 @@ To reduce the computational burden, there are two interesting alternatives worth
 * __Split the Dimension reduction/denoising process and the clustering process:__ The user may decide to work first on the dimension reduction and
 denoising pipeline until results are adequate. To this end, the `Clustering_Phenotyper()` function provides the option to pre-process the data and 
 return the interim result. In order to activate this behavior the user must set the argument `Stop_at_preprocessing = TRUE`. 
-This will avoid running into the clustering process every time the function is called. The resulting pre-processed data can be provided to the  
-`Clustering_Phenotyper()` function through the `Pre_processed_data` argument. If pre-processed data is provided, all pre-processing related arguments
-will be ignored.
+This will avoid running into the clustering process every time the function is called. The resulting pre-processed data can be provided to the `Clustering_Phenotyper()` function 
+through the `Pre_processed_data` argument. If pre-processed data is provided, all pre-processing related arguments will be ignored.
 
 * __Specify the exact number of clusters to identify:__ Several clustering methods allow the user to specify the precise number of clusters to be
 identified (SOM, Batch_K_means, GMM and CLARA_clustering). By avoiding the clustering estimation process, the user can avoid heavy duty computations.
