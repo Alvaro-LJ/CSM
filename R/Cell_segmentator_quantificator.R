@@ -65,14 +65,16 @@
 #' @export
 
 
-Cell_segmentator_quantificator <-
+Cell_segmentator_quantificator2 <-
   function(Directory,
            Parameter_list = NULL,
            Ordered_Channels = NULL,
            Channels_to_keep = NULL,
            N_cores = 1,
 
-           quantiles_to_calculate = c(0.25, 0.5, 0.75), # quantiles to be calculated for each marker
+           quantiles_to_calculate = c(0.25, 0.5, 0.75), # quantiles to be calculated for each marker,
+           Compute_texture_features = FALSE,
+           Texture_pixel_distance = 1,
 
 
            Nuclear_marker = NULL, #marker or list of markers corresponding to the nuclei
@@ -152,6 +154,10 @@ Cell_segmentator_quantificator <-
     if(!all(N_cores >= 1, N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
     if(!is.null(quantiles_to_calculate)){
       if(!all(is.numeric(quantiles_to_calculate), quantiles_to_calculate > 0, quantiles_to_calculate < 1)) stop("quantiles_to_calculate must be numeric values between 0 and 1")
+    }
+    if(!all(length(Compute_texture_features) == 1, is.logical(Compute_texture_features))) stop("Compute_texture_features must be a logical value")
+    if(Compute_texture_features){
+      if(!all(length(Texture_pixel_distance) == 1, is.numeric(Texture_pixel_distance), Texture_pixel_distance%%1 == 0, Texture_pixel_distance >= 1)) stop("Texture_pixel_distance must be a integer value >= 1")
     }
 
 
@@ -266,29 +272,22 @@ Cell_segmentator_quantificator <-
     Channels <- Ordered_Channels
     Simple_Image_Names <- dir(Directory, full.names = FALSE)
     Complete_Image_Names <- dir(Directory, full.names = TRUE)
-
-    #If quantiles are not required for calculation print a basic summary befor proceeding
-    if(is.null(quantiles_to_calculate)){
-      cat(paste0("The following directory has been selected: ", Directory),
-          stringr::str_c("Files found in the provided directory: ", length(Simple_Image_Names)),
-          stringr::str_c("Number of cores to be used in the computation: ", N_cores),
-          paste0("The following metrics will be obtained: basic cell morphology, mean marker expression, sd of markers by cell, "),
-          fill = 4)
-    }
-
-    #If they are actually demanded by the user print them in the summary
-    else {
+    
+    
+    #Print the summary message
+    List_to_print <- list(stringr::str_c("The following directory has been selected: ", Directory),
+                          stringr::str_c("Files found in the provided directory: ", length(Simple_Image_Names)),
+                          stringr::str_c("Number of cores to be used in the computation: ", N_cores),
+                          "The following metrics will be obtained: basic cell morphology, mean marker expression, sd of markers by cell")
+    if(!is.null(quantiles_to_calculate)){
       Actual_quantiles <- stringr::str_remove(as.character(quantiles_to_calculate), "\\.")
       Character_quantiles <- stringr::str_c("q", Actual_quantiles, sep = "")
-      Character_quantiles
-      cat(paste0("The following directory has been selected: ", Directory),
-          stringr::str_c("Files found in the provided directory: ", length(Simple_Image_Names)),
-          stringr::str_c("Number of cores to be used in the computation: ", N_cores),
-          stringr::str_c("The following metrics will be obtained: basic cell morphology, mean marker expression, sd of markers by cell, ",
-                         stringr::str_c(Character_quantiles, collapse = ", ")),
-          fill = 4)
-    }
-
+      List_to_print$Quantiles <- stringr::str_c("The following quantiles will be computed: ", stringr::str_c(Character_quantiles, collapse = ", "))
+    } 
+    if(Compute_texture_features) List_to_print$Texture <- stringr::str_c("Texture features will be computed using a distance of ", Texture_pixel_distance, " pixels") 
+    cat(paste0(List_to_print),
+        fill = length(List_to_print)
+    )
 
     Start_answer <- menu(choices = c("Proceed", "Abort"))
     if(Start_answer == 2){
@@ -362,20 +361,21 @@ Cell_segmentator_quantificator <-
                                               pca = Perform_PCA,
                                               cores = 1)
           S4Vectors::mcols(Seg_results)$imageID <- as.character(Simple_Image_Names[Index])
-
-
+          
           #Calculate basic tibble with morphology
           Position_morphology_mean <- cytomapper::measureObjects(mask = Seg_results,
                                                                  image = Image,
                                                                  img_id = "imageID",
                                                                  feature_types = c("basic", "shape", "moment"),
                                                                  shape_feature = c("area", "perimeter", "radius.mean", "radius.sd", "radius.max", "radius.min"),
-                                                                 moment_feature = c("cx", "cy", "eccentricity", "majoraxis"),
+                                                                 moment_feature = c("cx", "cy", "eccentricity", "majoraxis", "theta"),
                                                                  basic_feature = "mean")
 
           Position_morphology_mean <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Position_morphology_mean)),
                                                       as_tibble(t(SummarizedExperiment::assays(Position_morphology_mean)[[1]])))) %>% dplyr::select(-objectNum)
-          names(Position_morphology_mean)[-c(1:12)] <- stringr::str_c(names(Position_morphology_mean)[-c(1:12)], "_AVERAGE")
+
+          
+          names(Position_morphology_mean)[-c(1:13)] <- stringr::str_c(names(Position_morphology_mean)[-c(1:13)], "_AVERAGE")
 
           #Calculate the tibble with sd
           Position_sd <- cytomapper::measureObjects(mask = Seg_results,
@@ -391,16 +391,9 @@ Cell_segmentator_quantificator <-
 
           #Bind both tibbles
           Final_tibble <- dplyr::bind_cols(Position_morphology_mean, Position_sd[-c(1:2)])
-
-          #If no quantiles required return the basic tibble info
-          if(is.null(quantiles_to_calculate)){
-            #Remove Image to save RAM space
-            rm(Image)
-            gc()
-            return(Final_tibble)
-          }
-
-          else{
+          
+          #If quantiles are required then compute them and bind the results
+          if(!is.null(quantiles_to_calculate)){
             #If provided calculate the desired quantiles for each image
             quantile_tibble <-purrr::map_dfc(seq_along(1:length(quantiles_to_calculate)),
                                              function(quantile_index){
@@ -416,12 +409,44 @@ Cell_segmentator_quantificator <-
                                                names(quantile_info)[-c(1:2)] <- stringr::str_c(names(quantile_info)[-c(1:2)], Character_quantiles[quantile_index], sep = "_")
                                                quantile_info[-c(1:2)]
                                              })
-            #Remove Image to save RAM space
-            rm(Image)
-            gc()
-            #bind both tibbles and return the result
-            return(dplyr::bind_cols(Final_tibble, quantile_tibble))
+            
+            #Bind the quantile tibble to the previous tibble
+            Final_tibble <- dplyr::bind_cols(Final_tibble, quantile_tibble)
           }
+          
+          #If texture features need to be computed then proceed
+          if(Compute_texture_features){
+            
+            haralick_scales <- Texture_pixel_distance
+            Texture_features <- c("asm", "con", "cor", "var", "idm", "sav", "sva", "sen", "ent", "dva", "den", "f12", "f13")
+            Texture_features_argument <- stringr::str_c(Texture_features, ".s", haralick_scales)
+            
+            Texture_features_results <- cytomapper::measureObjects(mask = Seg_results,
+                                                                   image = Image,
+                                                                   img_id = "imageID",
+                                                                   feature_types = c("basic", "haralick"),
+                                                                   haralick_feature = Texture_features_argument,
+                                                                   haralick_scales = haralick_scales,
+                                                                   haralick_nbins = 32,
+                                                                   basic_feature = "mean")
+            
+            
+            
+            Texture_features_results <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Texture_features_results)),
+                                                        as_tibble(t(SummarizedExperiment::assays(Texture_features_results)[[1]])))) %>% dplyr::select(-objectNum)
+            Texture_features_results <- Texture_features_results[stringr::str_detect(names(Texture_features_results), ".h.")]
+            names(Texture_features_results) <- gsub("\\.h\\.", "_", names(Texture_features_results))
+            names(Texture_features_results) <- sub("\\.[^.]*$", "", names(Texture_features_results))
+            
+            Final_tibble <- dplyr::bind_cols(Final_tibble, Texture_features_results)
+          }
+
+          #Remove Image to save RAM space
+          rm(Image)
+          gc()
+          
+          return(Final_tibble)
+          
         }
         )
         return(RESULT_TIBBLE)
@@ -440,8 +465,10 @@ Cell_segmentator_quantificator <-
       SEGMENTATION_RESULTS <- SEGMENTATION_RESULTS[!Any_error]
     }
 
+    cat("DONE!")
 
     #Return the final tibble
     return(purrr::map_dfr(SEGMENTATION_RESULTS, dplyr::bind_rows))
 
   }
+

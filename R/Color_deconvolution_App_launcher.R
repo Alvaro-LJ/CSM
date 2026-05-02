@@ -4,8 +4,12 @@
 #' Parameters can then be used to feed the [Image_deconvolution_function()].
 #'
 #' @param Directory Character string specifying the path to the folder where RGB color images are present.
+#' @param Max_Gb_cache A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.
 #'
 #' @details
+#' In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the [Smart_image_importer()] function. Loaded images will
+#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit. 
+#' 
 #' The control panel in the right controls the image display settings. Channel name box allows the user to specify the name of the channel to be extracted.
 #' The "+Add" button adds the channel extraction parameters to the parameter list.
 #' The "-Remove" button removes any channel parameters that match the "Channel name" box.
@@ -61,16 +65,17 @@
 #'
 #' @export
 
-Color_deconvolution_App_launcher <-
-  function(Directory){
-    #Check suggested packages
+Color_deconvolution_App_launcher2 <-
+  function(Directory,
+           Max_Gb_cache = 10){
+    ####Check suggested packages####
     {
       if(!requireNamespace("EBImage", quietly = TRUE)) stop(
         paste0("EBImage Bioconductor package is required to execute the function. Please install using the following code: ",
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-
+                 
                  BiocManager::install("EBImage")
                })
         )
@@ -80,36 +85,63 @@ Color_deconvolution_App_launcher <-
                expression(install.packages("benchmarkme")))
       )
     }
-
+    
+    #####Check arguments and memoise smart importer####
     #Run a gc after exiting because it consumes a load of RAM
     on.exit(gc())
-
+    
+    #Check that the Max_Gb_cache is OK
+    if(!all(is.numeric(Max_Gb_cache), Max_Gb_cache > 0, length(Max_Gb_cache) == 1)) stop("Max_Gb_cache must be a numeric value > 0")
+    
+    #Generate a memoised version of the the smart image importer 
+    Memoised_importer <- memoise::memoise(
+      #Function to be memorized
+      Smart_image_importer,
+      
+      #Argument controlling memory use
+      cache = cachem::cache_mem(
+        max_size = Max_Gb_cache * 1024 * 1024 * 1024, #10 Gb is the max amount of bytes
+        max_age = Inf,
+        max_n = Inf,
+        evict = c("lru", "fifo"),
+        missing = cachem::key_missing(),
+        logfile = NULL
+      )
+    )
+    
     #Obtain image names and channel names
     Real_Images <- dir(Directory, full.names = FALSE)
-
-    #BUILD THE USER INTERFACE
+    
+    #####BUILD THE USER INTERFACE####
     {
       user_interface <- shiny::fluidPage(
-
+        
+        #To make the sidebar collapsable
+        shinyjs::useShinyjs(),
+        
         #Set the title
         shiny::titlePanel("Image color deconvolution APP"),
-
+        
+        #Button above layout to toggle sidebar
+        shiny::actionButton("toggleSidebar", "Toggle", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
+        shiny::tags$hr(),
+        
         #We want a two panel layout, one in the left containing the input parameters and the output in the right
         shiny::sidebarLayout(
           #Set the first column (which contains the user defined parameters)
           shiny::sidebarPanel(
             #ID and width
             id="sidebar",
-
+            
             #Select the image to be tested
             shiny::fluidRow(
               shiny::column(3, shiny::selectInput("Real_Image_name", "Image to display", sort(Real_Images), multiple = FALSE)),
               shiny::column(3, shiny::textInput("Channel_name", "Channel name", value = "Channel_1")),
-              shiny::column(2, shiny::selectInput("Res", "Image Res", c(Low = 150, Mid = 300, high = 600, Original = 1000), selected = 150, multiple = FALSE)),
+              shiny::column(2, shiny::selectInput("Res", "Image Res", c(Low = 5, Mid = 5.7, High = 6, Ultra = 6.3), selected = 5.7, multiple = FALSE)),
               shiny::column(2, shiny::actionButton("ADD_button", shiny::icon("plus", library = "font-awesome"), label = "Add")),
               shiny::column(2, shiny::actionButton("Remove", shiny::icon("minus", library = "font-awesome"), label = "Remove"))
             ),
-
+            
             shiny::h4("Initial Pre-processing"),
             #Select basic image features
             shiny::fluidRow(
@@ -117,7 +149,7 @@ Color_deconvolution_App_launcher <-
               shiny::column(4, shiny::sliderInput("Saturation", "Saturation", value = 100, min = 0, max = 100, step = 1)),
               shiny::column(4, shiny::sliderInput("Hue", "Hue", value = 100, min = 0, max = 100, step = 1))
             ),
-
+            
             #Normalize, Equalize, Contrast and color reduction
             shiny::fluidRow(
               shiny::column(2, shinyWidgets::materialSwitch("Normalize", "Normalize", value = FALSE)),
@@ -130,9 +162,9 @@ Color_deconvolution_App_launcher <-
               shiny::column(2, shiny::conditionalPanel(condition = "input.Quantize == '1'",
                                                        shiny::numericInput("Max_colors", "Max", value = 100, min = 1, max = NA, step = 1)
               ))
-
+              
             ),
-
+            
             #Target color
             shiny::h4("Color targeting"),
             shiny::fluidRow(
@@ -148,7 +180,7 @@ Color_deconvolution_App_launcher <-
               shiny::column(3, shiny::numericInput("Tolerance_BLUE", "Blue Tol", value = 0.1, min = 0, max = 1, step = 0.01)),
               shiny::column(3, shiny::numericInput("Tolerance_Final", "End Tol", value = 0.1, min = 0, max = 1, step = 0.01))
             ),
-
+            
             #Opening and closing
             shiny::h4("Final Processing"),
             #Normalize and equalize
@@ -156,7 +188,7 @@ Color_deconvolution_App_launcher <-
               shiny::column(2, shinyWidgets::materialSwitch("Post_Normalize", "Normalize", value = FALSE)),
               shiny::column(2, shinyWidgets::materialSwitch("Post_Equalize", "Equalize", value = FALSE)),
             ),
-
+            
             #Erode dilate
             shiny::fluidRow(
               shiny::column(2, shinyWidgets::materialSwitch("Erode", "Erode", value = FALSE)),
@@ -174,21 +206,25 @@ Color_deconvolution_App_launcher <-
                                                        shiny::numericInput("Dilate_round", "Rounds", value = 1, min = 1, max = NA, step = 1)
               ))
             ),
-
+            
             shiny::h4("Parameter results"),
             #Buttons to add or remove
             shiny::fluidRow(
               shiny::column(3, shiny::actionButton("Download_Param", shiny::icon("download"), label = "Download Parameters"))
             ),
-
+            
             #The current results
             shiny::fluidRow(
               shiny::column(12, shiny::verbatimTextOutput("Result_list"))
             )
           ),
-
+          
           #Set the outcome columns
           shiny::mainPanel(
+            
+            #Give the main panel an ID
+            id = "mainPanel",
+            
             #First row will have the Photo and the overview of marker intensity by cell
             shiny::fluidRow(
               shiny::column(5, shiny::plotOutput("Photo",
@@ -218,15 +254,37 @@ Color_deconvolution_App_launcher <-
         }')))
       )
     }
-
-
-    #BUILD THE SERVER
+    
+    
+    ####BUILD THE SERVER####
     server <- function(input, output, session){
+      
+      
+      # JS function to switch classes when togglin sidebar
+      toggle_script <- "
+    if ($('#sidebar').is(':visible')) {
+      // hide sidebar + expand main panel
+      $('#sidebar').hide();
+      $('#mainPanel').removeClass('col-sm-8').addClass('col-sm-12');
+    } else {
+      // show sidebar + restore width
+      $('#sidebar').show();
+      $('#mainPanel').removeClass('col-sm-12').addClass('col-sm-8');
+    }
+  "
+      #What to do if the user hits the toggle button
+      shiny::observeEvent(input$toggleSidebar, {
+        shinyjs::runjs(toggle_script)
+      })
+      
+      
+      
+      
       #BASIC reactives
       Image_dir <- shiny::reactive(stringr::str_c(Directory, "/", input$Real_Image_name))
       Channel_name <- shiny::reactive(input$Channel_name)
       Resolution <- shiny::reactive(input$Res)
-
+      
       Brightness <- shiny::reactive(input$Brightness)
       Saturation <- shiny::reactive(input$Saturation)
       Hue <- shiny::reactive(input$Hue)
@@ -236,7 +294,7 @@ Color_deconvolution_App_launcher <-
       Sharpen <- shiny::reactive(input$Sharpen)
       Reduce_color <- shiny::reactive(input$Quantize)
       Max_color <- shiny::reactive(input$Max_colors)
-
+      
       Color_name <- shiny::reactive(input$Color_text)
       RED_value <- shiny::reactive(input$RED)
       GREEN_value <- shiny::reactive(input$GREEN)
@@ -245,7 +303,7 @@ Color_deconvolution_App_launcher <-
       Tolerance_value_GREEN <- shiny::reactive(input$Tolerance_GREEN)
       Tolerance_value_BLUE <- shiny::reactive(input$Tolerance_BLUE)
       Tolerance_value_FINAL <- shiny::reactive(input$Tolerance_Final)
-
+      
       Normalize_post <- shiny::reactive(input$Post_Normalize)
       Equalize_post <- shiny::reactive(input$Post_Equalize)
       Erode <- shiny::reactive(input$Erode)
@@ -254,30 +312,63 @@ Color_deconvolution_App_launcher <-
       Dilate <- shiny::reactive(input$Dilate)
       Dilate_kern <- shiny::reactive(input$Dilate_kern)
       Dilate_rounds <- shiny::reactive(input$Dilate_round)
-
+      
+      #Zoom reactive
+      ranges <- shiny::reactiveValues(x = NULL, y = NULL)
+      #Generates a reactive that stores the original image coordinates and cropping parameters
+      Original_ranges <- 
+        shiny::reactiveValues(
+          #Image dimension Original
+          Original_Dims_Width = NULL, 
+          Original_Dims_Height = NULL
+        )
+      
+      
       #SPECIAL reactives
       #4 chained reactives to process the photo
       #Original photo
       Photo_original <- shiny::reactive({
-        Photo <- magick::image_read(Image_dir())
-        return(Photo)
+        ####MOD CROPPING COORDINATES####
+        Final_X_crop_coordinates <- NULL
+        Final_Y_crop_coordinates <- NULL
+        
+        #If cropping is required and image is rotated or flipped modify accordingly the cropping coordinates
+        if(any(!is.null(ranges$x), !is.null(ranges$y))){
+          #Obtain the preliminary image cropping coordinates
+          Final_X_crop_coordinates <- sort(ceiling(ranges$x))
+          Final_Y_crop_coordinates <- sort(ceiling(ranges$y))
+        }
+        
+        ####OBTAIN THE IMAGE####
+        Image <- Memoised_importer(
+          N_cores = 2,
+          Image_directory = Image_dir(),
+          Log10_pixel_output = as.numeric(Resolution()),
+          X_crop_coordinates = Final_X_crop_coordinates,
+          Y_crop_coordinates = Final_Y_crop_coordinates
+        )
+        
+        Image$Image <- magick::image_flip(Image$Image)#Opposite due to ggplot2 graph plotting for images
+        
+        ####RETURN FINAL PRODUCT####
+        return(Image)
       })
       Pre_processed_photo <- shiny::reactive({
-        Photo <- Photo_original()
-
+        Photo <- Photo_original()$Image
+        
         #Apply required processing
         Photo <- Photo %>% magick::image_modulate(brightness = Brightness(), saturation = Saturation(), hue = Hue())
         if(as.logical(Equalize())) Photo <- Photo %>% magick::image_equalize()
         if(as.logical(Normalize())) Photo <- Photo %>% magick::image_normalize()
         if(as.logical(Contrast())) Photo <- Photo %>% magick::image_contrast(sharpen = Sharpen())
         if(as.logical(Reduce_color())) Photo <- Photo %>% magick::image_quantize(max = Max_color(), dither = TRUE)
-
+        
         return(Photo)
-
+        
       })
       Color_extracted_photo <- shiny::reactive({
         Photo <- Pre_processed_photo()
-
+        
         #Transform to EBI object
         Photo <- Photo %>% magick::image_convert(type = NULL,
                                                  colorspace = "RGB",
@@ -300,10 +391,10 @@ Color_deconvolution_App_launcher <-
         #Apply transformations before erosion and dilation
         if(as.logical(Normalize_post())) Photo <- Photo %>% magick::image_normalize()
         if(as.logical(Equalize_post())) Photo <- Photo %>% magick::image_equalize()
-
+        
         #Transform to EBI object
         Photo <- Photo %>% magick::as_EBImage()
-
+        
         #if erosion is required then execute the rounds of erosion the user requires
         if(as.logical(Erode())){
           Photo <- purrr::reduce(
@@ -312,7 +403,7 @@ Color_deconvolution_App_launcher <-
             .init = Photo
           )
         }
-
+        
         #If dilation is required then execute the dilation rounds
         if(as.logical(Dilate())){
           Photo <- purrr::reduce(
@@ -321,16 +412,12 @@ Color_deconvolution_App_launcher <-
             .init = Photo
           )
         }
-
+        
         #Return to magick object
         Photo <- magick::image_read(Photo)
         return(Photo)
       })
-
-      #Zoom reactive
-      ranges <- shiny::reactiveValues(x = NULL, y = NULL)
-
-
+      
       #Bi-directional reactives (Color name and Channel values)
       #First add RGB values if color is specified
       shiny::observeEvent({
@@ -338,11 +425,11 @@ Color_deconvolution_App_launcher <-
       },
       {
         shiny::req(input$Color_text)
-
+        
         #If color is introduced then get the color and rgb vector
         if(!berryFunctions::is.error(grDevices::col2rgb(as.character(Color_name()), alpha = FALSE)[,1])){
           RGB_vector <- grDevices::col2rgb(as.character(Color_name()), alpha = FALSE)[,1]
-
+          
           shiny::updateNumericInput(session, "RED", value = RGB_vector[["red"]])
           shiny::updateNumericInput(session, "GREEN", value = RGB_vector[["green"]])
           shiny::updateNumericInput(session, "BLUE", value = RGB_vector[["blue"]])
@@ -356,11 +443,11 @@ Color_deconvolution_App_launcher <-
       {
         shiny::req(input$Pre_Processed_selected)
         Color_name <- stringr::str_split_i(input$Pre_Processed_selected, "_", i = 1)
-
+        
         #If color is introduced then get the color and rgb vector
         if(!berryFunctions::is.error(grDevices::col2rgb(Color_name, alpha = FALSE)[,1])){
           RGB_vector <- grDevices::col2rgb(Color_name, alpha = FALSE)[,1]
-
+          
           shiny::updateNumericInput(session, "RED", value = RGB_vector[["red"]])
           shiny::updateNumericInput(session, "GREEN", value = RGB_vector[["green"]])
           shiny::updateNumericInput(session, "BLUE", value = RGB_vector[["blue"]])
@@ -375,16 +462,16 @@ Color_deconvolution_App_launcher <-
           input$BLUE
         },
         {
-
+          
           #If color is introduced then get the color and rgb vector
           RED_value <- if(RED_value()/255 > 1) 1 else RED_value()/255
           GREEN_value <- if(GREEN_value()/255 > 1) 1 else GREEN_value()/255
           BLUE_value <- if(BLUE_value()/255 > 1) 1 else BLUE_value()/255
-
+          
           Color_name <- grDevices::rgb(RED_value, GREEN_value, BLUE_value)
           session$sendCustomMessage(type = 'Pre_Processed_set', message = as.character(Color_name[1]))
           shiny::updateTextInput(session, "Color_text", value = Color_name[1])
-
+          
         },
         ignoreInit = TRUE)
       #Color target mini-rectangle
@@ -402,8 +489,8 @@ Color_deconvolution_App_launcher <-
                 axis.line = element_blank(),
                 plot.margin = margin(-100, -100, -100, -100, "pt"))
       })
-
-
+      
+      
       #PARAMETER LIST
       #generate an object that will be modified by the user when the Add button is clicked
       Parameters_object <- shiny::reactiveValues(Parameters_list = list()) #Parameter list will be a list of lists
@@ -419,7 +506,7 @@ Color_deconvolution_App_launcher <-
                               )
                               )
                             }
-
+                            
                             #Generate parameter list
                             Deconv_parameters <-
                               list(Brightness = input$Brightness,
@@ -431,13 +518,13 @@ Color_deconvolution_App_launcher <-
                                    Sharpen = input$Sharpen,
                                    Reduce_color = as.logical(input$Quantize),
                                    Max_color = input$Max_colors,
-
+                                   
                                    RED_value = input$RED,
                                    GREEN_value = input$GREEN,
                                    BLUE_value = input$BLUE,
                                    Color_Tolerance = c(input$Tolerance_RED, input$Tolerance_GREEN, input$Tolerance_BLUE),
                                    Final_Tolerance = input$Tolerance_Final,
-
+                                   
                                    Post_normalize = as.logical(input$Post_Normalize),
                                    Post_equalize = as.logical(input$Post_Equalize),
                                    Erode = as.logical(input$Erode),
@@ -447,19 +534,19 @@ Color_deconvolution_App_launcher <-
                                    Dilate_kern = input$Dilate_kern,
                                    Dilate_rounds = input$Dilate_round
                               )
-
+                            
                             #If name is present replace the exact element of the list
                             if(input$Channel_name %in% names(Parameters_object$Parameters_list)){
                               Name_index <- match(input$Channel_name, names(Parameters_object$Parameters_list))
                               Parameters_object$Parameters_list[[Name_index]] <- Deconv_parameters
                             }
-
+                            
                             else{
                               Parameters_object$Parameters_list[[length(Parameters_object$Parameters_list)+1]] <- Deconv_parameters
                               names(Parameters_object$Parameters_list)[length(Parameters_object$Parameters_list)] <- as.character(input$Channel_name)
                             }
                           })
-
+      
       #If the user hits the remove button then look for that element in the Parameter_list and remove it
       shiny::observeEvent(input$Remove,
                           {
@@ -483,7 +570,7 @@ Color_deconvolution_App_launcher <-
           Parameters_object$Parameters_list
         }
       })
-      #If download parameter button is clicked, download paramater list
+      #If download parameter button is clicked, download parameter list
       shiny::observeEvent(input$Download_Param,
                           {
                             if(length(Parameters_object$Parameters_list) == 0){
@@ -504,42 +591,53 @@ Color_deconvolution_App_launcher <-
                               )
                             }
                           })
-
-
-
+      
+      
+      
       #Original photo (top left)
       #Print the photo
       output$Photo <- shiny::renderPlot({
         #Obtain the photo
-        Photo <- Photo_original()
-
-        #Modify resolution before printing
-        if(as.numeric(Resolution()) != 1000){
-          Image_Resolution <- stringr::str_c("X", Resolution())
-          Photo <- magick::image_scale(Photo, Image_Resolution)
+        Photo <- Photo_original()$Image
+        
+        #Obtain the final axis limits
+        #If no cropping has been performed plot according to image dimension
+        if(all(is.null(ranges$x), is.null(ranges$y))){
+          Axis_Width_Min <- 1
+          Axis_Width_Max <- Photo_original()$Original_Dims[1]
+          Axis_Height_Min <- 1
+          Axis_Height_Max <- Photo_original()$Original_Dims[2]
         }
-
-        #Get image info
-        Image_information <- magick::image_info(Photo)
-        Width <- Image_information$width
-        Height <- Image_information$height
-
+        #If cropping has been performed then get the dimensions from the Cropping dimensions
+        if(any(!is.null(ranges$x), !is.null(ranges$y))){
+          Axis_Width_Min <- min(Photo_original()$X_crop_coords)
+          Axis_Width_Max <- max(Photo_original()$X_crop_coords)
+          Axis_Height_Min <- min(Photo_original()$Y_crop_coords)
+          Axis_Height_Max <- max(Photo_original()$Y_crop_coords)
+        }
+        
+        #Obtain the size in pixels to compute the aspect ratio
+        Aspect_ratio_photo <- abs(Axis_Height_Max - Axis_Height_Min) / abs(Axis_Width_Max - Axis_Width_Min)
+        
         #Generate the plot as annotation_raster
         return(
           ggplot() +
-            annotation_raster(Photo, xmin = 0, xmax = Width, ymin = 0, ymax = Height, interpolate = TRUE)+
-            scale_x_continuous(limits = c(0, Width)) +
-            scale_y_continuous(limits = c(0, Height)) +
-            coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)+
+            annotation_raster(Photo, xmin = Axis_Width_Min, xmax = Axis_Width_Max, ymin = Axis_Height_Min, ymax = Axis_Height_Max, interpolate = TRUE)+
+            scale_x_continuous(limits = c(Axis_Width_Min, Axis_Width_Max)) +
+            scale_y_continuous(limits = c(Axis_Height_Min, Axis_Height_Max)) +
+            coord_cartesian(xlim = c(Axis_Width_Min, Axis_Width_Max), ylim = c(Axis_Height_Min, Axis_Height_Max), expand = FALSE)+
+            ggtitle("Original") +
             theme(axis.title = element_blank(),
                   axis.text = element_blank(),
                   axis.ticks = element_blank(),
                   axis.line = element_blank(),
                   panel.background = element_rect(fill = "black"),
-                  panel.grid = element_blank())
+                  panel.grid = element_blank(),
+                  plot.title = element_text(size = 12, hjust = 0.5),
+                  aspect.ratio = Aspect_ratio_photo)
         )
-      }, res = 300)
-
+      })
+      
       #Control the zoom in of the Photo and the other plots
       shiny::observeEvent(input$Photo_dblclick, {
         brush <- input$Photo_brush
@@ -551,49 +649,51 @@ Color_deconvolution_App_launcher <-
           ranges$y <- NULL
         }
       })
-
+      
       #Pre-processed photo (top right)
       #Generate the plot
       Pre_processed_plot <-
         shiny::reactive({
           Photo <- Pre_processed_photo() #Get processed photo
-
-          #If no zoom in required then low down the resolution of the image(always as geom_tile is very computationally slow)
-          if(is.null(ranges$x)){
-            Image_Resolution <- stringr::str_c("X", Resolution())
-            Photo <- magick::image_scale(Photo, "X100")
-            Photo <- Photo %>% magick::image_raster()
-            #Reverse pixels to match annotate_raster system
-            Photo$y <- rev(Photo$y)
+          
+          Photo <- magick::image_flip(Photo)
+          
+          #Obtain the final axis limits
+          #If no cropping has been performed plot according to image dimension
+          if(all(is.null(ranges$x), is.null(ranges$y))){
+            Axis_Width_Min <- 1
+            Axis_Width_Max <- Photo_original()$Original_Dims[1]
+            Axis_Height_Min <- 1
+            Axis_Height_Max <- Photo_original()$Original_Dims[2]
           }
-
-          #If zoom is required then keep original user defined resolution (required to match zoomed in areas)
-          if(!is.null(ranges$x)){
-            if(as.numeric(Resolution()) == 1000){
-              Photo <- Photo %>% magick::image_raster()
-              #Reverse pixels to match annotate_raster system
-              Photo$y <- rev(Photo$y)
-            }
-            else{
-              Image_Resolution <- stringr::str_c("X", Resolution())
-              Photo <- magick::image_scale(Photo, Image_Resolution)
-              Photo <- Photo %>% magick::image_raster()
-              #Reverse pixels to match annotate_raster system
-              Photo$y <- rev(Photo$y)
-            }
-
-            #remove pixels outside the scale
-            Photo <- Photo %>% dplyr::filter(x >= ranges$x[[1]],
-                                             x <= ranges$x[[2]],
-                                             y >= ranges$y[[1]],
-                                             y <= ranges$y[[2]])
-
+          #If cropping has been performed then get the dimensions from the Cropping dimensions
+          if(any(!is.null(ranges$x), !is.null(ranges$y))){
+            Axis_Width_Min <- min(Photo_original()$X_crop_coords)
+            Axis_Width_Max <- max(Photo_original()$X_crop_coords)
+            Axis_Height_Min <- min(Photo_original()$Y_crop_coords)
+            Axis_Height_Max <- max(Photo_original()$Y_crop_coords)
           }
-
+          
+          #Obtain the size in pixels to compute the aspect ratio
+          Aspect_ratio_photo <- abs(Axis_Height_Max - Axis_Height_Min) / abs(Axis_Width_Max - Axis_Width_Min)
+          
+          #LIMIT THE number of pixels/tiles to 10000 (100x100)
+          Total_pixel_count <- magick::image_info(Photo)$width * magick::image_info(Photo)$height
+          Pixel_reduction_ratio <- 5000 / Total_pixel_count
+          
+          if(Pixel_reduction_ratio < 1) Photo <- magick::image_resize(Photo, 
+                                                                      magick::geometry_size_pixels(width = ceiling(magick::image_info(Photo)$width * sqrt(Pixel_reduction_ratio)), 
+                                                                                                   height = ceiling(magick::image_info(Photo)$height * sqrt(Pixel_reduction_ratio))
+                                                                      )
+          )
+          #Turn the image into a raster object
+          Photo <- magick::image_raster(Photo)
+          
+          
+          
           #Generate an ID that contains the color code (used for tooltip data)
           Photo$Pixel_id <- stringr::str_c(Photo$col, 1:nrow(Photo), sep = "_")
-
-
+          
           return(
             Photo %>%
               ggplot() +
@@ -604,14 +704,17 @@ Color_deconvolution_App_launcher <-
               ),
               linewidth = 0) +
               scale_fill_identity() +
+              coord_cartesian(xlim = NULL, ylim = NULL, expand = FALSE)+
               cowplot::theme_cowplot()+
               guides(color = "none") +
+              ggtitle("Processed") +
               theme(axis.line = element_blank(),
                     axis.ticks = element_blank(),
                     axis.text = element_blank(),
                     axis.title = element_blank(),
-                    panel.background = element_rect(fill = "black")) +
-              coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)
+                    panel.background = element_rect(fill = "black"),
+                    plot.title = element_text(size = 12, hjust = 0.5),
+                    aspect.ratio = Aspect_ratio_photo)
           )
         })
       #send the graph to the UI
@@ -624,75 +727,103 @@ Color_deconvolution_App_launcher <-
         )
         return(plot)
       })
-
-
+      
+      
       #Color extraction (bottom left)
       output$Color <- shiny::renderPlot({
         #Obtain the photo
         Photo <- Color_extracted_photo()
-
-        #Modify resolution before printing
-        if(as.numeric(Resolution()) != 1000){
-          Image_Resolution <- stringr::str_c("X", Resolution())
-          Photo <- magick::image_scale(Photo, Image_Resolution)
+        
+        #Obtain the final axis limits
+        #If no cropping has been performed plot according to image dimension
+        if(all(is.null(ranges$x), is.null(ranges$y))){
+          Axis_Width_Min <- 1
+          Axis_Width_Max <- Photo_original()$Original_Dims[1]
+          Axis_Height_Min <- 1
+          Axis_Height_Max <- Photo_original()$Original_Dims[2]
         }
-
-        #Get image info
-        Image_information <- magick::image_info(Photo)
-        Width <- Image_information$width
-        Height <- Image_information$height
+        #If cropping has been performed then get the dimensions from the Cropping dimensions
+        if(any(!is.null(ranges$x), !is.null(ranges$y))){
+          Axis_Width_Min <- min(Photo_original()$X_crop_coords)
+          Axis_Width_Max <- max(Photo_original()$X_crop_coords)
+          Axis_Height_Min <- min(Photo_original()$Y_crop_coords)
+          Axis_Height_Max <- max(Photo_original()$Y_crop_coords)
+        }
+        
+        #Obtain the size in pixels to compute the aspect ratio
+        Aspect_ratio_photo <- abs(Axis_Height_Max - Axis_Height_Min) / abs(Axis_Width_Max - Axis_Width_Min)
+        
         #Generate the plot as annotation_raster
         return(
           ggplot() +
-            annotation_raster(Photo, xmin = 0, xmax = Width, ymin = 0, ymax = Height, interpolate = TRUE)+
-            scale_x_continuous(limits = c(0, Width)) +
-            scale_y_continuous(limits = c(0, Height)) +
-            coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)+
+            annotation_raster(Photo, xmin = Axis_Width_Min, xmax = Axis_Width_Max, ymin = Axis_Height_Min, ymax = Axis_Height_Max, interpolate = TRUE)+
+            scale_x_continuous(limits = c(Axis_Width_Min, Axis_Width_Max)) +
+            scale_y_continuous(limits = c(Axis_Height_Min, Axis_Height_Max)) +
+            coord_cartesian(xlim = c(Axis_Width_Min, Axis_Width_Max), ylim = c(Axis_Height_Min, Axis_Height_Max), expand = FALSE)+
+            ggtitle("Extracted color") + 
             theme(axis.title = element_blank(),
                   axis.text = element_blank(),
                   axis.ticks = element_blank(),
                   axis.line = element_blank(),
                   panel.background = element_rect(fill = "black"),
-                  panel.grid = element_blank())
+                  panel.grid = element_blank(),
+                  plot.title = element_text(size = 12, hjust = 0.5),
+                  aspect.ratio = Aspect_ratio_photo)
         )
-      }, res = 300)
-
+      })
+      
       #Final color channel (bottom right)
       output$Final_channel <- shiny::renderPlot({
         #Obtain the photo
         Photo <- Color_processed_photo()
-
-        #Modify resolution before printing
-        if(as.numeric(Resolution()) != 1000){
-          Image_Resolution <- stringr::str_c("X", Resolution())
-          Photo <- magick::image_scale(Photo, Image_Resolution)
+        
+        #Obtain the final axis limits
+        #If no cropping has been performed plot according to image dimension
+        if(all(is.null(ranges$x), is.null(ranges$y))){
+          Axis_Width_Min <- 1
+          Axis_Width_Max <- Photo_original()$Original_Dims[1]
+          Axis_Height_Min <- 1
+          Axis_Height_Max <- Photo_original()$Original_Dims[2]
         }
-
-        #Get image info
-        Image_information <- magick::image_info(Photo)
-        Width <- Image_information$width
-        Height <- Image_information$height
-
+        #If cropping has been performed then get the dimensions from the Cropping dimensions
+        if(any(!is.null(ranges$x), !is.null(ranges$y))){
+          Axis_Width_Min <- min(Photo_original()$X_crop_coords)
+          Axis_Width_Max <- max(Photo_original()$X_crop_coords)
+          Axis_Height_Min <- min(Photo_original()$Y_crop_coords)
+          Axis_Height_Max <- max(Photo_original()$Y_crop_coords)
+        }
+        
+        #Obtain the size in pixels to compute the aspect ratio
+        Aspect_ratio_photo <- abs(Axis_Height_Max - Axis_Height_Min) / abs(Axis_Width_Max - Axis_Width_Min)
+        
         #Generate the plot as annotation_raster
         return(
           ggplot() +
-            annotation_raster(Photo, xmin = 0, xmax = Width, ymin = 0, ymax = Height, interpolate = TRUE)+
-            scale_x_continuous(limits = c(0, Width)) +
-            scale_y_continuous(limits = c(0, Height)) +
-            coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)+
+            annotation_raster(Photo, xmin = Axis_Width_Min, xmax = Axis_Width_Max, ymin = Axis_Height_Min, ymax = Axis_Height_Max, interpolate = TRUE)+
+            scale_x_continuous(limits = c(Axis_Width_Min, Axis_Width_Max)) +
+            scale_y_continuous(limits = c(Axis_Height_Min, Axis_Height_Max)) +
+            coord_cartesian(xlim = c(Axis_Width_Min, Axis_Width_Max), ylim = c(Axis_Height_Min, Axis_Height_Max), expand = FALSE)+
+            ggtitle("Final result") + 
             theme(axis.title = element_blank(),
                   axis.text = element_blank(),
                   axis.ticks = element_blank(),
                   axis.line = element_blank(),
                   panel.background = element_rect(fill = "black"),
-                  panel.grid = element_blank())
+                  panel.grid = element_blank(),
+                  plot.title = element_text(size = 12, hjust = 0.5),
+                  aspect.ratio = Aspect_ratio_photo)
         )
-      }, res = 300)
-
+      })
+      
       #If browser is closed end the app
-      session$onSessionEnded(function() { shiny::stopApp() })
+      session$onSessionEnded(function() {
+        future::plan("future::sequential")
+        memoise::forget(Memoised_importer)
+        gc()
+        shiny::stopApp() 
+      })
     }
-
+    
     #Run the server
     message("Always stop current R execution if you want to continue with your R session")
     shiny::shinyApp(user_interface, server)
