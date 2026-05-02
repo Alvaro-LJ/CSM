@@ -1,8 +1,8 @@
 ---
-title: "Working with large images"
+title: "Working with large images and TMAs"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Working-with-large-images}
+  %\VignetteIndexEntry{Working-with-large-images-and-TMAs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -30,20 +30,24 @@ library(CSM)
 - [Introduction](#introduction)
 - [Test dataset info](#test-datasets)
 - [Check computing resources](#check-computing-resources-available)
-- [Chopping large images](#chopping-large-images)
-- [Cell segmentation using tiles](#cell-segmentation-using-tiled-images)
+    - [Chopping large images](#chopping-large-images)
+    - [Cell segmentation using tiles](#cell-segmentation-using-tiled-images)
 - [Pixel thresholding using tiles](#pixel-thresholding-of-tiled-images-and-re-assembled-images)
+- [Downsizing large images](#downsizing-large-images)
 
 ***
 
 ## Introduction
-Working with large images can be painful in R. Whole slide images can exceedingly large (up to tens of gigabytes). This
+Working with large images can be painful in R. Whole slide images can exceedingly large (up to tens of Gigabytes). This
 can easily saturate RAM memory. Indeed many popular image handling R packages (like EBImage or magick) have image size
 limits that can be easily exceeded by whole slide images. 
 
 CSM has inbuilt pipelines to deal with this situation. CSM implements functions to chop large images into manageable smaller crops. 
 After image processing (either cell segmentation, cell phenotype labeling or image pixel thresholding), cell or image 
 pixel information can be re-assembled to match the original whole slide coordinates.
+
+In addition, CSM has in-built tools to downsize large images to more manageable smaller sized images. These downsized images can be used for
+plotting purposes or to feed the `TMA_dearrayer_function()` (see below).
 
 
 ## Test datasets
@@ -233,6 +237,40 @@ list.files(Output_Dir_reconstruction)
 #Remove directories---------------------------------------------------------
 unlink(c(Input_Dir, Output_Dir_tiles, Output_Dir_tiles_thresholded, Output_Dir_reconstruction), recursive = TRUE)
 ```
+
+## Downsizing large images
+The CSM function `Smart_image_importer()` is capable of importing to the R session a downsized version of very large images.
+The user must first provide the path to the image and the desired maximum number of pixels (in log10 scale) that the output
+image will have (1 million max pixels by default).
+
+In addition, the user can subset the image by cropping it or select specific image channels to be kept. The output image can be saved by
+setting the `Save_processed_images = TRUE`.
+
+How does the `Smart_image_importer()` work? First, the function will obtain image metadata (file type, pixel size, number of channels...).
+If the image is smaller than 1.5Gb in size, it will attempt importing the image directly followed by downsizing. If the image is larger
+than 1.5Gb it will sequentially import image chunks(tiles) and downsized them. Afterwards it will merge the chunks(tiles) back into a single
+image. The function is designed to generate tiles that are around 0.5Gb in size.
+
+```{r Smart_importer, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Create temporary input directory------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#reduce the pixel content of the image
+Smart_image_importer(Image_directory = dir(Input_Dir, full.names = TRUE)[1], 
+                     Log10_pixel_output = 5
+) 
+```
+
+
+
 
 ```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 sessionInfo()
