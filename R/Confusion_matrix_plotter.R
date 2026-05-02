@@ -66,7 +66,7 @@ Confusion_matrix_plotter <-
     Tibble <-
       suppressWarnings(
         Tibble %>%
-          group_by_(names(Tibble)[2], names(Tibble)[3]) %>% count() %>%
+          dplyr::group_by(dplyr::across(dplyr::all_of(c(names(Tibble)[2], names(Tibble)[3])))) %>% dplyr::count() %>%
           tidyr::pivot_wider(names_from = names(Tibble)[2], values_from = n)
       )
     Tibble[is.na(Tibble)] <- 0
