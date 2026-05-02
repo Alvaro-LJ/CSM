@@ -10,6 +10,9 @@
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @param quantiles_to_calculate Numeric vector specifying the expression quantiles calculated for every cell and channel. If NULL, no quantiles are computed.
 #'
+#' @param Compute_texture_features A logical value indicating if texture features should be computed for all the markers measured.
+#' @param Texture_pixel_distance If Compute_texture_features is TRUE, de pixel distance taken into account to compute the GLCM and texture features.
+#'
 #' @param Nuclear_marker (Used if Parameters_list is NULL) Character vector of markers corresponding to the nuclei.
 #' @param Cell_body_method (Used if Parameters_list is NULL) Method of cytoplasm identification. Can be 'none', 'dilate' or 'discModel'.
 #' @param Min_pixel (Used if Parameters_list is NULL) Integer value specifying the minimum pixels for an object to be recognized as a cell and not noise.

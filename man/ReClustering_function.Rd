@@ -57,6 +57,8 @@ ReClustering_function(
 
 \item{N_Clusters}{For Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering, an integer indicating the number of clusters to generate.}
 
+\item{Force_N_Clusters}{A logical value indicating if the number of clusters indicated (using the N_clusters argument) should be used directly to compute the clusters. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.}
+
 \item{Levels}{For Multilevel, an integer indicating the number of levels to divide each feature.}
 
 \item{Arbitrary_cutoff}{For arbitrary, a numeric value or numeric vector indicating the cut-off values to divide each feature.}
@@ -108,8 +110,6 @@ ReClustering_function(
 \item{Distance_CLARA}{If strategy is CLARA_clustering: Distance metric used in the model (euclidean, manhattan, chebyshev, canberra, braycurtis, pearson_correlation, simple_matching_coefficient, minkowski, hamming, jaccard_coefficient, Rao_coefficient, mahalanobis, cosine)}
 
 \item{N_cores}{If strategy is CLARA_clustering: Number of cores to parallelize your computation}
-
-\item{Force_N_Phenotypes}{A logical value indicating if the number of clusters indicated (using the N_clusters argument) should be used directly to compute the clusters. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.}
 }
 \value{
 A tibble containing cell features and the new column with labels after re-clusterization process.

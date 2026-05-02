@@ -46,6 +46,10 @@ Cell_segmentator_quantificator(
 
 \item{quantiles_to_calculate}{Numeric vector specifying the expression quantiles calculated for every cell and channel. If NULL, no quantiles are computed.}
 
+\item{Compute_texture_features}{A logical value indicating if texture features should be computed for all the markers measured.}
+
+\item{Texture_pixel_distance}{If Compute_texture_features is TRUE, de pixel distance taken into account to compute the GLCM and texture features.}
+
 \item{Nuclear_marker}{(Used if Parameters_list is NULL) Character vector of markers corresponding to the nuclei.}
 
 \item{Cell_body_method}{(Used if Parameters_list is NULL) Method of cytoplasm identification. Can be 'none', 'dilate' or 'discModel'.}

@@ -9,7 +9,7 @@
 #' @param Phenotype_to_recluster A character value indicating the name of cell phenotype label to be re-clustered.
 #' @param Variables_to_recluster A character vector indicating the variables contained in DATA or DATA_aside to be used in the re-clustering process.
 #' @param Strategy One of the following: "Arbitrary", "Multilevel", "Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM" or "CLARA_clustering" (see details).
-#' @param Force_N_Phenotypes A logical value indicating if the number of clusters indicated (using the N_clusters argument) should be used directly to compute the clusters. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.
+#' @param Force_N_Clusters A logical value indicating if the number of clusters indicated (using the N_clusters argument) should be used directly to compute the clusters. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.
 #'
 #' @param N_Clusters For Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering, an integer indicating the number of clusters to generate.
 #' @param Levels For Multilevel, an integer indicating the number of levels to divide each feature.
