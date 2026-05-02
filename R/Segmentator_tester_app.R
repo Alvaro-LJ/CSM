@@ -5,13 +5,13 @@
 #' @param Directory Character specifying the path to the folder where images to be segmented are stored.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Max_Gb_cache A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.
-#' 
+#'
 #' @seealso [Cell_segmentator_quantificator()]
 #'
 #' @details
 #' In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the [magick::image_read()] function. Loaded images will
-#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit. 
-#' 
+#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+#'
 #' Control panel controls the image display settings. If Pre process is active (default) image pre-processing will be applied to the nuclear channels before running segmentation (this can enhance performance in some scenarios).
 #'
 #' User can use the 'Color', 'Add channel', 'Remove channel' and 'Reset' buttons to merge different channels into a single image. The add channel button
@@ -58,11 +58,11 @@
 #'}
 #' @export
 
-Segmentator_tester_app2 <-
+Segmentator_tester_app <-
   function(Directory,
            Ordered_Channels,
            Max_Gb_cache = 10){
-    
+
     ####Check suggested packages####
     {
       if(!requireNamespace("simpleSeg", quietly = TRUE)) stop(
@@ -70,7 +70,7 @@ Segmentator_tester_app2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("simpleSeg")
                })
         )
@@ -80,7 +80,7 @@ Segmentator_tester_app2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("S4Vectors")
                })
         )
@@ -90,7 +90,7 @@ Segmentator_tester_app2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("cytomapper")
                })
         )
@@ -100,7 +100,7 @@ Segmentator_tester_app2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("ComplexHeatmap")
                })
         )
@@ -110,22 +110,22 @@ Segmentator_tester_app2 <-
                expression(install.packages("benchmarkme")))
       )
     }
-    
+
     ####CHECK ARGUMENTS and generate memoise magick::read_image####
     #check that the directory provided contains at least one file
     if(length(dir(Directory)) <1 ) stop("No files found in the Directory provided")
     if(is.null(Ordered_Channels)) stop("Ordered_Channels must not be NULL")
     #Check that ordered channels and channels to keep are unique
     if(length(Ordered_Channels) != length(unique(Ordered_Channels))) stop("Ordered_Channels must contain non-duplicated character values")
-    
+
     #Check that the Max_Gb_cache is OK
     if(!all(is.numeric(Max_Gb_cache), Max_Gb_cache > 0, length(Max_Gb_cache) == 1)) stop("Max_Gb_cache must be a numeric value > 0")
-    
+
     #Generate a memoised version of the the magick image reader
     Memoised_magick_reader <- memoise::memoise(
       #Function to be memorized
       magick::image_read,
-      
+
       #Argument controlling memory use
       cache = cachem::cache_mem(
         max_size = Max_Gb_cache * 1024 * 1024 * 1024, #10 Gb is the max amount of bytes
@@ -136,20 +136,20 @@ Segmentator_tester_app2 <-
         logfile = NULL
       )
     )
-    
-    
+
+
     #Generate a memoised version of the cell segmentation function
-    Shiny_segmentator_function <- 
+    Shiny_segmentator_function <-
       function(Image,
                Nuclear_pre_processing,
-               
+
                Equalize = FALSE,
                Photo_min = 0,
                Photo_max = 100,
                Photo_gamma = 0,
                Opening = 1,
                Closing = 1,
-               
+
                Ordered_Channels,
                Channels_to_keep,
                Nuclear_marker,
@@ -167,16 +167,16 @@ Segmentator_tester_app2 <-
         shiny::showModal(modalDialog("Importing image", footer=NULL))
         Image <- Image
         shiny::removeModal()
-        
+
         #Mopdify nuclear channels if required by user
         if(as.logical(Nuclear_pre_processing)){
           shiny::showModal(modalDialog("Performing Nuclear channels image Pre-processing", footer=NULL))
           Nuclear_channels_number <- match(Nuclear_marker, Ordered_Channels)
-          
+
           #Apply changes to every nuclear channel
           for(index in Nuclear_channels_number){
             Image_Modified <- Image[index]
-            
+
             if(Equalize) Image_Modified <- Image_Modified %>% magick::image_equalize() #Equalize if necessary
             Image_Modified <- Image_Modified %>% magick::image_level(black_point = Photo_min,
                                                                      white_point = Photo_max,
@@ -185,23 +185,23 @@ Segmentator_tester_app2 <-
             Image_Modified  <-
               Image_Modified %>% EBImage::opening(EBImage::makeBrush(size = Opening, shape = "disc")) %>%
               EBImage::closing(EBImage::makeBrush(size = Closing, shape = "disc")) #opening and closing
-            
+
             Image_Modified <- magick::image_read(Image_Modified) #again as Magick image
-            
+
             Image[index] <- Image_Modified
           }
           shiny::removeModal()
         }
-        
+
         #Produce an EBImage object
         Image <- Image %>% magick::as_EBImage()
-        
-        
+
+
         Image <- cytomapper::CytoImageList(Image)#Transform it to cytoImage object
         cytomapper::channelNames(Image) <- Ordered_Channels #define channel names
         S4Vectors::mcols(Image)$img_id <- as.character(" ")#Modify name
         Image <- cytomapper::getChannels(Image, Channels_to_keep) #Keep only user defined channels
-        
+
         #Perform cell segmentation
         shiny::showModal(modalDialog("Generating segmentation mask. This can take some time. Please wait", footer=NULL))
         Tolerance <- if(is.na(Tolerance_value)) NULL else(Tolerance_value)
@@ -221,7 +221,7 @@ Segmentator_tester_app2 <-
         )
         S4Vectors::mcols(Seg_results)$img_id <- as.character(" ")
         shiny::removeModal()
-        
+
         #Generate a list with the final parameters
         Parameter_list <- list(
           Ordered_Channels = Ordered_Channels,
@@ -245,71 +245,71 @@ Segmentator_tester_app2 <-
           Opening_kernel_size = Opening,
           Closing_kernel_size = Closing
         )
-        
+
         #Obtain the first nuclear channel of the image (for the cell limit plot)
         Nuclear_channel_image <- cytomapper::getChannels(Image, Nuclear_marker[1])
         S4Vectors::mcols(Nuclear_channel_image)$img_id <- as.character(" ")
         cytomapper::channelNames(Nuclear_channel_image) <- Nuclear_marker[1]
-        
+
         #Return all the results in a list
         return(list(Nuclear_image = Nuclear_channel_image,
                     Mask = Seg_results,
                     Segmentation_Parameters = Parameter_list))
       }
-    
-    
-    
+
+
+
     #Obtain image names and channel names
     Real_Images <- dir(Directory, full.names = FALSE)
     Channels_in_images <- Ordered_Channels
-    
-    
+
+
     ####BUILD THE USER INTERFACE####
     {
       user_interface <- shiny::fluidPage(
-        
+
         #To make the sidebar collapsable
         shinyjs::useShinyjs(),
-        
+
         #Set the title and action button
         shiny::fluidRow(
           shiny::column(width = 3, shiny::h3("Segmentation exploration APP")),
           shiny::column(width = 2, shiny::actionButton("toggleSidebar", "Toggle", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")))
         ),
-        
+
         #To make the tags work
         shiny::tags$hr(),
-        
+
         #We want a two panel layout, one in the left containing the input parameters and the output in the right
         shiny::sidebarLayout(
           #Set the first column (which contains the user defined parameters)
           shiny::sidebarPanel(
             #ID and width
             id="sidebar",
-            
+
             #Button to toggle different rows
             shiny::fluidRow(
               shiny::actionButton("toggle_Image", "Image settings", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
               shiny::actionButton("toggle_preprocess", "Nuclear Preprocessing", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
               shiny::actionButton("toggle_segmentation", "Segmentation parameters", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome"))
             ),
-            
-            
+
+
             #IMAGE PARAMETERS
             shiny::h4("Image settings"),
             #Collapsable rows
             shiny::tags$div(
               class = "Image_settings",
-              
+
               #Image to display
               shiny::fluidRow(
                 #Select the real image to be displayed
                 shiny::column(8, shiny::selectInput("Real_Image_name", "Image to display", sort(Real_Images), multiple = FALSE)),
                 #Select the channel to be displayed
                 shiny::column(4, shiny::selectInput("Channel", "Channel to display", Channels_in_images, multiple = FALSE))
-                
+
               ),
-              
+
               #Color merging
               shiny::fluidRow(
                 shiny::column(3, shiny::textInput("Color_channel", "Color", value = "blue")),
@@ -318,7 +318,7 @@ Segmentator_tester_app2 <-
                 shiny::column(3, shiny::actionButton("Reset_image", "Reset", icon = shiny::icon("redo")))
               )
             ),
-            
+
             #Nuclear pre processing
             #Optional nuclear-prepocessing parameters
             shiny::h4("Nuclear pre-processing"),
@@ -338,7 +338,7 @@ Segmentator_tester_app2 <-
                 #Select the equalization
                 shiny::column(3, shiny::selectInput("Equalize", "Equalize", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE))
               ),
-              
+
               #Image control
               shiny::fluidRow(
                 #Select the min point of the image
@@ -349,8 +349,8 @@ Segmentator_tester_app2 <-
                 shiny::column(4, shiny::sliderInput("Gamma", "Gamma", value = 0, min = -3, max = +3, step = 0.01, ticks = FALSE))
               )
             ),
-            
-            
+
+
             #Segmentation parameters
             shiny::h4("Segmentation parameters"),
             #Basic segmentation parameters
@@ -389,7 +389,7 @@ Segmentator_tester_app2 <-
                                                              selectedTextFormat = 'count',
                                                              showSubtext = FALSE)
                 ))
-                
+
               ),
               #Cell identification parameters
               shiny::fluidRow(
@@ -410,7 +410,7 @@ Segmentator_tester_app2 <-
                 shiny::column(4, shiny::numericInput("Gaussian", "Smoothening", value = 1, min = 0, max = NA, step = 0.1))
               )
             ),
-            
+
             #BUTTONS
             shiny::fluidRow(
               #Action buttons
@@ -418,12 +418,12 @@ Segmentator_tester_app2 <-
               shiny::column(4, shiny::actionButton("Download_Param", shiny::icon("download"), label = "Download Parameters"))
             )
           ),
-          
+
           #Set the outcome columns
           shiny::mainPanel(
             #Give the main panel an ID
             id = "mainPanel",
-            
+
             #First row will have the Photo and the overview of marker intensity by cell
             shiny::fluidRow(
               shiny::column(6, shiny::plotOutput("Photo",
@@ -441,10 +441,10 @@ Segmentator_tester_app2 <-
             shiny::fluidRow(
               shiny::column(6, shiny::plotOutput("Cell_surface",
                                                  width = "auto")),
-              
+
               #Parameters
               shiny::column(6, shiny::verbatimTextOutput("Parameters"))
-              
+
             )
           )
         ),
@@ -457,7 +457,7 @@ Segmentator_tester_app2 <-
         body, label, input, button, select {
           font-family: "Arial";
         }'))),
-        
+
         shiny::tags$script(htmltools::HTML("
     $(document).on('click', '#toggle_Image', function() {
       $('.Image_settings').toggle();
@@ -471,10 +471,10 @@ Segmentator_tester_app2 <-
   "))
       )
     }
-    
+
     ####BUILD THE SERVER####
     server <- function(input, output, session){
-      
+
       # JS function to switch classes when togglin sidebar
       toggle_script <- "
     if ($('#sidebar').is(':visible')) {
@@ -491,8 +491,8 @@ Segmentator_tester_app2 <-
       shiny::observeEvent(input$toggleSidebar, {
         shinyjs::runjs(toggle_script)
       })
-      
-      
+
+
       #All the reactives to be used
       #Generate a reactive with the real Image name and the channel number and pre-processing steps
       Photo_name <- shiny::reactive(stringr::str_c(Directory, "/", input$Real_Image_name))
@@ -502,39 +502,39 @@ Segmentator_tester_app2 <-
       Photo_gamma <- shiny::reactive(10^input$Gamma)
       Equalize <- shiny::reactive(input$Equalize)
       Overlay <- shiny::reactive(input$Overlay)
-      
+
       Pre_process <- shiny::reactive(input$Pre_processing)
       Opening_kernel <- shiny::reactive(input$Opening)
       Closing_kernel <- shiny::reactive(input$Closing)
-      
-      
+
+
       #Generate a reactivevalue that controls the image
       Segmentation_results <- shiny::reactiveValues(Nuclear_image = NULL,
                                                     Mask = NULL,
                                                     Segmentation_Parameters = NULL)
-      
+
       #Generate a reactive that controls the zoom in
       ranges <- shiny::reactiveValues(x = NULL, y = NULL)
-      
+
       #The reactive that controls the parameter list for image coloring (Null by default at start)
       Image_coloring_list <- shiny::reactiveValues(Parameter_list = NULL)
-      
+
       #Control the buttons for the color list
       #The ADD CHANNEL BUTTON
       shiny::observeEvent(
         input$Add_color, {
-          
+
           #First generate the element_list
-          Current_Channel_list <- 
+          Current_Channel_list <-
             list(
               channel_index = which(input$Channel == Ordered_Channels),
-              color = input$Color_channel, 
-              gamma = as.numeric(10^input$Gamma), 
+              color = input$Color_channel,
+              gamma = as.numeric(10^input$Gamma),
               min = as.numeric(input$Min_Image),
               max = as.numeric(input$Max_Image),
               equalize = as.logical(input$Equalize)
             )
-          
+
           if(berryFunctions::is.error(grDevices::col2rgb(Current_Channel_list$color))){
             shiny::showModal(modalDialog(
               paste0(Current_Channel_list$color, " is not an adequate color name or HEX code, please review"),
@@ -542,7 +542,7 @@ Segmentator_tester_app2 <-
               footer = NULL)
             )
           }
-          
+
           #If the Image_coloring_list is NULL then generate this single output
           else if(is.null(Image_coloring_list$Parameter_list)){
             #Generate the list
@@ -550,20 +550,20 @@ Segmentator_tester_app2 <-
             #Add the names
             names(Image_coloring_list$Parameter_list) <- input$Channel
           }
-          
+
           #If the Image_coloring_list is not NULL, check if the color or the input names are already present
           else{
-            
+
             #Generate logical values if any of both are present
             Channel_present_in_list <- input$Channel %in% names(Image_coloring_list$Parameter_list)
             Color_present_in_list <- input$Color_channel %in% purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]])
-            
+
             #If not present, we need to create a new element in the list
             if(!any(Channel_present_in_list, Color_present_in_list)){
               Image_coloring_list$Parameter_list <- append(Image_coloring_list$Parameter_list, list(Current_Channel_list))
               names(Image_coloring_list$Parameter_list)[length(Image_coloring_list$Parameter_list)] <- input$Channel
             }
-            
+
             #If channel name is already present and color is not present
             if(Channel_present_in_list & !Color_present_in_list){
               #print a dialogue box
@@ -575,7 +575,7 @@ Segmentator_tester_app2 <-
               #Proceed to replace the channel
               Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
             }
-            
+
             #If channel name is not present and color is repeated
             if(!Channel_present_in_list & Color_present_in_list){
               #print a dialogue box
@@ -589,8 +589,8 @@ Segmentator_tester_app2 <-
               Image_coloring_list$Parameter_list[[Conflictive_element]] <- Current_Channel_list
               names(Image_coloring_list$Parameter_list)[[Conflictive_element]] <- input$Channel
             }
-            
-            #If channel name is present and the color is in use delete the color and replace the channel 
+
+            #If channel name is present and the color is in use delete the color and replace the channel
             if(Channel_present_in_list & Color_present_in_list){
               #print a dialogue box
               shiny::showModal(modalDialog(
@@ -610,10 +610,10 @@ Segmentator_tester_app2 <-
                 Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
               }
             }
-            
+
           }
         })
-      
+
       #REMOVE BUTTON
       shiny::observeEvent(
         input$Remove_color,
@@ -632,16 +632,16 @@ Segmentator_tester_app2 <-
               paste0(input$Channel, " will be removed"),
               easyClose = TRUE,
               footer = NULL)
-            ) 
+            )
             #Find conflictive channel
             Conflictive_channel <- which(names(Image_coloring_list$Parameter_list) == input$Channel)
             Image_coloring_list$Parameter_list <- Image_coloring_list$Parameter_list[-Conflictive_channel]
-            
+
             #If the length of Image_coloring_list$Parameter_list is 0 then turn it to null again
             if(length(Image_coloring_list$Parameter_list) == 0) Image_coloring_list$Parameter_list <- NULL
           }
         })
-      
+
       #RESET BUTTON
       shiny::observeEvent(
         input$Reset_image,
@@ -658,21 +658,21 @@ Segmentator_tester_app2 <-
                                  cancelButtonText = "Cancel",
                                  callbackR = function() Image_coloring_list$Parameter_list <- NULL
           )
-          
+
         })
-      
+
       #Reactive that imports the photograph and will serve for all the images
       Photo_reactive <- shiny::reactive({
-        
+
         #Import the Photo
         Photo <- Memoised_magick_reader(Photo_name())
         Photo_list <- list(Image = Photo,
                            Original_Dims = c(magick::image_info(Photo)$width, magick::image_info(Photo)$height))
-        
+
         #Crop the photo if required
         if(any(!is.null(ranges$x), !is.null(ranges$y))){
-          
-          
+
+
           Geometry_crop <- stringr::str_c(max(ranges$x) - min(ranges$x),
                                           "x",
                                           max(ranges$y) - min(ranges$y),
@@ -680,27 +680,27 @@ Segmentator_tester_app2 <-
                                           min(ranges$x),
                                           "+",
                                           min(ranges$y))
-          
+
           Photo_list$Image <- magick::image_crop(Photo_list$Image,
                                                  geometry = Geometry_crop,
                                                  gravity = "SouthWest")
           Photo_list$X_crop_coords <- ranges$x
           Photo_list$Y_crop_coords <- ranges$y
         }
-        
-        
+
+
         #Return the photo result in a list
-        
+
         return(Photo_list)
-        
+
       })
-      
+
       #PHOTO AS GGPLOT OBJECT (with adequate axis) that will serve as basis for all the plots with a photo on the background
       Photo_plot_reactive <- shiny::reactive({
-        
+
         #Obtain the Image
         Photo <- Photo_reactive()$Image
-        
+
         #If the Image_coloring_list$Parameter_list is null then proceed as usual
         if(is.null(Image_coloring_list$Parameter_list)){
           Photo <- Photo[Channel_index()]
@@ -718,7 +718,7 @@ Segmentator_tester_app2 <-
             Photo <- magick::image_read(Photo)
           }
         }
-        
+
         #If the Image_coloring_list$Parameter_list is present then use the Channel merger
         if(!is.null(Image_coloring_list$Parameter_list)){
           if(as.logical(Pre_process())){
@@ -731,7 +731,7 @@ Segmentator_tester_app2 <-
           Photo <- Image_channel_color_merger(Image = Photo,
                                               Parameter_list = Image_coloring_list$Parameter_list)
         }
-        
+
         #Obtain the final axis limits
         #If no cropping has been performed plot according to image dimension
         if(all(is.null(ranges$x), is.null(ranges$y))){
@@ -747,10 +747,10 @@ Segmentator_tester_app2 <-
           Axis_Height_Min <- min(Photo_reactive()$Y_crop_coords)
           Axis_Height_Max <- max(Photo_reactive()$Y_crop_coords)
         }
-        
+
         #Obtain the size in pixels to compute the aspect ratio
         Aspect_ratio_photo <- abs(Axis_Height_Max - Axis_Height_Min) / abs(Axis_Width_Max - Axis_Width_Min)
-        
+
         #Return the result as a scaffold ggplot_object
         Photo_plot <- ggplot() +
           annotation_raster(Photo, xmin = Axis_Width_Min, xmax = Axis_Width_Max, ymin = Axis_Height_Min, ymax = Axis_Height_Max, interpolate = TRUE)+
@@ -766,31 +766,31 @@ Segmentator_tester_app2 <-
                 aspect.ratio = Aspect_ratio_photo)
         return(Photo_plot)
       })
-      
+
       #Print the photo
       output$Photo <- shiny::renderPlot({
         #Obtain the photo
         Photo_plot <- Photo_plot_reactive()
-        
+
         #If no channel merging required
         if(is.null(Image_coloring_list$Parameter_list)) return(Photo_plot)
-        
+
         #If channel merging required print the legend
         if(!is.null(Image_coloring_list$Parameter_list)){
           #Generate the color tibble to generate the legend
-          color_tibble <- 
+          color_tibble <-
             tibble(Channel_index = 1:length(Image_coloring_list$Parameter_list),
                    Channel_name = names(Image_coloring_list$Parameter_list),
                    Color_names = purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]])
             ) %>% arrange(Channel_index)
           color_tibble$Channel_name = factor(color_tibble$Channel_name, levels = color_tibble$Channel_name)
-          
+
           return(
             Photo_plot +
               geom_point(aes(x = 1, y = 1, color = Channel_name), size = 0,
                          data = color_tibble) +
               scale_color_manual("", values = color_tibble$Color_names) +
-              guides(color = guide_legend(ncol = 4, 
+              guides(color = guide_legend(ncol = 4,
                                           byrow = TRUE,
                                           override.aes = list(size = 10, shape = 15),
                                           position = "bottom",
@@ -800,11 +800,11 @@ Segmentator_tester_app2 <-
                                                         legend.spacing = unit(-10, "pt"),
                                                         legend.margin = margin(-0, -0, -0, -0),
                                                         legend.box.margin = margin(-10, -10, -10, -10))))
-            
+
           )
         }
       })
-      
+
       #Control the zoom in of the Photo and the other plots
       shiny::observeEvent(input$Photo_dblclick, {
         brush <- input$Photo_brush
@@ -816,21 +816,21 @@ Segmentator_tester_app2 <-
           ranges$y <- NULL
         }
       })
-      
+
       #What to do when user hits the go button
       shiny::observeEvent(input$GO_button, {
         Photo <- Photo_reactive()$Image
-        
+
         Segmentation_result_list <- Shiny_segmentator_function(Image = Photo,
                                                                Nuclear_pre_processing = as.logical(input$Pre_processing),
-                                                               
+
                                                                Equalize = as.logical(input$Equalize),
                                                                Photo_min = input$Min_Image,
                                                                Photo_max = input$Max_Image,
                                                                Photo_gamma = input$Gamma,
                                                                Opening = input$Opening,
                                                                Closing = input$Closing,
-                                                               
+
                                                                Ordered_Channels = Channels_in_images,
                                                                Channels_to_keep = input$Keep_channels,
                                                                Nuclear_marker = input$Nuclear,
@@ -845,26 +845,26 @@ Segmentator_tester_app2 <-
                                                                Tissue_mask_markers = input$Tissue_mask,
                                                                Perform_PCA = as.logical(input$PCA)
         )
-        
+
         #Export the results to the reactive values object
         Segmentation_results$Nuclear_image <- Segmentation_result_list$Nuclear_image
         Segmentation_results$Mask <- Segmentation_result_list$Mask
         Segmentation_results$Segmentation_Parameters <- Segmentation_result_list$Segmentation_Parameters
       })
-      
-      
+
+
       #First output cell borders
       output$Cell_borders <- shiny::renderPlot({
         if(is.null(Segmentation_results[["Mask"]])) ggplot()
         else{
           #Load the nuclear image
           Image <- Segmentation_results$Nuclear_image
-          
+
           #Load the mask
           Seg_results <- Segmentation_results$Mask[[1]]
           Seg_results <- cytomapper::CytoImageList(Seg_results)
           S4Vectors::mcols(Seg_results)$img_id <- as.character(" ")
-          
+
           #Plot the actual plot
           color_list <- list(A = c(scales::alpha("black", 0), "#0549fc"))
           names(color_list) <- "DAPI"
@@ -889,7 +889,7 @@ Segmentator_tester_app2 <-
         if(is.null(Segmentation_results$Segmentation_Parameters)) "Awaiting initial test"
         else{Segmentation_results$Segmentation_Parameters}
       })
-      
+
       #Download segmentation parameters to R session if required
       observeEvent(input$Download_Param, {
         if(is.null(Segmentation_results$Segmentation_Parameters)){
@@ -909,18 +909,18 @@ Segmentator_tester_app2 <-
           )
           )
         }
-        
+
       })
-      
-      
+
+
       #If browser is closed end the app
-      session$onSessionEnded(function() { 
+      session$onSessionEnded(function() {
         memoise::forget(Memoised_magick_reader)
         gc()
-        shiny::stopApp() 
+        shiny::stopApp()
       })
     }
-    
+
     #Run the server
     message("Always stop current R execution if you want to continue with your R session")
     shiny::shinyApp(user_interface, server)

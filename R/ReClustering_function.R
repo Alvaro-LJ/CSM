@@ -98,7 +98,7 @@
 #'
 #' @export
 
-ReClustering_function2 <-
+ReClustering_function <-
   function(DATA,
            DATA_aside = NULL,
            Phenotype_variable,
@@ -112,42 +112,42 @@ ReClustering_function2 <-
            #Parameters for MULTILEVEL or Arbitrary
            Levels = NULL,
            Arbitrary_cutoff = NULL,
-          
+
            #Parameters for Consensus Clustering
-           Consensus_reps = NULL, 
-           Consensus_p_Items = NULL, 
+           Consensus_reps = NULL,
+           Consensus_p_Items = NULL,
            Consensus_Cluster_Alg = NULL,
-           Consensus_Distance = NULL, 
-           Consensus_Name = NULL, 
-           
+           Consensus_Distance = NULL,
+           Consensus_Name = NULL,
+
            #Parameters for Graph-Based approaches
            Graph_type = NULL,
-           Nearest_neighbors_for_graph = NULL, 
-           Graph_Method = NULL, 
-           Graph_Resolution = NULL, 
-           N_steps = NULL, 
-           
+           Nearest_neighbors_for_graph = NULL,
+           Graph_Method = NULL,
+           Graph_Resolution = NULL,
+           N_steps = NULL,
+
            #Parameters for K means Meta Clustering
-           N_K_centroids = NULL, 
-           Consensus_reps_Meta = NULL, 
-           Consensus_p_Items_Meta = NULL, 
-           Consensus_Name_Meta = NULL, 
-           
+           N_K_centroids = NULL,
+           Consensus_reps_Meta = NULL,
+           Consensus_p_Items_Meta = NULL,
+           Consensus_Name_Meta = NULL,
+
            #Parameters for Batched K means
-           Batch_size = NULL, 
-           N_initiations = NULL, 
-           Max_iterations = NULL, 
-           
+           Batch_size = NULL,
+           N_initiations = NULL,
+           Max_iterations = NULL,
+
            #Parameters for Gaussian Mixture Model
-           Quality_metric = NULL, 
-           Max_iterations_km = NULL, 
-           Max_iterations_em = NULL, 
-           GMM_Distance = NULL, 
-           
+           Quality_metric = NULL,
+           Max_iterations_km = NULL,
+           Max_iterations_em = NULL,
+           GMM_Distance = NULL,
+
            #Parameters for CLARA clustering
-           Samples_CLARA = NULL, 
-           Sample_per_CLARA = NULL, 
-           Distance_CLARA = NULL, 
+           Samples_CLARA = NULL,
+           Sample_per_CLARA = NULL,
+           Distance_CLARA = NULL,
            N_cores = NULL
   ){
     DATA <- DATA
@@ -191,13 +191,13 @@ ReClustering_function2 <-
 
     #Check the strategy
     if(!Strategy %in% c("Arbitrary", "Multilevel", "Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM", "CLARA_clustering")) stop(paste0("Strategy must be one of the following: ", stringr::str_c(c("Arbitrary", "Multilevel", "Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM", "CLARA_clustering"), collapse = ", ")))
-    
+
     #Check force neighborhoods
     if(!all(length(Force_N_Clusters) == 1, is.logical(Force_N_Clusters))) stop("Force_N_Clusters must be a logical value")
     if(Force_N_Clusters){
       if(!Strategy %in% c("SOM", "Batch_K_means", "GMM", "CLARA_clustering")) message("Force_N_Clusters cannot be used with current strategy, argument will be ignored")
     }
-    
+
     #Check arguments for Arbitrary
     if(Strategy == "Arbitrary"){
       if(!is.numeric(Arbitrary_cutoff)) stop("Arbitrary_cutoff must be a numeric vector")
@@ -214,8 +214,8 @@ ReClustering_function2 <-
       #Check argument
       if(!all(is.numeric(Levels), Levels%%1 == 0, Levels > 2)) stop("Levels must be a positive integer value larger than 2")
     }
-    
-    
+
+
     #Check specific arguments and suggested packages
     if(Strategy == "Consensus_Clustering"){
       #Check suggested packages
@@ -224,12 +224,12 @@ ReClustering_function2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("ConsensusClusterPlus")
                })
         )
       )
-      
+
       #Check arguments by generating a argument check vector and message vector
       Argument_checker <- c(Consensus_reps_OK = (Consensus_reps >= 1 & Consensus_reps%%1 == 0),
                             Consensus_p_Items_OK = (Consensus_p_Items > 0 & Consensus_p_Items <= 1),
@@ -255,7 +255,7 @@ ReClustering_function2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("FlowSOM")
                })
         )
@@ -268,7 +268,7 @@ ReClustering_function2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("bluster")
                })
         )
@@ -277,13 +277,13 @@ ReClustering_function2 <-
         paste0("igraph CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("igraph")))
       )
-      
+
       #Check arguments by generating a argument check vector and message vector
       Argument_checker <- c(Nearest_neighbors_for_graph_OK = (Nearest_neighbors_for_graph >= 1 & Nearest_neighbors_for_graph%%1 == 0),
                             Graph_Method_OK = Graph_Method %in% c("Louvain", "Leiden", "Greedy", "WalkTrap", "Spinglass", "Leading_Eigen", "Edge_Betweenness"),
                             Graph_Resolution_OK = all(is.numeric(Graph_Resolution), Graph_Resolution > 0),
                             N_steps_OK = is.null(N_steps) || (N_steps >=1 & N_steps%%1 == 0)
-                            
+
       )
       Stop_messages <- c(Nearest_neighbors_for_graph = "Nearest_neighbors_for_graph must be an integer value > 0",
                          Graph_Method = "Graph_Method must be one of the following: Louvain, Leiden, Greedy, WalkTrap, Spinglass, Leading_Eigen, Edge_Betweenness",
@@ -303,12 +303,12 @@ ReClustering_function2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("ConsensusClusterPlus")
                })
         )
       )
-      
+
       #Check arguments
       Argument_checker <- c(N_K_centroids_OK = all(nrow(DATA) > N_K_centroids, N_K_centroids%%1 == 0, N_K_centroids > 0),
                             Consensus_reps_Meta_OK = (Consensus_reps_Meta >= 1 & Consensus_reps_Meta%%1 == 0),
@@ -351,7 +351,7 @@ ReClustering_function2 <-
         paste0("ClusterR CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("ClusterR")))
       )
-      
+
       #Check arguments
       Argument_checker <- c(Quality_metric_OK = Quality_metric %in% c("AIC", "BIC"),
                             Max_iterations_km_OK = (Max_iterations_km >= 1 & Max_iterations_km%%1 == 0),
@@ -375,7 +375,7 @@ ReClustering_function2 <-
         paste0("ClusterR CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("ClusterR")))
       )
-      
+
       #Check arguments
       Argument_checker <- c(Samples_CLARA_OK = (Samples_CLARA >= 1 & Samples_CLARA%%1 == 0),
                             Sample_per_CLARA_OK = (Sample_per_CLARA > 0 & Sample_per_CLARA <= 1),
@@ -439,58 +439,58 @@ ReClustering_function2 <-
       DATA_variables <- DATA_variables %>% dplyr::mutate(NEW_Cluster =purrr::map_chr(1:nrow(Labels_tibble), function(Row) stringr::str_c(Labels_tibble[Row,], collapse = ".")))
     }
     if(Strategy %in% c("Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM", "CLARA_clustering")){
-      
+
       DATA_variables <-
         CSM_Clustering_function(
           Original_data = DATA_variables,
           MARKERS = DATA_variables %>% dplyr::select(-Cell_no),
-          
+
           Strategy = Strategy,
           Force_N_Clusters = Force_N_Clusters,
-          
-          Max_N_clusters_Consensus = N_Clusters, 
-          Consensus_reps = Consensus_reps, 
-          Consensus_p_Items = Consensus_p_Items , 
+
+          Max_N_clusters_Consensus = N_Clusters,
+          Consensus_reps = Consensus_reps,
+          Consensus_p_Items = Consensus_p_Items ,
           Consensus_Cluster_Alg = Consensus_Cluster_Alg,
-          Consensus_Distance = Consensus_Distance, 
-          Consensus_Name = Consensus_Name, 
-          
-          Max_SOM_clusters = N_Clusters, 
-          
+          Consensus_Distance = Consensus_Distance,
+          Consensus_Name = Consensus_Name,
+
+          Max_SOM_clusters = N_Clusters,
+
           Graph_type = Graph_type,
           Graph_Distance_method = Graph_Distance_method,
-          Nearest_neighbors_for_graph = Nearest_neighbors_for_graph, 
+          Nearest_neighbors_for_graph = Nearest_neighbors_for_graph,
           Graph_Method = Graph_Method,
-          Graph_Resolution = Graph_Resolution, 
-          N_steps = N_steps, 
-          
-          N_K_centroids = N_K_centroids, 
-          Max_N_clusters_Meta = N_Clusters, 
-          Consensus_reps_Meta = Consensus_reps_Meta, 
+          Graph_Resolution = Graph_Resolution,
+          N_steps = N_steps,
+
+          N_K_centroids = N_K_centroids,
+          Max_N_clusters_Meta = N_Clusters,
+          Consensus_reps_Meta = Consensus_reps_Meta,
           Consensus_p_Items_Meta = Consensus_p_Items_Meta,
-          Consensus_Name_Meta = Consensus_Name_Meta, 
-          
+          Consensus_Name_Meta = Consensus_Name_Meta,
+
           Batch_size = Batch_size,
-          Max_N_clusters_Batch = N_Clusters, 
-          N_initiations = N_initiations, 
-          Max_iterations = Max_iterations, 
-          
-          Quality_metric = Quality_metric, 
-          Max_N_clusters_GMM = N_Clusters, 
-          Max_iterations_km = Max_iterations_km, 
+          Max_N_clusters_Batch = N_Clusters,
+          N_initiations = N_initiations,
+          Max_iterations = Max_iterations,
+
+          Quality_metric = Quality_metric,
+          Max_N_clusters_GMM = N_Clusters,
+          Max_iterations_km = Max_iterations_km,
           Max_iterations_em = Max_iterations_em,
-          GMM_Distance = GMM_Distance, 
-          
-          Samples_CLARA = Samples_CLARA, 
-          Sample_per_CLARA = Sample_per_CLARA, 
-          Max_N_clusters_CLARA = N_Clusters, 
+          GMM_Distance = GMM_Distance,
+
+          Samples_CLARA = Samples_CLARA,
+          Sample_per_CLARA = Sample_per_CLARA,
+          Max_N_clusters_CLARA = N_Clusters,
           Distance_CLARA = Distance_CLARA,
-          N_cores = N_cores 
+          N_cores = N_cores
         )
-      
-      #Change the name of the column 'Cluster' for 'NEW_Cluster' 
+
+      #Change the name of the column 'Cluster' for 'NEW_Cluster'
       DATA_variables <- DATA_variables %>% dplyr::rename("NEW_Cluster" = "Cluster")
-      
+
       #Change the values of the NEW_Cluster column
       DATA_variables <- DATA_variables %>% dplyr::mutate(NEW_Cluster = stringr::str_c("Cluster", DATA_variables$NEW_Cluster, sep = "_"))
     }

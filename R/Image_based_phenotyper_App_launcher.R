@@ -8,15 +8,15 @@
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Channels_to_keep Character vector indicating the channels to be kept in the analysis.
 #' @param Max_Gb_cache A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.
-#' 
+#'
 #' @seealso [Model_cell_phenotyper()]
 #'
 #' @details
 #' In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the [Smart_image_importer()] function. Loaded images will
-#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit. 
-#' 
+#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+#'
 #' Image setting allow the user to control the image channel display.
-#' 
+#'
 #' User can use the 'Color', 'Add channel', 'Remove channel' and 'Reset' buttons to merge different channels into a single image. The add channel button
 #' will color the current channel according to the color provided and will be merged to the current image.
 #'
@@ -77,14 +77,14 @@
 #'
 #' @export
 
-Image_based_phenotyper_App_launcher2 <-
+Image_based_phenotyper_App_launcher <-
   function(DATA,
            Directory,
            Ordered_Channels,
            Channels_to_keep,
            Max_Gb_cache = 10
   ){
-    
+
     ####Check suggested packages####
     {
       if(!requireNamespace("Matrix", quietly = FALSE)) stop(
@@ -120,7 +120,7 @@ Image_based_phenotyper_App_launcher2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("RBioFormats")
                })
         )
@@ -130,29 +130,29 @@ Image_based_phenotyper_App_launcher2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("EBImage")
                })
         )
-      ) 
+      )
     }
-    
+
     ####What to do on exit####
     on.exit({
       future::plan("future::sequential")
       gc()
     })
-    
+
     ####Check arguments and generate memoised version####
     #Check that ordered channels and channels to keep are unique
     if(length(Ordered_Channels) != length(unique(Ordered_Channels))) stop("Ordered_Channels must contain non-duplicated character values")
     if(length(Channels_to_keep) != length(unique(Channels_to_keep))) stop("Channels_to_keep must contain non-duplicated character values")
-    
+
     #Basic argument checker
     Argument_checker <- c(Empty_directory = length(dir(Directory)) >= 1,
                           Channels_OK = all(Channels_to_keep %in% Ordered_Channels)
     )
-    
+
     Stop_messages <- c(Empty_directory = "No files found at the directory provided. Please check out the path.",
                        Channels_OK =stringr::str_c(
                          "The following channels are not present the channel names provided: ",
@@ -165,15 +165,15 @@ Image_based_phenotyper_App_launcher2 <-
     }
     #Check data is adequately formatted
     if(!identical(names(DATA)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) stop("DATA provided should have an adecuate format")
-    
+
     #Check that the Max_Gb_cache is OK
     if(!all(is.numeric(Max_Gb_cache), Max_Gb_cache > 0, length(Max_Gb_cache) == 1)) stop("Max_Gb_cache must be a numeric value > 0")
-    
-    #Generate a memoised version of the the smart image importer 
+
+    #Generate a memoised version of the the smart image importer
     Memoised_importer <- memoise::memoise(
       #Function to be memorized
       Smart_image_importer,
-      
+
       #Argument controlling memory use
       cache = cachem::cache_mem(
         max_size = Max_Gb_cache * 1024 * 1024 * 1024, #10 Gb is the max amount of bytes
@@ -184,85 +184,85 @@ Image_based_phenotyper_App_launcher2 <-
         logfile = NULL
       )
     )
-    
+
     ####Look-up table####
     #Generate look-up table
     Image_names <- dir(Directory, full.names = FALSE)
     Directory_path <- dir(Directory, full.names = TRUE)
     DATA <- DATA
-    
+
     #Remove any features in the data that are not numeric
     Numeric_features <- purrr::map_lgl(DATA[-c(1:4)], ~is.numeric(.))
     if(any(!Numeric_features)){
       print(paste0("The following non-numeric features will be removed from DATA: ", stringr::str_c(names(DATA)[-c(1:4)][!Numeric_features], collapse = ", ")))
       DATA <- DATA %>% dplyr::select(-all_of(stringr::str_c(names(DATA)[-c(1:4)][!Numeric_features])))
     }
-    
+
     print(paste0(length(Image_names), " files found in Directory. Finding matches between file names and Subject_Names in DATA..."))
-    
+
     Look_up_table <-
       purrr::map_dfr(Image_names, function(Name){
         Distance_vector <- as.double(adist(Name, unique(DATA$Subject_Names), fixed = FALSE, ignore.case = TRUE))
         names(Distance_vector) <-  unique(DATA$Subject_Names)
         Distance_vector <- sort(Distance_vector)
-        
+
         tibble(Image_name = Name,
                Subject_Names = names(Distance_vector)[1],
                Match = Distance_vector[1] == 0,
                Distance = Distance_vector[1])
-        
+
       })
     Look_up_table$Path <- Directory_path
-    
+
     if(any(!Look_up_table$Match)){
       print("The following file names have not been matched with Subject_Names in DATA. Please select a distance to perform partial matching")
       View(Look_up_table %>% dplyr::filter(!Match))
       Answer <- menu(1:max(Look_up_table$Distance))
-      
-      
+
+
       Look_up_table <- Look_up_table %>% dplyr::filter(Distance <= Answer)
       print(paste0(length(Image_names) - nrow(Look_up_table), " out of ", length(Image_names), " images have been removed from the phenotyping process"))
     }
-    
+
     ####APP UI####
     #BUILD THE USER INTERFACE
     {
       user_interface <- shiny::fluidPage(
-        
+
         #To make the sidebar collapsable
         shinyjs::useShinyjs(),
-        
+
         #Set the title and action button
         shiny::fluidRow(
           shiny::column(width = 3, shiny::h3("Supervised Phenotyper")),
           shiny::column(width = 2, shiny::actionButton("toggleSidebar", "Toggle", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")))
         ),
-        
+
         #To make the tags work
         shiny::tags$hr(),
-        
-        
+
+
         #We want a two panel layout, one in the left containing the input parameters and the output in the right
         shiny::sidebarLayout(
           #Set the first column (which contains the user defined parameters)
           shiny::sidebarPanel(
             #ID and width
             id="sidebar",
-            
+
             #Button to toggle different rows
             shiny::fluidRow(
               shiny::actionButton("toggle_Image", "Image settings", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
               shiny::actionButton("toggle_cells", "Cell labels", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
               shiny::actionButton("toggle_params", "Model settings", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome"))
             ),
-            
-            
+
+
             #IMAGE PARAMETERS
             shiny::h4("Image settings"),
             #Collapsable rows
             shiny::tags$div(
               class = "Image_settings",
-              
+
               shiny::fluidRow(
                 shiny::column(6, shiny::selectInput("Image_name", "Image", sort(Look_up_table$Subject_Names), multiple = FALSE)),
                 shiny::column(2, shiny::selectInput("Res", "Res", c(Low = 5, Mid = 5.7, High = 6, Ultra = 6.3), selected = 5.7, multiple = FALSE)),
@@ -276,49 +276,49 @@ Image_based_phenotyper_App_launcher2 <-
                 shiny::column(3, shiny::selectInput("Y_flip", "Flip Y image", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE)),
                 shiny::column(3, shiny::selectInput("Equalize", "Equalize", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE))
               ),
-              
+
               shiny::fluidRow(
                 shiny::column(3, shiny::selectInput("Channel", "Channel", Channels_to_keep, multiple = FALSE)),
                 shiny::column(3, shiny::sliderInput("Min_Image", "Min", value = 0, min = 0, max = 100, step = 1, ticks = FALSE)),
                 shiny::column(3, shiny::sliderInput("Max_Image", "Max", value = 100, min = 0, max = 100, step = 1, ticks = FALSE)),
                 shiny::column(3, shiny::sliderInput("Gamma", "Gamma", value = 0, min = -3, max = +3, step = 0.01, ticks = FALSE))
               ),
-              
+
               shiny::fluidRow(
                 shiny::column(3, shiny::textInput("Color_channel", "Color", value = "blue")),
                 shiny::column(3, shiny::actionButton("Add_color", "Add channel", shiny::icon("plus", library = "font-awesome"))),
                 shiny::column(3, shiny::actionButton("Remove_color", "Remove channel", shiny::icon("minus", library = "font-awesome"))),
                 shiny::column(3, shiny::actionButton("Reset_image", "Reset", icon = shiny::icon("redo")))
               )
-              
+
             ),
-            
+
             #Cell label parameters
             shiny::h4("Cell label assigner"),
-            
+
             #Collapsable rows
             shiny::tags$div(
               class = "Cell_label",
-              
+
               shiny::fluidRow(
                 shiny::column(1, shiny::textOutput("N_cells_selected")),
                 shiny::column(3, shiny::actionButton("reset", shiny::icon("redo"), label = "Reset selection")),
                 shiny::column(4, shiny::actionButton("Remove_Cells", shiny::icon("minus", library = "font-awesome"), label = "Remove selected cells")),
                 shiny::column(4, shiny::actionButton("Remove_All", shiny::icon("minus", library = "font-awesome"), label = "Remove all cells"))
               ),
-              
+
               shiny::fluidRow(
                 shiny::column(6, shiny::textInput("Label_name", label = "Cell label", value = "Cell_type_1")),
                 shiny::column(3, shiny::actionButton("Add_label", shiny::icon("plus", library = "font-awesome"), label = "Assign labels")),
                 shiny::column(3, shiny::actionButton("Remove_label", shiny::icon("minus", library = "font-awesome"), label = "Remove labels"))
               )
             ),
-            
+
             #Model PARAMETERS
             shiny::h4("Model settings"),
             shiny::tags$div(
               class = "Model_settings",
-              
+
               shiny::fluidRow(
                 shiny::column(3, shiny::selectInput("Method", "Method", c("Random forest", "XG boost", "NNET"), multiple = FALSE)),
                 shiny::column(5, shinyWidgets::virtualSelectInput("Model_vars", label = "Variables included",
@@ -329,7 +329,7 @@ Image_based_phenotyper_App_launcher2 <-
                 shiny::column(2, shiny::numericInput("Threshold", "Thresh", value = 0.5, min = 0.01, max = 1, step = 0.01)),
                 shiny::column(2, shinyWidgets::materialSwitch("GO_spatial", "Spatial", value = FALSE))
               ),
-              
+
               #Random Forest
               shiny::conditionalPanel(
                 condition = "input.Method == 'Random forest'",
@@ -338,7 +338,7 @@ Image_based_phenotyper_App_launcher2 <-
                   shiny::column(3, shiny::numericInput("RF_trees", "N Trees", value = 100, min = 1, max = NA, step = 1))
                 )
               ),
-              
+
               #XGB
               shiny::conditionalPanel(
                 condition = "input.Method == 'XG boost'",
@@ -349,7 +349,7 @@ Image_based_phenotyper_App_launcher2 <-
                   shiny::column(3, shiny::numericInput("XG_tree_depth", "Depth", value = 10, min = 1, max = NA, step = 1))
                 )
               ),
-              
+
               #NNET
               shiny::conditionalPanel(
                 condition = "input.Method == 'NNET'",
@@ -360,7 +360,7 @@ Image_based_phenotyper_App_launcher2 <-
                   shiny::column(3, shiny::numericInput("Penalty", "Penalty", value = 0.001, min = 0.001, max = NA, step = 0.001))
                 )
               ),
-              
+
               #SPATIAL PARAMETERS
               shiny::conditionalPanel(
                 condition = "input.GO_spatial == '1'",
@@ -377,26 +377,26 @@ Image_based_phenotyper_App_launcher2 <-
                 )
               )
             ),
-            
+
             #BUTTONS
             shiny::fluidRow(
               shiny::column(2, shiny::actionButton("Fit_model", shiny::icon("bolt-lightning"), label = "Fit")),
               shiny::column(2, shiny::actionButton("Test_model", shiny::icon("square-check", library = "font-awesome"), label = "Test")),
               shiny::column(2, shiny::actionButton("Download_model", shiny::icon("download"), label = "Download"))
             ),
-            
+
             #Active model
             shiny::fluidRow(
               shiny::column(12, shiny::verbatimTextOutput("Active_Model"))
             )
           ),
-          
+
           #Set the outcome columns
           shiny::mainPanel(
-            
+
             #Give the main panel an ID
             id = "mainPanel",
-            
+
             #First row will have the Photo and the overview of marker intensity by cell
             shiny::fluidRow(
               shiny::column(5, shiny::plotOutput("Photo",
@@ -424,8 +424,8 @@ Image_based_phenotyper_App_launcher2 <-
           body, label, input, button, select {
             font-family: "Arial";
           }'))),
-        
-        
+
+
         shiny::tags$script(htmltools::HTML("
     $(document).on('click', '#toggle_Image', function() {
       $('.Image_settings').toggle();
@@ -439,12 +439,12 @@ Image_based_phenotyper_App_launcher2 <-
   "))
       )
     }
-    
-    
-    
+
+
+
     ####SERVER####
     server <- function(input, output, session){
-      
+
       # JS function to switch classes when togglin sidebar
       toggle_script <- "
     if ($('#sidebar').is(':visible')) {
@@ -461,8 +461,8 @@ Image_based_phenotyper_App_launcher2 <-
       shiny::observeEvent(input$toggleSidebar, {
         shinyjs::runjs(toggle_script)
       })
-      
-      
+
+
       #All the reactives to be used
       #Generate a reactive with the real Image name and the channel number
       Photo_name <- shiny::reactive(as.character((Look_up_table %>% dplyr::filter(Subject_Names == input$Image_name))[1,5]))
@@ -478,41 +478,41 @@ Image_based_phenotyper_App_launcher2 <-
       Degrees_rotate <- shiny::reactive(input$Degrees)
       ranges <- shiny::reactiveValues(x = NULL, y = NULL) #Controls the zoom in
       #Generates a reactive that stores the original image coordinates and cropping parameters
-      Original_ranges <- 
+      Original_ranges <-
         shiny::reactiveValues(
           #Image dimension Original
-          Original_Dims_Width = NULL, 
+          Original_Dims_Width = NULL,
           Original_Dims_Height = NULL
         )
       Pixel_dist_conversion <- shiny::reactive(input$Change_coords)
       Pixel_dist_ratio <- shiny::reactive(input$Ratio)
       Resolution <- shiny::reactive(input$Res)
-      
+
       #The reactive that controls the final output
       Result_list <- shiny::reactiveValues(Training_Dataset = NULL,
                                            Model_Param = NULL,
                                            Model = NULL,
                                            Test_Dataset = NULL)
-      
+
       #The reactive that controls the parameter list for image coloring (Null by default at start)
       Image_coloring_list <- shiny::reactiveValues(Parameter_list = NULL)
-      
+
       #Control the buttons for the color list
       #The ADD CHANNEL BUTTON
       shiny::observeEvent(
         input$Add_color, {
-          
+
           #First generate the element_list
-          Current_Channel_list <- 
+          Current_Channel_list <-
             list(
               channel_index = which(input$Channel == Ordered_Channels),
-              color = input$Color_channel, 
-              gamma = as.numeric(10^input$Gamma), 
+              color = input$Color_channel,
+              gamma = as.numeric(10^input$Gamma),
               min = as.numeric(input$Min_Image),
               max = as.numeric(input$Max_Image),
               equalize = as.logical(input$Equalize)
             )
-          
+
           if(berryFunctions::is.error(grDevices::col2rgb(Current_Channel_list$color))){
             shiny::showModal(modalDialog(
               paste0(Current_Channel_list$color, " is not an adequate color name or HEX code, please review"),
@@ -520,7 +520,7 @@ Image_based_phenotyper_App_launcher2 <-
               footer = NULL)
             )
           }
-          
+
           #If the Image_coloring_list is NULL then generate this single output
           else if(is.null(Image_coloring_list$Parameter_list)){
             #Generate the list
@@ -528,20 +528,20 @@ Image_based_phenotyper_App_launcher2 <-
             #Add the names
             names(Image_coloring_list$Parameter_list) <- input$Channel
           }
-          
+
           #If the Image_coloring_list is not NULL, check if the color or the input names are already present
           else{
-            
+
             #Generate logical values if any of both are present
             Channel_present_in_list <- input$Channel %in% names(Image_coloring_list$Parameter_list)
             Color_present_in_list <- input$Color_channel %in% purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]])
-            
+
             #If not present, we need to create a new element in the list
             if(!any(Channel_present_in_list, Color_present_in_list)){
               Image_coloring_list$Parameter_list <- append(Image_coloring_list$Parameter_list, list(Current_Channel_list))
               names(Image_coloring_list$Parameter_list)[length(Image_coloring_list$Parameter_list)] <- input$Channel
             }
-            
+
             #If channel name is already present and color is not present
             if(Channel_present_in_list & !Color_present_in_list){
               #print a dialogue box
@@ -553,7 +553,7 @@ Image_based_phenotyper_App_launcher2 <-
               #Proceed to replace the channel
               Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
             }
-            
+
             #If channel name is not present and color is repeated
             if(!Channel_present_in_list & Color_present_in_list){
               #print a dialogue box
@@ -567,8 +567,8 @@ Image_based_phenotyper_App_launcher2 <-
               Image_coloring_list$Parameter_list[[Conflictive_element]] <- Current_Channel_list
               names(Image_coloring_list$Parameter_list)[[Conflictive_element]] <- input$Channel
             }
-            
-            #If channel name is present and the color is in use delete the color and replace the channel 
+
+            #If channel name is present and the color is in use delete the color and replace the channel
             if(Channel_present_in_list & Color_present_in_list){
               #print a dialogue box
               shiny::showModal(modalDialog(
@@ -588,10 +588,10 @@ Image_based_phenotyper_App_launcher2 <-
                 Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
               }
             }
-            
+
           }
         })
-      
+
       #REMOVE BUTTON
       shiny::observeEvent(
         input$Remove_color,
@@ -610,16 +610,16 @@ Image_based_phenotyper_App_launcher2 <-
               paste0(input$Channel, " will be removed"),
               easyClose = TRUE,
               footer = NULL)
-            ) 
+            )
             #Find conflictive channel
             Conflictive_channel <- which(names(Image_coloring_list$Parameter_list) == input$Channel)
             Image_coloring_list$Parameter_list <- Image_coloring_list$Parameter_list[-Conflictive_channel]
-            
+
             #If the length of Image_coloring_list$Parameter_list is 0 then turn it to null again
             if(length(Image_coloring_list$Parameter_list) == 0) Image_coloring_list$Parameter_list <- NULL
           }
         })
-      
+
       #RESET BUTTON
       shiny::observeEvent(
         input$Reset_image,
@@ -636,20 +636,20 @@ Image_based_phenotyper_App_launcher2 <-
                                  cancelButtonText = "Cancel",
                                  callbackR = function() Image_coloring_list$Parameter_list <- NULL
           )
-          
+
         })
-      
+
       #Generate a dynamic look up table to match labels and colors
       Color_lookuptable <- shiny::reactive({
         tibble(Label = c("Unassigned", unique(Result_list$Training_Dataset$Label)),
                Color = c("black", unname(pals::polychrome(n = length(unique(Result_list$Training_Dataset$Label))))))
       })
-      
+
       #Selected cells using the unassigned plot
       selected_cells_unassigned <- shiny::reactive(input$Cells_unassigned_selected)
       selected_cells_assigned <- shiny::reactive(input$Cells_assigned_selected)
-      
-      
+
+
       #Generate the subject specific DATA that will be used in all plots
       #Control the data source
       Source_DATA <- shiny::reactive({
@@ -659,30 +659,30 @@ Image_based_phenotyper_App_launcher2 <-
           Final_DATA$X <- Final_DATA$X * as.numeric(Pixel_dist_ratio())
           Final_DATA$Y <- Final_DATA$Y * as.numeric(Pixel_dist_ratio())
         }
-        
+
         #Remove any cell not being plotted
         if(any(!is.null(ranges$x), !is.null(ranges$y))){
           Final_DATA <- Final_DATA %>% dplyr::filter(X >= min(ranges$x), X <= max(ranges$x),
                                                      Y >= min(ranges$y), Y <= max(ranges$y))
         }
-        
+
         #Return the final data
         return(Final_DATA)
       })
-      
-      
+
+
       #Reactive that imports the photograph and does the pre-processing
       Photo_reactive <- shiny::reactive({
         ####MOD CROPPING COORDINATES####
         Final_X_crop_coordinates <- NULL
         Final_Y_crop_coordinates <- NULL
-        
+
         #If cropping is required and image is rotated or flipped modify accordingly the cropping coordinates
         if(any(!is.null(ranges$x), !is.null(ranges$y))){
           #Obtain the preliminary image cropping coordinates
           Final_X_crop_coordinates <- sort(ceiling(ranges$x))
           Final_Y_crop_coordinates <- sort(ceiling(ranges$y))
-          
+
           #Account for X_flip
           if(as.logical(X_flip())){
             Final_X_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Width - Final_X_crop_coordinates))
@@ -691,30 +691,30 @@ Image_based_phenotyper_App_launcher2 <-
           if(as.logical(Y_flip())){
             Final_Y_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Height - Final_Y_crop_coordinates))
           }
-          
+
           #Account for rotation
           if(as.numeric(Degrees_rotate()) == 90){
             Old_X_coordinates <- Final_X_crop_coordinates
             Old_Y_coordinates <- Final_Y_crop_coordinates
             #Y is now X
             Final_Y_crop_coordinates <- Old_X_coordinates
-            #X is now Y 
+            #X is now Y
             Final_X_crop_coordinates <- Old_Y_coordinates
           }
-          
-          
+
+
           if(as.numeric(Degrees_rotate()) == -90){
             Old_X_coordinates <- Final_X_crop_coordinates
             Old_Y_coordinates <- Final_Y_crop_coordinates
-            
+
             #X is now the width minus the active Y coordinates
             Final_X_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Width - Old_Y_coordinates))
-            
+
             #Y is active X
             Final_Y_crop_coordinates <- Old_X_coordinates
           }
         }
-        
+
         ####OBTAIN THE IMAGE####
         Image <- Memoised_importer(
           N_cores = 2,
@@ -723,72 +723,72 @@ Image_based_phenotyper_App_launcher2 <-
           X_crop_coordinates = Final_X_crop_coordinates,
           Y_crop_coordinates = Final_Y_crop_coordinates
         )
-        
+
         ####Update Image and current Image dimension paramteres(will be used if crop is required by user)####
         Original_ranges$Original_Dims_Width <- Image$Original_Dims[1]
         Original_ranges$Original_Dims_Height <- Image$Original_Dims[2]
-        
+
         ####COLOR MERGING NOT REQUIRED####
         if(is.null(Image_coloring_list$Parameter_list)){
           #Get the single channel to be obtained
           Image$Image <- Image$Image[as.numeric(Channel_index())]
-          
+
           #Modify min max and gamma
           Image$Image <- Image$Image %>%
             magick::image_level(black_point = as.numeric(Photo_min()),
                                 white_point = as.numeric(Photo_max()),
                                 mid_point = as.numeric(Photo_gamma()))
-          
+
           #Equalize if necessary
           if(as.logical(Equalize())) Image$Image <- Image$Image %>% magick::image_equalize()
         }
-        
+
         ####COLOR MERGING REQUIRED####
         if(!is.null(Image_coloring_list$Parameter_list)){
-          
+
           #Perform RGB color merging
           Image$Image <- Image_channel_color_merger(Image = Image$Image,
                                                     Parameter_list = Image_coloring_list$Parameter_list)
-          
+
         }
-        
+
         ####ROTATE (ALSO ROTATE ORIGINAL DIMS, CURRENT DIMS and CROP COORDS if angle is 90 or -90)####
         if(as.numeric(Degrees_rotate()) != 0){
           #Rotate the image
           Image$Image <- Image$Image %>% magick::image_rotate(degrees = as.numeric(Degrees_rotate()))
-          
+
           #Change the associated dimensions (for adequate plotting)
           Image$Original_Dims <- rev(Image$Original_Dims)
           Image$Current_Dims <- rev(Image$Current_Dims)
-          
+
           #If the image has been cropped the switch X for Y
           if(any(!is.null(ranges$x), !is.null(ranges$y))){
             #Get the old crops in a separate object
             Old_X_crop_coords <- Image$X_crop_coords
             Old_Y_crop_coords <- Image$Y_crop_coords
-            
+
             #Make the switch
             Image$X_crop_coords <- Old_Y_crop_coords
             Image$Y_crop_coords <- Old_X_crop_coords
           }
         }
-        
+
         ####FLIP AND FLOP####
         if(as.logical(X_flip())) Image$Image <- Image$Image %>% magick::image_flop()
         if(!as.logical(Y_flip())) Image$Image <- Image$Image %>% magick::image_flip()#Opposite due to ggplot2 graph plotting for images
-        
-        
+
+
         ####RETURN FINAL PRODUCT####
         return(Image)
-        
+
       })
-      
+
       #PHOTO AS GGPLOT OBJECT (with adequate axis)
       Photo_plot_reactive <- shiny::reactive({
-        
+
         #Obtain the Image
         Photo <- Photo_reactive()$Image
-        
+
         #Obtain the final axis limits
         #If no cropping has been performed plot according to image dimension
         if(all(is.null(ranges$x), is.null(ranges$y))){
@@ -804,10 +804,10 @@ Image_based_phenotyper_App_launcher2 <-
           Axis_Height_Min <- min(Photo_reactive()$Y_crop_coords)
           Axis_Height_Max <- max(Photo_reactive()$Y_crop_coords)
         }
-        
+
         #Obtain the size in pixels to compute the aspect ratio
         Aspect_ratio_photo <- abs(Axis_Height_Max - Axis_Height_Min) / abs(Axis_Width_Max - Axis_Width_Min)
-        
+
         #Return the result as a scaffold ggplot_object
         Photo_plot <- ggplot() +
           annotation_raster(Photo, xmin = Axis_Width_Min, xmax = Axis_Width_Max, ymin = Axis_Height_Min, ymax = Axis_Height_Max, interpolate = TRUE)+
@@ -823,33 +823,33 @@ Image_based_phenotyper_App_launcher2 <-
                 aspect.ratio = Aspect_ratio_photo)
         return(Photo_plot)
       })
-      
+
       #Print the photo
       output$Photo <- shiny::renderPlot({
         if(is.null(Image_coloring_list$Parameter_list)){
           #Plot the result
-          try(Photo <- 
+          try(Photo <-
                 Photo_plot_reactive() +
                 ggtitle("Original") +
                 theme(plot.title = element_text(size = 12, hjust = 0.5)))
         }
         if(!is.null(Image_coloring_list$Parameter_list)){
           #Generate the color tibble to generate the legend
-          color_tibble <- 
+          color_tibble <-
             tibble(Channel_index = 1:length(Image_coloring_list$Parameter_list),
                    Channel_name = names(Image_coloring_list$Parameter_list),
                    Color_names = purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]])
             ) %>% arrange(Channel_index)
           color_tibble$Channel_name = factor(color_tibble$Channel_name, levels = color_tibble$Channel_name)
-          
-          try(Photo <- 
+
+          try(Photo <-
                 Photo_plot_reactive() +
                 ggtitle("Original") +
                 theme(plot.title = element_text(size = 12, hjust = 0.5)) +
                 geom_point(aes(x = 1, y = 1, color = Channel_name), size = 0,
                            data = color_tibble) +
                 scale_color_manual("", values = color_tibble$Color_names) +
-                guides(color = guide_legend(ncol = 4, 
+                guides(color = guide_legend(ncol = 4,
                                             byrow = TRUE,
                                             override.aes = list(size = 10, shape = 15),
                                             position = "bottom",
@@ -859,49 +859,49 @@ Image_based_phenotyper_App_launcher2 <-
                                                           legend.spacing = unit(-10, "pt"),
                                                           legend.margin = margin(-0, -0, -0, -0),
                                                           legend.box.margin = margin(-10, -10, -10, -10)))))
-          
+
         }
-        
+
         #Return the final result
         return(Photo)
       })
-      
+
       #Control the zoom of the Photo and the rest of the graphs
       shiny::observeEvent(input$Photo_dblclick, {
         brush <- input$Photo_brush
         if (!is.null(brush)) {
           ranges$x <- c(brush$xmin, brush$xmax)
           ranges$y <- c(brush$ymin, brush$ymax)
-          
+
         } else {
           ranges$x <- NULL
           ranges$y <- NULL
         }
       })
-      
+
       #Generate the cell unassigned plot
       Cell_Unassigned_plot <-
         shiny::reactive({
           #Get the data
           Final_DATA <- Source_DATA()
           Final_DATA <- Final_DATA %>% dplyr::select(1:4)
-          
+
           #Add the Unassigned label
           Final_DATA$Label <- "Unassigned"
-          
+
           #Modify the label according to the training dataset
           if(!is.null(Result_list$Training_Dataset)){
             Final_DATA <- Final_DATA %>% dplyr::filter(!Cell_no %in% Result_list$Training_Dataset$Cell_no)
             Cells_to_bind <- Result_list$Training_Dataset %>% dplyr::filter(Subject_Names == Case_id())
             Final_DATA <- dplyr::bind_rows(Final_DATA, Cells_to_bind)
           }
-          
+
           #Add the color code
           Final_DATA <- dplyr::left_join(Final_DATA, Color_lookuptable(), by = "Label")
-          
+
           #Import the photo
           try(Photo <- Photo_plot_reactive())
-          
+
           return(
             #Generate the final plot
             Photo +
@@ -916,7 +916,7 @@ Image_based_phenotyper_App_launcher2 <-
               ggtitle("Assign cells") +
               theme(plot.title = element_text(size = 12, hjust = 0.5))
           )
-          
+
         })
       #Send plot to UI
       output$Cells_unassigned <- ggiraph::renderGirafe({
@@ -928,7 +928,7 @@ Image_based_phenotyper_App_launcher2 <-
         )
         return(plot)
       })
-      
+
       #Generate the test dataset plot
       Test_Dataset_plot <-
         shiny::reactive({
@@ -936,19 +936,19 @@ Image_based_phenotyper_App_launcher2 <-
           if(any(is.null(Result_list$Test_Dataset), unique(Result_list$Test_Dataset$Subject_Names) != Case_id())){
             return(ggplot())
           }
-          
+
           #If test dataset is equal to the case id then proceed
           Final_DATA <- Result_list$Test_Dataset
-          
+
           #Add the Unassigned label
           Final_DATA$Label[Final_DATA$Probability < Result_list$Model_Param$Model_threshold] <- "Unassigned"
-          
+
           #Add the color code
           Final_DATA <- dplyr::left_join(Final_DATA, Color_lookuptable(), by = "Label")
-          
+
           #Import the photo
           try(Photo <- Photo_plot_reactive())
-          
+
           return(
             #Generate the final plot
             Photo +
@@ -963,7 +963,7 @@ Image_based_phenotyper_App_launcher2 <-
               ggtitle("Model performance") +
               theme(plot.title = element_text(size = 12, hjust = 0.5))
           )
-          
+
         })
       #Send plot to UI
       output$Cells_assigned <- ggiraph::renderGirafe({
@@ -975,12 +975,12 @@ Image_based_phenotyper_App_launcher2 <-
         )
         return(plot)
       })
-      
+
       #The total number of cells
       output$N_cells_selected <- shiny::renderText({
         length(unique(c(selected_cells_unassigned(), selected_cells_assigned())))
       })
-      
+
       #The summary of the Training dataset and the test dataset
       output$Training_selection_summary <- shiny::renderPrint({
         if(is.null(Result_list$Training_Dataset)) print("No cells selected for Training Dataset")
@@ -998,28 +998,28 @@ Image_based_phenotyper_App_launcher2 <-
             )
             )
           }
-          
+
         }
       })
-      
+
       #Print the active model if available
       output$Active_Model <- shiny::renderPrint({
         #If no model is present print a message
         if(is.null(Result_list$Model)) print("No model has been created")
-        
+
         #Else print the model parameters of the active model
         else{
           print(Result_list$Model_Param)
         }
       })
-      
+
       #What to do when the user hits the following buttons:
       #What to do in case the user hits the reset button
       shiny::observeEvent(input$reset, {
         session$sendCustomMessage(type = 'Cells_unassigned_set', message = character(0))
         session$sendCustomMessage(type = 'Cells_assigned_set', message = character(0))
       })
-      
+
       #If the user hits assign cells button
       shiny::observeEvent(input$Add_label,
                           {
@@ -1029,20 +1029,20 @@ Image_based_phenotyper_App_launcher2 <-
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             else if(input$Label_name == "Unassigned") shiny::showModal(modalDialog(
                               paste0("Unassigned is not a valid cell label"),
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             #IF no cells have been selected
                             else if(length(unique(c(selected_cells_unassigned(), selected_cells_assigned()))) == 0) shiny::showModal(modalDialog(
                               paste0("Cells must have been selected"),
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             #If everything OK proceed with label assignment
                             else{
                               if(all(!is.null(Result_list$Training_Dataset), any(unique(c(selected_cells_unassigned(), selected_cells_assigned())) %in% Result_list$Training_Dataset$Cell_no))){
@@ -1051,13 +1051,13 @@ Image_based_phenotyper_App_launcher2 <-
                                   easyClose = TRUE,
                                   footer = NULL))
                               }
-                              
+
                               #If training dataset is NULL then create a new one
                               if(is.null(Result_list$Training_Dataset)){
                                 Interim <- DATA %>% dplyr::select(1:4) %>% dplyr::filter(Cell_no %in% unique(c(selected_cells_unassigned(), selected_cells_assigned()))) %>% dplyr::mutate(Label = input$Label_name)
                                 Result_list$Training_Dataset <- Interim
                               }
-                              
+
                               #If training dataset has already been created bind the new rows
                               if(!is.null(Result_list$Training_Dataset)){
                                 #First we will remove cells that are already present in the Training dataset and need to be overwritten
@@ -1068,7 +1068,7 @@ Image_based_phenotyper_App_launcher2 <-
                             }
                           },
                           ignoreInit = TRUE)
-      
+
       #If the user hits the remove selected cells button
       shiny::observeEvent(input$Remove_Cells,
                           {
@@ -1078,21 +1078,21 @@ Image_based_phenotyper_App_launcher2 <-
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             #IF Training dataset has not been created
                             else if(is.null(Result_list$Training_Dataset)) shiny::showModal(modalDialog(
                               paste0("Training dataset has not been created yet"),
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             #If everything OK proceed with removal of cells from the dataset
                             else{
                               Result_list$Training_Dataset <- Result_list$Training_Dataset %>% dplyr::filter(!Cell_no %in% unique(c(selected_cells_unassigned(), selected_cells_assigned())))
                             }
                           },
                           ignoreInit = TRUE)
-      
+
       #If the user hits the remove all cells button
       shiny::observeEvent(input$Remove_All,
                           {
@@ -1102,7 +1102,7 @@ Image_based_phenotyper_App_launcher2 <-
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             else{
                               #Show an alert
                               shinyalert::shinyalert(title = "WARNING!",
@@ -1119,7 +1119,7 @@ Image_based_phenotyper_App_launcher2 <-
                             }
                           },
                           ignoreInit = TRUE)
-      
+
       #If the user hits the remove all labels button
       shiny::observeEvent(input$Remove_label,
                           {
@@ -1129,21 +1129,21 @@ Image_based_phenotyper_App_launcher2 <-
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             #IF label is not provided
                             else if(input$Label_name == "") shiny::showModal(modalDialog(
                               paste0("Cell label must be provided"),
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             #If label is not present in training dataset
                             else if(!input$Label_name %in% unique(Result_list$Training_Dataset$Label)) shiny::showModal(modalDialog(
                               paste0(input$Label_name, " is not present in the training dataset"),
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             else{
                               #Show an alert
                               shinyalert::shinyalert(title = "WARNING!",
@@ -1160,7 +1160,7 @@ Image_based_phenotyper_App_launcher2 <-
                             }
                           },
                           ignoreInit = TRUE)
-      
+
       #If the user hits fit model button
       shiny::observeEvent(input$Fit_model,
                           {
@@ -1170,7 +1170,7 @@ Image_based_phenotyper_App_launcher2 <-
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             else{
                               #IF NO SPATIAL INFORMATION IS REQUIRED
                               if(!as.logical(input$GO_spatial)){
@@ -1185,17 +1185,17 @@ Image_based_phenotyper_App_launcher2 <-
                                                        confirmButtonText = "Proceed",
                                                        cancelButtonText = "Cancel",
                                                        callbackR = function(){
-                                                         
+
                                                          #GENERATE THE FEATURE DATA
                                                          shiny::showModal(modalDialog("Obtaining the features from the training dataset", footer=NULL))
                                                          Feature_DATA <- DATA %>% dplyr::filter(Cell_no %in% Result_list$Training_Dataset$Cell_no) %>% dplyr::select(Cell_no, dplyr::all_of(as.character(input$Model_vars)))
                                                          Final_Training_Data <- dplyr::left_join(Result_list$Training_Dataset, Feature_DATA, by = "Cell_no")
                                                          shiny::removeModal()
-                                                         
+
                                                          #FIT THE MODEL
                                                          shiny::showModal(modalDialog("Fitting the model", footer=NULL))
-                                                         
-                                                         
+
+
                                                          #Random Forest pathway
                                                          if(input$Method == "Random forest"){
                                                            Model_recipe <-
@@ -1207,10 +1207,10 @@ Image_based_phenotyper_App_launcher2 <-
                                                                                     mtry = ceiling(as.numeric(input$RF_mtry)* ncol(Final_Training_Data)-5),
                                                                                     trees = input$RF_trees,
                                                                                     min_n = 1)
-                                                               
+
                                                              )
                                                            Model <- parsnip::fit(Model_recipe , Final_Training_Data)
-                                                           
+
                                                            #Define the model and the parameters in the result list
                                                            Result_list$Model <- Model
                                                            Result_list$Model_Param <- list(Model_type = "Random forest",
@@ -1239,7 +1239,7 @@ Image_based_phenotyper_App_launcher2 <-
                                                                                    stop_iter = Inf)
                                                              )
                                                            Model <- parsnip::fit(Model_recipe , Final_Training_Data)
-                                                           
+
                                                            #Define the model and the parameters in the result list
                                                            Result_list$Model <- Model
                                                            Result_list$Model_Param <- list(Model_type = "XG boost",
@@ -1265,7 +1265,7 @@ Image_based_phenotyper_App_launcher2 <-
                                                                             penalty = as.numeric(input$Penalty))
                                                              )
                                                            Model <- parsnip::fit(Model_recipe , Final_Training_Data)
-                                                           
+
                                                            #Define the model and the parameters in the result list
                                                            Result_list$Model <- Model
                                                            Result_list$Model_Param <- list(Model_type = "NNET",
@@ -1279,11 +1279,11 @@ Image_based_phenotyper_App_launcher2 <-
                                                            )
                                                          }
                                                          shiny::removeModal()
-                                                         
+
                                                        }
                                 )
                               }
-                              
+
                               #IF SPATIAL
                               if(as.logical(input$GO_spatial)){
                                 #Show an alert that spatial data will be used
@@ -1298,10 +1298,10 @@ Image_based_phenotyper_App_launcher2 <-
                                                        confirmButtonText = "Proceed",
                                                        cancelButtonText = "Cancel",
                                                        callbackR = function(){
-                                                         
+
                                                          #GENERATE THE FEATURE DATA
                                                          shiny::showModal(modalDialog("Obtaining the features from the training dataset and performing spatial information sharing...", footer=NULL))
-                                                         
+
                                                          #Obtain all the data and select only the features of interest
                                                          Neighbor_Feature_DATA <- DATA %>% dplyr::select(1:4, dplyr::all_of(as.character(input$Model_vars)))
                                                          #Perform a sort of message passing based on the customized version of UTAG message passing function
@@ -1320,17 +1320,17 @@ Image_based_phenotyper_App_launcher2 <-
                                                          #Change the names to reflect that this info comes from the neighbors
                                                          names(Neighbor_Feature_DATA)[-1] <-stringr::str_c("Neighbor_", names(Neighbor_Feature_DATA)[-1], sep = "")
                                                          shiny::removeModal()
-                                                         
+
                                                          #Obtaining the traditional features
                                                          shiny::showModal(modalDialog("Generating the final training datasets", footer=NULL))
                                                          Feature_DATA <- DATA %>% dplyr::filter(Cell_no %in% Result_list$Training_Dataset$Cell_no) %>% dplyr::select(Cell_no, dplyr::all_of(as.character(input$Model_vars)))
                                                          Feature_DATA <-dplyr::left_join(Feature_DATA, Neighbor_Feature_DATA, by = "Cell_no")
                                                          Final_Training_Data <- dplyr::left_join(Result_list$Training_Dataset, Feature_DATA, by = "Cell_no")
                                                          shiny::removeModal()
-                                                         
+
                                                          #FIT THE MODEL
                                                          shiny::showModal(modalDialog("Fitting the model", footer=NULL))
-                                                         
+
                                                          #Random Forest pathway
                                                          if(input$Method == "Random forest"){
                                                            Model_recipe <-
@@ -1344,7 +1344,7 @@ Image_based_phenotyper_App_launcher2 <-
                                                                                     min_n = 1)
                                                              )
                                                            Model <- parsnip::fit(Model_recipe , Final_Training_Data)
-                                                           
+
                                                            #Define the model and the parameters in the result list
                                                            Result_list$Model <- Model
                                                            Result_list$Model_Param <- list(Model_type = "Random forest",
@@ -1379,7 +1379,7 @@ Image_based_phenotyper_App_launcher2 <-
                                                                                    stop_iter = Inf)
                                                              )
                                                            Model <- parsnip::fit(Model_recipe , Final_Training_Data)
-                                                           
+
                                                            #Define the model and the parameters in the result list
                                                            Result_list$Model <- Model
                                                            Result_list$Model_Param <- list(Model_type = "XG boost",
@@ -1411,7 +1411,7 @@ Image_based_phenotyper_App_launcher2 <-
                                                                             penalty = as.numeric(input$Penalty))
                                                              )
                                                            Model <- parsnip::fit(Model_recipe , Final_Training_Data)
-                                                           
+
                                                            #Define the model and the parameters in the result list
                                                            Result_list$Model <- Model
                                                            Result_list$Model_Param <- list(Model_type = "NNET",
@@ -1437,7 +1437,7 @@ Image_based_phenotyper_App_launcher2 <-
                             }
                           },
                           ignoreInit = TRUE)
-      
+
       #If the user hits the test button
       shiny::observeEvent(input$Test_model,
                           {
@@ -1447,27 +1447,27 @@ Image_based_phenotyper_App_launcher2 <-
                               easyClose = TRUE,
                               footer = NULL)
                             )
-                            
+
                             #If there is an active model proceed
                             else{
                               #If no spatial context is needed
                               if(!as.logical(Result_list$Model_Param$Spatial_context)){
                                 Test_Data <- DATA %>% dplyr::filter(Subject_Names == input$Image_name)
                                 Test_DATA_features <- Test_Data %>% dplyr::select(dplyr::all_of(Result_list$Model_Param$Model_features))
-                                
+
                                 Predictions <- predict(Result_list$Model, new_data = Test_DATA_features, type = "prob")
                                 Col_index <- max.col(Predictions, ties.method = "random")
                                 Predictions <- tibble(Label = colnames(Predictions)[Col_index],
                                                       Probability =purrr::map2_dbl(.x = 1:nrow(Predictions), .y = Col_index, function(.x, .y) Predictions[[.x, .y]]))
                                 Predictions$Label <- substr(Predictions$Label, start = 7, stop = nchar(Predictions$Label))
-                                
+
                                 Result_list$Test_Dataset <-dplyr::bind_cols(Test_Data %>% dplyr::select(1:4),
                                                                             Predictions)
                               }
-                              
+
                               #If Spatial context is needed
                               if(as.logical(Result_list$Model_Param$Spatial_context)){
-                                
+
                                 shinyalert::shinyalert(title = "WARNING!",
                                                        text = paste0("Spatial information will be used to test the model. This can be computationally intensive"),
                                                        type = "warning",
@@ -1482,7 +1482,7 @@ Image_based_phenotyper_App_launcher2 <-
                                                          Test_Data <- DATA %>% dplyr::filter(Subject_Names == input$Image_name)
                                                          #Generate the neighbor features
                                                          Neighbors_DATA_features <- Test_Data %>% dplyr::select(1:4, dplyr::all_of(Result_list$Model_Param$Model_features))
-                                                         
+
                                                          #Perform a sort of message passing based on the customized version of UTAG message passing function
                                                          Neighbors_DATA_features <- UTAG_message_passing_Image_based_phenotyper(
                                                            DATA = Neighbors_DATA_features,
@@ -1498,30 +1498,30 @@ Image_based_phenotyper_App_launcher2 <-
                                                          Neighbors_DATA_features <- Neighbors_DATA_features %>% dplyr::select(-X, -Y, -Subject_Names, -mean_DIST, -max_DIST, -N_neighbors)
                                                          #Change the names to reflect that this info comes from the neighbors
                                                          names(Neighbors_DATA_features)[-1] <-stringr::str_c("Neighbor_", names(Neighbors_DATA_features)[-1], sep = "")
-                                                         
+
                                                          #Get the actual data
                                                          Test_DATA_features <- Test_Data %>% dplyr::select(Cell_no, dplyr::all_of(Result_list$Model_Param$Model_features))
-                                                         
+
                                                          #Bind both datasets
                                                          Test_DATA_features <-dplyr::left_join(Test_DATA_features, Neighbors_DATA_features, by = "Cell_no") %>% dplyr::select(-Cell_no)
-                                                         
+
                                                          #Proceed with the predictions
                                                          Predictions <- predict(Result_list$Model, new_data = Test_DATA_features, type = "prob")
                                                          Col_index <- max.col(Predictions, ties.method = "random")
                                                          Predictions <- tibble(Label = colnames(Predictions)[Col_index],
                                                                                Probability =purrr::map2_dbl(.x = 1:nrow(Predictions), .y = Col_index, function(.x, .y) Predictions[[.x, .y]]))
                                                          Predictions$Label <- substr(Predictions$Label, start = 7, stop = nchar(Predictions$Label))
-                                                         
+
                                                          Result_list$Test_Dataset <-dplyr::bind_cols(Test_Data %>% dplyr::select(1:4),
                                                                                                      Predictions)
                                                        }
                                 )
-                                
+
                               }
                             }
                           },
                           ignoreInit = TRUE)
-      
+
       #If the user hits the Download button
       shiny::observeEvent(input$Download_model,
                           {
@@ -1536,7 +1536,7 @@ Image_based_phenotyper_App_launcher2 <-
                               Cell_phenotyping_model <<- list(Training_dataset = Result_list$Training_Dataset,
                                                               Model_parameters = Result_list$Model_Param ,
                                                               Model = Result_list$Model)
-                              
+
                               shiny::showModal(modalDialog(
                                 paste0("An object called 'Cell_phenotyping_model' has been created in the GlobalEnvironment. Use it in the Model_cell_phenotyper function to predict cell phenotypes"),
                                 easyClose = TRUE,
@@ -1545,16 +1545,16 @@ Image_based_phenotyper_App_launcher2 <-
                             }
                           },
                           ignoreInit = TRUE)
-      
+
       #If browser is closed end the app
-      session$onSessionEnded(function() { 
+      session$onSessionEnded(function() {
         future::plan("future::sequential")
         memoise::forget(Memoised_importer)
         gc()
-        shiny::stopApp() 
+        shiny::stopApp()
       })
     }
-    
+
     #Run the server
     message("Always stop current R execution if you want to continue with your R session")
     shiny::shinyApp(user_interface, server)
@@ -1565,4 +1565,3 @@ Image_based_phenotyper_App_launcher2 <-
 
 
 
-  

@@ -113,19 +113,19 @@
 #'
 #' @export
 
-Clustering_Phenotyper2 <-
+Clustering_Phenotyper <-
   function(DATA,
            Strategy,
            Force_N_Phenotypes = FALSE,
 
            #Denoising parameters
-           Apply_Denoise = FALSE, 
-           Denoising = NULL, 
-           Percentile = NULL, 
-           N_Standard_Deviations = NULL, 
-           Selected_threshold = NULL, 
-           Min_cell_no = NULL, 
-           Distance_radius = NULL, 
+           Apply_Denoise = FALSE,
+           Denoising = NULL,
+           Percentile = NULL,
+           N_Standard_Deviations = NULL,
+           Selected_threshold = NULL,
+           Min_cell_no = NULL,
+           Distance_radius = NULL,
 
            #Dimension reduction
            Perform_Dimension_reduction = FALSE,
@@ -138,47 +138,47 @@ Clustering_Phenotyper2 <-
            Pre_processed_data = NULL,
 
            #Parameters for Consensus Clustering
-           Max_N_phenotypes = NULL, 
-           Consensus_reps = NULL, 
-           Consensus_p_Items = NULL, 
+           Max_N_phenotypes = NULL,
+           Consensus_reps = NULL,
+           Consensus_p_Items = NULL,
            Consensus_Cluster_Alg = NULL,
-           Consensus_Distance = NULL, 
-           Consensus_Name = NULL, 
+           Consensus_Distance = NULL,
+           Consensus_Name = NULL,
 
            #Parameters for Self-Organizing Maps
-           Max_SOM_phenotypes = NULL, 
+           Max_SOM_phenotypes = NULL,
 
            #Parameters for Graph-Based approaches
-           Nearest_neighbors_for_graph = NULL, 
-           Graph_Method = NULL, 
-           Graph_Resolution = NULL, 
-           N_steps = NULL, 
+           Nearest_neighbors_for_graph = NULL,
+           Graph_Method = NULL,
+           Graph_Resolution = NULL,
+           N_steps = NULL,
 
            #Parameters for K means Meta Clustering
-           N_K_centroids = NULL, 
-           Max_N_phenotypes_Meta = NULL, 
-           Consensus_reps_Meta = NULL, 
-           Consensus_p_Items_Meta = NULL, 
-           Consensus_Name_Meta = NULL, 
+           N_K_centroids = NULL,
+           Max_N_phenotypes_Meta = NULL,
+           Consensus_reps_Meta = NULL,
+           Consensus_p_Items_Meta = NULL,
+           Consensus_Name_Meta = NULL,
 
            #Parameters for Batched K means
-           Batch_size = NULL, 
+           Batch_size = NULL,
            Max_N_phenotypes_Batch = NULL,
-           N_initiations = NULL, 
-           Max_iterations = NULL, 
+           N_initiations = NULL,
+           Max_iterations = NULL,
 
            #Parameters for Gaussian Mixture Model
-           Quality_metric = NULL, 
-           Max_N_phenotypes_GMM = NULL, 
-           Max_iterations_km = NULL, 
-           Max_iterations_em = NULL, 
-           GMM_Distance = NULL, 
+           Quality_metric = NULL,
+           Max_N_phenotypes_GMM = NULL,
+           Max_iterations_km = NULL,
+           Max_iterations_em = NULL,
+           GMM_Distance = NULL,
 
            #Parameters for CLARA clustering
-           Samples_CLARA = NULL, 
-           Sample_per_CLARA = NULL, 
-           Max_N_phenotypes_CLARA = NULL, 
-           Distance_CLARA = NULL, 
+           Samples_CLARA = NULL,
+           Sample_per_CLARA = NULL,
+           Max_N_phenotypes_CLARA = NULL,
+           Distance_CLARA = NULL,
            N_cores = NULL
   ) {
     on.exit(gc())
@@ -222,20 +222,20 @@ Clustering_Phenotyper2 <-
         if(!Perform_Dimension_reduction) stop("If Clustering needs to be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
       }
     }
-    
+
     #If Pre-processed data provided obtain the datasets from the object provided
     if(!is.null(Pre_processed_data)){
       message("Pre_processed_data provided. Pre-processing related arguments will be ignored.")
       if(names(Pre_processed_data)[1] != "Pre_processing_argument") stop("Pre_processing_argument not found in Pre_processed_data object provided")
-      
+
       Apply_Denoise <- Pre_processed_data[["Pre_processing_argument"]][["Apply_Denoise"]]
       Perform_Dimension_reduction <- Pre_processed_data[["Pre_processing_argument"]][["Perform_Dimension_reduction"]]
-      
+
       if(Apply_Denoise & !Perform_Dimension_reduction){
         DATA <- Pre_processed_data[["DATA"]]
         MARKERS <- Pre_processed_data[["MARKERS"]]
         DATA_NOISE <- Pre_processed_data[["DATA_NOISE"]]
-        
+
       }
       if(!Apply_Denoise & Perform_Dimension_reduction){
         DATA <- Pre_processed_data[["DATA"]]
@@ -511,14 +511,14 @@ Clustering_Phenotyper2 <-
 
     #If pre-processed data is not provided, perform data pre-processing as required by user
     if(is.null(Pre_processed_data)){
-      
+
       DATA_Reduction <- NULL #Generate a NULL DATA_Reduction just in case it is not generated and evaluated by Denoising function
-      
+
       #Perform dimension reduction if required
       if(Perform_Dimension_reduction){
-        DATA_Reduction <- 
+        DATA_Reduction <-
           CSM_Dimension_reduction_function(Original_data = DATA,
-                                           
+
                                            Dimension_reduction_strategy = Dimension_reduction,
                                            Dimension_reduction_prop = Dimension_reduction_prop
                                            )
@@ -528,23 +528,23 @@ Clustering_Phenotyper2 <-
       if(Apply_Denoise){
 
         print("Filtering out noisy cells")
-        
-        Denoising_results <- 
+
+        Denoising_results <-
           CSM_Denoising_function(
             Original_data = DATA,
-            
-            Denoising_strategy = Denoising, 
-            
-            Percentile = Percentile, 
-            N_Standard_Deviations = N_Standard_Deviations, 
-            Selected_threshold = Selected_threshold, 
-            
+
+            Denoising_strategy = Denoising,
+
+            Percentile = Percentile,
+            N_Standard_Deviations = N_Standard_Deviations,
+            Selected_threshold = Selected_threshold,
+
             Perform_Dimension_reduction = Perform_Dimension_reduction,
             DATA_Reduction = DATA_Reduction,
-            Min_cell_no = Min_cell_no, 
-            Distance_radius = Distance_radius 
+            Min_cell_no = Min_cell_no,
+            Distance_radius = Distance_radius
           )
-        
+
         #Generate two tibbles, one with noisy cells and other (DATA) with the actual cells
         NOISE_VECTOR <- Denoising_results[["NOISE_VECTOR"]]
         DATA_NOISE <- Denoising_results[["DATA_NOISE"]]
@@ -654,63 +654,63 @@ Clustering_Phenotyper2 <-
 
     ##################################CLUSTERING######################################
 
-    DATA_Phenotypes <- 
+    DATA_Phenotypes <-
       CSM_Clustering_function(
         Original_data = DATA,
         MARKERS = MARKERS,
-        
+
         Strategy = Strategy,
         Force_N_Clusters = Force_N_Phenotypes,
-        
-        Max_N_clusters_Consensus = Max_N_phenotypes, 
-        Consensus_reps = Consensus_reps, 
-        Consensus_p_Items = Consensus_p_Items, 
+
+        Max_N_clusters_Consensus = Max_N_phenotypes,
+        Consensus_reps = Consensus_reps,
+        Consensus_p_Items = Consensus_p_Items,
         Consensus_Cluster_Alg = Consensus_Cluster_Alg,
-        Consensus_Distance = Consensus_Distance, 
-        Consensus_Name = Consensus_Name, 
-        
-        Max_SOM_clusters = Max_SOM_phenotypes, 
-        
+        Consensus_Distance = Consensus_Distance,
+        Consensus_Name = Consensus_Name,
+
+        Max_SOM_clusters = Max_SOM_phenotypes,
+
         Graph_type = "SNN", #ONLY SNN supported in for clustering phenotyper
-        Nearest_neighbors_for_graph = Nearest_neighbors_for_graph, 
+        Nearest_neighbors_for_graph = Nearest_neighbors_for_graph,
         Graph_Method = Graph_Method,
-        Graph_Resolution = Graph_Resolution, 
-        N_steps = N_steps, 
-        
-        N_K_centroids = N_K_centroids, 
-        Max_N_clusters_Meta = Max_N_phenotypes_Meta, 
-        Consensus_reps_Meta = Consensus_reps_Meta, 
+        Graph_Resolution = Graph_Resolution,
+        N_steps = N_steps,
+
+        N_K_centroids = N_K_centroids,
+        Max_N_clusters_Meta = Max_N_phenotypes_Meta,
+        Consensus_reps_Meta = Consensus_reps_Meta,
         Consensus_p_Items_Meta = Consensus_p_Items_Meta,
-        Consensus_Name_Meta = Consensus_Name_Meta, 
-        
+        Consensus_Name_Meta = Consensus_Name_Meta,
+
         Batch_size = Batch_size,
-        Max_N_clusters_Batch = Max_N_phenotypes_Batch, 
-        N_initiations = N_initiations, 
-        Max_iterations = Max_iterations, 
-        
-        Quality_metric = Quality_metric, 
-        Max_N_clusters_GMM = Max_N_phenotypes_GMM, 
-        Max_iterations_km = Max_iterations_km, 
+        Max_N_clusters_Batch = Max_N_phenotypes_Batch,
+        N_initiations = N_initiations,
+        Max_iterations = Max_iterations,
+
+        Quality_metric = Quality_metric,
+        Max_N_clusters_GMM = Max_N_phenotypes_GMM,
+        Max_iterations_km = Max_iterations_km,
         Max_iterations_em = Max_iterations_em,
-        GMM_Distance =  GMM_Distance, 
-        
-        Samples_CLARA = Samples_CLARA, 
-        Sample_per_CLARA = Sample_per_CLARA, 
-        Max_N_clusters_CLARA = Max_N_phenotypes_CLARA, 
+        GMM_Distance =  GMM_Distance,
+
+        Samples_CLARA = Samples_CLARA,
+        Sample_per_CLARA = Sample_per_CLARA,
+        Max_N_clusters_CLARA = Max_N_phenotypes_CLARA,
         Distance_CLARA = Distance_CLARA,
-        N_cores = N_cores 
+        N_cores = N_cores
       )
-    
-    #Change the name of the column 'Cluster' for 'Phenotype' 
+
+    #Change the name of the column 'Cluster' for 'Phenotype'
     DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::rename("Phenotype" = "Cluster")
 
     ##################################RESULT PLOTTING AND FUNCTION EXIT######################################
 
     #If there are noisy and real cells bind both tibbles
     if(Apply_Denoise){
-      #Change the name of the column 'Cluster' for 'Phenotype' 
+      #Change the name of the column 'Cluster' for 'Phenotype'
       DATA_NOISE <- DATA_NOISE %>% dplyr::rename("Phenotype" = "Cluster")
-      
+
       DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::mutate(Phenotype = as.numeric(as.numeric(Phenotype) + 1))
       DATA_Phenotypes <- dplyr::bind_rows(DATA_NOISE, DATA_Phenotypes) %>% dplyr::arrange(Unique_ID) %>% dplyr::select(-Unique_ID)
       warning("If denoising is applied, Cluster number 1 contains the noisy cells")

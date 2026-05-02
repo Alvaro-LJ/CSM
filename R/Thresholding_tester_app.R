@@ -6,20 +6,20 @@
 #' @param Directory Character specifying the path to the folder where images are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Max_Gb_cache A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.
-#' 
+#'
 #' @seealso [Thresholding_function()], [Thresholding_function_tailored()]
 #'
 #' @details
 #' In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the [Smart_image_importer()] function. Loaded images will
-#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit. 
-#' 
+#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+#'
 #' Although the APP has been designed to work with images, it can be executed without providing an image directory. If no image directory is provided, only cell information
 #' will be loaded into the APP.
-#' 
-#' Image settings in the control panel allow the user to control the image channel display. 
-#' 
+#'
+#' Image settings in the control panel allow the user to control the image channel display.
+#'
 #' User can use the 'Color', 'Add channel', 'Remove channel' and 'Reset' buttons to merge different channels into a single image. The add channel button
-#' will color the current channel according to the color provided and will be merged to the current image. 
+#' will color the current channel according to the color provided and will be merged to the current image.
 #'
 #' Thresholding methods and type of thresholding (GLOBAL or LOCAL) can be toggled using the control panel.
 #'
@@ -62,12 +62,12 @@
 #'
 #' @export
 
-Thresholding_tester_app2 <-
+Thresholding_tester_app <-
   function(DATA,
            Directory = NULL,
            Ordered_Channels = NULL,
            Max_Gb_cache = 10){
-    
+
     ####Check required packages####
     {
       if(!requireNamespace("magick", quietly = FALSE)) stop(
@@ -80,7 +80,7 @@ Thresholding_tester_app2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("RBioFormats")
                })
         )
@@ -90,31 +90,31 @@ Thresholding_tester_app2 <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("EBImage")
                })
         )
       )
     }
-    
+
     ####CHECK ARGUMENTS####
     DATA <- DATA
-    
+
     #Test that DATA provided is adequate
     if(!identical(names(DATA)[1:4], c("Cell_no", "X", "Y", "Subject_Names"))) {
       stop("Please generate an appropiate data object using the Data_arrange_function")
     }
     #Check that ordered channels and channels to keep are unique
     if(length(Ordered_Channels) != length(unique(Ordered_Channels))) stop("Ordered_Channels must contain non-duplicated character values")
-    
+
     #Check that the Max_Gb_cache is OK
     if(!all(is.numeric(Max_Gb_cache), Max_Gb_cache > 0, length(Max_Gb_cache) == 1)) stop("Max_Gb_cache must be a numeric value > 0")
-    
-    #Generate a memoised version of the the smart image importer 
+
+    #Generate a memoised version of the the smart image importer
     Memoised_importer <- memoise::memoise(
       #Function to be memorized
       Smart_image_importer,
-      
+
       #Argument controlling memory use
       cache = cachem::cache_mem(
         max_size = Max_Gb_cache * 1024 * 1024 * 1024, #10 Gb is the max amount of bytes
@@ -125,8 +125,8 @@ Thresholding_tester_app2 <-
         logfile = NULL
       )
     )
-    
-    
+
+
     ####BUILD Look-up table####
     #Try to build it, if no images provided it will return an error and then the app will be executed without images
     try({
@@ -135,7 +135,7 @@ Thresholding_tester_app2 <-
       Image_directory_tibble <- tibble::tibble(Image_name = Image_names,
                                                Image_path = Directory_path)
       print(paste0(length(Image_names), " files found in Directory. Finding matches between file names and Subject_Names in DATA..."))
-      
+
       #Generate the look-up table
       Look_up_table <-
         purrr::map_dfr(unique(DATA$Subject_Names), function(Name){
@@ -143,7 +143,7 @@ Thresholding_tester_app2 <-
           Distance_vector <- as.double(adist(Name, Image_names, fixed = TRUE, ignore.case = TRUE))
           names(Distance_vector) <- Image_names
           Distance_vector <- sort(Distance_vector)
-          
+
           #Generate a tibble
           tibble::tibble(Subject_Names = Name,
                          Image_name = names(Distance_vector)[1],
@@ -152,15 +152,15 @@ Thresholding_tester_app2 <-
         })
       #Bind the paths
       Look_up_table <- dplyr::left_join(Look_up_table, Image_directory_tibble, by = "Image_name")
-      
-      
+
+
       #Find duplicates in Image_names and solve conflicts
       Duplicated_images <- duplicated(Look_up_table$Image_name)
       if(any(Duplicated_images)){
         print("Multiple matches found for certain images. Solving conflicts by closest match...")
-        
+
         Conflictive_images <- unique(Look_up_table$Image_name[duplicated(Look_up_table$Image_name)])
-        
+
         Losser_Subject_Names <-
           unique(
             unlist(
@@ -170,61 +170,61 @@ Thresholding_tester_app2 <-
               })
             )
           )
-        
+
         Look_up_table$Image_name[Look_up_table$Subject_Names %in% Losser_Subject_Names] <- NA
         Look_up_table$Image_path[Look_up_table$Subject_Names %in% Losser_Subject_Names] <- NA
-        
+
         N_conflictive_subject_names <- sum(Look_up_table$Subject_Names %in% Losser_Subject_Names)
-        
+
         print(paste0(N_conflictive_subject_names, " out of ", nrow(Look_up_table), " samples without an adequate image."))
       }
-      
+
       Images_in_Data <- unique(Look_up_table$Subject_Names)
     })
-    
-    
-    
+
+
+
     Channels_in_Data <- names(DATA)[-c(1:4)]
     Channels_in_images <- Ordered_Channels
     Thresholding_methods <- c("EBI_Otsu", "Kmeans", "Kmeans_Otsu", "Autothreshold", "TriClass_Otsu", "Mean", "Quantile", "Arbitrary", "Multi_level")
     Autothreshold_methods <- c("IJDefault", "Huang", "Huang2", "Intermodes", "IsoData", "Li", "MaxEntropy", "Mean",
                                "MinErrorI", "Minimum", "Moments", "Otsu", "RenyiEntropy", "Shanbhag", "Triangle", "Yen")
-    
+
     #####BUILD THE USER INTERFACE####
     {
       user_interface <- shiny::fluidPage(
-        
+
         #To make the sidebar collapsable
         shinyjs::useShinyjs(),
-        
+
         #Set the title and action button
         shiny::fluidRow(
           shiny::column(width = 3, shiny::h3("Thresholding exploration APP")),
           shiny::column(width = 2, shiny::actionButton("toggleSidebar", "Toggle", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")))
         ),
-        
+
         #To make the tags work
         shiny::tags$hr(),
-        
+
         #We want a two panel layout, one in the left containing the input parameters and the output in the right
         shiny::sidebarLayout(
           #Set the first column (which contains the user defined parameters)
           shiny::sidebarPanel(
             #ID and width
             id="sidebar",
-            
+
             #Button to toggle different rows
             shiny::fluidRow(
               shiny::actionButton("toggle_Image", "Image settings", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
               shiny::actionButton("toggle_Thresh", "Thresholding settings", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome"))
             ),
-            
+
             #IMAGE PARAMETERS
             shiny::h4("Image settings"),
             #Collapsable rows
             shiny::tags$div(
               class = "Image_settings",
-              
+
               #Image to be analyzed and basic controls
               shiny::fluidRow(
                 shiny::column(6, shiny::selectInput("Image_name", "Image", sort(unique(DATA$Subject_Names)), multiple = FALSE)),
@@ -236,7 +236,7 @@ Thresholding_tester_app2 <-
                                                          shiny::textInput("Ratio", "pixel size", value = "1")
                 ))
               ),
-              
+
               #Image channel, cell info and flipping
               shiny::fluidRow(
                 shiny::column(4, shiny::selectInput("Channel", "Channel", Channels_in_images, multiple = FALSE)),
@@ -244,14 +244,14 @@ Thresholding_tester_app2 <-
                 #Flip image
                 shiny::column(2, shiny::selectInput("X_flip", "Flip X", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE)),
                 shiny::column(2, shiny::selectInput("Y_flip", "Flip Y", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE))
-                
+
               ),
-              
+
               #image display controls
               shiny::fluidRow(
                 #Select the equalization
                 shiny::column(2, shiny::selectInput("Equalize", "Equalize", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE)),
-                
+
                 shiny::column(2, shiny::sliderInput("Degrees", "Rotate", min = -90, max = 90, value = 0, step = 90, ticks = FALSE)),
                 #Select the min point of the image
                 shiny::column(3, shiny::sliderInput("Min_Image", "Min", value = 0, min = 0, max = 100, step = 1, ticks = FALSE)),
@@ -260,7 +260,7 @@ Thresholding_tester_app2 <-
                 #Select the Gamma
                 shiny::column(2, shiny::sliderInput("Gamma", "Gamma", value = 0, min = -3, max = +3, step = 0.01, ticks = FALSE)),
               ),
-              
+
               #Color merging parameters
               shiny::fluidRow(
                 shiny::column(3, shiny::textInput("Color_channel", "Color", value = "blue")),
@@ -268,15 +268,15 @@ Thresholding_tester_app2 <-
                 shiny::column(3, shiny::actionButton("Remove_color", "Remove channel", shiny::icon("minus", library = "font-awesome"))),
                 shiny::column(3, shiny::actionButton("Reset_image", "Reset", icon = shiny::icon("redo")))
               )
-              
+
             ),
-            
+
             #IMAGE PARAMETERS
             shiny::h4("Thresholding settings"),
             #Collapsable rows
             shiny::tags$div(
               class = "Thresholding_settings",
-              
+
               shiny::fluidRow(
                 #Select the thresholding method
                 shiny::column(8, shiny::selectInput("Threshold_method", "Thresholding method", Thresholding_methods, multiple = FALSE)),
@@ -300,7 +300,7 @@ Thresholding_tester_app2 <-
                                       shiny::numericInput("Levels", "Number of Levels", value = 3, min = 2, max = 10)
               )
             ),
-            
+
             #The UI will be completed with summary tables of the sample
             shiny::fluidRow(
               shiny::column(6, htmltools::p("Final threshold/s is: ", shiny::tableOutput("Final_threshold"))),
@@ -312,13 +312,13 @@ Thresholding_tester_app2 <-
               shiny::column(3, shiny::actionButton("reset", shiny::icon("redo"), label = "Reset selection"))
             )
           ),
-          
+
           #Set the outcome columns
           shiny::mainPanel(
-            
+
             #Give the main panel an ID
             id = "mainPanel",
-            
+
             #First row will have the Photo and the overview of marker intensity by cell
             shiny::fluidRow(
               shiny::column(5, shiny::plotOutput("Photo",
@@ -346,7 +346,7 @@ Thresholding_tester_app2 <-
         body, label, input, button, select {
           font-family: "Arial";
         }'))),
-        
+
         shiny::tags$script(htmltools::HTML("
     $(document).on('click', '#toggle_Image', function() {
       $('.Image_settings').toggle();
@@ -359,7 +359,7 @@ Thresholding_tester_app2 <-
     }
     ####BUILD THE SERVER####
     server <- function(input, output, session){
-      
+
       # JS function to switch classes when togglin sidebar
       toggle_script <- "
     if ($('#sidebar').is(':visible')) {
@@ -376,7 +376,7 @@ Thresholding_tester_app2 <-
       shiny::observeEvent(input$toggleSidebar, {
         shinyjs::runjs(toggle_script)
       })
-      
+
       #All the reactives to be used
       #Generate a reactive with the real Image name and the channel number
       Photo_name <- shiny::reactive(try(as.character((Look_up_table %>% dplyr::filter(Subject_Names == input$Image_name))[1,5])))
@@ -402,10 +402,10 @@ Thresholding_tester_app2 <-
       Pixel_dist_ratio <- shiny::reactive(input$Ratio)
       ranges <- shiny::reactiveValues(x = NULL, y = NULL)#Control the user selected ranges
       #Generates a reactive that stores the original image coordinates and cropping parameters
-      Original_ranges <- 
+      Original_ranges <-
         shiny::reactiveValues(
           #Image dimension Original
-          Original_Dims_Width = NULL, 
+          Original_Dims_Width = NULL,
           Original_Dims_Height = NULL
         )
       Resolution <- shiny::reactive(input$Res)
@@ -421,7 +421,7 @@ Thresholding_tester_app2 <-
         #Return the final data
         return(Final_DATA)
       })
-      
+
       #Generate the thresholded DATA
       Thresholded_DATA <- shiny::reactive({
         DATA_thresholded <- Thresholding_function(
@@ -442,27 +442,27 @@ Thresholding_tester_app2 <-
                                                                         LOCAL = Local_threshold(),
                                                                         CASE = Case_id())
       )
-      
+
       #The reactive that controls the parameter list for image coloring (Null by default at start)
       Image_coloring_list <- shiny::reactiveValues(Parameter_list = NULL)
-      
+
       #Control the buttons for the color list
       #The ADD CHANNEL BUTTON
       shiny::observeEvent(
-        input$Add_color, 
+        input$Add_color,
         {
-          
+
           #First generate the element_list
-          Current_Channel_list <- 
+          Current_Channel_list <-
             list(
               channel_index = which(input$Channel == Ordered_Channels),
-              color = input$Color_channel, 
-              gamma = as.numeric(10^input$Gamma), 
+              color = input$Color_channel,
+              gamma = as.numeric(10^input$Gamma),
               min = as.numeric(input$Min_Image),
               max = as.numeric(input$Max_Image),
               equalize = as.logical(input$Equalize)
             )
-          
+
           if(berryFunctions::is.error(grDevices::col2rgb(Current_Channel_list$color))){
             shiny::showModal(modalDialog(
               paste0(Current_Channel_list$color, " is not an adequate color name or HEX code, please review"),
@@ -470,7 +470,7 @@ Thresholding_tester_app2 <-
               footer = NULL)
             )
           }
-          
+
           #If the Image_coloring_list is NULL then generate this single output
           else if(is.null(Image_coloring_list$Parameter_list)){
             #Generate the list
@@ -478,20 +478,20 @@ Thresholding_tester_app2 <-
             #Add the names
             names(Image_coloring_list$Parameter_list) <- input$Channel
           }
-          
+
           #If the Image_coloring_list is not NULL, check if the color or the input names are already present
           else{
-            
+
             #Generate logical values if any of both are present
             Channel_present_in_list <- input$Channel %in% names(Image_coloring_list$Parameter_list)
             Color_present_in_list <- input$Color_channel %in% purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]])
-            
+
             #If not present, we need to create a new element in the list
             if(!any(Channel_present_in_list, Color_present_in_list)){
               Image_coloring_list$Parameter_list <- append(Image_coloring_list$Parameter_list, list(Current_Channel_list))
               names(Image_coloring_list$Parameter_list)[length(Image_coloring_list$Parameter_list)] <- input$Channel
             }
-            
+
             #If channel name is already present and color is not present
             if(Channel_present_in_list & !Color_present_in_list){
               #print a dialogue box
@@ -503,7 +503,7 @@ Thresholding_tester_app2 <-
               #Proceed to replace the channel
               Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
             }
-            
+
             #If channel name is not present and color is repeated
             if(!Channel_present_in_list & Color_present_in_list){
               #print a dialogue box
@@ -517,8 +517,8 @@ Thresholding_tester_app2 <-
               Image_coloring_list$Parameter_list[[Conflictive_element]] <- Current_Channel_list
               names(Image_coloring_list$Parameter_list)[[Conflictive_element]] <- input$Channel
             }
-            
-            #If channel name is present and the color is in use delete the color and replace the channel 
+
+            #If channel name is present and the color is in use delete the color and replace the channel
             if(Channel_present_in_list & Color_present_in_list){
               #print a dialogue box
               shiny::showModal(modalDialog(
@@ -538,10 +538,10 @@ Thresholding_tester_app2 <-
                 Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
               }
             }
-            
+
           }
         })
-      
+
       #REMOVE BUTTON
       shiny::observeEvent(
         input$Remove_color,
@@ -560,16 +560,16 @@ Thresholding_tester_app2 <-
               paste0(input$Channel, " will be removed"),
               easyClose = TRUE,
               footer = NULL)
-            ) 
+            )
             #Find conflictive channel
             Conflictive_channel <- which(names(Image_coloring_list$Parameter_list) == input$Channel)
             Image_coloring_list$Parameter_list <- Image_coloring_list$Parameter_list[-Conflictive_channel]
-            
+
             #If the length of Image_coloring_list$Parameter_list is 0 then turn it to null again
             if(length(Image_coloring_list$Parameter_list) == 0) Image_coloring_list$Parameter_list <- NULL
           }
         })
-      
+
       #RESET BUTTON
       shiny::observeEvent(
         input$Reset_image,
@@ -586,21 +586,21 @@ Thresholding_tester_app2 <-
                                  cancelButtonText = "Cancel",
                                  callbackR = function() Image_coloring_list$Parameter_list <- NULL
           )
-          
+
         })
-      
+
       #Reactive that imports the photograph and does the pre-processing
       Photo_reactive <- shiny::reactive({
         ####MOD CROPPING COORDINATES####
         Final_X_crop_coordinates <- NULL
         Final_Y_crop_coordinates <- NULL
-        
+
         #If cropping is required and image is rotated or flipped modify accordingly the cropping coordinates
         if(any(!is.null(ranges$x), !is.null(ranges$y))){
           #Obtain the preliminary image cropping coordinates
           Final_X_crop_coordinates <- sort(ceiling(ranges$x))
           Final_Y_crop_coordinates <- sort(ceiling(ranges$y))
-          
+
           #Account for X_flip
           if(as.logical(X_flip())){
             Final_X_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Width - Final_X_crop_coordinates))
@@ -609,30 +609,30 @@ Thresholding_tester_app2 <-
           if(as.logical(Y_flip())){
             Final_Y_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Height - Final_Y_crop_coordinates))
           }
-          
+
           #Account for rotation
           if(as.numeric(Degrees_rotate()) == 90){
             Old_X_coordinates <- Final_X_crop_coordinates
             Old_Y_coordinates <- Final_Y_crop_coordinates
             #Y is now X
             Final_Y_crop_coordinates <- Old_X_coordinates
-            #X is now Y 
+            #X is now Y
             Final_X_crop_coordinates <- Old_Y_coordinates
           }
-          
-          
+
+
           if(as.numeric(Degrees_rotate()) == -90){
             Old_X_coordinates <- Final_X_crop_coordinates
             Old_Y_coordinates <- Final_Y_crop_coordinates
-            
+
             #X is now the width minus the active Y coordinates
             Final_X_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Width - Old_Y_coordinates))
-            
+
             #Y is active X
             Final_Y_crop_coordinates <- Old_X_coordinates
           }
         }
-        
+
         ####OBTAIN THE IMAGE####
         Image <- Memoised_importer(
           N_cores = 2,
@@ -641,72 +641,72 @@ Thresholding_tester_app2 <-
           X_crop_coordinates = Final_X_crop_coordinates,
           Y_crop_coordinates = Final_Y_crop_coordinates
         )
-        
+
         ####Update Image and current Image dimension paramteres(will be used if crop is required by user)####
         Original_ranges$Original_Dims_Width <- Image$Original_Dims[1]
         Original_ranges$Original_Dims_Height <- Image$Original_Dims[2]
-        
+
         ####COLOR MERGING NOT REQUIRED####
         if(is.null(Image_coloring_list$Parameter_list)){
           #Get the single channel to be obtained
           Image$Image <- Image$Image[as.numeric(Channel_index())]
-          
+
           #Modify min max and gamma
           Image$Image <- Image$Image %>%
             magick::image_level(black_point = as.numeric(Photo_min()),
                                 white_point = as.numeric(Photo_max()),
                                 mid_point = as.numeric(Photo_gamma()))
-          
+
           #Equalize if necessary
           if(as.logical(Equalize())) Image$Image <- Image$Image %>% magick::image_equalize()
         }
-        
+
         ####COLOR MERGING REQUIRED####
         if(!is.null(Image_coloring_list$Parameter_list)){
-          
+
           #Perform RGB color merging
           Image$Image <- Image_channel_color_merger(Image = Image$Image,
                                                     Parameter_list = Image_coloring_list$Parameter_list)
-          
+
         }
-        
+
         ####ROTATE (ALSO ROTATE ORIGINAL DIMS, CURRENT DIMS and CROP COORDS if angle is 90 or -90)####
         if(as.numeric(Degrees_rotate()) != 0){
           #Rotate the image
           Image$Image <- Image$Image %>% magick::image_rotate(degrees = as.numeric(Degrees_rotate()))
-          
+
           #Change the associated dimensions (for adequate plotting)
           Image$Original_Dims <- rev(Image$Original_Dims)
           Image$Current_Dims <- rev(Image$Current_Dims)
-          
+
           #If the image has been cropped the switch X for Y
           if(any(!is.null(ranges$x), !is.null(ranges$y))){
             #Get the old crops in a separate object
             Old_X_crop_coords <- Image$X_crop_coords
             Old_Y_crop_coords <- Image$Y_crop_coords
-            
+
             #Make the switch
             Image$X_crop_coords <- Old_Y_crop_coords
             Image$Y_crop_coords <- Old_X_crop_coords
           }
         }
-        
+
         ####FLIP AND FLOP####
         if(as.logical(X_flip())) Image$Image <- Image$Image %>% magick::image_flop()
         if(!as.logical(Y_flip())) Image$Image <- Image$Image %>% magick::image_flip()#Opposite due to ggplot2 graph plotting for images
-        
-        
+
+
         ####RETURN FINAL PRODUCT####
         return(Image)
-        
+
       })
-      
+
       #PHOTO AS GGPLOT OBJECT (with adequate axis)
       Photo_plot_reactive <- shiny::reactive({
-        
+
         #Obtain the Image
         Photo <- Photo_reactive()$Image
-        
+
         #Obtain the final axis limits
         #If no cropping has been performed plot according to image dimension
         if(all(is.null(ranges$x), is.null(ranges$y))){
@@ -722,10 +722,10 @@ Thresholding_tester_app2 <-
           Axis_Height_Min <- min(Photo_reactive()$Y_crop_coords)
           Axis_Height_Max <- max(Photo_reactive()$Y_crop_coords)
         }
-        
+
         #Obtain the size in pixels to compute the aspect ratio
         Aspect_ratio_photo <- abs(Axis_Height_Max - Axis_Height_Min) / abs(Axis_Width_Max - Axis_Width_Min)
-        
+
         #Return the result as a scaffold ggplot_object
         Photo_plot <- ggplot() +
           annotation_raster(Photo, xmin = Axis_Width_Min, xmax = Axis_Width_Max, ymin = Axis_Height_Min, ymax = Axis_Height_Max, interpolate = TRUE)+
@@ -741,12 +741,12 @@ Thresholding_tester_app2 <-
                 aspect.ratio = Aspect_ratio_photo)
         return(Photo_plot)
       })
-      
+
       #Print the photo
       output$Photo <- shiny::renderPlot({
         #Try to Plot the result
         try(Photo <- Photo_plot_reactive())
-        
+
         #Obtain the data to plot
         DATA_plot <- Source_DATA() %>% dplyr::filter(Subject_Names == Case_id())
         #Modify pixel values if required
@@ -754,13 +754,13 @@ Thresholding_tester_app2 <-
           DATA_plot$X <- DATA_plot$X * as.numeric(Pixel_dist_ratio())
           DATA_plot$Y <- DATA_plot$Y * as.numeric(Pixel_dist_ratio())
         }
-        
+
         #Remove any cell not being plotted
         if(any(!is.null(ranges$x), !is.null(ranges$y))){
           DATA_plot <- DATA_plot %>% dplyr::filter(X >= min(ranges$x), X <= max(ranges$x),
                                                    Y >= min(ranges$y), Y <= max(ranges$y))
         }
-        
+
         #If the photo returns an error return the point image
         if(berryFunctions::is.error(Photo)){
           return(
@@ -781,29 +781,29 @@ Thresholding_tester_app2 <-
                        color = "red", size = 10, hjust = 0.5,
                        label = "UNABLE TO RENDER PHOTO\nUSE ME TO ZOOM IN")
           )
-          
+
         }
         #else Generate the plot with the photo
         else{
           #If no legend required
           if(is.null(Image_coloring_list$Parameter_list)) return(Photo)
-          
+
           #If legend is required due to channel merging
           if(!is.null(Image_coloring_list$Parameter_list)){
             #Generate the color tibble to generate the legend
-            color_tibble <- 
+            color_tibble <-
               tibble(Channel_index = 1:length(Image_coloring_list$Parameter_list),
                      Channel_name = names(Image_coloring_list$Parameter_list),
                      Color_names = purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]])
               ) %>% arrange(Channel_index)
             color_tibble$Channel_name = factor(color_tibble$Channel_name, levels = color_tibble$Channel_name)
-            
+
             return(
               Photo +
                 geom_point(aes(x = 1, y = 1, color = Channel_name), size = 0,
                            data = color_tibble) +
                 scale_color_manual("", values = color_tibble$Color_names) +
-                guides(color = guide_legend(ncol = 4, 
+                guides(color = guide_legend(ncol = 4,
                                             byrow = TRUE,
                                             override.aes = list(size = 10, shape = 15),
                                             position = "bottom",
@@ -817,30 +817,30 @@ Thresholding_tester_app2 <-
           }
         }
       })
-      
+
       #Control the zoom in of the Photo
       shiny::observeEvent(input$Photo_dblclick, {
         brush <- input$Photo_brush
         if (!is.null(brush)) {
           ranges$x <- c(brush$xmin, brush$xmax)
           ranges$y <- c(brush$ymin, brush$ymax)
-          
+
         } else {
           ranges$x <- NULL
           ranges$y <- NULL
         }
       })
-      
+
       #All cells marker expression
       #Create a reactive that will generate the very basic PLOT
       Cell_intensity_plot <-
         shiny::reactive({
           #Get data and change the axis to coordinate all three plots displayed
           DATA_plot <- Source_DATA() %>% dplyr::filter(Subject_Names == Case_id())
-          
+
           #Try to import the photo plot
           try(Photo <- Photo_plot_reactive())
-          
+
           #Generate the color
           color_fun <-
             circlize::colorRamp2(breaks = c(min(DATA_plot$Marker), quantile(DATA_plot$Marker, 0.99)),
@@ -848,13 +848,13 @@ Thresholding_tester_app2 <-
                                             alpha("red", 1))
             )
           DATA_plot$Color <- color_fun(DATA_plot$Marker)
-          
+
           #Remove any cell not being plotted
           if(any(!is.null(ranges$x), !is.null(ranges$y))){
             DATA_plot <- DATA_plot %>% dplyr::filter(X >= min(ranges$x), X <= max(ranges$x),
                                                      Y >= min(ranges$y), Y <= max(ranges$y))
           }
-          
+
           #Generate the final plot
           #If the Photo returns an error do not plot it
           if(berryFunctions::is.error(Photo)){
@@ -897,7 +897,7 @@ Thresholding_tester_app2 <-
               theme(plot.title = element_text(size = 12, hjust = 0.5))
             return(Final_plot)
           }
-          
+
         })
       #Send the plot to the UI
       output$Cell_by_intensity <- ggiraph::renderGirafe({
@@ -909,7 +909,7 @@ Thresholding_tester_app2 <-
         )
         return(plot)
       })
-      
+
       #Positive cells
       #Create a reactive that will generate the very basic PLOT
       Positive_cells_plot <- shiny::reactive({
@@ -918,17 +918,17 @@ Thresholding_tester_app2 <-
       })
       #Send the plot to the UI according to the thresholding method
       output$Positive_cells <- ggiraph::renderGirafe({
-        
+
         Positive_cells <- Positive_cells_plot()
         #Remove any cell not being plotted
         if(any(!is.null(ranges$x), !is.null(ranges$y))){
           Positive_cells <- Positive_cells %>% dplyr::filter(X >= min(ranges$x), X <= max(ranges$x),
                                                              Y >= min(ranges$y), Y <= max(ranges$y))
         }
-        
+
         #Try to Import the photo
         try(Photo <- Photo_plot_reactive())
-        
+
         #If there is an error with the Photo still execute the graph
         if(berryFunctions::is.error(Photo)){
           #Define behavior for 2 levels
@@ -1010,7 +1010,7 @@ Thresholding_tester_app2 <-
                                               data = Positive_cells) +
               ggtitle("Cells above threshold") +
               theme(plot.title = element_text(size = 12, hjust = 0.5))
-            
+
             #Send it to plot
             plot <- ggiraph::girafe(code = print(Plot_code),
                                     options = list(
@@ -1042,17 +1042,17 @@ Thresholding_tester_app2 <-
           }
         }
       })
-      
+
       #Histogram
       output$Histogram <- shiny::renderPlot(
         plot(Histo_list()[[1]])
       )
       #Threshold text
       output$Final_threshold <- shiny::renderTable(Histo_list()[[2]])
-      
+
       #Threshold sample summary
       output$Summary <- shiny::renderTable(Histo_list()[[3]])
-      
+
       #Selected cells and reset button
       selected_cells_intensity <- shiny::reactive(input$Cell_by_intensity_selected)
       selected_cells_positive <- shiny::reactive(input$Positive_cells_selected)
@@ -1072,16 +1072,16 @@ Thresholding_tester_app2 <-
         names(Final) <- c("Cell", "number")
         Final
       })
-      
+
       #If browser is closed end the app
-      session$onSessionEnded(function() { 
+      session$onSessionEnded(function() {
         future::plan("future::sequential")
         memoise::forget(Memoised_importer)
         gc()
-        shiny::stopApp() 
+        shiny::stopApp()
       })
     }
-    
+
     #Run the server
     message("Always stop current R execution if you want to continue with your R session")
     shiny::shinyApp(user_interface, server)

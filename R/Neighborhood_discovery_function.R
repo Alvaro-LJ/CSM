@@ -118,7 +118,7 @@
 #'
 #' @export
 
-Neighborhood_discovery_function2 <-
+Neighborhood_discovery_function <-
   function(DATA,
 
            Allowed_max_Dist,
@@ -148,7 +148,7 @@ Neighborhood_discovery_function2 <-
            Consensus_Name = NULL,
 
            #Parameters for Self-Organizing Maps
-           Max_SOM_neighborhoods = NULL, 
+           Max_SOM_neighborhoods = NULL,
 
            #Parameters for Graph methods
            Graph_type = NULL,
@@ -159,31 +159,31 @@ Neighborhood_discovery_function2 <-
            N_steps = NULL,
 
            #Parameters for K means Meta Clustering
-           N_K_centroids = NULL, 
-           Max_N_neighborhoods_Meta = NULL, 
-           Consensus_reps_Meta = NULL, 
-           Consensus_p_Items_Meta = NULL, 
-           Consensus_Name_Meta = NULL, 
+           N_K_centroids = NULL,
+           Max_N_neighborhoods_Meta = NULL,
+           Consensus_reps_Meta = NULL,
+           Consensus_p_Items_Meta = NULL,
+           Consensus_Name_Meta = NULL,
 
            #Parameters for Batched K means
-           Batch_size = NULL, 
+           Batch_size = NULL,
            Max_N_neighborhoods_Batch = NULL,
-           N_initiations = NULL, 
-           Max_iterations = NULL, 
+           N_initiations = NULL,
+           Max_iterations = NULL,
 
            #Parameters for Gaussian Mixture Model
            Quality_metric = NULL,
-           Max_N_neighborhoods_GMM = NULL, 
+           Max_N_neighborhoods_GMM = NULL,
            Max_iterations_km = NULL,
-           Max_iterations_em = NULL, 
-           GMM_Distance = NULL, 
+           Max_iterations_em = NULL,
+           GMM_Distance = NULL,
 
            #Parameters for CLARA clustering
-           Samples_CLARA = NULL, 
-           Sample_per_CLARA = NULL, 
-           Max_N_neighborhoods_CLARA = NULL, 
-           Distance_CLARA = NULL, 
-           N_cores = NULL 
+           Samples_CLARA = NULL,
+           Sample_per_CLARA = NULL,
+           Max_N_neighborhoods_CLARA = NULL,
+           Distance_CLARA = NULL,
+           N_cores = NULL
   ) {
     ##################################GENERAL ARGUMENT CHECK######################################
 
@@ -194,7 +194,7 @@ Neighborhood_discovery_function2 <-
     if(Force_N_Neighborhoods){
       if(!Strategy %in% c("SOM", "Batch_K_means", "GMM", "CLARA_clustering")) message("Force_N_Neighborhoods cannot be used with current strategy, argument will be ignored")
     }
-    
+
     #If NO Pre-processed data provided check if Stop_at_pre_processing is logical and other pre-processing variables
     if(is.null(Pre_processed_data)){
       if(!all(c("min_DIST", "max_DIST", "avg_DIST", "median_DIST") %in% names(DATA))) stop("DATA must be obtained from the Tailored_Closest_neighbor_calculator functions")
@@ -458,7 +458,7 @@ Neighborhood_discovery_function2 <-
     if(is.null(Pre_processed_data)){
       #Start executing the code
       print("Preparing data for analysis")
-      
+
       #Import closest neighbor data
       DATA_Neighbors <- DATA
 
@@ -474,9 +474,9 @@ Neighborhood_discovery_function2 <-
 
       #Perform dimension reduction if required
       if(Perform_Dimension_reduction){
-        
+
         #Provide unscaled with the 4 main columns (will be revomed by function)
-        DATA_Reduction <- 
+        DATA_Reduction <-
           CSM_Dimension_reduction_function(
             Original_data = Neighbor_patterns,
             Dimension_reduction_strategy = Dimension_reduction,
@@ -564,54 +564,54 @@ Neighborhood_discovery_function2 <-
     ##################################CLUSTERING######################################
 
     #Execute the clustering function
-    Neighbor_patterns <- 
+    Neighbor_patterns <-
       CSM_Clustering_function(
         Original_data = Neighbor_patterns,
         MARKERS = MARKERS,
-        
+
         Strategy = Strategy,
         Force_N_Clusters = Force_N_Neighborhoods,
-        
-        Max_N_clusters_Consensus = Max_N_neighborhoods, 
-        Consensus_reps = Consensus_reps, 
-        Consensus_p_Items = Consensus_p_Items, 
+
+        Max_N_clusters_Consensus = Max_N_neighborhoods,
+        Consensus_reps = Consensus_reps,
+        Consensus_p_Items = Consensus_p_Items,
         Consensus_Cluster_Alg = Consensus_Cluster_Alg,
-        Consensus_Distance = Consensus_Distance, 
-        Consensus_Name = Consensus_Name, 
-        
-        Max_SOM_clusters = Max_SOM_neighborhoods, 
-        
+        Consensus_Distance = Consensus_Distance,
+        Consensus_Name = Consensus_Name,
+
+        Max_SOM_clusters = Max_SOM_neighborhoods,
+
         Graph_type = Graph_type,
         Graph_Distance_method = Graph_Distance_method,
-        Nearest_neighbors_for_graph = Nearest_neighbors_for_graph, 
+        Nearest_neighbors_for_graph = Nearest_neighbors_for_graph,
         Graph_Method = Graph_Method,
-        Graph_Resolution = Graph_Resolution, 
-        N_steps = N_steps, 
-        
-        N_K_centroids = N_K_centroids, 
-        Max_N_clusters_Meta = Max_N_neighborhoods_Meta, 
-        Consensus_reps_Meta = Consensus_reps_Meta, 
+        Graph_Resolution = Graph_Resolution,
+        N_steps = N_steps,
+
+        N_K_centroids = N_K_centroids,
+        Max_N_clusters_Meta = Max_N_neighborhoods_Meta,
+        Consensus_reps_Meta = Consensus_reps_Meta,
         Consensus_p_Items_Meta = Consensus_p_Items_Meta,
-        Consensus_Name_Meta = Consensus_Name_Meta, 
-        
+        Consensus_Name_Meta = Consensus_Name_Meta,
+
         Batch_size = Batch_size,
-        Max_N_clusters_Batch = Max_N_neighborhoods_Batch, 
-        N_initiations = N_initiations, 
-        Max_iterations = Max_iterations, 
-        
-        Quality_metric = Quality_metric, 
-        Max_N_clusters_GMM = Max_N_neighborhoods_GMM, 
-        Max_iterations_km = Max_iterations_km, 
+        Max_N_clusters_Batch = Max_N_neighborhoods_Batch,
+        N_initiations = N_initiations,
+        Max_iterations = Max_iterations,
+
+        Quality_metric = Quality_metric,
+        Max_N_clusters_GMM = Max_N_neighborhoods_GMM,
+        Max_iterations_km = Max_iterations_km,
         Max_iterations_em = Max_iterations_em,
-        GMM_Distance = GMM_Distance, 
-        
-        Samples_CLARA = Samples_CLARA, 
-        Sample_per_CLARA = Sample_per_CLARA, 
-        Max_N_clusters_CLARA = Max_N_neighborhoods_CLARA, 
+        GMM_Distance = GMM_Distance,
+
+        Samples_CLARA = Samples_CLARA,
+        Sample_per_CLARA = Sample_per_CLARA,
+        Max_N_clusters_CLARA = Max_N_neighborhoods_CLARA,
         Distance_CLARA = Distance_CLARA,
-        N_cores = N_cores 
+        N_cores = N_cores
       )
-    
+
     Neighbor_patterns <- Neighbor_patterns %>% dplyr::rename("Neighborhood_assignment" = "Cluster")
 
     ##################################RESULT PLOTTING AND FUNCTION EXIT######################################

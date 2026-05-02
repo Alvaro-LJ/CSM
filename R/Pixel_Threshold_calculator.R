@@ -5,7 +5,7 @@
 #' @param Directory Character string specifying the path to the folder where images are present.
 #' @param Parameter_list (OPTIONAL) A list containing thresholding parameters obtained using the [Image_thresholding_app_launcher()]. If provided any argument
 #' specifying thresholding parameters will be ignored.
-#' 
+#'
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Channels_to_keep Character vector indicating channels used in tissue mask generation.
 #' @param Target_channel Character value indicating the target channel to be thresholded.
@@ -83,13 +83,13 @@
 #'
 #' @export
 
-Pixel_Threshold_calculator2 <-
+Pixel_Threshold_calculator <-
   function(
     N_cores = 1,
     Directory,
-    
+
     Parameter_list = NULL,
-    
+
     Ordered_Channels = NULL,
     Channels_to_keep = NULL,
     Target_channel = NULL,
@@ -145,21 +145,21 @@ Pixel_Threshold_calculator2 <-
       Ordered_Channels <- Parameter_list[["Ordered_Channels"]]
       Channels_to_keep <- Parameter_list[["Channels_to_keep"]]
       Target_channel <- Parameter_list[["Target_channel"]]
-      
+
       Local_thresholding <- as.logical(Parameter_list[["Local_thresholding"]])
       Threshold_type <- Parameter_list[["Threshold_type"]]
       Threshold_value <- as.numeric(Parameter_list[["Threshold_value"]])
       Levels <- Parameter_list[["Levels"]]
-      
+
       Threshold_type_tissueMask <- Parameter_list[["Threshold_type_tissueMask"]]
       Threshold_value_tissueMask <- Parameter_list[["Threshold_value_tissueMask"]]
       Blurr_tissueMask <- as.logical(Parameter_list[["Blurr_tissueMask"]])
       Sigma_tissueMask <- Parameter_list[["Sigma_tissueMask"]]
-      
+
       Blurr_target <- as.logical(Parameter_list[["Blurr_target"]])
       Sigma_target <- Parameter_list[["Sigma_target"]]
     }
-    
+
     #########Argument check#########
     Argument_checker <- c(N_cores_OK = (N_cores >= 1 & N_cores%%1 == 0),
                           Empty_directory = length(dir(Directory)) >= 1,
@@ -222,7 +222,7 @@ Pixel_Threshold_calculator2 <-
       stop(cat(Stop_messages[!Argument_checker],
                fill = sum(!Argument_checker)))
     }
-    
+
     #########Obtain the image names#########
     #Get the image full directory
     Image_names <- dir(Directory, full.names = TRUE)
@@ -274,15 +274,15 @@ Pixel_Threshold_calculator2 <-
             #save images and tissue masks if required by user
             if(Save_processed_images){
               #Mask
-              EBImage::writeImage(Tissue_mask, paste0(Output_Directory, "/", "Processed_", Image_names_short[Image_index], "_Tissue_mask", ".tiff"), 
-                                  bits.per.sample = 16, 
+              EBImage::writeImage(Tissue_mask, paste0(Output_Directory, "/", "Processed_", Image_names_short[Image_index], "_Tissue_mask", ".tiff"),
+                                  bits.per.sample = 16,
                                   compression = "LZW")
               #Result
               EBImage::writeImage(Target_Image$Image, paste0(Output_Directory, "/", "Processed_",
                                                              stringr::str_replace_all(Image_names_short[Image_index], pattern = "_", replacement = "."),
                                                              "_",
-                                                             stringr::str_replace_all(Target_channel, pattern = "_", replacement = "."),  "_BinaryThresholded", ".tiff"), 
-                                  bits.per.sample = 16, 
+                                                             stringr::str_replace_all(Target_channel, pattern = "_", replacement = "."),  "_BinaryThresholded", ".tiff"),
+                                  bits.per.sample = 16,
                                   compression = "LZW")
             }
             #Return the actual image
@@ -311,7 +311,7 @@ Pixel_Threshold_calculator2 <-
             if(Save_processed_images){
               #Mask
               EBImage::writeImage(Tissue_mask, paste0(Output_Directory, "/","Processed_", Image_names_short[Image_index], "_Tissue_mask", ".tiff"),
-                                  bits.per.sample = 16, 
+                                  bits.per.sample = 16,
                                   compression = "LZW")
               #Result (divided by the number of breaks to get a graylevel image)
               EBImage::writeImage(Target_Image$Image/length(Threshold_levels), paste0(Output_Directory, "/", "Processed_",
@@ -319,7 +319,7 @@ Pixel_Threshold_calculator2 <-
                                                                                       "_",
                                                                                       stringr::str_replace_all(Target_channel, pattern = "_", replacement = "."),
                                                                                       "_MultiThresholded", ".tiff"),
-                                  bits.per.sample = 16, 
+                                  bits.per.sample = 16,
                                   compression = "LZW")
             }
 
@@ -332,7 +332,7 @@ Pixel_Threshold_calculator2 <-
       future::plan("future::sequential")
       gc()
     }
-    
+
     #########GLOBAL THRESHOLDING#########
     if(!Local_thresholding){
       print("Performing Global thresholding")
@@ -412,8 +412,8 @@ Pixel_Threshold_calculator2 <-
             suppressMessages(
               furrr::future_map(seq_along(1:length(Tissue_mask_list)), function(Tissue_mask_index){
                 EBImage::writeImage(Tissue_mask_list[[Tissue_mask_index]],
-                                    paste0(Output_Directory, "/", "Processed_", Image_names_short[Tissue_mask_index], "_Tissue_mask", ".tiff"), 
-                                    bits.per.sample = 16, 
+                                    paste0(Output_Directory, "/", "Processed_", Image_names_short[Tissue_mask_index], "_Tissue_mask", ".tiff"),
+                                    bits.per.sample = 16,
                                     compression = "LZW")
               }, .progress = TRUE)
             )
@@ -426,8 +426,8 @@ Pixel_Threshold_calculator2 <-
                                     paste0(Output_Directory, "/", "Processed_",
                                            stringr::str_replace_all(Image_names_short[Result_Image_index], pattern = "_", replacement = "."),
                                            "_",
-                                           stringr::str_replace_all(Target_channel, pattern = "_", replacement = "."), "_BinaryThresholded", ".tiff"), 
-                                    bits.per.sample = 16, 
+                                           stringr::str_replace_all(Target_channel, pattern = "_", replacement = "."), "_BinaryThresholded", ".tiff"),
+                                    bits.per.sample = 16,
                                     compression = "LZW")
               }, .progress = TRUE)
             )
@@ -462,8 +462,8 @@ Pixel_Threshold_calculator2 <-
             suppressMessages(
               furrr::future_map(seq_along(1:length(Tissue_mask_list)), function(Tissue_mask_index){
                 EBImage::writeImage(Tissue_mask_list[[Tissue_mask_index]],
-                                    paste0(Output_Directory, "/", "Processed_", Image_names_short[Tissue_mask_index], "_Tissue_mask", ".tiff"), 
-                                    bits.per.sample = 16, 
+                                    paste0(Output_Directory, "/", "Processed_", Image_names_short[Tissue_mask_index], "_Tissue_mask", ".tiff"),
+                                    bits.per.sample = 16,
                                     compression = "LZW")
               }, .progress = TRUE)
             )
@@ -548,8 +548,8 @@ Pixel_Threshold_calculator2 <-
                                          stringr::str_replace_all(Image_names_short[Result_Image_index], pattern = "_", replacement = "."),
                                          "_",
                                          stringr::str_replace_all(Target_channel, pattern = "_", replacement = "."),
-                                         "_MultiThresholded", ".tiff"), 
-                                  bits.per.sample = 16, 
+                                         "_MultiThresholded", ".tiff"),
+                                  bits.per.sample = 16,
                                   compression = "LZW")
             }, .progress = TRUE)
           )

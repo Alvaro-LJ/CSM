@@ -65,7 +65,7 @@
 #' @export
 
 
-Cell_segmentator_quantificator2 <-
+Cell_segmentator_quantificator <-
   function(Directory,
            Parameter_list = NULL,
            Ordered_Channels = NULL,
@@ -272,8 +272,8 @@ Cell_segmentator_quantificator2 <-
     Channels <- Ordered_Channels
     Simple_Image_Names <- dir(Directory, full.names = FALSE)
     Complete_Image_Names <- dir(Directory, full.names = TRUE)
-    
-    
+
+
     #Print the summary message
     List_to_print <- list(stringr::str_c("The following directory has been selected: ", Directory),
                           stringr::str_c("Files found in the provided directory: ", length(Simple_Image_Names)),
@@ -283,8 +283,8 @@ Cell_segmentator_quantificator2 <-
       Actual_quantiles <- stringr::str_remove(as.character(quantiles_to_calculate), "\\.")
       Character_quantiles <- stringr::str_c("q", Actual_quantiles, sep = "")
       List_to_print$Quantiles <- stringr::str_c("The following quantiles will be computed: ", stringr::str_c(Character_quantiles, collapse = ", "))
-    } 
-    if(Compute_texture_features) List_to_print$Texture <- stringr::str_c("Texture features will be computed using a distance of ", Texture_pixel_distance, " pixels") 
+    }
+    if(Compute_texture_features) List_to_print$Texture <- stringr::str_c("Texture features will be computed using a distance of ", Texture_pixel_distance, " pixels")
     cat(paste0(List_to_print),
         fill = length(List_to_print)
     )
@@ -361,7 +361,7 @@ Cell_segmentator_quantificator2 <-
                                               pca = Perform_PCA,
                                               cores = 1)
           S4Vectors::mcols(Seg_results)$imageID <- as.character(Simple_Image_Names[Index])
-          
+
           #Calculate basic tibble with morphology
           Position_morphology_mean <- cytomapper::measureObjects(mask = Seg_results,
                                                                  image = Image,
@@ -374,7 +374,7 @@ Cell_segmentator_quantificator2 <-
           Position_morphology_mean <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Position_morphology_mean)),
                                                       as_tibble(t(SummarizedExperiment::assays(Position_morphology_mean)[[1]])))) %>% dplyr::select(-objectNum)
 
-          
+
           names(Position_morphology_mean)[-c(1:13)] <- stringr::str_c(names(Position_morphology_mean)[-c(1:13)], "_AVERAGE")
 
           #Calculate the tibble with sd
@@ -391,7 +391,7 @@ Cell_segmentator_quantificator2 <-
 
           #Bind both tibbles
           Final_tibble <- dplyr::bind_cols(Position_morphology_mean, Position_sd[-c(1:2)])
-          
+
           #If quantiles are required then compute them and bind the results
           if(!is.null(quantiles_to_calculate)){
             #If provided calculate the desired quantiles for each image
@@ -409,18 +409,18 @@ Cell_segmentator_quantificator2 <-
                                                names(quantile_info)[-c(1:2)] <- stringr::str_c(names(quantile_info)[-c(1:2)], Character_quantiles[quantile_index], sep = "_")
                                                quantile_info[-c(1:2)]
                                              })
-            
+
             #Bind the quantile tibble to the previous tibble
             Final_tibble <- dplyr::bind_cols(Final_tibble, quantile_tibble)
           }
-          
+
           #If texture features need to be computed then proceed
           if(Compute_texture_features){
-            
+
             haralick_scales <- Texture_pixel_distance
             Texture_features <- c("asm", "con", "cor", "var", "idm", "sav", "sva", "sen", "ent", "dva", "den", "f12", "f13")
             Texture_features_argument <- stringr::str_c(Texture_features, ".s", haralick_scales)
-            
+
             Texture_features_results <- cytomapper::measureObjects(mask = Seg_results,
                                                                    image = Image,
                                                                    img_id = "imageID",
@@ -429,24 +429,24 @@ Cell_segmentator_quantificator2 <-
                                                                    haralick_scales = haralick_scales,
                                                                    haralick_nbins = 32,
                                                                    basic_feature = "mean")
-            
-            
-            
+
+
+
             Texture_features_results <- as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Texture_features_results)),
                                                         as_tibble(t(SummarizedExperiment::assays(Texture_features_results)[[1]])))) %>% dplyr::select(-objectNum)
             Texture_features_results <- Texture_features_results[stringr::str_detect(names(Texture_features_results), ".h.")]
             names(Texture_features_results) <- gsub("\\.h\\.", "_", names(Texture_features_results))
             names(Texture_features_results) <- sub("\\.[^.]*$", "", names(Texture_features_results))
-            
+
             Final_tibble <- dplyr::bind_cols(Final_tibble, Texture_features_results)
           }
 
           #Remove Image to save RAM space
           rm(Image)
           gc()
-          
+
           return(Final_tibble)
-          
+
         }
         )
         return(RESULT_TIBBLE)
