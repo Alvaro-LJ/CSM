@@ -35,6 +35,7 @@ library(CSM)
 - [Pixel thresholding using tiles](#pixel-thresholding-of-tiled-images-and-re-assembled-images)
 - [Downsizing large images](#downsizing-large-images)
 - [De arraying TMA whole slide images into individual core images](#de-arraying-tmas)
+- [Merging multiple channels into a single color image](#merging-channels)
 
 ***
 
@@ -326,6 +327,71 @@ TMA_image_downsized <-
 TMA_dearrayer_function(Original_Image_Directory = "Path/to/original/TMA/Image", 
                       Downsized_Image = TMA_image_downsized, 
                       Output_Directory = "Path/to/ouput/directory")
+
+```
+
+## Merging channels
+Although this CSM tool was not strictly developed to work with large images, it is discussed here because it makes no sense discussing it anywhere else.
+The `Image_channel_color_merger()` function is able to combine as many as desired image channels into a single colour image. To do so, the
+user must first import the image as a magick image object (either using the `magick::read()` or the `Smart_image_importer()` functions). In addition,
+the user must prepare a list containing the parameters used to colour each channel and additional parameters specifying channel pre-processing (
+gamma correction, min/max pixel value and image equalization). Afterwards the function will merge the desired channels into a single magick image object.
+
+```{r Color_merger, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Read the image to be processed----------------------------------------------
+Image <- magick::image_read(CSM_MiniMultiTiff_test[[2]])
+
+#Generate the merging parameters (in this case 4 channels will be merged)----
+Merge_parameter_list <- 
+  list(
+      DAPI = list(channel_index = 1,
+                  color = "blue",
+                  gamma = 1,
+                  min = 1,
+                  max = 30,
+                  equalize = FALSE),
+
+      CK = list(channel_index = 5,
+                color = "white",
+                gamma = 1.1,
+                min = 5,
+                max = 20,
+                equalize = FALSE),
+ 
+      CD8 = list(channel_index = 6,
+                 color = "#f0703a",
+                 gamma = 1,
+                 min = 10,
+                 max = 30,
+                 equalize = FALSE),
+
+      GZMB = list(channel_index = 3,
+                  color = "cyan",
+                  gamma = 1,
+                  min = 5,
+                  max = 20,
+                  equalize = FALSE)
+
+)
+
+#Perform the merging
+Final_image <- 
+  Image_channel_color_merger(Image = Image,
+                          Parameter_list = Merge_parameter_list)
+
+Final_image_width <- magick::image_info(Final_image)$width
+Final_image_height <- magick::image_info(Final_image)$height
+
+library(ggplot2)
+
+print(
+  ggplot() +
+    annotation_raster(Final_image, xmin = 1, xmax = Final_image_width, ymin = 1, ymax = Final_image_height)+
+    scale_x_continuous("", labels = NULL, limits = c(1, Final_image_width)) +
+    scale_y_continuous("", labels = NULL, limits = c(1, Final_image_height)) +
+    theme_minimal() +
+    theme(panel.grid = element_blank())
+)
 
 ```
 
