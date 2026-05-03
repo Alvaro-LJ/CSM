@@ -57,14 +57,33 @@ function(Image){
 ```
 
 ## The channel extraction testing APP
-CSM implements a dedicated shiny App to explore how color channels can be extracted and generate the parameters that can be then applied
-to all the images in the dataset. The app provides various image pre-processing steps as well as color filtering options. After obtaining
+CSM implements a dedicated shiny App (`Color_deconvolution_App_launcher()`) to explore how color channels can be extracted and generate the parameters 
+that can be then applied to all the images in the dataset. The app provides various image pre-processing steps as well as color filtering options. After obtaining
 a filtered color channel, post-processing can be applied. The app can be used to generate a list of color thresholding parameters. These
 parameters can be used to feed the `Image_deconvolution_function()`.
-```{r App, eval = FALSE}
+
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("Figures/RGB_app.png")
+```
+
+Essentially, there are three main parameters that govern color filtering: Target color, tolerance to each color channel and end tolerance.
+
+* __Target color:__ Target color can be selected in three different ways using the `Color_deconvolution_App_launcher()`. First, the user can provide the HEX color code
+in the color textbox. Second the user can provide the RGB values of the color (in 8bit format), and finally the user can select the color from the processed image panel.
+The original image can be pre-processed to modify color values: change brightness, saturation and hue, perform color normalization, image equalization, increase color contrast
+or limit the number of total different colors displayed by the image. These parameters can improve color extraction.
+
+* __Color tolerance:__ Each
+
+
+
+```{r App, eval = FALSE, out.width="80%"}
 #Can only run in an interactive setting
 Color_deconvolution_App_launcher(Directory = Input_Dir)
 ```
+
+
 
 ## Performing channel extraction
 Once the parameters have been defined using the APP, they can be applied to all the images in the dataset. 
