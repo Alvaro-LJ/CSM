@@ -102,7 +102,7 @@ will find a single threshold for all images in a dataset. In general, local thre
 Local thresholding can potentially find thresholds according to image-specific noisy features. Although
 global thresholding is also influenced by noise, it's more robust than local thresholding.
 
-Choice of thresholding method is usually arbitrary. Sometimes feature expression in a dataset follows a bimodal distribution,
+Choice of thresholding method is usually arbitrary. Sometimes feature expression in a dataset follows a bi-modal distribution,
 making thresholding easier. However, for most of the proteins measured by immunofluorescence,
 expression values of markers follow a distribution with long right-sided tails.
 This means that many cells show low feature expression, and few cells show feature expression across the dynamic range of the feature.
@@ -110,6 +110,45 @@ In this type of scenarios, visually inspecting thresholding results is mandatory
 In order to explore thresholding approaches the user can use the `Thresholding_tester_app()`.
 This app, can be used to explore images, cell ovearlays with feature intensity values and thresholding
 approach results.
+
+The app has a control panel where the user can select the image to be shown. The resolution (`Res`) 
+controls the quality of the image being displayed. The `Pixel/dist` button controls if any correction 
+in cell coordinates should be applied (if so, a text-box will be displayed where the user can provide
+the distance to pixel conversion factor). The user can also select the image channel to be displayed using
+the `Channel` selector and the cell data to be displayed using the `Marker from data` selector.
+If multiple channels need to be displayed simultaneously the user can use the `+Add channel` button. 
+After hitting the button, the app will take the current image channel and color it based on the `Color`
+provided (either the name of the color or it`s associated HEX code). If a colored channel is already being
+displayed, the new channel will be added as far as the colors are not in use. The user can hit the
+`-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
+to turn back to grayscale mode.
+
+Thresholding setting are found in below in addition to the results of the thresholding process (the 
+actual threshold compute for the active marker selected and the number of positive cells in the 
+image displayed).
+
+The app has four main panels:
+
+* __Image being displayed:__ This panel shows the current active image and allows the user to zoom in 
+and out (by selecting and area and double clicking inside). All images displayed are coordinated, meaning
+that zooming in the main image will automatically zoom in all of the others.
+
+* __Feature expression by cell:__ This panel provides information of the feature expression level for
+every cell. If the user overlays the pointer above every cell a label will appear shown the cell ID and
+the feature expression value. The user can use this panels to select cells of interest and see the 
+proportion of cells that are above the threshold.
+
+* __Cells above threshold:__ This panel highlights the cells in the image that are above the threshold. 
+The user can also use this panels to select cells of interest and see the proportion of cells that are
+above the threshold.
+
+* __Expression level histogram:__ This panel shows the histogram of the expression level of the cells
+in the current image as well as the computed threshold.
+
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("Figures/Thresholding_app.png")
+```
 
 ```{r app, eval = FALSE}
 #Can only run interactively
