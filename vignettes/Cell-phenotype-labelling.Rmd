@@ -118,7 +118,7 @@ the distance to pixel conversion factor). The user can also select the image cha
 the `Channel` selector and the cell data to be displayed using the `Marker from data` selector.
 If multiple channels need to be displayed simultaneously the user can use the `+Add channel` button. 
 After hitting the button, the app will take the current image channel and color it based on the `Color`
-provided (either the name of the color or it`s associated HEX code). If a colored channel is already being
+provided (either the name of the color or its associated HEX code). If a colored channel is already being
 displayed, the new channel will be added as far as the colors are not in use. The user can hit the
 `-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
 to turn back to grayscale mode.
@@ -453,7 +453,28 @@ In order to generate the model CSM implements a dedicated shiny App (`Image_base
 automatically match the names of the image files and the Subject_Names in data. If mismatches are encountered a warning message
 will pop-up before launch.
 
-The app has a control panel in the left.
+The app has a control panel in the left. This control panel is divided into three different sections:
+
+* __Image settings:__ Here the user can select the image to be shown. The resolution (`Res`) 
+controls the quality of the image being displayed. The `Pixel/dist` button controls if any correction 
+in cell coordinates should be applied (if so, a text-box will be displayed where the user can provide
+the distance to pixel conversion factor). The user can also select the image channel to be displayed using
+the `Channel` selector. If multiple channels need to be displayed simultaneously the user can use the `+Add channel` button. 
+After hitting the button, the app will take the current image channel and color it based on the `Color`
+provided (either the name of the color or its associated HEX code). If a colored channel is already being
+displayed, the new channel will be added as far as the colors are not in use. The user can hit the
+`-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
+to turn back to grayscale mode.
+
+* __Cell label assigner:__ Here the user can manually assign a labels to any cell. These labelled cells will be used to train the
+phenotyping algorithm. Cells can be selected using the panels `Assign cells` or `Model performance`. If the user hits 
+the `+ Assign label` button, the label written in the `Cell label` text box will be assigned to the selected cells. 
+This will update the information in the training dataset. The training dataset information can be found in  the
+lower left panel. If the user hits the `- Remove selected cells`, any cells selected that are present in the training dataset will be removed. 
+If the user hits the `- Remove all cells`, the training dataset will be erased completely (SO USE WITH CAUTION!!!!). If the user hits the `- Remove labels`, 
+all cells in the training datasets whose label is identical to that present in the `Cell label` text box will be removed. Finally, the `Reset selection` button
+de-selects any selected cells.
+
 
 
 ```{r, echo=FALSE, out.width="100%"}
