@@ -475,6 +475,33 @@ If the user hits the `- Remove all cells`, the training dataset will be erased c
 all cells in the training datasets whose label is identical to that present in the `Cell label` text box will be removed. Finally, the `Reset selection` button
 de-selects any selected cells.
 
+* __Model settings:__ Currently, three different models can be created using this supervised approach: Random forest, XGboost and Neuronal networks. For
+all approaches the user can select the cell features used in the training process using the `Variables included` selection box. The `Thresh` button
+controls the minimum probability score obtained after applying the resulting model in order to assign a label to every cell. Cells not reaching the desired
+threshold for any label will be considered "unassigned" cells. Finally, the user can activate the `Spatial` button. By doing so, the algorithm will take into account
+the neighbors of every cell in order to compute the model. This will increase the computational burden of the process but may be required to precisely identify 
+certain cell types that show spatial clustering. The proximity analysis will be performed in a similar manner to the UTAG algorithm implemented for neighborhood 
+discovery. For more details please see the related vignette ("Cellular neighborhood analysis").
+    - __Random forest:__ For this approach, the user can decide the number of features (as a percentage of the total feature number) that will be randomly selected
+    to fit each tree. The user can also decide the number of trees generated. Using this approach each tree is partitioned untill perfect segmentation is reached.
+    - __XG boost:__ For XG boosting, the user can decide the number of features (as for the Random forest method), the number of cells from the training dataset
+    and the number of trees. In addition, the maximum number of tree layers (tree depth) can also be indicated.
+    - __Neuronal Networks:__ The app allows the user to modify hidden elements of the model (both the number of layers and the neurons per layer) as well as the number
+    of training rounds (Epoch) and penalty for the regularization function.
+
+The app has four main panels:
+
+* __Image being displayed:__ This panel shows the current active image and allows the user to zoom in 
+and out (by selecting and area and double clicking inside). All images displayed are coordinated, meaning
+that zooming in the main image will automatically zoom in all of the others.
+
+* __Assign cells:__ This panel provides allows the user to assign cell labels by manually selecting cells.
+
+* __Model performance:__ Once the user has created a phenotyping model, the actual performance can be tested on any image. If the user hits the button `Test` the
+model will be applied to the active image. The user can explore the results and also select misclassified cells to add a cell label manually, this will update the
+training dataset to improve model performance.
+
+* __Training and test info:__ The lower left panel shows information related to the training dataset and the test result if they are available.
 
 
 ```{r, echo=FALSE, out.width="100%"}
