@@ -558,8 +558,41 @@ analyses. CSM implements tools to visually [evaluate](#phenotype-evaluation-app)
 and [quantifying](#quantification-and-visualization) results.
 
 ### Phenotype evaluation App
-CSM implements a shiny App designed to evaluate phenotyping results. The app displays images, overlays cells with phenotype labels.
-In addition, sample summaries are shown and user can evaluate the feature expression values for selected cells.
+CSM implements a shiny App designed to evaluate phenotyping results. 
+
+The app has a control panel where the user can select the image to be shown. The resolution (`Res`) 
+controls the quality of the image being displayed. The `Pixel/dist` button controls if any correction 
+in cell coordinates should be applied (if so, a text-box will be displayed where the user can provide
+the distance to pixel conversion factor). The user can also select the image channel to be displayed using
+the `Channel` selector.
+If multiple channels need to be displayed simultaneously the user can use the `+Add channel` button. 
+After hitting the button, the app will take the current image channel and color it based on the `Color`
+provided (either the name of the color or its associated HEX code). If a colored channel is already being
+displayed, the new channel will be added as far as the colors are not in use. The user can hit the
+`-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
+to turn back to grayscale mode.
+
+The app allows the user to select the phenotypes to be displayed from the list present in `Phenotypes to display` 
+
+The app has four main panels:
+
+* __Image being displayed:__ This panel shows the current active image and allows the user to zoom in 
+and out (by selecting and area and double clicking inside). All images displayed are coordinated, meaning
+that zooming in the main image will automatically zoom in all of the others.
+
+* __Phenotype label overlay:__ This panel provides information regarding the cell phenotype labels. Hovering the mouse pointer over cells
+will reveal their label. In addition, the user can select cells to be displayed in the heatmap (see below).
+
+* __Selected cells summary:__ This panel shows the cell label distribution of currently selected cells.
+
+* __Selected cells feature expression heatmap:__ This panel shows a heatmap of the features expressed in the selected cell population. The cell label identity
+is shown in the left colorbar.
+
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("Figures/Phenotype_evaluator_app.png")
+```
+
 
 ```{r Phenotype_app, eval = FALSE}
 #Can only run interactively
@@ -696,6 +729,13 @@ Barplot_generator(
 Moreover, cells from individual samples can be plotted with or without plotting the image in the background.
 The `Cell_plotter()` function generates plots using only cell information while the `Cell_image_plot_generator()` requires
 the user to provide the path to the image file to combine cell info with the image in the same plot.
+
+In order to generate adequate full-color merged images, CSM incorporates a dedicated function. The `Image_channel_color_merger()` function is able to 
+combine as many as desired image channels into a single colour image. To do so, the user must first import the image as a magick image object (either using the
+`magick::read()` or the `Smart_image_importer()` functions). In addition, the user must prepare a list containing the parameters used to color each channel and
+additional parameters specifying channel pre-processing (gamma correction, min/max pixel value and image equalization). 
+Afterwards the function will merge the desired channels into a single magick image object.
+
 ```{r images, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=10}
 #Without images
 Cell_plotter(
@@ -705,6 +745,8 @@ Cell_plotter(
 )
 
 #With images
+
+#Generate the input directory
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 dir.create(Input_Dir, recursive = TRUE)
 
@@ -715,24 +757,75 @@ function(Image){
    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
-#Draw the plot
-Cell_image_plot_generator(
-    Image_directory = dir(Input_Dir, full.names = TRUE)[2],
-    Channel_to_display = 5,
-    Image_rotate = NULL,
-    Image_x_flip = FALSE,
-    Image_y_flip = TRUE,
-    Gamma_level = 0,
-    Equalize = FALSE,
-    Black_level = 1,
-    White_level = 20,
+#Read the image to be processed----------------------------------------------
+Image <- magick::image_read(dir(Input_Dir, full.names = TRUE)[[2]])
 
-    DATA = CSM_Phenotypecell_test,
-    Image_name ="ABCM22001_B14_MiniCrop.tif",
-    Color_by = "Phenotype",
-    Point_size = 2,
-    Pixel_distance_ratio = NULL
+#Generate the merging parameters (in this case 4 channels will be merged)----
+Merge_parameter_list <- 
+  list(
+    DAPI = list(channel_index = 1,
+                color = "blue",
+                gamma = 1,
+                min = 1,
+                max = 70,
+                equalize = FALSE),
+    
+    CK = list(channel_index = 5,
+              color = "white",
+              gamma = 1.1,
+              min = 5,
+              max = 70,
+              equalize = FALSE),
+    
+    CD8 = list(channel_index = 6,
+               color = "#f0703a",
+               gamma = 1,
+               min = 10,
+               max = 40,
+               equalize = FALSE),
+    
+    GZMB = list(channel_index = 3,
+                color = "cyan",
+                gamma = 1,
+                min = 5,
+                max = 20,
+                equalize = FALSE)
+    
+  )
+
+#Perform the merging
+Final_image <- 
+  Image_channel_color_merger(Image = Image,
+                             Parameter_list = Merge_parameter_list)
+
+#Generate the output directory
+Output_Dir <- tempfile(pattern = "tempdir1_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+#Export the image to the output directory
+magick::image_write(Final_image,
+                    file.path(Output_Dir, "Merged_image.tif"))
+
+
+#Draw the plot with the output directory
+Cell_image_plot_generator(
+  Image_directory = dir(Output_Dir, full.names = TRUE)[1],
+  Channel_to_display = 1, #Since the channels have been merged into a single image only the first channel needs to be shown
+  Image_rotate = NULL,
+  Image_x_flip = FALSE,
+  Image_y_flip = TRUE,
+  Gamma_level = 0,
+  Equalize = FALSE,
+  Black_level = 1,
+  White_level = 20,
+  
+  DATA = CSM_Phenotypecell_test,
+  Image_name ="ABCM22001_B14_MiniCrop.tif",
+  Color_by = "Phenotype",
+  Point_size = 2.5,
+  Pixel_distance_ratio = NULL
 )
+
 
 #Remove directories
 unlink(Input_Dir, recursive = TRUE)
