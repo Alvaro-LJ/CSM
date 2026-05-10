@@ -4,16 +4,21 @@
 \alias{Color_deconvolution_App_launcher}
 \title{Launches a shiny APP to explore color deconvolution parameters}
 \usage{
-Color_deconvolution_App_launcher(Directory)
+Color_deconvolution_App_launcher(Directory, Max_Gb_cache = 10)
 }
 \arguments{
 \item{Directory}{Character string specifying the path to the folder where RGB color images are present.}
+
+\item{Max_Gb_cache}{A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.}
 }
 \description{
 \code{Color_deconvolution_App_launcher()} launches an APP to interactively explore color deconvolution parameters.
 Parameters can then be used to feed the \code{\link[=Image_deconvolution_function]{Image_deconvolution_function()}}.
 }
 \details{
+In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the \code{\link[=Smart_image_importer]{Smart_image_importer()}} function. Loaded images will
+be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+
 The control panel in the right controls the image display settings. Channel name box allows the user to specify the name of the channel to be extracted.
 The "+Add" button adds the channel extraction parameters to the parameter list.
 The "-Remove" button removes any channel parameters that match the "Channel name" box.

@@ -7,6 +7,7 @@
 UTAG_Neighborhood_identifier(
   DATA,
   Strategy,
+  Force_N_Neighborhoods = FALSE,
   Min_Neighbors = 0,
   Apply_Denoise = FALSE,
   Denoising = NULL,
@@ -57,6 +58,8 @@ UTAG_Neighborhood_identifier(
 \item{DATA}{A dataframe or tibble containing message-passed cell feature data obtained using \code{\link[=UTAG_message_passing]{UTAG_message_passing()}} function.}
 
 \item{Strategy}{The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).}
+
+\item{Force_N_Neighborhoods}{A logical value indicating if the number of neighborhoods indicated should be used directly to compute the clusters. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.}
 
 \item{Min_Neighbors}{A numeric value indicating the minimum amount of neighbors. Cells with a number of neighbors below the threshold will be removed from analysis.}
 

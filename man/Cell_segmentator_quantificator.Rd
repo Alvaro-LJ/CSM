@@ -11,6 +11,8 @@ Cell_segmentator_quantificator(
   Channels_to_keep = NULL,
   N_cores = 1,
   quantiles_to_calculate = c(0.25, 0.5, 0.75),
+  Compute_texture_features = FALSE,
+  Texture_pixel_distance = 1,
   Nuclear_marker = NULL,
   Cell_body_method = NULL,
   Min_pixel = NULL,
@@ -43,6 +45,10 @@ Cell_segmentator_quantificator(
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 
 \item{quantiles_to_calculate}{Numeric vector specifying the expression quantiles calculated for every cell and channel. If NULL, no quantiles are computed.}
+
+\item{Compute_texture_features}{A logical value indicating if texture features should be computed for all the markers measured.}
+
+\item{Texture_pixel_distance}{If Compute_texture_features is TRUE, de pixel distance taken into account to compute the GLCM and texture features.}
 
 \item{Nuclear_marker}{(Used if Parameters_list is NULL) Character vector of markers corresponding to the nuclei.}
 

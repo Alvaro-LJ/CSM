@@ -7,11 +7,18 @@
 #' @param Directory Character specifying the path to the folder where images are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Channels_to_keep Character vector indicating the channels to be kept in the analysis.
+#' @param Max_Gb_cache A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.
 #'
 #' @seealso [Model_cell_phenotyper()]
 #'
 #' @details
-#' Image setting allow the user to control the image channel display
+#' In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the [Smart_image_importer()] function. Loaded images will
+#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+#'
+#' Image setting allow the user to control the image channel display.
+#'
+#' User can use the 'Color', 'Add channel', 'Remove channel' and 'Reset' buttons to merge different channels into a single image. The add channel button
+#' will color the current channel according to the color provided and will be merged to the current image.
 #'
 #' Cell label assigner has several buttons:
 #' \itemize{
@@ -74,10 +81,11 @@ Image_based_phenotyper_App_launcher <-
   function(DATA,
            Directory,
            Ordered_Channels,
-           Channels_to_keep
+           Channels_to_keep,
+           Max_Gb_cache = 10
   ){
 
-    #Check suggested packages
+    ####Check suggested packages####
     {
       if(!requireNamespace("Matrix", quietly = FALSE)) stop(
         paste0("Matrix CRAN package is required to execute the function. Please install using the following code: ",
@@ -107,12 +115,38 @@ Image_based_phenotyper_App_launcher <-
         paste0("brulee CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("brulee")))
       )
+      if(!requireNamespace("RBioFormats", quietly = TRUE)) stop(
+        paste0("RBioFormats Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("RBioFormats")
+               })
+        )
+      )
+      if(!requireNamespace("EBImage", quietly = TRUE)) stop(
+        paste0("EBImage Bioconductor package is required to execute the function. Please install using the following code: ",
+               expression({
+                 if (!require("BiocManager", quietly = TRUE))
+                   install.packages("BiocManager")
+
+                 BiocManager::install("EBImage")
+               })
+        )
+      )
     }
 
+    ####What to do on exit####
     on.exit({
       future::plan("future::sequential")
       gc()
     })
+
+    ####Check arguments and generate memoised version####
+    #Check that ordered channels and channels to keep are unique
+    if(length(Ordered_Channels) != length(unique(Ordered_Channels))) stop("Ordered_Channels must contain non-duplicated character values")
+    if(length(Channels_to_keep) != length(unique(Channels_to_keep))) stop("Channels_to_keep must contain non-duplicated character values")
 
     #Basic argument checker
     Argument_checker <- c(Empty_directory = length(dir(Directory)) >= 1,
@@ -132,13 +166,33 @@ Image_based_phenotyper_App_launcher <-
     #Check data is adequately formatted
     if(!identical(names(DATA)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) stop("DATA provided should have an adecuate format")
 
+    #Check that the Max_Gb_cache is OK
+    if(!all(is.numeric(Max_Gb_cache), Max_Gb_cache > 0, length(Max_Gb_cache) == 1)) stop("Max_Gb_cache must be a numeric value > 0")
+
+    #Generate a memoised version of the the smart image importer
+    Memoised_importer <- memoise::memoise(
+      #Function to be memorized
+      Smart_image_importer,
+
+      #Argument controlling memory use
+      cache = cachem::cache_mem(
+        max_size = Max_Gb_cache * 1024 * 1024 * 1024, #10 Gb is the max amount of bytes
+        max_age = Inf,
+        max_n = Inf,
+        evict = c("lru", "fifo"),
+        missing = cachem::key_missing(),
+        logfile = NULL
+      )
+    )
+
+    ####Look-up table####
     #Generate look-up table
     Image_names <- dir(Directory, full.names = FALSE)
     Directory_path <- dir(Directory, full.names = TRUE)
     DATA <- DATA
 
     #Remove any features in the data that are not numeric
-    Numeric_features <-purrr::map_lgl(DATA[-c(1:4)], ~is.numeric(.))
+    Numeric_features <- purrr::map_lgl(DATA[-c(1:4)], ~is.numeric(.))
     if(any(!Numeric_features)){
       print(paste0("The following non-numeric features will be removed from DATA: ", stringr::str_c(names(DATA)[-c(1:4)][!Numeric_features], collapse = ", ")))
       DATA <- DATA %>% dplyr::select(-all_of(stringr::str_c(names(DATA)[-c(1:4)][!Numeric_features])))
@@ -148,7 +202,7 @@ Image_based_phenotyper_App_launcher <-
 
     Look_up_table <-
       purrr::map_dfr(Image_names, function(Name){
-        Distance_vector <- as.double(adist(Name, unique(DATA$Subject_Names), fixed = TRUE, ignore.case = TRUE))
+        Distance_vector <- as.double(adist(Name, unique(DATA$Subject_Names), fixed = FALSE, ignore.case = TRUE))
         names(Distance_vector) <-  unique(DATA$Subject_Names)
         Distance_vector <- sort(Distance_vector)
 
@@ -170,13 +224,23 @@ Image_based_phenotyper_App_launcher <-
       print(paste0(length(Image_names) - nrow(Look_up_table), " out of ", length(Image_names), " images have been removed from the phenotyping process"))
     }
 
-    ##APP UI
+    ####APP UI####
     #BUILD THE USER INTERFACE
     {
       user_interface <- shiny::fluidPage(
 
-        #Set the title
-        shiny::titlePanel("Supervised Phenotyper"),
+        #To make the sidebar collapsable
+        shinyjs::useShinyjs(),
+
+        #Set the title and action button
+        shiny::fluidRow(
+          shiny::column(width = 3, shiny::h3("Supervised Phenotyper")),
+          shiny::column(width = 2, shiny::actionButton("toggleSidebar", "Toggle", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")))
+        ),
+
+        #To make the tags work
+        shiny::tags$hr(),
+
 
         #We want a two panel layout, one in the left containing the input parameters and the output in the right
         shiny::sidebarLayout(
@@ -185,108 +249,136 @@ Image_based_phenotyper_App_launcher <-
             #ID and width
             id="sidebar",
 
+            #Button to toggle different rows
+            shiny::fluidRow(
+              shiny::actionButton("toggle_Image", "Image settings", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
+              shiny::actionButton("toggle_cells", "Cell labels", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
+              shiny::actionButton("toggle_params", "Model settings", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome"))
+            ),
+
+
             #IMAGE PARAMETERS
             shiny::h4("Image settings"),
-            shiny::fluidRow(
-              shiny::column(6, shiny::selectInput("Image_name", "Image", sort(Look_up_table$Subject_Names), multiple = FALSE)),
-              shiny::column(2, shiny::selectInput("Res", "Image Res", c('Very Low' = 300, Low = 500, Mid = 750, High = 1000, Original = 1400), selected = 500, multiple = FALSE)),
-              shiny::column(2, shinyWidgets::materialSwitch("Change_coords", "Pixel/dist", value = FALSE)),
-              shiny::column(2, shiny::conditionalPanel(condition = "input.Change_coords == '1'",
-                                                       shiny::textInput("Ratio", "pixel size", value = "1")
-              ))),
-            shiny::fluidRow(
-              shiny::column(4, shiny::selectInput("Channel", "Channel to display", Channels_to_keep, multiple = FALSE)),
-              shiny::column(3, shiny::selectInput("X_flip", "Flip X image", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE)),
-              shiny::column(3, shiny::selectInput("Y_flip", "Flip Y image", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE)),
-              shiny::column(2, shiny::selectInput("Equalize", "Equalize", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE))
+            #Collapsable rows
+            shiny::tags$div(
+              class = "Image_settings",
+
+              shiny::fluidRow(
+                shiny::column(6, shiny::selectInput("Image_name", "Image", sort(Look_up_table$Subject_Names), multiple = FALSE)),
+                shiny::column(2, shiny::selectInput("Res", "Res", c(Low = 5, Mid = 5.7, High = 6, Ultra = 6.3), selected = 5.7, multiple = FALSE)),
+                shiny::column(2, shinyWidgets::materialSwitch("Change_coords", "Pixel/dist", value = FALSE)),
+                shiny::column(2, shiny::conditionalPanel(condition = "input.Change_coords == '1'",
+                                                         shiny::textInput("Ratio", "pixel size", value = "1")
+                ))),
+              shiny::fluidRow(
+                shiny::column(3, shiny::sliderInput("Degrees", "Rotate", min = -90, max = 90, value = 0, step = 90, ticks = FALSE)),
+                shiny::column(3, shiny::selectInput("X_flip", "Flip X image", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE)),
+                shiny::column(3, shiny::selectInput("Y_flip", "Flip Y image", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE)),
+                shiny::column(3, shiny::selectInput("Equalize", "Equalize", c(YES = TRUE, NO = FALSE), selected = FALSE, multiple = FALSE))
+              ),
+
+              shiny::fluidRow(
+                shiny::column(3, shiny::selectInput("Channel", "Channel", Channels_to_keep, multiple = FALSE)),
+                shiny::column(3, shiny::sliderInput("Min_Image", "Min", value = 0, min = 0, max = 100, step = 1, ticks = FALSE)),
+                shiny::column(3, shiny::sliderInput("Max_Image", "Max", value = 100, min = 0, max = 100, step = 1, ticks = FALSE)),
+                shiny::column(3, shiny::sliderInput("Gamma", "Gamma", value = 0, min = -3, max = +3, step = 0.01, ticks = FALSE))
+              ),
+
+              shiny::fluidRow(
+                shiny::column(3, shiny::textInput("Color_channel", "Color", value = "blue")),
+                shiny::column(3, shiny::actionButton("Add_color", "Add channel", shiny::icon("plus", library = "font-awesome"))),
+                shiny::column(3, shiny::actionButton("Remove_color", "Remove channel", shiny::icon("minus", library = "font-awesome"))),
+                shiny::column(3, shiny::actionButton("Reset_image", "Reset", icon = shiny::icon("redo")))
+              )
 
             ),
 
-            shiny::fluidRow(
-              #Rotate if necessary
-              shiny::column(3, shiny::sliderInput("Degrees", "Rotate", min = -180, max = 180, value = 0, step = 90)),
-              #Select the min point of the image
-              shiny::column(3, shiny::sliderInput("Min_Image", "Absolute Black", value = 0, min = 0, max = 100, step = 1)),
-              shiny::column(3, shiny::sliderInput("Max_Image", "Absolute White", value = 100, min = 0, max = 100, step = 1)),
-              shiny::column(3, shiny::sliderInput("Gamma", "Gamma", value = 0, min = -3, max = +3, step = 0.01))
-
-            ),
-
-            #IMAGE PARAMETERS
+            #Cell label parameters
             shiny::h4("Cell label assigner"),
-            shiny::fluidRow(
-              shiny::column(1, shiny::textOutput("N_cells_selected")),
-              shiny::column(3, shiny::actionButton("reset", shiny::icon("redo"), label = "Reset selection")),
-              shiny::column(4, shiny::actionButton("Remove_Cells", shiny::icon("minus", library = "font-awesome"), label = "Remove selected cells")),
-              shiny::column(4, shiny::actionButton("Remove_All", shiny::icon("minus", library = "font-awesome"), label = "Remove all cells"))
-            ),
 
-            shiny::fluidRow(
-              shiny::column(6, shiny::textInput("Label_name", label = "Cell label", value = "Cell_type_1")),
-              shiny::column(3, shiny::actionButton("Add_label", shiny::icon("plus", library = "font-awesome"), label = "Assign labels")),
-              shiny::column(3, shiny::actionButton("Remove_label", shiny::icon("minus", library = "font-awesome"), label = "Remove labels"))
+            #Collapsable rows
+            shiny::tags$div(
+              class = "Cell_label",
+
+              shiny::fluidRow(
+                shiny::column(1, shiny::textOutput("N_cells_selected")),
+                shiny::column(3, shiny::actionButton("reset", shiny::icon("redo"), label = "Reset selection")),
+                shiny::column(4, shiny::actionButton("Remove_Cells", shiny::icon("minus", library = "font-awesome"), label = "Remove selected cells")),
+                shiny::column(4, shiny::actionButton("Remove_All", shiny::icon("minus", library = "font-awesome"), label = "Remove all cells"))
+              ),
+
+              shiny::fluidRow(
+                shiny::column(6, shiny::textInput("Label_name", label = "Cell label", value = "Cell_type_1")),
+                shiny::column(3, shiny::actionButton("Add_label", shiny::icon("plus", library = "font-awesome"), label = "Assign labels")),
+                shiny::column(3, shiny::actionButton("Remove_label", shiny::icon("minus", library = "font-awesome"), label = "Remove labels"))
+              )
             ),
 
             #Model PARAMETERS
             shiny::h4("Model settings"),
-            shiny::fluidRow(
-              shiny::column(3, shiny::selectInput("Method", "Method", c("Random forest", "XG boost", "NNET"), multiple = FALSE)),
-              shiny::column(5, shinyWidgets::virtualSelectInput("Model_vars", label = "Variables included",
-                                                                choices = sort(names(DATA)[-c(1:4)]),
-                                                                selected = sort(names(DATA)[-c(1:4)]),
-                                                                search = TRUE,
-                                                                multiple = TRUE)),
-              shiny::column(2, shiny::numericInput("Threshold", "Thresh", value = 0.5, min = 0.01, max = 1, step = 0.01)),
-              shiny::column(2, shinyWidgets::materialSwitch("GO_spatial", "Spatial", value = FALSE))
-            ),
+            shiny::tags$div(
+              class = "Model_settings",
 
-            #Random Forest
-            shiny::conditionalPanel(
-              condition = "input.Method == 'Random forest'",
               shiny::fluidRow(
-                shiny::column(3, shiny::numericInput("RF_mtry", "% Features", value = 1, min = 0.01, max = 1, step = 0.01)),
-                shiny::column(3, shiny::numericInput("RF_trees", "N Trees", value = 100, min = 1, max = NA, step = 1))
-              )
-            ),
-
-            #XGB
-            shiny::conditionalPanel(
-              condition = "input.Method == 'XG boost'",
-              shiny::fluidRow(
-                shiny::column(3, shiny::numericInput("XG_mtry", "% Features", value = 1, min = 0.01, max = 1, step = 0.01)),
-                shiny::column(3, shiny::numericInput("XG_sample_size", "% Cells", value = 1, min = 0.01, max = 1, step = 0.01)),
-                shiny::column(3, shiny::numericInput("XG_trees", "N Trees", value = 100, min = 1, max = NA, step = 1)),
-                shiny::column(3, shiny::numericInput("XG_tree_depth", "Depth", value = 10, min = 1, max = NA, step = 1))
-              )
-            ),
-
-            #NNET
-            shiny::conditionalPanel(
-              condition = "input.Method == 'NNET'",
-              shiny::fluidRow(
-                shiny::column(3, shiny::numericInput("Hidden", "Hidden units", value = 1, min = 1, max = NA, step = 1)),
-                shiny::column(3, shiny::numericInput("Layers", "Hidden layers", value = 1, min = 1, max = NA, step = 1)),
-                shiny::column(3, shiny::numericInput("Epochs", "Epochs", value = 1, min = 1, max = NA, step = 1)),
-                shiny::column(3, shiny::numericInput("Penalty", "Penalty", value = 0.001, min = 0.001, max = NA, step = 0.001))
-              )
-            ),
-
-            #SPATIAL PARAMETERS
-            shiny::conditionalPanel(
-              condition = "input.GO_spatial == '1'",
-              shiny::h4("Spatial settings"),
-              shiny::fluidRow(
-                shiny::column(4, shiny::selectInput("Neighbor_strategy", "Strategy", c("Number", "Distance", "Both"), multiple = FALSE)),
-                shiny::column(4, shiny::selectInput("Message_strategy", "Summary Strategy", c("Averaging", "Sum"), multiple = FALSE)),
-                shiny::column(4, shiny::selectInput("Weighting_Strategy", "Weighting", c("None", "Proximity"), multiple = FALSE))
+                shiny::column(3, shiny::selectInput("Method", "Method", c("Random forest", "XG boost", "NNET"), multiple = FALSE)),
+                shiny::column(5, shinyWidgets::virtualSelectInput("Model_vars", label = "Variables included",
+                                                                  choices = sort(names(DATA)[-c(1:4)]),
+                                                                  selected = sort(names(DATA)[-c(1:4)]),
+                                                                  search = TRUE,
+                                                                  multiple = TRUE)),
+                shiny::column(2, shiny::numericInput("Threshold", "Thresh", value = 0.5, min = 0.01, max = 1, step = 0.01)),
+                shiny::column(2, shinyWidgets::materialSwitch("GO_spatial", "Spatial", value = FALSE))
               ),
-              shiny::fluidRow(
-                shiny::column(4, shiny::numericInput("N_neighbors", "N Neighbors", value = 1, min = 1, max = NA, step = 1)),
-                shiny::column(4, shiny::numericInput("Max_dist_allowed", "Max Dist", value = 100, min = 0.001, max = NA, step = 1)),
-                shiny::column(4, shiny::numericInput("N_cores", "Cores", value = 1, min = 1, max = NA, step = 1))
+
+              #Random Forest
+              shiny::conditionalPanel(
+                condition = "input.Method == 'Random forest'",
+                shiny::fluidRow(
+                  shiny::column(3, shiny::numericInput("RF_mtry", "% Features", value = 1, min = 0.01, max = 1, step = 0.01)),
+                  shiny::column(3, shiny::numericInput("RF_trees", "N Trees", value = 100, min = 1, max = NA, step = 1))
+                )
+              ),
+
+              #XGB
+              shiny::conditionalPanel(
+                condition = "input.Method == 'XG boost'",
+                shiny::fluidRow(
+                  shiny::column(3, shiny::numericInput("XG_mtry", "% Features", value = 1, min = 0.01, max = 1, step = 0.01)),
+                  shiny::column(3, shiny::numericInput("XG_sample_size", "% Cells", value = 1, min = 0.01, max = 1, step = 0.01)),
+                  shiny::column(3, shiny::numericInput("XG_trees", "N Trees", value = 100, min = 1, max = NA, step = 1)),
+                  shiny::column(3, shiny::numericInput("XG_tree_depth", "Depth", value = 10, min = 1, max = NA, step = 1))
+                )
+              ),
+
+              #NNET
+              shiny::conditionalPanel(
+                condition = "input.Method == 'NNET'",
+                shiny::fluidRow(
+                  shiny::column(3, shiny::numericInput("Hidden", "Hidden units", value = 1, min = 1, max = NA, step = 1)),
+                  shiny::column(3, shiny::numericInput("Layers", "Hidden layers", value = 1, min = 1, max = NA, step = 1)),
+                  shiny::column(3, shiny::numericInput("Epochs", "Epochs", value = 1, min = 1, max = NA, step = 1)),
+                  shiny::column(3, shiny::numericInput("Penalty", "Penalty", value = 0.001, min = 0.001, max = NA, step = 0.001))
+                )
+              ),
+
+              #SPATIAL PARAMETERS
+              shiny::conditionalPanel(
+                condition = "input.GO_spatial == '1'",
+                shiny::h4("Spatial settings"),
+                shiny::fluidRow(
+                  shiny::column(4, shiny::selectInput("Neighbor_strategy", "Strategy", c("Number", "Distance", "Both"), multiple = FALSE)),
+                  shiny::column(4, shiny::selectInput("Message_strategy", "Summary Strategy", c("Averaging", "Sum"), multiple = FALSE)),
+                  shiny::column(4, shiny::selectInput("Weighting_Strategy", "Weighting", c("None", "Proximity"), multiple = FALSE))
+                ),
+                shiny::fluidRow(
+                  shiny::column(4, shiny::numericInput("N_neighbors", "N Neighbors", value = 1, min = 1, max = NA, step = 1)),
+                  shiny::column(4, shiny::numericInput("Max_dist_allowed", "Max Dist", value = 100, min = 0.001, max = NA, step = 1)),
+                  shiny::column(4, shiny::numericInput("N_cores", "Cores", value = 1, min = 1, max = NA, step = 1))
+                )
               )
             ),
 
+            #BUTTONS
             shiny::fluidRow(
               shiny::column(2, shiny::actionButton("Fit_model", shiny::icon("bolt-lightning"), label = "Fit")),
               shiny::column(2, shiny::actionButton("Test_model", shiny::icon("square-check", library = "font-awesome"), label = "Test")),
@@ -297,11 +389,14 @@ Image_based_phenotyper_App_launcher <-
             shiny::fluidRow(
               shiny::column(12, shiny::verbatimTextOutput("Active_Model"))
             )
-
           ),
 
           #Set the outcome columns
           shiny::mainPanel(
+
+            #Give the main panel an ID
+            id = "mainPanel",
+
             #First row will have the Photo and the overview of marker intensity by cell
             shiny::fluidRow(
               shiny::column(5, shiny::plotOutput("Photo",
@@ -328,11 +423,46 @@ Image_based_phenotyper_App_launcher <-
 
           body, label, input, button, select {
             font-family: "Arial";
-          }')))
+          }'))),
+
+
+        shiny::tags$script(htmltools::HTML("
+    $(document).on('click', '#toggle_Image', function() {
+      $('.Image_settings').toggle();
+    });
+    $(document).on('click', '#toggle_cells', function() {
+      $('.Cell_label').toggle();
+    });
+    $(document).on('click', '#toggle_params', function() {
+      $('.Model_settings').toggle();
+    });
+  "))
       )
     }
 
+
+
+    ####SERVER####
     server <- function(input, output, session){
+
+      # JS function to switch classes when togglin sidebar
+      toggle_script <- "
+    if ($('#sidebar').is(':visible')) {
+      // hide sidebar + expand main panel
+      $('#sidebar').hide();
+      $('#mainPanel').removeClass('col-sm-8').addClass('col-sm-12');
+    } else {
+      // show sidebar + restore width
+      $('#sidebar').show();
+      $('#mainPanel').removeClass('col-sm-12').addClass('col-sm-8');
+    }
+  "
+      #What to do if the user hits the toggle button
+      shiny::observeEvent(input$toggleSidebar, {
+        shinyjs::runjs(toggle_script)
+      })
+
+
       #All the reactives to be used
       #Generate a reactive with the real Image name and the channel number
       Photo_name <- shiny::reactive(as.character((Look_up_table %>% dplyr::filter(Subject_Names == input$Image_name))[1,5]))
@@ -347,6 +477,13 @@ Image_based_phenotyper_App_launcher <-
       Y_flip <- shiny::reactive(input$Y_flip)
       Degrees_rotate <- shiny::reactive(input$Degrees)
       ranges <- shiny::reactiveValues(x = NULL, y = NULL) #Controls the zoom in
+      #Generates a reactive that stores the original image coordinates and cropping parameters
+      Original_ranges <-
+        shiny::reactiveValues(
+          #Image dimension Original
+          Original_Dims_Width = NULL,
+          Original_Dims_Height = NULL
+        )
       Pixel_dist_conversion <- shiny::reactive(input$Change_coords)
       Pixel_dist_ratio <- shiny::reactive(input$Ratio)
       Resolution <- shiny::reactive(input$Res)
@@ -356,6 +493,151 @@ Image_based_phenotyper_App_launcher <-
                                            Model_Param = NULL,
                                            Model = NULL,
                                            Test_Dataset = NULL)
+
+      #The reactive that controls the parameter list for image coloring (Null by default at start)
+      Image_coloring_list <- shiny::reactiveValues(Parameter_list = NULL)
+
+      #Control the buttons for the color list
+      #The ADD CHANNEL BUTTON
+      shiny::observeEvent(
+        input$Add_color, {
+
+          #First generate the element_list
+          Current_Channel_list <-
+            list(
+              channel_index = which(input$Channel == Ordered_Channels),
+              color = input$Color_channel,
+              gamma = as.numeric(10^input$Gamma),
+              min = as.numeric(input$Min_Image),
+              max = as.numeric(input$Max_Image),
+              equalize = as.logical(input$Equalize)
+            )
+
+          if(berryFunctions::is.error(grDevices::col2rgb(Current_Channel_list$color))){
+            shiny::showModal(modalDialog(
+              paste0(Current_Channel_list$color, " is not an adequate color name or HEX code, please review"),
+              easyClose = TRUE,
+              footer = NULL)
+            )
+          }
+
+          #If the Image_coloring_list is NULL then generate this single output
+          else if(is.null(Image_coloring_list$Parameter_list)){
+            #Generate the list
+            Image_coloring_list$Parameter_list <- list(Current_Channel_list)
+            #Add the names
+            names(Image_coloring_list$Parameter_list) <- input$Channel
+          }
+
+          #If the Image_coloring_list is not NULL, check if the color or the input names are already present
+          else{
+
+            #Generate logical values if any of both are present
+            Channel_present_in_list <- input$Channel %in% names(Image_coloring_list$Parameter_list)
+            Color_present_in_list <- input$Color_channel %in% purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]])
+
+            #If not present, we need to create a new element in the list
+            if(!any(Channel_present_in_list, Color_present_in_list)){
+              Image_coloring_list$Parameter_list <- append(Image_coloring_list$Parameter_list, list(Current_Channel_list))
+              names(Image_coloring_list$Parameter_list)[length(Image_coloring_list$Parameter_list)] <- input$Channel
+            }
+
+            #If channel name is already present and color is not present
+            if(Channel_present_in_list & !Color_present_in_list){
+              #print a dialogue box
+              shiny::showModal(shiny::modalDialog(
+                paste0(input$Channel, " already present, it will be overwritten"),
+                easyClose = TRUE,
+                footer = NULL)
+              )
+              #Proceed to replace the channel
+              Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
+            }
+
+            #If channel name is not present and color is repeated
+            if(!Channel_present_in_list & Color_present_in_list){
+              #print a dialogue box
+              shiny::showModal(modalDialog(
+                paste0(input$Color_channel, " already in use, it will be overwritten"),
+                easyClose = TRUE,
+                footer = NULL)
+              )
+              #Proceed to replace the channel
+              Conflictive_element <- which(purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]]) == input$Color_channel)
+              Image_coloring_list$Parameter_list[[Conflictive_element]] <- Current_Channel_list
+              names(Image_coloring_list$Parameter_list)[[Conflictive_element]] <- input$Channel
+            }
+
+            #If channel name is present and the color is in use delete the color and replace the channel
+            if(Channel_present_in_list & Color_present_in_list){
+              #print a dialogue box
+              shiny::showModal(modalDialog(
+                paste0(input$Color_channel, " already in use and ", input$Channel, " already present, they will be overwritten"),
+                easyClose = TRUE,
+                footer = NULL)
+              )
+              #If they are the same, then only do one action
+              Conflictive_channel <- which(names(Image_coloring_list$Parameter_list) == input$Channel)
+              Conflictive_color <- which(purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]]) == input$Color_channel)
+              if(Conflictive_channel == Conflictive_color) Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
+              #Else remove the color and add then replace the channel
+              else{
+                #Remove the conflictive color
+                Image_coloring_list$Parameter_list <- Image_coloring_list$Parameter_list[-Conflictive_color]
+                #Replace the conflictive channel
+                Image_coloring_list$Parameter_list[[input$Channel]] <- Current_Channel_list
+              }
+            }
+
+          }
+        })
+
+      #REMOVE BUTTON
+      shiny::observeEvent(
+        input$Remove_color,
+        {
+          #If channel is not present print dialogue and don't do anything
+          if(!input$Channel %in% names(Image_coloring_list$Parameter_list)){
+            shiny::showModal(shiny::modalDialog(
+              paste0(input$Channel, " not being used in image, therefore it cannot be removed"),
+              easyClose = TRUE,
+              footer = NULL)
+            )
+          }
+          else{
+            #print a dialogue box
+            shiny::showModal(shiny::modalDialog(
+              paste0(input$Channel, " will be removed"),
+              easyClose = TRUE,
+              footer = NULL)
+            )
+            #Find conflictive channel
+            Conflictive_channel <- which(names(Image_coloring_list$Parameter_list) == input$Channel)
+            Image_coloring_list$Parameter_list <- Image_coloring_list$Parameter_list[-Conflictive_channel]
+
+            #If the length of Image_coloring_list$Parameter_list is 0 then turn it to null again
+            if(length(Image_coloring_list$Parameter_list) == 0) Image_coloring_list$Parameter_list <- NULL
+          }
+        })
+
+      #RESET BUTTON
+      shiny::observeEvent(
+        input$Reset_image,
+        {
+          #Show an alert
+          shinyalert::shinyalert(title = "WARNING!",
+                                 text = "Merged image will be removed",
+                                 type = "warning",
+                                 closeOnEsc = TRUE,
+                                 closeOnClickOutside = TRUE,
+                                 showCancelButton = TRUE,
+                                 showConfirmButton = TRUE,
+                                 confirmButtonText = "Proceed",
+                                 cancelButtonText = "Cancel",
+                                 callbackR = function() Image_coloring_list$Parameter_list <- NULL
+          )
+
+        })
 
       #Generate a dynamic look up table to match labels and colors
       Color_lookuptable <- shiny::reactive({
@@ -377,61 +659,212 @@ Image_based_phenotyper_App_launcher <-
           Final_DATA$X <- Final_DATA$X * as.numeric(Pixel_dist_ratio())
           Final_DATA$Y <- Final_DATA$Y * as.numeric(Pixel_dist_ratio())
         }
+
+        #Remove any cell not being plotted
+        if(any(!is.null(ranges$x), !is.null(ranges$y))){
+          Final_DATA <- Final_DATA %>% dplyr::filter(X >= min(ranges$x), X <= max(ranges$x),
+                                                     Y >= min(ranges$y), Y <= max(ranges$y))
+        }
+
         #Return the final data
         return(Final_DATA)
       })
 
-      #Reactive that imports the photograph
+
+      #Reactive that imports the photograph and does the pre-processing
       Photo_reactive <- shiny::reactive({
-        #Import the Photo
-        Photo <- magick::image_read(Photo_name())[Channel_index()]
-        #Perform flip and flop if required
-        if(as.logical(X_flip())) Photo <- Photo %>% magick::image_flop()
-        if(as.logical(Y_flip())) Photo <- Photo %>% magick::image_flip()
-        if(as.numeric(Degrees_rotate() != 0)) Photo <- Photo %>% magick::image_rotate(degrees = as.numeric(Degrees_rotate()))
-        #Perform image equalization as requested by user
-        if(as.logical(Equalize())) Photo <- Photo %>% magick::image_equalize()
-        #Perform image white adjustment
-        Photo <- Photo %>%
-          magick::image_level(black_point = Photo_min(),
-                              white_point = Photo_max(),
-                              mid_point = Photo_gamma())
+        ####MOD CROPPING COORDINATES####
+        Final_X_crop_coordinates <- NULL
+        Final_Y_crop_coordinates <- NULL
+
+        #If cropping is required and image is rotated or flipped modify accordingly the cropping coordinates
+        if(any(!is.null(ranges$x), !is.null(ranges$y))){
+          #Obtain the preliminary image cropping coordinates
+          Final_X_crop_coordinates <- sort(ceiling(ranges$x))
+          Final_Y_crop_coordinates <- sort(ceiling(ranges$y))
+
+          #Account for X_flip
+          if(as.logical(X_flip())){
+            Final_X_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Width - Final_X_crop_coordinates))
+          }
+          #Account for Y flip
+          if(as.logical(Y_flip())){
+            Final_Y_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Height - Final_Y_crop_coordinates))
+          }
+
+          #Account for rotation
+          if(as.numeric(Degrees_rotate()) == 90){
+            Old_X_coordinates <- Final_X_crop_coordinates
+            Old_Y_coordinates <- Final_Y_crop_coordinates
+            #Y is now X
+            Final_Y_crop_coordinates <- Old_X_coordinates
+            #X is now Y
+            Final_X_crop_coordinates <- Old_Y_coordinates
+          }
 
 
-        ##Obtain dimensions (these will set the axis limits) BEFORE the resolution is modified
-        Photo_Dim <- magick::image_info(Photo)
-        #Change resolution if appropiate
-        if(as.numeric(Resolution() != 1400)){
-          Image_Resolution <-stringr::str_c("X", Resolution())
-          Photo <- magick::image_scale(Photo, Image_Resolution)
+          if(as.numeric(Degrees_rotate()) == -90){
+            Old_X_coordinates <- Final_X_crop_coordinates
+            Old_Y_coordinates <- Final_Y_crop_coordinates
+
+            #X is now the width minus the active Y coordinates
+            Final_X_crop_coordinates <- sort(ceiling(Original_ranges$Original_Dims_Width - Old_Y_coordinates))
+
+            #Y is active X
+            Final_Y_crop_coordinates <- Old_X_coordinates
+          }
         }
-        return(list(Photo = Photo,
-                    Dims = Photo_Dim))
+
+        ####OBTAIN THE IMAGE####
+        Image <- Memoised_importer(
+          N_cores = 2,
+          Image_directory = Photo_name(),
+          Log10_pixel_output = as.numeric(Resolution()),
+          X_crop_coordinates = Final_X_crop_coordinates,
+          Y_crop_coordinates = Final_Y_crop_coordinates
+        )
+
+        ####Update Image and current Image dimension paramteres(will be used if crop is required by user)####
+        Original_ranges$Original_Dims_Width <- Image$Original_Dims[1]
+        Original_ranges$Original_Dims_Height <- Image$Original_Dims[2]
+
+        ####COLOR MERGING NOT REQUIRED####
+        if(is.null(Image_coloring_list$Parameter_list)){
+          #Get the single channel to be obtained
+          Image$Image <- Image$Image[as.numeric(Channel_index())]
+
+          #Modify min max and gamma
+          Image$Image <- Image$Image %>%
+            magick::image_level(black_point = as.numeric(Photo_min()),
+                                white_point = as.numeric(Photo_max()),
+                                mid_point = as.numeric(Photo_gamma()))
+
+          #Equalize if necessary
+          if(as.logical(Equalize())) Image$Image <- Image$Image %>% magick::image_equalize()
+        }
+
+        ####COLOR MERGING REQUIRED####
+        if(!is.null(Image_coloring_list$Parameter_list)){
+
+          #Perform RGB color merging
+          Image$Image <- Image_channel_color_merger(Image = Image$Image,
+                                                    Parameter_list = Image_coloring_list$Parameter_list)
+
+        }
+
+        ####ROTATE (ALSO ROTATE ORIGINAL DIMS, CURRENT DIMS and CROP COORDS if angle is 90 or -90)####
+        if(as.numeric(Degrees_rotate()) != 0){
+          #Rotate the image
+          Image$Image <- Image$Image %>% magick::image_rotate(degrees = as.numeric(Degrees_rotate()))
+
+          #Change the associated dimensions (for adequate plotting)
+          Image$Original_Dims <- rev(Image$Original_Dims)
+          Image$Current_Dims <- rev(Image$Current_Dims)
+
+          #If the image has been cropped the switch X for Y
+          if(any(!is.null(ranges$x), !is.null(ranges$y))){
+            #Get the old crops in a separate object
+            Old_X_crop_coords <- Image$X_crop_coords
+            Old_Y_crop_coords <- Image$Y_crop_coords
+
+            #Make the switch
+            Image$X_crop_coords <- Old_Y_crop_coords
+            Image$Y_crop_coords <- Old_X_crop_coords
+          }
+        }
+
+        ####FLIP AND FLOP####
+        if(as.logical(X_flip())) Image$Image <- Image$Image %>% magick::image_flop()
+        if(!as.logical(Y_flip())) Image$Image <- Image$Image %>% magick::image_flip()#Opposite due to ggplot2 graph plotting for images
+
+
+        ####RETURN FINAL PRODUCT####
+        return(Image)
+
       })
+
+      #PHOTO AS GGPLOT OBJECT (with adequate axis)
       Photo_plot_reactive <- shiny::reactive({
-        Photo <- Photo_reactive()[["Photo"]]
-        Photo_Dim <- Photo_reactive()[["Dims"]]
+
+        #Obtain the Image
+        Photo <- Photo_reactive()$Image
+
+        #Obtain the final axis limits
+        #If no cropping has been performed plot according to image dimension
+        if(all(is.null(ranges$x), is.null(ranges$y))){
+          Axis_Width_Min <- 1
+          Axis_Width_Max <- Photo_reactive()$Original_Dims[1]
+          Axis_Height_Min <- 1
+          Axis_Height_Max <- Photo_reactive()$Original_Dims[2]
+        }
+        #If cropping has been performed then get the dimensions from the Cropping dimensions
+        if(any(!is.null(ranges$x), !is.null(ranges$y))){
+          Axis_Width_Min <- min(Photo_reactive()$X_crop_coords)
+          Axis_Width_Max <- max(Photo_reactive()$X_crop_coords)
+          Axis_Height_Min <- min(Photo_reactive()$Y_crop_coords)
+          Axis_Height_Max <- max(Photo_reactive()$Y_crop_coords)
+        }
+
+        #Obtain the size in pixels to compute the aspect ratio
+        Aspect_ratio_photo <- abs(Axis_Height_Max - Axis_Height_Min) / abs(Axis_Width_Max - Axis_Width_Min)
+
         #Return the result as a scaffold ggplot_object
         Photo_plot <- ggplot() +
-          annotation_raster(Photo, xmin = 0, xmax = Photo_Dim$width, ymin = 0, ymax = Photo_Dim$height, interpolate = TRUE)+
-          scale_x_continuous(limits = c(0, Photo_Dim$width)) +
-          scale_y_continuous(limits = c(0, Photo_Dim$height)) +
-          coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)+
+          annotation_raster(Photo, xmin = Axis_Width_Min, xmax = Axis_Width_Max, ymin = Axis_Height_Min, ymax = Axis_Height_Max, interpolate = TRUE)+
+          scale_x_continuous(limits = c(Axis_Width_Min, Axis_Width_Max)) +
+          scale_y_continuous(limits = c(Axis_Height_Min, Axis_Height_Max)) +
+          coord_cartesian(xlim = c(Axis_Width_Min, Axis_Width_Max), ylim = c(Axis_Height_Min, Axis_Height_Max), expand = FALSE)+
           theme(axis.title = element_blank(),
                 axis.text = element_blank(),
                 axis.ticks = element_blank(),
                 axis.line = element_blank(),
                 panel.background = element_rect(fill = "black"),
-                panel.grid = element_blank())
+                panel.grid = element_blank(),
+                aspect.ratio = Aspect_ratio_photo)
         return(Photo_plot)
       })
 
       #Print the photo
       output$Photo <- shiny::renderPlot({
-        #Plot the result
-        try(Photo <- Photo_plot_reactive())
+        if(is.null(Image_coloring_list$Parameter_list)){
+          #Plot the result
+          try(Photo <-
+                Photo_plot_reactive() +
+                ggtitle("Original") +
+                theme(plot.title = element_text(size = 12, hjust = 0.5)))
+        }
+        if(!is.null(Image_coloring_list$Parameter_list)){
+          #Generate the color tibble to generate the legend
+          color_tibble <-
+            tibble(Channel_index = 1:length(Image_coloring_list$Parameter_list),
+                   Channel_name = names(Image_coloring_list$Parameter_list),
+                   Color_names = purrr::map_chr(Image_coloring_list$Parameter_list, ~.[["color"]])
+            ) %>% arrange(Channel_index)
+          color_tibble$Channel_name = factor(color_tibble$Channel_name, levels = color_tibble$Channel_name)
+
+          try(Photo <-
+                Photo_plot_reactive() +
+                ggtitle("Original") +
+                theme(plot.title = element_text(size = 12, hjust = 0.5)) +
+                geom_point(aes(x = 1, y = 1, color = Channel_name), size = 0,
+                           data = color_tibble) +
+                scale_color_manual("", values = color_tibble$Color_names) +
+                guides(color = guide_legend(ncol = 4,
+                                            byrow = TRUE,
+                                            override.aes = list(size = 10, shape = 15),
+                                            position = "bottom",
+                                            theme = theme(legend.text = element_text(color = "white", size = 10, face = "bold"),
+                                                          legend.key = element_rect(fill = "black"),
+                                                          legend.background = element_rect(fill = "black"),
+                                                          legend.spacing = unit(-10, "pt"),
+                                                          legend.margin = margin(-0, -0, -0, -0),
+                                                          legend.box.margin = margin(-10, -10, -10, -10)))))
+
+        }
+
+        #Return the final result
         return(Photo)
-      }, res = 300)
+      })
 
       #Control the zoom of the Photo and the rest of the graphs
       shiny::observeEvent(input$Photo_dblclick, {
@@ -464,10 +897,11 @@ Image_based_phenotyper_App_launcher <-
           }
 
           #Add the color code
-          Final_DATA <-dplyr::left_join(Final_DATA, Color_lookuptable(), by = "Label")
+          Final_DATA <- dplyr::left_join(Final_DATA, Color_lookuptable(), by = "Label")
 
           #Import the photo
           try(Photo <- Photo_plot_reactive())
+
           return(
             #Generate the final plot
             Photo +
@@ -478,14 +912,9 @@ Image_based_phenotyper_App_launcher <-
                                               size = 3,
                                               data = Final_DATA) +
               scale_color_identity() +
-              cowplot::theme_cowplot()+
               guides(color = "none") +
-              theme(axis.title = element_blank(),
-                    axis.text = element_blank(),
-                    axis.ticks = element_blank(),
-                    axis.line = element_blank(),
-                    panel.background = element_rect(fill = "black"),
-                    panel.grid = element_blank())
+              ggtitle("Assign cells") +
+              theme(plot.title = element_text(size = 12, hjust = 0.5))
           )
 
         })
@@ -515,10 +944,11 @@ Image_based_phenotyper_App_launcher <-
           Final_DATA$Label[Final_DATA$Probability < Result_list$Model_Param$Model_threshold] <- "Unassigned"
 
           #Add the color code
-          Final_DATA <-dplyr::left_join(Final_DATA, Color_lookuptable(), by = "Label")
+          Final_DATA <- dplyr::left_join(Final_DATA, Color_lookuptable(), by = "Label")
 
           #Import the photo
           try(Photo <- Photo_plot_reactive())
+
           return(
             #Generate the final plot
             Photo +
@@ -529,14 +959,9 @@ Image_based_phenotyper_App_launcher <-
                                               size = 3,
                                               data = Final_DATA) +
               scale_color_identity() +
-              cowplot::theme_cowplot()+
               guides(color = "none") +
-              theme(axis.title = element_blank(),
-                    axis.text = element_blank(),
-                    axis.ticks = element_blank(),
-                    axis.line = element_blank(),
-                    panel.background = element_rect(fill = "black"),
-                    panel.grid = element_blank())
+              ggtitle("Model performance") +
+              theme(plot.title = element_text(size = 12, hjust = 0.5))
           )
 
         })
@@ -1122,10 +1547,21 @@ Image_based_phenotyper_App_launcher <-
                           ignoreInit = TRUE)
 
       #If browser is closed end the app
-      session$onSessionEnded(function() { shiny::stopApp() })
+      session$onSessionEnded(function() {
+        future::plan("future::sequential")
+        memoise::forget(Memoised_importer)
+        gc()
+        shiny::stopApp()
+      })
     }
 
     #Run the server
     message("Always stop current R execution if you want to continue with your R session")
     shiny::shinyApp(user_interface, server)
   }
+
+
+
+
+
+

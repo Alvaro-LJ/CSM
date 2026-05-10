@@ -33,6 +33,7 @@ library(CSM)
     - [Conventional closest neighbors](#conventional-closest-neighbors)
     - [UTAG](#utag)
     - [Quantification](#quantification)
+    - [Tips to reduce computational burden](#improving-computational-efficiency)
 - [Tiled-based approach](#tiled-based-approach)
 - [Analyzing neighborhood morphology](#morphology-analysis)
 - [Global interaction pattern (imcRtools)](#global-interaction-pattern-imcrtools)
@@ -381,6 +382,28 @@ Tiled_neighborhoods_graphicator(DATA_elections = DATA_Neighborhood_elections, #S
                                 Graph_only_winner_neighborhood = FALSE #Specify if only the winner neighborhood in each tile should be graphed
 )
 ```
+
+### Improving computational efficiency
+This section of the vignette is homologous to that written for unsupervised clustering to indentify cell phenotype labels.
+complete unsupervised pipeline may include dimension reduction, data denoising, estimating the optimal number of clusters and finally perform data
+clustering. This pipeline usually requires several rounds of parameter tuning, which makes the whole process of clustering computationally inefficient,
+as each time the function is executed, data undergoes denoising, dimension reduction and cluster number estimation. 
+
+To reduce the computational burden, there are two interesting alternatives worth mentioning:
+
+* __Split the Dimension reduction/denoising process and the clustering process:__ The user may decide to work first on the dimension reduction and
+denoising pipeline until results are adequate. To this end, the `Neighborhood_discovery_function()`, `UTAG_Neighborhood_identifier()` and 
+`Tiled_Image_Clustering_function()`(see below) functions provides the option to pre-process the data and return the interim result. 
+In order to activate this behavior the user must set the argument `Stop_at_preprocessing = TRUE`. 
+This will avoid running into the clustering process every time the function is called. The resulting pre-processed data can be provided to the functions 
+through the `Pre_processed_data` argument. If pre-processed data is provided, all pre-processing related arguments will be ignored.
+
+* __Specify the exact number of clusters to identify:__ Several clustering methods allow the user to specify the precise number of clusters to be
+identified (SOM, Batch_K_means, GMM and CLARA_clustering). By avoiding the clustering estimation process, the user can avoid heavy duty computations.
+In order to force the algorithm to abort cluster estimation process the user must set the `Force_N_Phenotypes = TRUE` argument from the
+`Clustering_Phenotyper()` function. After doing so, the function will take the clustering method argument related to the max number of clusters to 
+identify as the explicit number of clusters to obtain (`Max_SOM_neighborhoods`, `Max_N_neighborhoods_Batch`, `Max_N_neighborhoods_GMM`, `Max_N_neighborhoods_CLARA`).
+
 
 ## Tiled-based approach
 This strategy first divides the tissue into tiles. Each tile is considered an individual neighborhood. Then cell composition among neighborhoods is analyzed.

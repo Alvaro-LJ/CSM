@@ -3,10 +3,14 @@
 #' `Image_thresholding_app_launcher()` launches an APP to interactively explore image pixel segmentation parameters interactively.
 #' @param Directory Character specifying the path to the folder where images to be thresholded are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
+#' @param Max_Gb_cache A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.
 #'
 #' @seealso [Pixel_Threshold_calculator()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
 #'
 #' @details
+#' In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the [magick::image_read()] function. Loaded images will
+#' be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+#'
 #' Image parameters control the image and channel to be displayed.
 #'
 #'Tissue mask parameters allow customizing how the tissue mask will be computed (decide foreground / background pixels).
@@ -52,9 +56,10 @@
 
 Image_thresholding_app_launcher <-
   function(Directory,
-           Ordered_Channels){
+           Ordered_Channels,
+           Max_Gb_cache = 10){
 
-    #Check suggested packages
+    ####Check suggested packages####
     {
       if(!requireNamespace("magick", quietly = FALSE)) stop(
         paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
@@ -72,18 +77,46 @@ Image_thresholding_app_launcher <-
       )
     }
 
+    ####Check that ordered channels and channels to keep are unique and generate memoise magick importer####
+    if(length(Ordered_Channels) != length(unique(Ordered_Channels))) stop("Ordered_Channels must contain non-duplicated character values")
 
     #check that the directory provided contains at least one file
     if(length(dir(Directory)) <1 ) stop("No files found in the Directory provided")
+
+    #Check that the Max_Gb_cache is OK
+    if(!all(is.numeric(Max_Gb_cache), Max_Gb_cache > 0, length(Max_Gb_cache) == 1)) stop("Max_Gb_cache must be a numeric value > 0")
+
+    #Generate a memoised version of the the magick image reader
+    Memoised_magick_reader <- memoise::memoise(
+      #Function to be memorized
+      magick::image_read,
+
+      #Argument controlling memory use
+      cache = cachem::cache_mem(
+        max_size = Max_Gb_cache * 1024 * 1024 * 1024, #10 Gb is the max amount of bytes
+        max_age = Inf,
+        max_n = Inf,
+        evict = c("lru", "fifo"),
+        missing = cachem::key_missing(),
+        logfile = NULL
+      )
+    )
 
     #Obtain image names and channel names
     Real_Images <- dir(Directory, full.names = FALSE)
     Complete_names <- dir(Directory, full.names = TRUE)
     Channels_in_images <- Ordered_Channels
 
-    #BUILD THE USER INTERFACE
+    ####BUILD THE USER INTERFACE####
     {
       user_interface <- shiny::fluidPage(
+
+        #To make the sidebar collapsable
+        shinyjs::useShinyjs(),
+
+        #Button above layout to toggle sidebar
+        shiny::actionButton("toggleSidebar", "Toggle", icon = shiny::icon(name = "square-caret-up", lib = "font-awesome")),
+        shiny::tags$hr(),
 
         #Set the title
         shiny::titlePanel("Pixel thresholding exploration APP"),
@@ -143,12 +176,17 @@ Image_thresholding_app_launcher <-
                                                        shiny::numericInput("Target_Levels", "Levels", value = 3, min = 3, max = NA, step = 1)))
             ),
 
-            shiny::fluidRow(shiny::column(2, shiny::actionButton("GO_button", shiny::icon("bolt-lightning"), label = "GO!")))
+            shiny::fluidRow(shiny::column(2, shiny::actionButton("GO_button", shiny::icon("bolt-lightning"), label = "GO!")),
+                            shiny::column(4, shiny::actionButton("Download_Param", shiny::icon("download"), label = "Download Parameters")))
 
           ),
 
           #Set the outcome columns
           shiny::mainPanel(
+
+            #Give the main panel an ID
+            id = "mainPanel",
+
             #First row will have the Photo and the overview of marker intensity by cell
             shiny::fluidRow(
               shiny::column(6, shiny::plotOutput("Photo",
@@ -159,13 +197,11 @@ Image_thresholding_app_launcher <-
                                                                           resetOnNew = TRUE)
               )
               ),
-              shiny::column(6, shiny::plotOutput("Tissue_mask",
-                                                 width = "auto"))
+              shiny::column(6, shiny::plotOutput("Tissue_mask"))
             ),
             #Second row will contain the positive cells and the histogram
             shiny::fluidRow(
-              shiny::column(6, shiny::plotOutput("Target_mask",
-                                                 width = "auto")),
+              shiny::column(6, shiny::plotOutput("Target_mask")),
               shiny::column(6, shiny::verbatimTextOutput("Pixel_summary"))
             )
           )
@@ -183,8 +219,27 @@ Image_thresholding_app_launcher <-
     }
 
 
-    #BUILD THE SERVER
+    ####BUILD THE SERVER####
     server <- function(input, output, session){
+
+      # JS function to switch classes when togglin sidebar
+      toggle_script <- "
+    if ($('#sidebar').is(':visible')) {
+      // hide sidebar + expand main panel
+      $('#sidebar').hide();
+      $('#mainPanel').removeClass('col-sm-8').addClass('col-sm-12');
+    } else {
+      // show sidebar + restore width
+      $('#sidebar').show();
+      $('#mainPanel').removeClass('col-sm-12').addClass('col-sm-8');
+    }
+  "
+      #What to do if the user hits the toggle button
+      shiny::observeEvent(input$toggleSidebar, {
+        shinyjs::runjs(toggle_script)
+      })
+
+
       #First generate the reactives (those that need to be continuously tested for reactivity)
       Photo_name <- shiny::reactive(stringr::str_c(Directory, "/", input$Real_Image_name))
       Channel_index <- shiny::reactive(which(input$Channel == Ordered_Channels))
@@ -194,20 +249,21 @@ Image_thresholding_app_launcher <-
       #Generate the reactive that controls the results in the panel
       Image_results <- shiny::reactiveValues(Tissue_mask = NULL,
                                              Target_mask = NULL,
-                                             Pixel_data = NULL)
+                                             Pixel_data = NULL,
+                                             Thresholding_Parameters = NULL)
 
 
       #Import the actual photo
       Photo_reactive <- shiny::reactive({
         #Import the Photo
-        Photo <- magick::image_read(Photo_name())[Channel_index()]
+        Photo <- Memoised_magick_reader(Photo_name())
         return(Photo)
       })
 
       #Print the photo
       output$Photo <- shiny::renderPlot({
         #Obtain the photo
-        Photo <- Photo_reactive()
+        Photo <- Photo_reactive()[Channel_index()]
         #Change resolution if required
         if(as.numeric(Image_resolution()) < 1000){
           Image_Resolution <- stringr::str_c("X", Image_resolution())
@@ -218,6 +274,16 @@ Image_thresholding_app_launcher <-
         Width <- Image_information$width
         Height <- Image_information$height
 
+        #Get info for aspect ratio
+        if(is.null(ranges$x)){
+          Plot_width <- Width
+          Plot_height <- Height
+        }
+        if(!is.null(ranges$x)){
+          Plot_width <- ranges$x[2] - ranges$x[1]
+          Plot_height <- ranges$y[2] - ranges$y[1]
+        }
+
         #Generate the plot as annotation_raster
         return(
           ggplot() +
@@ -225,14 +291,17 @@ Image_thresholding_app_launcher <-
             scale_x_continuous(limits = c(0, Width)) +
             scale_y_continuous(limits = c(0, Height)) +
             coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)+
+            ggtitle("Original") +
             theme(axis.title = element_blank(),
                   axis.text = element_blank(),
                   axis.ticks = element_blank(),
                   axis.line = element_blank(),
                   panel.background = element_rect(fill = "black"),
-                  panel.grid = element_blank())
+                  panel.grid = element_blank(),
+                  plot.title = element_text(size = 12, hjust = 0.5),
+                  aspect.ratio = Plot_height/Plot_width)
         )
-      }, res = 300)
+      })
 
       #Control the zoom in of the Photo and the other plots
       shiny::observeEvent(input$Photo_dblclick, {
@@ -249,7 +318,7 @@ Image_thresholding_app_launcher <-
       shiny::observeEvent(input$GO_button, {
         #First we need to import the photograph as EBI, select the required channels and transform it to a cytomapper object
         shiny::showModal(modalDialog("Importing image", footer=NULL))
-        Image <- magick::image_read(Photo_name())
+        Image <- Photo_reactive()
         Image <- Image[which(Ordered_Channels %in% input$Tissue_mask_channels)]
         Image <- magick::as_EBImage(Image)
         shiny::removeModal()
@@ -279,6 +348,7 @@ Image_thresholding_app_launcher <-
                                              Blurr = as.logical(input$Target_blurr),
                                              Sigma = as.numeric(input$Target_sigma)
           )
+          Threshold_value_for_list <- as.numeric(input$Target_Value)
           Image_results$Target_mask <- Target_result
         }
 
@@ -291,6 +361,7 @@ Image_thresholding_app_launcher <-
                                              Blurr = as.logical(input$Target_blurr),
                                              Sigma = as.numeric(input$Target_sigma)
           )
+          Threshold_value_for_list <- NULL
           Image_results$Target_mask <- Target_result
         }
 
@@ -338,6 +409,7 @@ Image_thresholding_app_launcher <-
                                              Blurr = as.logical(input$Target_blurr),
                                              Sigma = as.numeric(input$Target_sigma)
           )
+          Threshold_value_for_list <- NULL
           Image_results$Target_mask <- Target_result
         }
 
@@ -354,6 +426,8 @@ Image_thresholding_app_launcher <-
           )
           Target_result$Image <- Target_result$Image/length(values_for_function)
           Image_results$Target_mask <- Target_result
+
+          Threshold_value_for_list <- values_for_function
         }
 
         #If Multilevel Local and input$Target_Value == ""
@@ -370,6 +444,8 @@ Image_thresholding_app_launcher <-
           )
           Target_result$Image <- Target_result$Image/length(Threshold_levels)
           Image_results$Target_mask <- Target_result
+
+          Threshold_value_for_list <- NULL
         }
 
         #If Multilevel Global and input$Target_Value == ""
@@ -419,6 +495,8 @@ Image_thresholding_app_launcher <-
           )
           Target_result$Image <- Target_result$Image/length(Threshold_levels)
           Image_results$Target_mask <- Target_result
+
+          Threshold_value_for_list <- NULL
         }
 
         #Add final parameters
@@ -436,6 +514,31 @@ Image_thresholding_app_launcher <-
         Image_results$Target_mask$Image_analized <- input$Real_Image_name
 
         shiny::removeModal()
+
+        #Write the parameters in a list
+        if(input$Target_threshold_local == "Local") Local_Global_logical <- TRUE else(Local_Global_logical <- FALSE)
+        Parameter_list <-
+          list(
+            Ordered_Channels = Ordered_Channels,
+            Channels_to_keep = input$Tissue_mask_channels,
+            Target_channel = input$Channel,
+
+            Local_thresholding = Local_Global_logical,
+            Threshold_type = input$Target_threshold_type,
+            Threshold_value = Threshold_value_for_list,
+            Levels = as.numeric(input$Target_Levels),
+
+            Threshold_type_tissueMask = input$Tissue_threshold_type,
+            Threshold_value_tissueMask = as.numeric(input$Tissue_value),
+            Blurr_tissueMask = as.logical(input$Tissue_blurr),
+            Sigma_tissueMask = as.numeric(input$Tissue_sigma),
+
+            Blurr_target = as.logical(input$Target_blurr),
+            Sigma_target = as.numeric(input$Target_sigma)
+          )
+
+        Image_results$Thresholding_Parameters <- Parameter_list
+
       })
 
       #Tissue mask output
@@ -456,6 +559,16 @@ Image_thresholding_app_launcher <-
           Width <- Image_information$width
           Height <- Image_information$height
 
+          #Get info for aspect ratio
+          if(is.null(ranges$x)){
+            Plot_width <- Width
+            Plot_height <- Height
+          }
+          if(!is.null(ranges$x)){
+            Plot_width <- ranges$x[2] - ranges$x[1]
+            Plot_height <- ranges$y[2] - ranges$y[1]
+          }
+
           #Generate the plot as annotation_raster
           return(
             ggplot() +
@@ -463,12 +576,15 @@ Image_thresholding_app_launcher <-
               scale_x_continuous(limits = c(0, Width)) +
               scale_y_continuous(limits = c(0, Height)) +
               coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)+
+              ggtitle("Tissue mask") +
               theme(axis.title = element_blank(),
                     axis.text = element_blank(),
                     axis.ticks = element_blank(),
                     axis.line = element_blank(),
                     panel.background = element_rect(fill = "black"),
-                    panel.grid = element_blank())
+                    panel.grid = element_blank(),
+                    plot.title = element_text(size = 12, hjust = 0.5),
+                    aspect.ratio = Plot_height/Plot_width)
           )
 
         }
@@ -492,6 +608,16 @@ Image_thresholding_app_launcher <-
           Width <- Image_information$width
           Height <- Image_information$height
 
+          #Get info for aspect ratio
+          if(is.null(ranges$x)){
+            Plot_width <- Width
+            Plot_height <- Height
+          }
+          if(!is.null(ranges$x)){
+            Plot_width <- ranges$x[2] - ranges$x[1]
+            Plot_height <- ranges$y[2] - ranges$y[1]
+          }
+
           #Generate the plot as annotation_raster
           return(
             ggplot() +
@@ -499,12 +625,15 @@ Image_thresholding_app_launcher <-
               scale_x_continuous(limits = c(0, Width)) +
               scale_y_continuous(limits = c(0, Height)) +
               coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE)+
+              ggtitle("Thresholded image") +
               theme(axis.title = element_blank(),
                     axis.text = element_blank(),
                     axis.ticks = element_blank(),
                     axis.line = element_blank(),
                     panel.background = element_rect(fill = "black"),
-                    panel.grid = element_blank())
+                    panel.grid = element_blank(),
+                    plot.title = element_text(size = 12, hjust = 0.5),
+                    aspect.ratio = Plot_height/Plot_width)
           )
 
         }
@@ -524,8 +653,34 @@ Image_thresholding_app_launcher <-
       }
       )
 
+      #Download segmentation parameters to R session if required
+      observeEvent(input$Download_Param, {
+        if(is.null(Image_results$Thresholding_Parameters)){
+          showModal(modalDialog(
+            "Thresholding Parameters not found. Please run a test before re-trying",
+            easyClose = TRUE,
+            footer = NULL
+          )
+          )
+        }
+        else{
+          Thresholding_Parameters <<- Image_results$Thresholding_Parameters
+          showModal(modalDialog(
+            "An object called 'Thresholding_Parameters' has been created in the Global environment.",
+            easyClose = TRUE,
+            footer = NULL
+          )
+          )
+        }
+
+      })
+
       #If browser is closed end the app
-      session$onSessionEnded(function() { shiny::stopApp() })
+      session$onSessionEnded(function() {
+        memoise::forget(Memoised_magick_reader)
+        gc()
+        shiny::stopApp()
+      })
     }
 
     #Run the server

@@ -4,9 +4,10 @@
 #'
 #' @param DATA A dataframe or tibble containing cell feature data.
 #' @param Strategy The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).
+#' @param Force_N_Phenotypes A logical value indicating if the number of phenotypes indicated should be used directly to compute the phenotypes. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.
 #'
 #' @param Apply_Denoise A logical value. Specify if a denoising filtering is required before clustering (see details).
-#' @param Denoising Denoising strategy. One of the following: Quantile, Standard_Deviation, Threshold, Otsu or DimRed_DBscan.
+#' @param Denoising Denoising strategy. A vector containing any of the following: Quantile, Standard_Deviation, Threshold, Otsu or DimRed_DBscan. More than one method can be applied.
 #' @param Percentile A numeric value indicating the percentile for quantile denoising. Cells below percentile for all features will be considered to be noise.
 #' @param N_Standard_Deviations A numeric value indicating the number of standard deviations from mean for Standard_Deviation method. Cells below SD for all features will be considered to be noise.
 #' @param Selected_threshold A numeric value indicating the threshold to be used for the Threshold method. Cells below the threshold for all features will be considered to be noise.
@@ -115,85 +116,89 @@
 Clustering_Phenotyper <-
   function(DATA,
            Strategy,
+           Force_N_Phenotypes = FALSE,
 
            #Denoising parameters
-           Apply_Denoise = FALSE, #Specify if a denoising filtering is required before clustering
-           Denoising = NULL, #Select denoising strategy from: Quantile, Standard_Deviation, Threshold, Otsu or DimRed_DBscan
-           Percentile = NULL, #Select the adequate percentile for quantile threshold
-           N_Standard_Deviations = NULL, #Select the number of standard deviations from mean for Standard_Deviation method
-           Selected_threshold = NULL, #Select the absolute threshold for the Threshold method
-           Min_cell_no = NULL, #Parameter for DBscan
-           Distance_radius = NULL, #Parameter for DBscan
+           Apply_Denoise = FALSE,
+           Denoising = NULL,
+           Percentile = NULL,
+           N_Standard_Deviations = NULL,
+           Selected_threshold = NULL,
+           Min_cell_no = NULL,
+           Distance_radius = NULL,
 
            #Dimension reduction
            Perform_Dimension_reduction = FALSE,
            Dimension_reduction = NULL,
            Dimension_reduction_prop = NULL,
-           Cluster_on_Reduced = NULL,
+           Cluster_on_Reduced = FALSE,
 
            #Perform only Pre_processing
            Stop_at_preprocessing = FALSE,
            Pre_processed_data = NULL,
 
            #Parameters for Consensus Clustering
-           Max_N_phenotypes = NULL, #Number of maximum neighborhods that you desire to find
-           Consensus_reps = NULL, #Number of iterations of the algorithm to try to converge
-           Consensus_p_Items = NULL, #Percentage of the closest neighbor patterns that you desire to sample in each iteration
+           Max_N_phenotypes = NULL,
+           Consensus_reps = NULL,
+           Consensus_p_Items = NULL,
            Consensus_Cluster_Alg = NULL,
-           Consensus_Distance = NULL, #Distance metric to be used (pearson(1 - Pearson correlation), spearman(1 - Spearman correlation), euclidean, binary, maximum, canberra, minkowski
-           Consensus_Name = NULL, #Name of the folder that is going to be created in order to place the resulting graphs
+           Consensus_Distance = NULL,
+           Consensus_Name = NULL,
 
            #Parameters for Self-Organizing Maps
-           Max_SOM_phenotypes = NULL, #Maximum number of clusters (phenotypes) to try in the algorithm
+           Max_SOM_phenotypes = NULL,
 
            #Parameters for Graph-Based approaches
-           Nearest_neighbors_for_graph = NULL, #Specify the number of closest neighbors to calculate the graph
-           Graph_Method = NULL, #Specify the clustering method
-           Graph_Resolution = NULL, #Specify the graph resolution
-           N_steps = NULL, #Number of steps given in the WalkTrap algorithm
+           Nearest_neighbors_for_graph = NULL,
+           Graph_Method = NULL,
+           Graph_Resolution = NULL,
+           N_steps = NULL,
 
            #Parameters for K means Meta Clustering
-           N_K_centroids = NULL, #Number of centroids to perform K means
-           Max_N_phenotypes_Meta = NULL, #Number of maximum clusters (phenotypes) that you desire to find
-           Consensus_reps_Meta = NULL, #Number of iterations of the algorithm to try to converge
-           Consensus_p_Items_Meta = NULL, #Percentage of cells that you desire to sample in each iteration
-           Consensus_Name_Meta = NULL, #Name of the folder that is going to be created in order to place the resulting graphs
+           N_K_centroids = NULL,
+           Max_N_phenotypes_Meta = NULL,
+           Consensus_reps_Meta = NULL,
+           Consensus_p_Items_Meta = NULL,
+           Consensus_Name_Meta = NULL,
 
            #Parameters for Batched K means
-           Batch_size = NULL, #The number of cells to be included in each random batch
-           Max_N_phenotypes_Batch = NULL, #Number of maximum clusters (phenotypes) that you desire to find
-           N_initiations = NULL, #Number of times the algorithm is going to be tried to find the best clustering result
-           Max_iterations = NULL, #Max number of iterations in each try
+           Batch_size = NULL,
+           Max_N_phenotypes_Batch = NULL,
+           N_initiations = NULL,
+           Max_iterations = NULL,
 
            #Parameters for Gaussian Mixture Model
-           Quality_metric = NULL, #The quality measure used to test the number of clusters ("AIC" or "BIC")
-           Max_N_phenotypes_GMM = NULL, #Number of maximum clusters (phenotypes) that you desire to find
-           Max_iterations_km = NULL, #Number of max iterations in the K means clustering performed
-           Max_iterations_em = NULL, #Number of max iterations in the Expectation Maximization algorithm
-           GMM_Distance = NULL, #Distance metric to use in the model ("eucl_dist" or "maha_dist")
+           Quality_metric = NULL,
+           Max_N_phenotypes_GMM = NULL,
+           Max_iterations_km = NULL,
+           Max_iterations_em = NULL,
+           GMM_Distance = NULL,
 
            #Parameters for CLARA clustering
-           Samples_CLARA = NULL, #Number of samples the CLARA algorithm is going to use to be calculated
-           Sample_per_CLARA = NULL, #Percentage (from 0 to 1) of the total cells that are going to be allocated to each sample
-           Max_N_phenotypes_CLARA = NULL, #Number of maximum clusters (phenotypes) that you desire to find
-           Distance_CLARA = NULL, #euclidean, manhattan, chebyshev, canberra, braycurtis, pearson_correlation,
-           #simple_matching_coefficient, minkowski, hamming, jaccard_coefficient, Rao_coefficient, mahalanobis, cosine
-           N_cores = NULL #Number of cores to parallelize your computation
+           Samples_CLARA = NULL,
+           Sample_per_CLARA = NULL,
+           Max_N_phenotypes_CLARA = NULL,
+           Distance_CLARA = NULL,
+           N_cores = NULL
   ) {
     on.exit(gc())
 
     ##################################GENERAL ARGUMENT CHECK######################################
 
     #Check general arguments
-    if(!identical(names(DATA)[1:4], c("Cell_no", "X", "Y", "Subject_Names"))) {
-      stop("Please generate an appropiate data object using the Data_arrange_function")
-    }
     if(!Strategy %in% c("Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM", "CLARA_clustering")){
       stop("Strategy must be one of the following: Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM, CLARA_clustering")
+    }
+    if(!all(length(Force_N_Phenotypes) == 1, is.logical(Force_N_Phenotypes))) stop("Force_N_Phenotypes must be a logical value")
+    if(Force_N_Phenotypes){
+      if(!Strategy %in% c("SOM", "Batch_K_means", "GMM", "CLARA_clustering")) message("Force_N_Phenotypes cannot be used with current strategy, argument will be ignored")
     }
 
     #If NO Pre-processed data provided check if Stop_at_pre_processing is logical and other pre-processing variables
     if(is.null(Pre_processed_data)){
+      if(!identical(names(DATA)[1:4], c("Cell_no", "X", "Y", "Subject_Names"))) {
+        stop("Please generate an appropiate data object using the Data_arrange_function")
+      }
       if(!is.logical(Stop_at_preprocessing)) stop("Stop_at_preprocessing should be a logical value")
       if(!is.logical(Apply_Denoise)) stop("Apply_Denoise must be a logical value")
       if(!is.logical(Perform_Dimension_reduction)) stop("Perform_Dimension_reduction must be a logical value")
@@ -202,9 +207,46 @@ Clustering_Phenotyper <-
         if(!Dimension_reduction %in% c("UMAP", "TSNE", "PCA")) stop("Dimension_reduction must be one of the following: UMAP, TSNE, PCA")
         if(!all(is.numeric(Dimension_reduction_prop), Dimension_reduction_prop > 0, Dimension_reduction_prop <= 1)) stop("Dimension_reduction_prop must be a numeric value between 0 and 1")
       }
+      if(Apply_Denoise){
+        #check denoising argument is correctly stated
+        if(!all(Denoising %in% c("Quantile", "Standard_Deviation", "Threshold", "Otsu", "DimRed_DBscan"))) {
+          stop("Denoising should be any of the following: Quantile, Standard_Deviation, Threshold, Otsu, DimRed_DBscan")
+        }
+        if(any(Denoising == "DimRed_DBscan")){
+          #Requires previous dimension reduction
+          if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
+        }
+      }
       if(!is.logical(Cluster_on_Reduced)) stop("Cluster_on_Reduced must be a logical value")
       if(Cluster_on_Reduced){
         if(!Perform_Dimension_reduction) stop("If Clustering needs to be performed on Dimension reduced data please set Perform_Dimension_reduction to TRUE")
+      }
+    }
+
+    #If Pre-processed data provided obtain the datasets from the object provided
+    if(!is.null(Pre_processed_data)){
+      message("Pre_processed_data provided. Pre-processing related arguments will be ignored.")
+      if(names(Pre_processed_data)[1] != "Pre_processing_argument") stop("Pre_processing_argument not found in Pre_processed_data object provided")
+
+      Apply_Denoise <- Pre_processed_data[["Pre_processing_argument"]][["Apply_Denoise"]]
+      Perform_Dimension_reduction <- Pre_processed_data[["Pre_processing_argument"]][["Perform_Dimension_reduction"]]
+
+      if(Apply_Denoise & !Perform_Dimension_reduction){
+        DATA <- Pre_processed_data[["DATA"]]
+        MARKERS <- Pre_processed_data[["MARKERS"]]
+        DATA_NOISE <- Pre_processed_data[["DATA_NOISE"]]
+
+      }
+      if(!Apply_Denoise & Perform_Dimension_reduction){
+        DATA <- Pre_processed_data[["DATA"]]
+        MARKERS <- Pre_processed_data[["MARKERS"]]
+        DATA_Reduction <- Pre_processed_data[["DATA_Reduction"]]
+      }
+      if(Apply_Denoise & Perform_Dimension_reduction){
+        DATA <- Pre_processed_data[["DATA"]]
+        MARKERS <- Pre_processed_data[["MARKERS"]]
+        DATA_NOISE <- Pre_processed_data[["DATA_NOISE"]]
+        DATA_Reduction <- Pre_processed_data[["DATA_Reduction"]]
       }
     }
 
@@ -406,17 +448,8 @@ Clustering_Phenotyper <-
     #If pre-processed data is not provided, check suggested packages
     if(is.null(Pre_processed_data)){
       if(Apply_Denoise){
-        #check denoising argument is correctly stated
-        if(!Denoising %in% c("Quantile", "Standard_Deviation", "Threshold", "Otsu", "DimRed_DBscan")) {
-          stop("Denoising should be one of Quantile, Standard_Deviation, Threshold, Otsu, DimRed_DBscan")
-        }
-        if(Denoising == "DimRed_DBscan"){
-          #Requires previous dimension reduction
-          if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
-        }
-
         #Check suggested packages
-        if(Denoising == "Otsu"){
+        if("Otsu" %in% Denoising){
           if(!requireNamespace("EBImage", quietly = TRUE)) stop(
             paste0("EBImage Bioconductor package is required to execute the function. Please install using the following code: ",
                    expression({
@@ -428,7 +461,7 @@ Clustering_Phenotyper <-
             )
           )
         }
-        if(Denoising == "DimRed_DBscan"){
+        if("DimRed_DBscan" %in% Denoising){
           if(!requireNamespace("dbscan", quietly = FALSE)) stop(
             paste0("dbscan CRAN package is required to execute the function. Please install using the following code: ",
                    expression(install.packages("dbscan")))
@@ -476,221 +509,47 @@ Clustering_Phenotyper <-
 
     ##################################DATA PRE-PROCESSING######################################
 
-    #If pre-processed data is not provided, perform data pre-processing
+    #If pre-processed data is not provided, perform data pre-processing as required by user
     if(is.null(Pre_processed_data)){
+
+      DATA_Reduction <- NULL #Generate a NULL DATA_Reduction just in case it is not generated and evaluated by Denoising function
+
       #Perform dimension reduction if required
       if(Perform_Dimension_reduction){
-        #First PCA
-        if(Dimension_reduction == "PCA"){
-          if(Dimension_reduction_prop != 1) stop("PCA must be performed using Dimension_reduction_prop = 1")
-          print("Generating PCA projections")
-          #Scale and turn into matrix
-          DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-          Result_PCA <- svd::propack.svd(DATA_matrix, neig = 2)$u
-          DATA_Reduction <- tibble(Cell_no = DATA$Cell_no, DIMENSION_1 = unlist(Result_PCA[,1]), DIMENSION_2 = unlist(Result_PCA[,2]))
-        }
+        DATA_Reduction <-
+          CSM_Dimension_reduction_function(Original_data = DATA,
 
-        #Second TSNE
-        if(Dimension_reduction == "TSNE"){
-          if(Dimension_reduction_prop == 1) {
-            print("Generating TSNE projections")
-            if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
-            #scale and turn into matrix
-            DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-            Result_TSNE <- snifter::fitsne(DATA_matrix,
-                                           simplified = TRUE,
-                                           n_components = 2L,
-                                           n_jobs = 1L,
-                                           perplexity = 30,
-                                           n_iter = 500L,
-                                           initialization = "pca",
-                                           pca = FALSE,
-                                           neighbors = "auto",
-                                           negative_gradient_method = "fft",
-                                           learning_rate = "auto",
-                                           early_exaggeration = 12,
-                                           early_exaggeration_iter = 250L,
-                                           exaggeration = NULL,
-                                           dof = 1,
-                                           theta = 0.5,
-                                           n_interpolation_points = 3L,
-                                           min_num_intervals = 50L,
-                                           ints_in_interval = 1,
-                                           metric = "euclidean",
-                                           metric_params = NULL,
-                                           initial_momentum = 0.5,
-                                           final_momentum = 0.8,
-                                           max_grad_norm = NULL,
-                                           random_state = NULL,
-                                           verbose = FALSE)
-            DATA_Reduction <- dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Result_TSNE[,1]), DIMENSION_2 = unlist(Result_TSNE[,2]))
-          }
-
-          if(Dimension_reduction_prop != 1) {
-            print("Generating TSNE projections")
-            DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
-              dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. tSNE embedding can take a long time")
-            #scale and turn into matrix
-            Result_TSNE <- snifter::fitsne(DATA_matrix,
-                                           simplified = FALSE,
-                                           n_components = 2L,
-                                           n_jobs = 1L,
-                                           perplexity = 30,
-                                           n_iter = 500L,
-                                           initialization = "pca",
-                                           pca = FALSE,
-                                           neighbors = "auto",
-                                           negative_gradient_method = "fft",
-                                           learning_rate = "auto",
-                                           early_exaggeration = 12,
-                                           early_exaggeration_iter = 250L,
-                                           exaggeration = NULL,
-                                           dof = 1,
-                                           theta = 0.5,
-                                           n_interpolation_points = 3L,
-                                           min_num_intervals = 50L,
-                                           ints_in_interval = 1,
-                                           metric = "euclidean",
-                                           metric_params = NULL,
-                                           initial_momentum = 0.5,
-                                           final_momentum = 0.8,
-                                           max_grad_norm = NULL,
-                                           random_state = NULL,
-                                           verbose = FALSE)
-            Coords <- snifter::project(Result_TSNE,
-                                       new = DATA  %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix(),
-                                       old = DATA_matrix)
-            DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
-          }
-        }
-
-        #Third UMAP
-        if(Dimension_reduction == "UMAP"){
-          if(Dimension_reduction_prop == 1) {
-            print("Generating UMAP projections")
-            if(nrow(DATA) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
-            #scale and turn into matrix
-            DATA_matrix <- DATA %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-            Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L)
-            DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Result_UMAP[,1]), DIMENSION_2 = unlist(Result_UMAP[,2]))
-          }
-
-          if(Dimension_reduction_prop != 1) {
-            print("Generating UMAP projections")
-            DATA_matrix <- DATA %>% dplyr::group_by(Subject_Names) %>% dplyr::slice_sample(prop = Dimension_reduction_prop) %>% dplyr::ungroup() %>%
-              dplyr::select(-c(1:4)) %>% scale() %>% as.matrix()
-            if(nrow(DATA_matrix) > 50000) print("Warning! Data set contains more than 50K observations. UMAP embedding can take some time")
-            #scale and turn into matrix
-            Result_UMAP <- uwot::tumap(DATA_matrix, n_components = 2L, ret_model = TRUE)
-            Coords <- uwot::umap_transform(X = DATA  %>% dplyr::select(-c(1:4)) %>% scale() %>% as.matrix(),
-                                           model = Result_UMAP)
-            DATA_Reduction <-dplyr::bind_cols(DATA["Cell_no"], DIMENSION_1 = unlist(Coords[,1]), DIMENSION_2 = unlist(Coords[,2]))
-          }
-        }
+                                           Dimension_reduction_strategy = Dimension_reduction,
+                                           Dimension_reduction_prop = Dimension_reduction_prop
+                                           )
       }
 
       #If denoising is required apply required function
       if(Apply_Denoise){
 
         print("Filtering out noisy cells")
-        #Identify each cell in the experiment with a unique ID
-        DATA <- DATA %>% dplyr::mutate(Unique_ID = 1:nrow(DATA))
-        DATA <- DATA[c(ncol(DATA), 1:(ncol(DATA)-1))]
 
-        #Apply desired filters
-        if(Denoising == "Quantile") {
-          #Check arguments
-          if(Percentile < 0.01 | Percentile > 0.99) stop("Percentile must be between 0.01 and 0.99")
+        Denoising_results <-
+          CSM_Denoising_function(
+            Original_data = DATA,
 
-          FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
-            x <= quantile(x, Percentile)
-          })
-        }
+            Denoising_strategy = Denoising,
 
-        else if(Denoising == "Standard_Deviation"){
-          #Check arguments
-          if(!is.numeric(N_Standard_Deviations)) stop("N_Standard_Deviations must be a numeric value")
+            Percentile = Percentile,
+            N_Standard_Deviations = N_Standard_Deviations,
+            Selected_threshold = Selected_threshold,
 
-          FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
-            x <= (mean(x) - (N_Standard_Deviations*sd(x)))
-          })
-        }
-
-        else if(Denoising == "Threshold"){
-          #Check arguments
-          if(!is.numeric(Selected_threshold)) stop("Selected_threshold must be a numeric value")
-
-          FILTER <-purrr::map_dfc(DATA[-(1:5)], function(x){
-            x <= Selected_threshold
-          })
-        }
-
-        else if(Denoising == "Otsu"){
-          FILTER <- purrr::map2_df(.x = DATA[-c(1:5)],
-                                   .y =purrr::map_dbl(DATA[-c(1:5)], function(z){
-                                     EBImage::otsu(array(z, dim = c(1, length(z))), range = c(min(z), max(z)), levels = length(unique(z)))
-                                   }),
-                                   function(.x, .y) .x <= .y)
-        }
-
-        else if(Denoising == "DimRed_DBscan"){
-          #Requires previous dimension reduction
-          if(!Perform_Dimension_reduction) stop("DBscan clustering requires Dimension reduction. Please set Perform_Dimension_reduction to TRUE")
-          #Check other arguments
-          if(!all(is.numeric(Min_cell_no), Min_cell_no%%1 == 0, Min_cell_no > 1)) stop("Min_cell_no must be an integer value > 1")
-          if(!all(is.numeric(Distance_radius), Distance_radius > 0)) stop("Distance_radius must be a numeric value > 0")
-
-          #Proceed with algorithm
-          DB_results <- dbscan::dbscan(DATA_Reduction[c("DIMENSION_1", "DIMENSION_2")], eps = Distance_radius, minPts = Min_cell_no, borderPoints = FALSE)
-
-          #whole plot for small samples
-          if(length(DB_results$cluster) <= 100000){
-            plot(
-              tibble(Dim_1 = DATA_Reduction[["DIMENSION_1"]], Dim_2 = DATA_Reduction[["DIMENSION_2"]], Cluster = DB_results$cluster) %>%
-                dplyr::mutate(Cluster = case_when(Cluster == 0 ~ "Noise",
-                                                  TRUE ~ "Approved")) %>%
-                ggplot(aes(x = Dim_1, y = Dim_2, color = Cluster)) + geom_point(size = 0.8) +
-                scale_color_manual("", values = c("black", "grey"))+
-                cowplot::theme_cowplot()+
-                theme(panel.grid = element_blank())
-            )
-          }
-
-          #Subsample plot for large dataset
-          if(length(DB_results$cluster) > 100000){
-            message(">100K observations to generate plots. A random subset containing 10% of the dataset will be selected for Dimension reduction plots")
-            plot(
-              tibble(Dim_1 = DATA_Reduction[["DIMENSION_1"]], Dim_2 = DATA_Reduction[["DIMENSION_2"]], Cluster = DB_results$cluster) %>%
-                dplyr::mutate(Cluster = case_when(Cluster == 0 ~ "Noise",
-                                                  TRUE ~ "Approved")) %>%
-                dplyr::slice_sample(n = 100000) %>%
-                ggplot(aes(x = Dim_1, y = Dim_2, color = Cluster)) + geom_point(size = 1.5) +
-                scale_color_manual("", values = c("black", "grey"))+
-                cowplot::theme_cowplot()+
-                theme(panel.grid = element_blank())
-            )
-          }
-
-          DB_OK <- menu(choices = c("Proceed", "Abort"), title = "Are the results of the filtering OK?")
-          if(DB_OK == 2) stop("Please refine Distance_radius and Min_cell_no parameters and retry")
-
-          #Generate the NOISE column with a logical vector
-          DATA <- DATA %>% dplyr::mutate(NOISE = DB_results$cluster) %>% dplyr::mutate(NOISE = dplyr::case_when(NOISE == 0 ~ TRUE,
-                                                                                                                NOISE != 0 ~ FALSE))
-        }
-
-        #For no DBscan methods apply a row wise method to determine which cells are noise (a logical vector)
-        if(Denoising != "DimRed_DBscan"){
-          #Generate the variable to specify if the cell is noise or not
-          DATA <- DATA %>% dplyr::mutate(NOISE = unlist(apply(FILTER, MARGIN = 1, function(x) sum(x) == ncol(FILTER))))
-        }
+            Perform_Dimension_reduction = Perform_Dimension_reduction,
+            DATA_Reduction = DATA_Reduction,
+            Min_cell_no = Min_cell_no,
+            Distance_radius = Distance_radius
+          )
 
         #Generate two tibbles, one with noisy cells and other (DATA) with the actual cells
-        NOISE_VECTOR <- DATA[["NOISE"]] #We generate a NOISE_VECTOR if we require to filter noise cells for Dimension reduction methods
-        DATA_NOISE <- DATA %>% dplyr::filter(NOISE) %>% dplyr::mutate(Phenotype = 1)
-        DATA <- DATA %>% dplyr::filter(!NOISE)
-        MARKERS <- DATA %>% dplyr::select(-Unique_ID, -Cell_no, -X, -Y, -Subject_Names, -NOISE)
+        NOISE_VECTOR <- Denoising_results[["NOISE_VECTOR"]]
+        DATA_NOISE <- Denoising_results[["DATA_NOISE"]]
+        DATA <- Denoising_results[["DATA"]]
+        MARKERS <- Denoising_results[["MARKERS"]]
       }
 
       #If no denoising required obtain MARKERS directly from DATA
@@ -793,378 +652,72 @@ Clustering_Phenotyper <-
       }
     }
 
-    #If Pre-processed data provided obtain the datasets from the object provided
-    if(!is.null(Pre_processed_data)){
-      message("Pre_processed_data provided. Pre-processing related arguments will be ignored.")
-      if(names(Pre_processed_data)[1] != "Pre_processing_argument") stop("Pre_processing_argument not found in Pre_processed_data object provided")
-
-      Apply_Denoise <- Pre_processed_data[["Pre_processing_argument"]][["Apply_Denoise"]]
-      Perform_Dimension_reduction <- Pre_processed_data[["Pre_processing_argument"]][["Perform_Dimension_reduction"]]
-
-      if(Apply_Denoise & !Perform_Dimension_reduction){
-        DATA <- Pre_processed_data[["DATA"]]
-        MARKERS <- Pre_processed_data[["MARKERS"]]
-        DATA_NOISE <- Pre_processed_data[["DATA_NOISE"]]
-
-      }
-      if(!Apply_Denoise & Perform_Dimension_reduction){
-        DATA <- Pre_processed_data[["DATA"]]
-        MARKERS <- Pre_processed_data[["MARKERS"]]
-        DATA_Reduction <- Pre_processed_data[["DATA_Reduction"]]
-      }
-      if(Apply_Denoise & Perform_Dimension_reduction){
-        DATA <- Pre_processed_data[["DATA"]]
-        MARKERS <- Pre_processed_data[["MARKERS"]]
-        DATA_NOISE <- Pre_processed_data[["DATA_NOISE"]]
-        DATA_Reduction <- Pre_processed_data[["DATA_Reduction"]]
-      }
-    }
-
     ##################################CLUSTERING######################################
 
-    #Continue with clustering strategies
-    if(Strategy == "Consensus_Clustering"){
-      #Perform consensus clustering
-      Phenotype_result <- try(ConsensusClusterPlus::ConsensusClusterPlus(t(as.matrix((MARKERS %>% scale()))),
-                                                                         maxK = Max_N_phenotypes,
-                                                                         reps = Consensus_reps,
-                                                                         pItem = Consensus_p_Items,
-                                                                         pFeature = 1,
-                                                                         title = Consensus_Name,
-                                                                         clusterAlg = Consensus_Cluster_Alg,
-                                                                         distance = Consensus_Distance,
-                                                                         plot = "png",
-                                                                         verbose = T)
-      )
-      #Test if consensus clustering returned an error
-      if(berryFunctions::is.error(Phenotype_result)) {
-        stop("Data is too large for Consensus Clustering. Please try another strategy")
-      }
-      else {
-        #Make the user decide the number of neighborhoods according to results
-        N_Phenotypes<- menu(choices = as.character(1:Max_N_phenotypes), title = paste0("Check the results at: ", getwd(), ". Then decide the appropiate number of Phenotypes"))
-        DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = Phenotype_result[[as.double(N_Phenotypes)]][["consensusClass"]])
-      }
-    }
+    DATA_Phenotypes <-
+      CSM_Clustering_function(
+        Original_data = DATA,
+        MARKERS = MARKERS,
 
-    else if(Strategy == "SOM"){
-      print("Executing Self Organizing Map algorithm")
-      #Transform data into a scaled matrix and perform Self Organizing Map
-      SOM_results <- try(FlowSOM::FlowSOM(MARKERS %>% scale() %>% as.matrix(),
-                                          scale = F,
-                                          colsToUse = c(1:ncol(MARKERS)),
-                                          maxMeta = Max_SOM_phenotypes,#To find optimal meta clusters
-                                          silent = F,
-                                          seed = 21)
-      )
-      #Test if SOM returned an error
-      if(berryFunctions::is.error(SOM_results)) {
-        stop("Data is too large or too small for Self-Organizing Maps. Please try another strategy")
-      }
-      else{
-        #Assign phenotypes to each cell
-        DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = FlowSOM::GetMetaclusters(SOM_results))
-      }
+        Strategy = Strategy,
+        Force_N_Clusters = Force_N_Phenotypes,
 
-    }
+        Max_N_clusters_Consensus = Max_N_phenotypes,
+        Consensus_reps = Consensus_reps,
+        Consensus_p_Items = Consensus_p_Items,
+        Consensus_Cluster_Alg = Consensus_Cluster_Alg,
+        Consensus_Distance = Consensus_Distance,
+        Consensus_Name = Consensus_Name,
 
-    else if(Strategy == "Graph_Based"){
-      print("Start Graph building process")
+        Max_SOM_clusters = Max_SOM_phenotypes,
 
-      #Transform data into a nearest neighbor graph
-      SNN_graph <- try(bluster::makeSNNGraph(MARKERS %>% scale() %>% as.matrix(),
-                                             k = Nearest_neighbors_for_graph)
+        Graph_type = "SNN", #ONLY SNN supported in for clustering phenotyper
+        Nearest_neighbors_for_graph = Nearest_neighbors_for_graph,
+        Graph_Method = Graph_Method,
+        Graph_Resolution = Graph_Resolution,
+        N_steps = N_steps,
+
+        N_K_centroids = N_K_centroids,
+        Max_N_clusters_Meta = Max_N_phenotypes_Meta,
+        Consensus_reps_Meta = Consensus_reps_Meta,
+        Consensus_p_Items_Meta = Consensus_p_Items_Meta,
+        Consensus_Name_Meta = Consensus_Name_Meta,
+
+        Batch_size = Batch_size,
+        Max_N_clusters_Batch = Max_N_phenotypes_Batch,
+        N_initiations = N_initiations,
+        Max_iterations = Max_iterations,
+
+        Quality_metric = Quality_metric,
+        Max_N_clusters_GMM = Max_N_phenotypes_GMM,
+        Max_iterations_km = Max_iterations_km,
+        Max_iterations_em = Max_iterations_em,
+        GMM_Distance =  GMM_Distance,
+
+        Samples_CLARA = Samples_CLARA,
+        Sample_per_CLARA = Sample_per_CLARA,
+        Max_N_clusters_CLARA = Max_N_phenotypes_CLARA,
+        Distance_CLARA = Distance_CLARA,
+        N_cores = N_cores
       )
 
-      #Test if Graph construction process returned an error
-      if(berryFunctions::is.error(SNN_graph)) {
-        stop("Data is too large to build a graph. Please try another strategy")
-      }
-      else{
-        print("Performing Graph-based clustering")
-        #Go for graph clustering
-        #Cluster the graph with louvain or leiden clustering
-        if(Graph_Method == "Louvain") {
-          DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = igraph::cluster_louvain(SNN_graph,
-                                                                                       weights = NULL,
-                                                                                       resolution = Graph_Resolution)$membership)
-
-        }
-
-        else if(Graph_Method == "Leiden") {
-          DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = igraph::cluster_leiden(SNN_graph,
-                                                                                      objective_function = "modularity",
-                                                                                      weights = NULL,
-                                                                                      resolution = Graph_Resolution,
-                                                                                      beta = 0.01,
-                                                                                      initial_membership = NULL,
-                                                                                      n_iterations = 100,
-                                                                                      vertex_weights = NULL)$membership)
-
-        }
-
-        else if(Graph_Method == "Greedy"){
-          DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = igraph::cluster_fast_greedy(SNN_graph)$membership)
-        }
-
-        else if(Graph_Method == "WalkTrap"){
-          DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = igraph::cluster_walktrap(SNN_graph,
-                                                                                        steps = N_steps,
-                                                                                        membership = T)$membership)
-        }
-
-        else if (Graph_Method == "Spinglass") {
-          DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = igraph::cluster_spinglass(SNN_graph,
-                                                                                         weights = NULL,
-                                                                                         vertex = NULL,
-                                                                                         spins = 25,
-                                                                                         parupdate = FALSE,
-                                                                                         start.temp = 1,
-                                                                                         stop.temp = 0.01,
-                                                                                         cool.fact = 0.99,
-                                                                                         update.rule = c("config", "random", "simple"),
-                                                                                         gamma = 1,
-                                                                                         implementation = c("orig", "neg"),
-                                                                                         gamma.minus = 1)$membership)
-
-        }
-
-        else if(Graph_Method == "Leading_Eigen"){
-          DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = igraph::cluster_leading_eigen(SNN_graph,
-                                                                                             membership = T)$membership)
-        }
-
-        else if(Graph_Method == "Edge_Betweenness"){
-          DATA_Phenotypes <- DATA %>%dplyr::mutate(Phenotype = igraph::cluster_edge_betweenness(SNN_graph,
-                                                                                                weights = NULL,
-                                                                                                directed = FALSE,
-                                                                                                edge.betweenness = FALSE,
-                                                                                                merges = FALSE,
-                                                                                                bridges = FALSE,
-                                                                                                modularity = FALSE,
-                                                                                                membership = TRUE)$membership)
-
-        }
-      }
-
-    }
-
-    else if(Strategy == "K_Means_Meta_clustering"){
-      #First we need to perform K means Clustering
-      print("Performing initial K-means algorithm")
-      cl <- try(stats::kmeans(MARKERS %>% scale() %>% as.matrix(), #Scale it and turn it into a matrix
-                              centers = N_K_centroids, #Number of centroids to be calculated
-                              iter.max = 50,
-                              nstart = 10))
-
-      #Stop function if K means returned an error
-      if(berryFunctions::is.error(cl)) {
-        stop("Data is too large for K means clustering. Please try another strategy")
-      }
-      #Proceed if no error was returned
-      else{
-        #Assign this K means cluster to each observation
-        DATA_filter_Markers <- DATA %>%dplyr::mutate(K_means_Cl = cl$cluster)
-
-        #Prepare data for Meta-Clustering
-        #Create a tibble with the K means centroids and the format it for Consensus clustering
-        K_medoids <- as_tibble(cl$centers) %>%dplyr::mutate(K_means_Cl = 1:nrow(as_tibble(cl$centers)))
-        tK_medoids <- K_medoids %>% dplyr::select(-K_means_Cl) %>% as.matrix() %>% t()
-
-        #Perform Consensus clustering with hierarchical clustering
-        print("Perorming Consensus Clustering")
-        HC <- try(ConsensusClusterPlus::ConsensusClusterPlus(tK_medoids,
-                                                             maxK = Max_N_phenotypes_Meta,
-                                                             reps = Consensus_reps_Meta,
-                                                             pItem = Consensus_p_Items_Meta,
-                                                             pFeature = 1,
-                                                             title = Consensus_Name_Meta,
-                                                             distance = "euclidean",
-                                                             clusterAlg = "pam",
-                                                             plot = "png",
-                                                             verbose = T)
-        )
-
-        #Test if consensus clustering returned an error
-        if(berryFunctions::is.error(HC)) {
-          stop("Data is too large for Meta Clustering. Please try another strategy or select a smaller N_K_centroids value")
-        }
-        else {
-          #Make the user decide the number of neighborhoods according to results
-          N_Phenotypes<- menu(choices = as.character(1:Max_N_phenotypes_Meta), title = paste0("Check the results at: ", getwd(), ". Then decide the appropiate number of Phenotypes"))
-
-          #Bind the final Phenotype to the K medoids tibble
-          K_medoids <- K_medoids %>%dplyr::mutate(Phenotype = HC[[as.double(N_Phenotypes)]][["consensusClass"]])
-          K_medoids_for_join <- K_medoids %>% dplyr::select(K_means_Cl, Phenotype)
-
-          #Bind The DATA and the K_meoids to obtain the final matrix
-          DATA_Phenotypes <-dplyr::left_join(DATA_filter_Markers, K_medoids_for_join, by = "K_means_Cl") %>% dplyr::select(-K_means_Cl)
-        }
-      }
-
-    }
-
-    else if(Strategy == "Batch_K_means"){
-      #First we calculate a metric to decide the number of total phenotypes
-      #Specify the params
-      if(Batch_size > nrow(MARKERS)) stop(paste0("Batch_size cannot be larger than ", nrow(MARKERS)))
-
-      params_mbkm <- list(batch_size = Batch_size,
-                          init_fraction = 1,
-                          early_stop_iter = 10)
-      #Run the specified test using each of the number of clusters
-      print("Starting Cluster number stimation process")
-      Optimal <- try(ClusterR::Optimal_Clusters_KMeans(MARKERS %>% scale(),
-                                                       max_clusters = Max_N_phenotypes_Batch,
-                                                       num_init = N_initiations,
-                                                       max_iters = Max_iterations,
-                                                       initializer = "kmeans++",
-                                                       criterion = "Adjusted_Rsquared",
-                                                       plot_clusters = T,
-                                                       mini_batch_params = params_mbkm,
-                                                       verbose = T)
-      )
-      #Test if optimal number of clusters returned an error
-      if(berryFunctions::is.error(Optimal)) {
-        stop("Could not calculate best cluster number for the data provided. Please try another strategy")
-      }
-
-      #Proceed if all OK
-      else{
-        #Make the user decide the total number of clusters to be used in the final analysis
-        N_Phenotypes<- menu(choices = as.character(1:Max_N_phenotypes_Batch),
-                            title = paste0("Look at the plot generated, Then decide the appropiate number of Phenotypes"))
-
-        #Calculate the desired number of clusters with batch k menas
-        print("Performing Batched K means algorithm")
-        Batch_k_means <- ClusterR::MiniBatchKmeans(MARKERS %>% scale(),
-                                                   clusters = as.double(N_Phenotypes),
-                                                   batch_size = Batch_size,
-                                                   num_init = N_initiations,
-                                                   max_iters = Max_iterations,
-                                                   init_fraction = 1,
-                                                   initializer = "kmeans++",
-                                                   early_stop_iter = 10,
-                                                   verbose = T,
-                                                   tol = 1e-07, #The required improvement rate to continue with the iterations (the lower the more iterations will be required)
-                                                   CENTROIDS = NULL,
-                                                   seed = 21)
-
-        #Assign the cluster to each observation of MARKER
-        pr_mb <- predict(object = Batch_k_means, fuzzy = F, newdata = MARKERS %>% scale())
-        pr_mb <- as_tibble(pr_mb)
-        names(pr_mb) <- "Phenotype"
-
-        #Generate the data phenotypes tibble
-        DATA_Phenotypes <-dplyr::bind_cols(DATA, pr_mb)
-      }
-    }
-
-    else if(Strategy == "GMM"){
-      #First we calculate a metric to decide the number of total phenotypes
-      #Run the specified test using each of the number of clusters
-      print("Starting Cluster number stimation process")
-      Optimal <- try(ClusterR::Optimal_Clusters_GMM(MARKERS %>% scale(),
-                                                    criterion = Quality_metric,
-                                                    max_clusters = Max_N_phenotypes_GMM,
-                                                    dist_mode = GMM_Distance,
-                                                    seed_mode = "random_subset",
-                                                    km_iter = Max_iterations_km,
-                                                    em_iter = Max_iterations_em,
-                                                    verbose = TRUE,
-                                                    var_floor = 1e-10,
-                                                    plot_data = TRUE)
-
-
-      )
-      #Test if optimal number of clusters returned an error
-      if(berryFunctions::is.error(Optimal)) {
-        stop("Could not calculate best cluster number for the data provided. Please try another strategy")
-      }
-      #Proceed if all OK
-      else{
-        #Make the user decide the total number of clusters to be used in the final analysis
-        N_Phenotypes<- menu(choices = as.character(1:Max_N_phenotypes_GMM),
-                            title = paste0("Look at the plot generated, Then decide the appropiate number of Phenotypes"))
-
-        #Calculate the desired number of clusters with batch k menas
-        print("Calculating Gaussian Mixed Model")
-        GMM_model <- ClusterR::GMM(MARKERS %>% scale(),
-                                   gaussian_comps = as.double(N_Phenotypes),
-                                   dist_mode = GMM_Distance,
-                                   seed_mode = "random_subset",
-                                   km_iter = Max_iterations_km,
-                                   em_iter = Max_iterations_em,
-                                   verbose = TRUE,
-                                   var_floor = 1e-10,
-                                   full_covariance_matrices = FALSE
-        )
-
-        #Assign the cluster to each observation of MARKER
-        pr_mb <- predict(object = GMM_model, fuzzy = F, newdata = MARKERS %>% scale())
-        pr_mb <- as_tibble(pr_mb)
-        names(pr_mb) <- "Phenotype"
-
-        #Generate the data phenotypes tibble
-        DATA_Phenotypes <-dplyr::bind_cols(DATA, pr_mb)
-      }
-    }
-
-    else if(Strategy == "CLARA_clustering"){
-      #First we calculate a metric to decide the number of total phenotypes
-      print("Starting Cluster number stimation process")
-      Optimal <-  try(ClusterR::Optimal_Clusters_Medoids(MARKERS %>% scale(),
-                                                         max_clusters = Max_N_phenotypes_CLARA,
-                                                         distance_metric = Distance_CLARA,
-                                                         criterion = "silhouette" ,
-                                                         clara_samples = Samples_CLARA,
-                                                         clara_sample_size = Sample_per_CLARA,
-                                                         swap_phase = F,
-                                                         threads = N_cores,
-                                                         verbose = T,
-                                                         plot_clusters = T)
-      )
-      #Test if optimal number of clusters returned an error
-      if(berryFunctions::is.error(Optimal)) {
-        stop("Could not calculate best cluster number for the data provided. Please try another strategy")
-      }
-      #Continue if everything OK
-      else{
-        #Make the user decide the total number of clusters to be used in the final analysis
-        N_Phenotypes<- menu(choices = as.character(1:Max_N_phenotypes_CLARA),
-                            title = paste0("Based on the plots generated and you previous choice, decide the appropiate number of final Phenotypes"))
-        print("Performing CLARA (Clustering Large Applications)")
-        CLARA_Clustering <- ClusterR::Clara_Medoids(MARKERS %>% scale(),
-                                                    clusters = as.double(N_Phenotypes),
-                                                    samples = Samples_CLARA,
-                                                    sample_size = Sample_per_CLARA,
-                                                    distance_metric = Distance_CLARA,
-                                                    threads = N_cores,
-                                                    swap_phase = F,
-                                                    fuzzy = FALSE,
-                                                    verbose = T,
-                                                    seed = 21)
-        #Assign the cluster to each observation of MARKER
-        pr_mb <- predict(object = CLARA_Clustering, fuzzy = F, newdata = MARKERS %>% scale())
-        pr_mb <- as_tibble(pr_mb)
-        names(pr_mb) <- "Phenotype"
-
-        #Generate the data phenotypes tibble
-        DATA_Phenotypes <-dplyr::bind_cols(DATA, pr_mb)
-      }
-    }
+    #Change the name of the column 'Cluster' for 'Phenotype'
+    DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::rename("Phenotype" = "Cluster")
 
     ##################################RESULT PLOTTING AND FUNCTION EXIT######################################
 
     #If there are noisy and real cells bind both tibbles
     if(Apply_Denoise){
+      #Change the name of the column 'Cluster' for 'Phenotype'
+      DATA_NOISE <- DATA_NOISE %>% dplyr::rename("Phenotype" = "Cluster")
+
       DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::mutate(Phenotype = as.numeric(as.numeric(Phenotype) + 1))
-      DATA_Phenotypes <-dplyr::bind_rows(DATA_NOISE, DATA_Phenotypes) %>% dplyr::arrange(Unique_ID) %>% dplyr::select(-Unique_ID, -NOISE)
+      DATA_Phenotypes <- dplyr::bind_rows(DATA_NOISE, DATA_Phenotypes) %>% dplyr::arrange(Unique_ID) %>% dplyr::select(-Unique_ID)
       warning("If denoising is applied, Cluster number 1 contains the noisy cells")
     }
 
     #Turn Phenotype into a factor
-    DATA_Phenotypes <- DATA_Phenotypes %>%dplyr::mutate(Phenotype = factor(Phenotype))
+    DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::mutate(Phenotype = factor(Phenotype))
 
     #plot dimension reduction according to the number of cells if required
     if(Perform_Dimension_reduction){
@@ -1233,5 +786,5 @@ Clustering_Phenotyper <-
                                                 Dimension_reduction = DATA_Reduction)
     )
     else return(DATA_Phenotypes)
-
   }
+

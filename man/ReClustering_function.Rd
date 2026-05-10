@@ -12,15 +12,34 @@ ReClustering_function(
   Variables_to_recluster,
   Strategy,
   N_Clusters = NULL,
+  Force_N_Clusters = FALSE,
   Levels = NULL,
   Arbitrary_cutoff = NULL,
+  Consensus_reps = NULL,
+  Consensus_p_Items = NULL,
+  Consensus_Cluster_Alg = NULL,
+  Consensus_Distance = NULL,
+  Consensus_Name = NULL,
+  Graph_type = NULL,
+  Nearest_neighbors_for_graph = NULL,
+  Graph_Method = NULL,
+  Graph_Resolution = NULL,
+  N_steps = NULL,
+  N_K_centroids = NULL,
+  Consensus_reps_Meta = NULL,
+  Consensus_p_Items_Meta = NULL,
+  Consensus_Name_Meta = NULL,
   Batch_size = NULL,
   N_initiations = NULL,
   Max_iterations = NULL,
   Quality_metric = NULL,
   Max_iterations_km = NULL,
   Max_iterations_em = NULL,
-  GMM_Distance = NULL
+  GMM_Distance = NULL,
+  Samples_CLARA = NULL,
+  Sample_per_CLARA = NULL,
+  Distance_CLARA = NULL,
+  N_cores = NULL
 )
 }
 \arguments{
@@ -34,13 +53,41 @@ ReClustering_function(
 
 \item{Variables_to_recluster}{A character vector indicating the variables contained in DATA or DATA_aside to be used in the re-clustering process.}
 
-\item{Strategy}{One of the following: "Arbitrary", "Multilevel", "SOM", "Batch_K_means", "GMM" (see details).}
+\item{Strategy}{One of the following: "Arbitrary", "Multilevel", "Consensus_Clustering", "SOM", "Graph_Based", "K_Means_Meta_clustering", "Batch_K_means", "GMM" or "CLARA_clustering" (see details).}
 
-\item{N_Clusters}{For SOM, Batched K-means and GMM, an integer indicating the number of clusters to generate.}
+\item{N_Clusters}{For Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering, an integer indicating the number of clusters to generate.}
+
+\item{Force_N_Clusters}{A logical value indicating if the number of clusters indicated (using the N_clusters argument) should be used directly to compute the clusters. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.}
 
 \item{Levels}{For Multilevel, an integer indicating the number of levels to divide each feature.}
 
 \item{Arbitrary_cutoff}{For arbitrary, a numeric value or numeric vector indicating the cut-off values to divide each feature.}
+
+\item{Consensus_reps}{If Strategy is Consensus_Clustering: Number of iterations to converge.}
+
+\item{Consensus_p_Items}{If Strategy is Consensus_Clustering: Percentage of cells that you desire to sample in each iteration.}
+
+\item{Consensus_Cluster_Alg}{If Strategy is Consensus_Clustering: Clustering algorithm to be used: hc (hierarchical clustering), pam (paritioning around medoids), km (for k-means).}
+
+\item{Consensus_Distance}{If Strategy is Consensus_Clustering: Distance metric to be used (pearson(1 - Pearson correlation), spearman(1 - Spearman correlation), euclidean, binary, maximum, canberra, minkowski.}
+
+\item{Consensus_Name}{If Strategy is Consensus_Clustering: Name of the folder that is going to be created in order to place the resulting graphs.}
+
+\item{Nearest_neighbors_for_graph}{If strategy is Graph_Based: The number of closest neighbors to calculate the graph.}
+
+\item{Graph_Method}{If strategy is Graph_Based: One of Louvain, Leiden, Greedy, WalkTrap, Spinglass, Leading_Eigen or Edge_Betweenness.}
+
+\item{Graph_Resolution}{If strategy is Graph_Based: Used for Louvain and Leiden. 1 is default. The smaller the value, the larger the clusters will be.}
+
+\item{N_steps}{If strategy is Graph_Based: Number of steps given in the WalkTrap algorithm.}
+
+\item{N_K_centroids}{If strategy is K_Means_Meta_clustering: Number of centroids to perform K means.}
+
+\item{Consensus_reps_Meta}{If strategy is K_Means_Meta_clustering: Number of iterations to converge.}
+
+\item{Consensus_p_Items_Meta}{If strategy is K_Means_Meta_clustering: Percentage of cells to sample in each iteration.}
+
+\item{Consensus_Name_Meta}{If strategy is K_Means_Meta_clustering: Name of the folder that is going to be created in order to place the resulting graphs.}
 
 \item{Batch_size}{If strategy is Batch_K_means: Number of cells to be included in each random batch.}
 
@@ -48,13 +95,21 @@ ReClustering_function(
 
 \item{Max_iterations}{If strategy is Batch_K_means: Max number of iterations in each try.}
 
-\item{Quality_metric}{If strategy is GMM:T he quality measure used to test the number of clusters ("AIC" or "BIC").}
+\item{Quality_metric}{If strategy is GMM: The quality measure used to test the number of clusters ("AIC" or "BIC").}
 
 \item{Max_iterations_km}{If strategy is GMM: Number of max iterations in the K means clustering performed.}
 
 \item{Max_iterations_em}{If strategy is GMM: Number of max iterations in the Expectation Maximization algorithm.}
 
 \item{GMM_Distance}{If strategy is GMM: Distance metric used in the model ("eucl_dist" or "maha_dist").}
+
+\item{Samples_CLARA}{If strategy is CLARA_clustering: Number of samples the CLARA algorithm is going to use to be calculated.}
+
+\item{Sample_per_CLARA}{If strategy is CLARA_clustering: Percentage (from 0 to 1) of the total cells that are going to be allocated to each sample.}
+
+\item{Distance_CLARA}{If strategy is CLARA_clustering: Distance metric used in the model (euclidean, manhattan, chebyshev, canberra, braycurtis, pearson_correlation, simple_matching_coefficient, minkowski, hamming, jaccard_coefficient, Rao_coefficient, mahalanobis, cosine)}
+
+\item{N_cores}{If strategy is CLARA_clustering: Number of cores to parallelize your computation}
 }
 \value{
 A tibble containing cell features and the new column with labels after re-clusterization process.

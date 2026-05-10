@@ -7,6 +7,7 @@
 Clustering_Phenotyper(
   DATA,
   Strategy,
+  Force_N_Phenotypes = FALSE,
   Apply_Denoise = FALSE,
   Denoising = NULL,
   Percentile = NULL,
@@ -17,7 +18,7 @@ Clustering_Phenotyper(
   Perform_Dimension_reduction = FALSE,
   Dimension_reduction = NULL,
   Dimension_reduction_prop = NULL,
-  Cluster_on_Reduced = NULL,
+  Cluster_on_Reduced = FALSE,
   Stop_at_preprocessing = FALSE,
   Pre_processed_data = NULL,
   Max_N_phenotypes = NULL,
@@ -57,9 +58,11 @@ Clustering_Phenotyper(
 
 \item{Strategy}{The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).}
 
+\item{Force_N_Phenotypes}{A logical value indicating if the number of phenotypes indicated should be used directly to compute the phenotypes. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.}
+
 \item{Apply_Denoise}{A logical value. Specify if a denoising filtering is required before clustering (see details).}
 
-\item{Denoising}{Denoising strategy. One of the following: Quantile, Standard_Deviation, Threshold, Otsu or DimRed_DBscan.}
+\item{Denoising}{Denoising strategy. A vector containing any of the following: Quantile, Standard_Deviation, Threshold, Otsu or DimRed_DBscan. More than one method can be applied.}
 
 \item{Percentile}{A numeric value indicating the percentile for quantile denoising. Cells below percentile for all features will be considered to be noise.}
 

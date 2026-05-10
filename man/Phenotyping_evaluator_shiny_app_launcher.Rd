@@ -4,7 +4,12 @@
 \alias{Phenotyping_evaluator_shiny_app_launcher}
 \title{Launches a shiny App to explore cell phenotyping results}
 \usage{
-Phenotyping_evaluator_shiny_app_launcher(DATA, Directory, Ordered_Channels)
+Phenotyping_evaluator_shiny_app_launcher(
+  DATA,
+  Directory,
+  Ordered_Channels,
+  Max_Gb_cache = 10
+)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data and a column named 'Phenotype' containing cell phenotype labels.}
@@ -12,19 +17,28 @@ Phenotyping_evaluator_shiny_app_launcher(DATA, Directory, Ordered_Channels)
 \item{Directory}{Character specifying the path to the folder where images are present.}
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
+
+\item{Max_Gb_cache}{A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.}
 }
 \description{
 After phenotyping, cell phenotypes can be explored interactively proyected on original images.
 }
 \details{
+In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the \code{\link[=Smart_image_importer]{Smart_image_importer()}} function. Loaded images will
+be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+
 Image parameters control the image and channel to be displayed.
+
+User can use the 'Color', 'Add channel', 'Remove channel' and 'Reset' buttons to merge different channels into a single image. The add channel button
+will color the current channel according to the color provided and will be merged to the current image.
+
 Sample summary table is depicted at the bottom of the control panel.
 
 Image Panels:
 \itemize{
 \item{Upper left: Image being explored. Use it to zoom in.}
 \item{Upper right: Cell phenotype labels overlayed. Cells of interest can be selected by clicking or by the area selection tools.}
-\item{Lower left: Cell selection summary. If any cells are selected, the resulting cell phenotype counts be displayed here.}
+\item{Lower left: Cell selection summary.}
 \item{Lower right: Heatmap. If any cells are selected, a heatmap of the relative feature expression will be generated.}
 }
 }

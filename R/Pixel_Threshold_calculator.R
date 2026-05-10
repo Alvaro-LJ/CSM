@@ -3,6 +3,9 @@
 #' Generates binary or multi-level images based on pixel thresholding.
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @param Directory Character string specifying the path to the folder where images are present.
+#' @param Parameter_list (OPTIONAL) A list containing thresholding parameters obtained using the [Image_thresholding_app_launcher()]. If provided any argument
+#' specifying thresholding parameters will be ignored.
+#'
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Channels_to_keep Character vector indicating channels used in tissue mask generation.
 #' @param Target_channel Character value indicating the target channel to be thresholded.
@@ -84,18 +87,21 @@ Pixel_Threshold_calculator <-
   function(
     N_cores = 1,
     Directory,
-    Ordered_Channels,
-    Channels_to_keep,
-    Target_channel,
+
+    Parameter_list = NULL,
+
+    Ordered_Channels = NULL,
+    Channels_to_keep = NULL,
+    Target_channel = NULL,
     Save_processed_images = FALSE,
     Output_Directory = NULL,
 
     Local_thresholding = FALSE,
-    Threshold_type,
+    Threshold_type = NULL,
     Threshold_value = NULL,
     Levels = NULL,
 
-    Threshold_type_tissueMask,
+    Threshold_type_tissueMask = NULL,
     Threshold_value_tissueMask = NULL,
     Blurr_tissueMask = FALSE,
     Sigma_tissueMask = NULL,
@@ -132,6 +138,27 @@ Pixel_Threshold_calculator <-
       future::plan("future::sequential")
       gc()
     })
+
+    ######Obtain parameters from parameter list if provided####
+    if(!is.null(Parameter_list)){
+      message("Parameter list provided, ignoring other parameter related arguments provided")
+      Ordered_Channels <- Parameter_list[["Ordered_Channels"]]
+      Channels_to_keep <- Parameter_list[["Channels_to_keep"]]
+      Target_channel <- Parameter_list[["Target_channel"]]
+
+      Local_thresholding <- as.logical(Parameter_list[["Local_thresholding"]])
+      Threshold_type <- Parameter_list[["Threshold_type"]]
+      Threshold_value <- as.numeric(Parameter_list[["Threshold_value"]])
+      Levels <- Parameter_list[["Levels"]]
+
+      Threshold_type_tissueMask <- Parameter_list[["Threshold_type_tissueMask"]]
+      Threshold_value_tissueMask <- Parameter_list[["Threshold_value_tissueMask"]]
+      Blurr_tissueMask <- as.logical(Parameter_list[["Blurr_tissueMask"]])
+      Sigma_tissueMask <- Parameter_list[["Sigma_tissueMask"]]
+
+      Blurr_target <- as.logical(Parameter_list[["Blurr_target"]])
+      Sigma_target <- Parameter_list[["Sigma_target"]]
+    }
 
     #########Argument check#########
     Argument_checker <- c(N_cores_OK = (N_cores >= 1 & N_cores%%1 == 0),
@@ -576,3 +603,4 @@ Pixel_Threshold_calculator <-
     ##########Return the final value#########
     return(dplyr::bind_cols(Final_tibble, RESULTS))
   }
+

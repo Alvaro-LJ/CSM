@@ -33,6 +33,7 @@ library(CSM)
     - [Finding recurrent patterns and assigning cell labels](#finding-recurrent-patterns-and-assigning-cell-labels)
 - [Unsupervised clustering](#unsupervised-clustering)
     - [Two-step clustering](#two-step-clustering)
+    - [Tips to reduce computational burden](#improving-computational-efficiency)
 - [CELESTA semi-supervised clustering](#celesta)
 - [Image-based supervised labeling](#image-based-supervised-labeling)
 - [After cell phenotype labelling](#after-cell-phenotype-labelling)
@@ -101,7 +102,7 @@ will find a single threshold for all images in a dataset. In general, local thre
 Local thresholding can potentially find thresholds according to image-specific noisy features. Although
 global thresholding is also influenced by noise, it's more robust than local thresholding.
 
-Choice of thresholding method is usually arbitrary. Sometimes feature expression in a dataset follows a bimodal distribution,
+Choice of thresholding method is usually arbitrary. Sometimes feature expression in a dataset follows a bi-modal distribution,
 making thresholding easier. However, for most of the proteins measured by immunofluorescence,
 expression values of markers follow a distribution with long right-sided tails.
 This means that many cells show low feature expression, and few cells show feature expression across the dynamic range of the feature.
@@ -109,6 +110,45 @@ In this type of scenarios, visually inspecting thresholding results is mandatory
 In order to explore thresholding approaches the user can use the `Thresholding_tester_app()`.
 This app, can be used to explore images, cell ovearlays with feature intensity values and thresholding
 approach results.
+
+The app has a control panel where the user can select the image to be shown. The resolution (`Res`) 
+controls the quality of the image being displayed. The `Pixel/dist` button controls if any correction 
+in cell coordinates should be applied (if so, a text-box will be displayed where the user can provide
+the distance to pixel conversion factor). The user can also select the image channel to be displayed using
+the `Channel` selector and the cell data to be displayed using the `Marker from data` selector.
+If multiple channels need to be displayed simultaneously the user can use the `+Add channel` button. 
+After hitting the button, the app will take the current image channel and color it based on the `Color`
+provided (either the name of the color or its associated HEX code). If a colored channel is already being
+displayed, the new channel will be added as far as the colors are not in use. The user can hit the
+`-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
+to turn back to grayscale mode.
+
+Thresholding setting are found in below in addition to the results of the thresholding process (the 
+actual threshold compute for the active marker selected and the number of positive cells in the 
+image displayed).
+
+The app has four main panels:
+
+* __Image being displayed:__ This panel shows the current active image and allows the user to zoom in 
+and out (by selecting and area and double clicking inside). All images displayed are coordinated, meaning
+that zooming in the main image will automatically zoom in all of the others.
+
+* __Feature expression by cell:__ This panel provides information of the feature expression level for
+every cell. If the user overlays the pointer above every cell a label will appear shown the cell ID and
+the feature expression value. The user can use this panels to select cells of interest and see the 
+proportion of cells that are above the threshold.
+
+* __Cells above threshold:__ This panel highlights the cells in the image that are above the threshold. 
+The user can also use this panels to select cells of interest and see the proportion of cells that are
+above the threshold.
+
+* __Expression level histogram:__ This panel shows the histogram of the expression level of the cells
+in the current image as well as the computed threshold.
+
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("Figures/Thresholding_app.png")
+```
 
 ```{r app, eval = FALSE}
 #Can only run interactively
@@ -332,6 +372,25 @@ ReClustering_function(
 
 After re-clustering execution, the new labels can be modified at will using the `DATA_Phenotype_renamer()` function.
 
+### Improving computational efficiency
+A complete unsupervised pipeline may include dimension reduction, data denoising, estimating the optimal number of clusters and finally perform data
+clustering. This pipeline usually requires several rounds of parameter tuning, which makes the whole process of clustering computationally inefficient,
+as each time the function is executed, data undergoes denoising, dimension reduction and cluster number estimation. 
+
+To reduce the computational burden, there are two interesting alternatives worth mentioning:
+
+* __Split the Dimension reduction/denoising process and the clustering process:__ The user may decide to work first on the dimension reduction and
+denoising pipeline until results are adequate. To this end, the `Clustering_Phenotyper()` function provides the option to pre-process the data and 
+return the interim result. In order to activate this behavior the user must set the argument `Stop_at_preprocessing = TRUE`. 
+This will avoid running into the clustering process every time the function is called. The resulting pre-processed data can be provided to the `Clustering_Phenotyper()` function 
+through the `Pre_processed_data` argument. If pre-processed data is provided, all pre-processing related arguments will be ignored.
+
+* __Specify the exact number of clusters to identify:__ Several clustering methods allow the user to specify the precise number of clusters to be
+identified (SOM, Batch_K_means, GMM and CLARA_clustering). By avoiding the clustering estimation process, the user can avoid heavy duty computations.
+In order to force the algorithm to abort cluster estimation process the user must set the `Force_N_Phenotypes = TRUE` argument from the
+`Clustering_Phenotyper()` function. After doing so, the function will take the clustering method argument related to the max number of clusters to 
+identify as the explicit number of clusters to obtain (`Max_SOM_phenotypes`, `Max_N_phenotypes_Batch`, `Max_N_phenotypes_GMM`, `Max_N_phenotypes_CLARA`).
+
 ## CELESTA
 The CELl typE identification with SpaTiAl information (CELESTA) algorithm was developed by the
 Plevritis group (https://www.nature.com/articles/s41592-022-01498-z). In short, it assigns 
@@ -391,8 +450,63 @@ considered that manual labeling of cells is time consuming, and the model perfor
 and quality of the cells selected for training.
 
 In order to generate the model CSM implements a dedicated shiny App (`Image_based_phenotyper_App_launcher()`). The app will
-automatically match the names of the image files and the Subject_Names in data. If missmatches are encountered a warning message
+automatically match the names of the image files and the Subject_Names in data. If mismatches are encountered a warning message
 will pop-up before launch.
+
+The app has a control panel in the left. This control panel is divided into three different sections:
+
+* __Image settings:__ Here the user can select the image to be shown. The resolution (`Res`) 
+controls the quality of the image being displayed. The `Pixel/dist` button controls if any correction 
+in cell coordinates should be applied (if so, a text-box will be displayed where the user can provide
+the distance to pixel conversion factor). The user can also select the image channel to be displayed using
+the `Channel` selector. If multiple channels need to be displayed simultaneously the user can use the `+Add channel` button. 
+After hitting the button, the app will take the current image channel and color it based on the `Color`
+provided (either the name of the color or its associated HEX code). If a colored channel is already being
+displayed, the new channel will be added as far as the colors are not in use. The user can hit the
+`-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
+to turn back to grayscale mode.
+
+* __Cell label assigner:__ Here the user can manually assign a labels to any cell. These labelled cells will be used to train the
+phenotyping algorithm. Cells can be selected using the panels `Assign cells` or `Model performance`. If the user hits 
+the `+ Assign label` button, the label written in the `Cell label` text box will be assigned to the selected cells. 
+This will update the information in the training dataset. The training dataset information can be found in  the
+lower left panel. If the user hits the `- Remove selected cells`, any cells selected that are present in the training dataset will be removed. 
+If the user hits the `- Remove all cells`, the training dataset will be erased completely (SO USE WITH CAUTION!!!!). If the user hits the `- Remove labels`, 
+all cells in the training datasets whose label is identical to that present in the `Cell label` text box will be removed. Finally, the `Reset selection` button
+de-selects any selected cells.
+
+* __Model settings:__ Currently, three different models can be created using this supervised approach: Random forest, XGboost and Neuronal networks. For
+all approaches the user can select the cell features used in the training process using the `Variables included` selection box. The `Thresh` button
+controls the minimum probability score obtained after applying the resulting model in order to assign a label to every cell. Cells not reaching the desired
+threshold for any label will be considered "unassigned" cells. Finally, the user can activate the `Spatial` button. By doing so, the algorithm will take into account
+the neighbors of every cell in order to compute the model. This will increase the computational burden of the process but may be required to precisely identify 
+certain cell types that show spatial clustering. The proximity analysis will be performed in a similar manner to the UTAG algorithm implemented for neighborhood 
+discovery. For more details please see the related vignette ("Cellular neighborhood analysis").
+    - __Random forest:__ For this approach, the user can decide the number of features (as a percentage of the total feature number) that will be randomly selected
+    to fit each tree. The user can also decide the number of trees generated. Using this approach each tree is partitioned untill perfect segmentation is reached.
+    - __XG boost:__ For XG boosting, the user can decide the number of features (as for the Random forest method), the number of cells from the training dataset
+    and the number of trees. In addition, the maximum number of tree layers (tree depth) can also be indicated.
+    - __Neuronal Networks:__ The app allows the user to modify hidden elements of the model (both the number of layers and the neurons per layer) as well as the number
+    of training rounds (Epoch) and penalty for the regularization function.
+
+The app has four main panels:
+
+* __Image being displayed:__ This panel shows the current active image and allows the user to zoom in 
+and out (by selecting and area and double clicking inside). All images displayed are coordinated, meaning
+that zooming in the main image will automatically zoom in all of the others.
+
+* __Assign cells:__ This panel provides allows the user to assign cell labels by manually selecting cells.
+
+* __Model performance:__ Once the user has created a phenotyping model, the actual performance can be tested on any image. If the user hits the button `Test` the
+model will be applied to the active image. The user can explore the results and also select misclassified cells to add a cell label manually, this will update the
+training dataset to improve model performance.
+
+* __Training and test info:__ The lower left panel shows information related to the training dataset and the test result if they are available.
+
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("Figures/Image_based_phenotyper_app.png")
+```
 
 ```{r model, eval = FALSE}
 #Can only run interactively
@@ -444,8 +558,41 @@ analyses. CSM implements tools to visually [evaluate](#phenotype-evaluation-app)
 and [quantifying](#quantification-and-visualization) results.
 
 ### Phenotype evaluation App
-CSM implements a shiny App designed to evaluate phenotyping results. The app displays images, overlays cells with phenotype labels.
-In addition, sample summaries are shown and user can evaluate the feature expression values for selected cells.
+CSM implements a shiny App designed to evaluate phenotyping results. 
+
+The app has a control panel where the user can select the image to be shown. The resolution (`Res`) 
+controls the quality of the image being displayed. The `Pixel/dist` button controls if any correction 
+in cell coordinates should be applied (if so, a text-box will be displayed where the user can provide
+the distance to pixel conversion factor). The user can also select the image channel to be displayed using
+the `Channel` selector.
+If multiple channels need to be displayed simultaneously the user can use the `+Add channel` button. 
+After hitting the button, the app will take the current image channel and color it based on the `Color`
+provided (either the name of the color or its associated HEX code). If a colored channel is already being
+displayed, the new channel will be added as far as the colors are not in use. The user can hit the
+`-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
+to turn back to grayscale mode.
+
+The app allows the user to select the phenotypes to be displayed from the list present in `Phenotypes to display` 
+
+The app has four main panels:
+
+* __Image being displayed:__ This panel shows the current active image and allows the user to zoom in 
+and out (by selecting and area and double clicking inside). All images displayed are coordinated, meaning
+that zooming in the main image will automatically zoom in all of the others.
+
+* __Phenotype label overlay:__ This panel provides information regarding the cell phenotype labels. Hovering the mouse pointer over cells
+will reveal their label. In addition, the user can select cells to be displayed in the heatmap (see below).
+
+* __Selected cells summary:__ This panel shows the cell label distribution of currently selected cells.
+
+* __Selected cells feature expression heatmap:__ This panel shows a heatmap of the features expressed in the selected cell population. The cell label identity
+is shown in the left colorbar.
+
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("Figures/Phenotype_evaluator_app.png")
+```
+
 
 ```{r Phenotype_app, eval = FALSE}
 #Can only run interactively
@@ -582,6 +729,13 @@ Barplot_generator(
 Moreover, cells from individual samples can be plotted with or without plotting the image in the background.
 The `Cell_plotter()` function generates plots using only cell information while the `Cell_image_plot_generator()` requires
 the user to provide the path to the image file to combine cell info with the image in the same plot.
+
+In order to generate adequate full-color merged images, CSM incorporates a dedicated function. The `Image_channel_color_merger()` function is able to 
+combine as many as desired image channels into a single colour image. To do so, the user must first import the image as a magick image object (either using the
+`magick::read()` or the `Smart_image_importer()` functions). In addition, the user must prepare a list containing the parameters used to color each channel and
+additional parameters specifying channel pre-processing (gamma correction, min/max pixel value and image equalization). 
+Afterwards the function will merge the desired channels into a single magick image object.
+
 ```{r images, eval = TRUE, fig.align='center', out.width='100%', fig.width=12, fig.height=10}
 #Without images
 Cell_plotter(
@@ -591,6 +745,8 @@ Cell_plotter(
 )
 
 #With images
+
+#Generate the input directory
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 dir.create(Input_Dir, recursive = TRUE)
 
@@ -601,24 +757,75 @@ function(Image){
    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
-#Draw the plot
-Cell_image_plot_generator(
-    Image_directory = dir(Input_Dir, full.names = TRUE)[2],
-    Channel_to_display = 5,
-    Image_rotate = NULL,
-    Image_x_flip = FALSE,
-    Image_y_flip = TRUE,
-    Gamma_level = 0,
-    Equalize = FALSE,
-    Black_level = 1,
-    White_level = 20,
+#Read the image to be processed----------------------------------------------
+Image <- magick::image_read(dir(Input_Dir, full.names = TRUE)[[2]])
 
-    DATA = CSM_Phenotypecell_test,
-    Image_name ="ABCM22001_B14_MiniCrop.tif",
-    Color_by = "Phenotype",
-    Point_size = 2,
-    Pixel_distance_ratio = NULL
+#Generate the merging parameters (in this case 4 channels will be merged)----
+Merge_parameter_list <- 
+  list(
+    DAPI = list(channel_index = 1,
+                color = "blue",
+                gamma = 1,
+                min = 1,
+                max = 70,
+                equalize = FALSE),
+    
+    CK = list(channel_index = 5,
+              color = "white",
+              gamma = 1.1,
+              min = 5,
+              max = 70,
+              equalize = FALSE),
+    
+    CD8 = list(channel_index = 6,
+               color = "#f0703a",
+               gamma = 1,
+               min = 10,
+               max = 40,
+               equalize = FALSE),
+    
+    GZMB = list(channel_index = 3,
+                color = "cyan",
+                gamma = 1,
+                min = 5,
+                max = 20,
+                equalize = FALSE)
+    
+  )
+
+#Perform the merging
+Final_image <- 
+  Image_channel_color_merger(Image = Image,
+                             Parameter_list = Merge_parameter_list)
+
+#Generate the output directory
+Output_Dir <- tempfile(pattern = "tempdir1_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+#Export the image to the output directory
+magick::image_write(Final_image,
+                    file.path(Output_Dir, "Merged_image.tif"))
+
+
+#Draw the plot with the output directory
+Cell_image_plot_generator(
+  Image_directory = dir(Output_Dir, full.names = TRUE)[1],
+  Channel_to_display = 1, #Since the channels have been merged into a single image only the first channel needs to be shown
+  Image_rotate = NULL,
+  Image_x_flip = FALSE,
+  Image_y_flip = TRUE,
+  Gamma_level = 0,
+  Equalize = FALSE,
+  Black_level = 1,
+  White_level = 20,
+  
+  DATA = CSM_Phenotypecell_test,
+  Image_name ="ABCM22001_B14_MiniCrop.tif",
+  Color_by = "Phenotype",
+  Point_size = 2.5,
+  Pixel_distance_ratio = NULL
 )
+
 
 #Remove directories
 unlink(Input_Dir, recursive = TRUE)

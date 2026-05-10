@@ -1,6 +1,6 @@
 Package: CSM
 Title: Toolbox to analyze tissue images with spatial resolution
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(
     person(given = "Alvaro", family = "Lopez-Janeiro", email = "alopezj@unav.es", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5744-3115")),
     person(given = "Paulo", family = "Perez-Dominguez", email = "pperezdomin@unav.es", role = "ctb"),
@@ -20,6 +20,7 @@ RoxygenNote: 7.3.3
 Imports: 
     benchmarkme,
     berryFunctions,
+    cachem,
     cowplot,
     dplyr,
     forcats,
@@ -29,13 +30,16 @@ Imports:
     ggiraph,
     ggplot2,
     ggpubr,
+    grDevices,
     gt,
     magrittr,
+    memoise,
     pals,
     patchwork,
     purrr,
     shiny,
     shinyalert,
+    shinyjs,
     shinyWidgets,
     tibble,
     tidyr

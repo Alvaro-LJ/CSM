@@ -16,6 +16,7 @@ Neighborhood_discovery_function(
   Stop_at_preprocessing = FALSE,
   Pre_processed_data = NULL,
   Strategy,
+  Force_N_Neighborhoods = FALSE,
   Max_N_neighborhoods = NULL,
   Consensus_reps = NULL,
   Consensus_p_Items = NULL,
@@ -72,6 +73,8 @@ Neighborhood_discovery_function(
 \item{Pre_processed_data}{(OPTIONAL) If a pre-processing object is available, it can be provided to skip data pre-processing steps (see details).}
 
 \item{Strategy}{The clustering strategy. One of the following Consensus_Clustering, SOM, Graph_Based, K_Means_Meta_clustering, Batch_K_means, GMM or CLARA_clustering (see details).}
+
+\item{Force_N_Neighborhoods}{A logical value indicating if the number of neighborhoods indicated should be used directly to compute the clusters. If TRUE, no estimating process is conducted. Applicable for SOM, Batch_K_means, GMM or CLARA_clustering.}
 
 \item{Max_N_neighborhoods}{If Strategy is Consensus_Clustering: Number of maximum neighborhoods that can be identified.}
 

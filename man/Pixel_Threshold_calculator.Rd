@@ -7,16 +7,17 @@
 Pixel_Threshold_calculator(
   N_cores = 1,
   Directory,
-  Ordered_Channels,
-  Channels_to_keep,
-  Target_channel,
+  Parameter_list = NULL,
+  Ordered_Channels = NULL,
+  Channels_to_keep = NULL,
+  Target_channel = NULL,
   Save_processed_images = FALSE,
   Output_Directory = NULL,
   Local_thresholding = FALSE,
-  Threshold_type,
+  Threshold_type = NULL,
   Threshold_value = NULL,
   Levels = NULL,
-  Threshold_type_tissueMask,
+  Threshold_type_tissueMask = NULL,
   Threshold_value_tissueMask = NULL,
   Blurr_tissueMask = FALSE,
   Sigma_tissueMask = NULL,
@@ -28,6 +29,9 @@ Pixel_Threshold_calculator(
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
 
 \item{Directory}{Character string specifying the path to the folder where images are present.}
+
+\item{Parameter_list}{(OPTIONAL) A list containing thresholding parameters obtained using the \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}. If provided any argument
+specifying thresholding parameters will be ignored.}
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
 

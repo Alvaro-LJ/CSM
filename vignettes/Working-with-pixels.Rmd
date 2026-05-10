@@ -101,13 +101,23 @@ Image_thresholding_app_launcher(
 )
 ```
 
+The app includes a control panel to control the tissue mask parameters  and the thresholding parameters (see above). If Multilevel thresholding with arbitrary cut-off points is 
+required, the user can write a vector containing the cut-off values in the `Value` text box. Once the parameters are OK the user save the parameter list into the global environment using the
+`Download Parameters` button.
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("Figures/Pixel_thresholding_app.png")
+```
+
 After exploring thresholding possibilities thresholds can be calculated using the `Pixel_Threshold_calculator()`. The function will
 return a summary of the number pixels above the threshold value and the total amount of foreground pixels. In addition, the user can save the
 thresholded images generated in the process which can be used to combine the pixel information with cell spatial location information 
 (see below and `vignette("Cell-to-cell-spatial-interaction")`).
 
 In the following example we will threshold the CK-EPCAM channel with an arbitrary threshold. The tissue mask will be generated using an absolute
-threshold. Blurring will only be applied to the tissue mask generation process.
+threshold. Blurring will only be applied to the tissue mask generation process. If the user has already generated a parameter list using the
+`Image_thresholding_app_launcher()` it can be provided to the `Pixel_Threshold_calculator()` function using the `Parameter_list` argument. If a parameter list is provided,
+any other thresholding related arguments will be ignored.
 
 ```{r Threshold, eval = TRUE}
 #Generate a temporary output directory

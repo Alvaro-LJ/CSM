@@ -4,17 +4,22 @@
 \alias{Image_thresholding_app_launcher}
 \title{Launches a shiny APP to explore image pixel thresholding parameters}
 \usage{
-Image_thresholding_app_launcher(Directory, Ordered_Channels)
+Image_thresholding_app_launcher(Directory, Ordered_Channels, Max_Gb_cache = 10)
 }
 \arguments{
 \item{Directory}{Character specifying the path to the folder where images to be thresholded are present.}
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
+
+\item{Max_Gb_cache}{A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.}
 }
 \description{
 \code{Image_thresholding_app_launcher()} launches an APP to interactively explore image pixel segmentation parameters interactively.
 }
 \details{
+In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the \code{\link[magick:editing]{magick::image_read()}} function. Loaded images will
+be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+
 Image parameters control the image and channel to be displayed.
 
 Tissue mask parameters allow customizing how the tissue mask will be computed (decide foreground / background pixels).

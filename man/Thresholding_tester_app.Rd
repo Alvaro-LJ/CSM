@@ -4,7 +4,12 @@
 \alias{Thresholding_tester_app}
 \title{Launches a shiny APP to explore feature thresholding methods}
 \usage{
-Thresholding_tester_app(DATA, Directory, Ordered_Channels)
+Thresholding_tester_app(
+  DATA,
+  Directory = NULL,
+  Ordered_Channels = NULL,
+  Max_Gb_cache = 10
+)
 }
 \arguments{
 \item{DATA}{A dataframe or tibble containing cell feature data.}
@@ -12,12 +17,23 @@ Thresholding_tester_app(DATA, Directory, Ordered_Channels)
 \item{Directory}{Character specifying the path to the folder where images are present.}
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
+
+\item{Max_Gb_cache}{A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.}
 }
 \description{
 \code{Thresholding_tester_app()} launches an APP to interactively explore thresholding methods. Parameters can then be used in the \code{\link[=Thresholding_function]{Thresholding_function()}} or \code{\link[=Thresholding_function_tailored]{Thresholding_function_tailored()}} functions.
 }
 \details{
+In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the \code{\link[=Smart_image_importer]{Smart_image_importer()}} function. Loaded images will
+be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
+
+Although the APP has been designed to work with images, it can be executed without providing an image directory. If no image directory is provided, only cell information
+will be loaded into the APP.
+
 Image settings in the control panel allow the user to control the image channel display.
+
+User can use the 'Color', 'Add channel', 'Remove channel' and 'Reset' buttons to merge different channels into a single image. The add channel button
+will color the current channel according to the color provided and will be merged to the current image.
 
 Thresholding methods and type of thresholding (GLOBAL or LOCAL) can be toggled using the control panel.
 

@@ -1,8 +1,8 @@
 ---
-title: "Working with large images"
+title: "Working with large images and TMAs"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Working-with-large-images}
+  %\VignetteIndexEntry{Working-with-large-images-and-TMAs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -30,20 +30,26 @@ library(CSM)
 - [Introduction](#introduction)
 - [Test dataset info](#test-datasets)
 - [Check computing resources](#check-computing-resources-available)
-- [Chopping large images](#chopping-large-images)
-- [Cell segmentation using tiles](#cell-segmentation-using-tiled-images)
+    - [Chopping large images](#chopping-large-images)
+    - [Cell segmentation using tiles](#cell-segmentation-using-tiled-images)
 - [Pixel thresholding using tiles](#pixel-thresholding-of-tiled-images-and-re-assembled-images)
+- [Downsizing large images](#downsizing-large-images)
+- [De arraying TMA whole slide images into individual core images](#de-arraying-tmas)
+- [Merging multiple channels into a single color image](#merging-channels)
 
 ***
 
 ## Introduction
-Working with large images can be painful in R. Whole slide images can exceedingly large (up to tens of gigabytes). This
+Working with large images can be painful in R. Whole slide images can exceedingly large (up to tens of Gigabytes). This
 can easily saturate RAM memory. Indeed many popular image handling R packages (like EBImage or magick) have image size
 limits that can be easily exceeded by whole slide images. 
 
 CSM has inbuilt pipelines to deal with this situation. CSM implements functions to chop large images into manageable smaller crops. 
 After image processing (either cell segmentation, cell phenotype labeling or image pixel thresholding), cell or image 
 pixel information can be re-assembled to match the original whole slide coordinates.
+
+In addition, CSM has in-built tools to downsize large images to more manageable smaller sized images. These downsized images can be used for
+plotting purposes or to feed the `TMA_dearrayer_function()` (see below).
 
 
 ## Test datasets
@@ -232,6 +238,96 @@ list.files(Output_Dir_reconstruction)
 
 #Remove directories---------------------------------------------------------
 unlink(c(Input_Dir, Output_Dir_tiles, Output_Dir_tiles_thresholded, Output_Dir_reconstruction), recursive = TRUE)
+```
+
+## Downsizing large images
+The CSM function `Smart_image_importer()` is capable of importing to the R session a downsized version of very large images.
+The user must first provide the path to the image and the desired maximum number of pixels (in log10 scale) that the output
+image will have (1 million max pixels by default).
+
+In addition, the user can subset the image by cropping it or select specific image channels to be kept. The output image can be saved by
+setting the `Save_processed_images = TRUE`.
+
+How does the `Smart_image_importer()` work? First, the function will obtain image metadata (file type, pixel size, number of channels...).
+If the image is smaller than 1.5Gb in size, it will attempt importing the image directly followed by downsizing. If the image is larger
+than 1.5Gb it will sequentially import image chunks(tiles) and downsized them. Afterwards it will merge the chunks(tiles) back into a single
+image. The function is designed to generate tiles that are around 0.5Gb in size.
+
+```{r Smart_importer, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Create temporary input directory------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#reduce the pixel content of the image
+Image <- Smart_image_importer(Image_directory = dir(Input_Dir, full.names = TRUE)[1], 
+                     Log10_pixel_output = 5
+)
+
+print(Image)
+```
+
+Downsized images can be subsequently used for plotting purposes (for example using the `Image_channel_color_merger()` to combine several
+channels into a single RGB color image). In addition, the `Smart_image_importer()` is also the function used by several Shiny APPs
+implemented in CSM to import large images.
+
+## De-arraying TMAs
+Tissue micro-arrays (TMAs) are usually large whole slide images that require individual core image extraction before proceeding with 
+analyses. The `TMA_dearrayer_function()` serves this purpose. It requires a downsized version of the whole slide TMA image. The function will use 
+this downsized image to identify where tissue cores are located.
+
+* __Tissue mask generation:__ First, the image is thresholded to find foreground (tissue) and background pixels. Foreground pixels will be used in
+subsequent processing. To this end, the user may choose different strategies (identical to the approaches for tissue mask generation implemented
+in `Pixel_Threshold_calculator()`). In our experience, it is best to use the arbitrary method and try various cut-off values to select the most
+appropriate. 
+
+* __Tissue mask processing:__ After obtaining the binary (foreground/background) pixel mask, the image will be processed to fill wholes. Then, erosion
+followed by dilation can be applied according to user preferences. These pre-processing steps polish the initial mask and ease out the subsequent
+watershed algorithm that will be applied to identify individual core areas. The choices of erosion and dilation round number and kernel size will be 
+guided by the amount of noise in the image, the presence of tissue detachment or crush artifact and the size of the cores.
+
+* __Tissue mask watersheding:__ The processed tissue mask is the subjected to a watershed algorithm to identify individual tissue core areas. To this end
+the mask is first transformed to a distance map were the value of foreground pixels is equal to the distance of every pixel to the closest background
+pixel. This allows the watershed algorithm to separate cores even when there are touching edges (that may occur in heavily populated TMAs). Two 
+parameters influence the results of watershed algorithms in the case there are touching TMA cores: tolerance and extension (corresponding to
+the `Watershed_tolerance` and `Watershed_ext` function arguments). High tolerance values will 
+result in merging of TMA cores. The same is true for the extension parameter. Keeping the tolerance low (below 1) and low extension values (below 10) 
+maximize the number of cores identify, at the cost of sometimes splitting a single tissue core into several pieces. At the end of this process the
+function will return the identified cores and the user will have the opportunity to stop the function and refine parameters if required.
+
+* __Estimate the number of rows and columns:__ The function will then compute the X and Y centroid coordinates for every core and will determine the 
+number of rows and columns present in the TMA and the row and column index where every core belongs. This process is relevant as it will be used to label
+each core after extraction, and if the user provides a matrix of core names, the row/col information will be used to match cores and names provided.
+To this end, the function will use hierarchical clustering to group the core coordinates. This process can be refined modifying the `Tolerance_column`
+and `Tolerance_row` arguments. Small tolerance values require striking distances between individual rows and columns to be identified. After performing
+this step, the function will return the bounding box and provisional labels of the identified cores and the user may have the opportunity to stop the 
+function and refine parameters if required.
+
+* __Add user provided core labels:__ This is an optional by __HIGHLY ENCOURAGED__ step. User can provide a matrix or a dataframe/tibble containing 
+core labels. The function will take this information, match the matrix according to the number of rows/columns of the matrix and the identified cores, 
+and proceed to label the cores according to user preferences. Importantly, the matrix must not contain duplicated names. Cores that are known by the 
+user to be empty should be indicated using NA_value. After performing labelling, the function will return the results of the alignment. The user can then
+switch rows or column order or transverse the provided matrix at will until the labels match exactly with the tissue cores.
+
+* __Extract tissue core images:__ Finally, the function will compute the bounding box of the cores in the original image. Individual TMA cores will
+be subsetted from the original image using the `Smart_image_importer()`. Each image will be saved in the desired output directory.
+
+```{r TMA_dearray, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+TMA_image_downsized <-
+    Smart_image_importer(Image_directory = "Path/to/original/TMA/Image", 
+                         Log10_pixel_output = 6
+  ) 
+  
+TMA_dearrayer_function(Original_Image_Directory = "Path/to/original/TMA/Image", 
+                      Downsized_Image = TMA_image_downsized, 
+                      Output_Directory = "Path/to/ouput/directory")
+
 ```
 
 ```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
