@@ -101,6 +101,9 @@ Image_thresholding_app_launcher(
 )
 ```
 
+
+
+
 After exploring thresholding possibilities thresholds can be calculated using the `Pixel_Threshold_calculator()`. The function will
 return a summary of the number pixels above the threshold value and the total amount of foreground pixels. In addition, the user can save the
 thresholded images generated in the process which can be used to combine the pixel information with cell spatial location information 
