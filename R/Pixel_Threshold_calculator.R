@@ -227,7 +227,7 @@ Pixel_Threshold_calculator <-
     #Get the image full directory
     Image_names <- dir(Directory, full.names = TRUE)
     Image_names_short <- dir(Directory, full.names = FALSE)
-    Channels_to_keep_index <- which(Channels_to_keep %in% Ordered_Channels)
+    Channels_to_keep_index <- match(Channels_to_keep, Ordered_Channels)
 
     #If user has decided to use Multilevel and has supplied LEVELS and Thresholds value, Threshold values will prevail
     if(all(Threshold_type == "Multilevel", !is.null(Threshold_value), !is.null(Levels))){
@@ -248,7 +248,7 @@ Pixel_Threshold_calculator <-
         furrr::future_map(seq_along(1:length(Image_names)), function(Image_index){
           #Import the image and keep only required channels and the target channel
           Image <- magick::image_read(Image_names[Image_index])[Channels_to_keep_index]
-          Target_Image <- Image[which(Target_channel == Channels_to_keep)]
+          Target_Image <- Image[match(Target_channel, Channels_to_keep)]
 
           Image <- magick::as_EBImage(Image)
           Target_Image <- magick::as_EBImage(Target_Image)
