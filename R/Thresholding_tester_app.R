@@ -831,6 +831,12 @@ Thresholding_tester_app <-
         }
       })
 
+      #If the user switches the image to display return to original ranges
+      shiny::observeEvent(input$Image_name, {
+        ranges$x <- NULL
+        ranges$y <- NULL
+      })
+
       #All cells marker expression
       #Create a reactive that will generate the very basic PLOT
       Cell_intensity_plot <-

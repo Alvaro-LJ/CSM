@@ -769,6 +769,12 @@ Phenotyping_evaluator_shiny_app_launcher <-
         }
       })
 
+      #If the user switches the image to display return to original ranges
+      shiny::observeEvent(input$Image_name, {
+        ranges$x <- NULL
+        ranges$y <- NULL
+      })
+
       #All cells phenotype
       Cell_Phenotype_plot <-
         shiny::reactive({

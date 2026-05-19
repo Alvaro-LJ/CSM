@@ -650,6 +650,12 @@ Color_deconvolution_App_launcher <-
         }
       })
 
+      #If the user switches the image to display return to original ranges
+      shiny::observeEvent(input$Real_Image_name, {
+        ranges$x <- NULL
+        ranges$y <- NULL
+      })
+
       #Pre-processed photo (top right)
       #Generate the plot
       Pre_processed_plot <-

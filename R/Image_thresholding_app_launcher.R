@@ -315,6 +315,12 @@ Image_thresholding_app_launcher <-
         }
       })
 
+      #If the user switches the image to display return to original ranges
+      shiny::observeEvent(input$Real_Image_name, {
+        ranges$x <- NULL
+        ranges$y <- NULL
+      })
+
       shiny::observeEvent(input$GO_button, {
         #First we need to import the photograph as EBI, select the required channels and transform it to a cytomapper object
         shiny::showModal(modalDialog("Importing image", footer=NULL))

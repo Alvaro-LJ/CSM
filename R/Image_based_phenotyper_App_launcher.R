@@ -879,6 +879,12 @@ Image_based_phenotyper_App_launcher <-
         }
       })
 
+      #If the user switches the image to display return to original ranges
+      shiny::observeEvent(input$Image_name, {
+        ranges$x <- NULL
+        ranges$y <- NULL
+      })
+
       #Generate the cell unassigned plot
       Cell_Unassigned_plot <-
         shiny::reactive({

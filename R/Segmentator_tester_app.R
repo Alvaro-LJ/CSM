@@ -671,8 +671,6 @@ Segmentator_tester_app <-
 
         #Crop the photo if required
         if(any(!is.null(ranges$x), !is.null(ranges$y))){
-
-
           Geometry_crop <- stringr::str_c(max(ranges$x) - min(ranges$x),
                                           "x",
                                           max(ranges$y) - min(ranges$y),
@@ -815,6 +813,12 @@ Segmentator_tester_app <-
           ranges$x <- NULL
           ranges$y <- NULL
         }
+      })
+
+      #If the user switches the image to display return to original ranges
+      shiny::observeEvent(input$Real_Image_name, {
+        ranges$x <- NULL
+        ranges$y <- NULL
       })
 
       #What to do when user hits the go button
