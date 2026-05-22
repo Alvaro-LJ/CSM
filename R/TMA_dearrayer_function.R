@@ -489,7 +489,7 @@ TMA_dearrayer_function <-
     cat("\n Obtaining individual tumor cores from original image and saving results")
 
     #Obtain the TMA name from the Original_Image_Directory
-    TMA_image_name <- stringr::str_extract(Original_Image_Directory, "(?:.*/)?([^/.]+)(?=\\.[^.]+$)")
+    TMA_image_name <- stringr::str_extract(Original_Image_Directory, "(?<=^|[\\\\/])[^\\\\/.]+(?=\\.[^.]+$)")
 
     #Obtain the original coordinates
     Multiplication_factor <- Image_downsized$Original_Dims / Image_downsized$Current_Dims
