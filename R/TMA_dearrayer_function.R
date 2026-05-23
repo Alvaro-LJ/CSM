@@ -192,12 +192,11 @@ TMA_dearrayer_function <-
       return(tibble::as_tibble(data.frame(row = row, col = col)))
     }
 
-    ggplot_to_EBImage <- function(p, width, height) {
+    ggplot_to_EBImage <- function(p) {
       tf <- tempfile(fileext = ".png")
 
-      png(tf, width = width, height = height)
-      print(p)
-      dev.off()
+      #scale it to 1
+      ggplot2::ggsave(tf, p, scale = 1)
 
       img <- EBImage::readImage(tf)
       unlink(tf)
@@ -285,7 +284,7 @@ TMA_dearrayer_function <-
             axis.ticks = element_blank())
 
     #Display the image
-    Initial_plot <-  ggplot_to_EBImage(Initial_plot, Image_downsized$Current_Dims[1]+1, Image_downsized$Current_Dims[1]+1)
+    Initial_plot <-  ggplot_to_EBImage(Initial_plot)
     print(magick::image_read(Initial_plot))
 
     #Ask the user if the process should proceed
@@ -459,7 +458,7 @@ TMA_dearrayer_function <-
                 margins = margin(0,0,0,0))
 
         #Display the image
-        Initial_plot <-  ggplot_to_EBImage(Initial_plot, Image_downsized$Current_Dims[1]+1, Image_downsized$Current_Dims[1]+1)
+        Initial_plot <-  ggplot_to_EBImage(Initial_plot)
         print(magick::image_read(Initial_plot))
 
         #Ask the user if the process should proceed if required modify the matrix
