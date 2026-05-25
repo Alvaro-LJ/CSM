@@ -3,6 +3,7 @@
 #' The function uses downsized representations of whole slide TMA images to find core position and extract them from the original image (see details)
 #'
 #' @param N_cores Integer. Number of cores to parallelize your computation.
+#' @param Label_text_size Numeric value indicating the size of the text of the labels (used to generate adequately sized images).
 #'
 #' @param Original_Image_Directory A character value containing the path to the original TMA image.
 #' @param Downsized_Image A list created using the [Smart_image_importer()] function. It contains the downsized image representation of the TMA and the original pixel size.
@@ -70,6 +71,7 @@ TMA_dearrayer_function <-
     Output_Directory,
     RGB_Color_images = FALSE,
     N_cores = 1,
+    Label_text_size = 7,
 
     Ordered_Channels = NULL,
     Channels_to_keep = NULL,
@@ -196,7 +198,7 @@ TMA_dearrayer_function <-
       tf <- tempfile(fileext = ".png")
 
       #scale it to 1
-      ggplot2::ggsave(tf, p, scale = 0.5)
+      ggplot2::ggsave(tf, p, scale = 1)
 
       img <- EBImage::readImage(tf)
       unlink(tf)
@@ -345,7 +347,7 @@ TMA_dearrayer_function <-
         data = Look_up_table
       ) +
 
-      geom_text(aes(label = Core_basic_label, x = X_centroid, y = Y_centroid), size = 7, fontface = "bold", color = "red",
+      geom_text(aes(label = Core_basic_label, x = X_centroid, y = Y_centroid), size = Label_text_size, fontface = "bold", color = "red",
                 data = Look_up_table) +
 
       theme(axis.text = element_blank(),
@@ -448,7 +450,7 @@ TMA_dearrayer_function <-
             data = Look_up_table
           ) +
 
-          geom_text(aes(label = value, x = X_centroid, y = Y_centroid), size = 7, fontface = "bold", color = "red",
+          geom_text(aes(label = value, x = X_centroid, y = Y_centroid), size = Label_text_size, fontface = "bold", color = "red",
                     data = Merged_label_tibble) +
 
           theme(axis.text = element_blank(),
