@@ -36,9 +36,6 @@
 #'                                 Feature_to_analyze = "OTHER",
 #'
 #'                                 Min_tile_number = 1,
-#'                                 Smooth_amount = 0.01,
-#'                                 Tolerance_value = 1,
-#'                                 Neighborhood_distance = 1,
 #'                                 Minimum_cell_no_per_tile = 2)
 #'
 #' #Analyze the results
@@ -94,9 +91,9 @@ Structure_morphometry_graph_maker <-
     #Check that color by is adequate
     if(!all(length(Color_by) == 1,
             Color_by %in% c("Structure_ID", "s.area", "s.perimeter", "s.radius.mean", "s.radius.sd", "s.radius.min", "s.radius.max",
-                            "m.majoraxis", "m.eccentricity", "m.theta_AVERAGE")
+                            "m.majoraxis", "m.eccentricity", "m.theta")
             )
-    ) stop("Color_by must be one of the following: s.area, s.perimeter, s.radius.mean, s.radius.sd, s.radius.min, s.radius.max, m.majoraxis, m.eccentricity, m.theta_AVERAGE")
+    ) stop("Color_by must be one of the following: s.area, s.perimeter, s.radius.mean, s.radius.sd, s.radius.min, s.radius.max, m.majoraxis, m.eccentricity, m.theta")
 
     #Check Tiled_Images
     if(!is.list(Tiled_Images)) stop("Tiled_Images should be a list created with the Image_tiling_processing_function or Tiled_Image_Clustering_function")

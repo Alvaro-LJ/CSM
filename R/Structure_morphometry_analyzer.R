@@ -30,9 +30,6 @@
 #'                                 Feature_to_analyze = "OTHER",
 #'                                 
 #'                                 Min_tile_number = 1, 
-#'                                 Smooth_amount = 0.01, 
-#'                                 Tolerance_value = 1, 
-#'                                 Neighborhood_distance = 1,
 #'                                 Minimum_cell_no_per_tile = 2)
 #'
 #' #Analyze the results
@@ -70,7 +67,7 @@ Structure_morphometry_analyzer <-
     
     ####Compute the actual summary metrics##
     Metrics_to_analyze <- c("s.area", "s.perimeter", "s.radius.mean", "s.radius.sd", "s.radius.min", "s.radius.max",
-                            "m.majoraxis", "m.eccentricity", "m.theta_AVERAGE")
+                            "m.majoraxis", "m.eccentricity", "m.theta")
     
     #Iterate over relevant metrics (the final result will be a list with a single element per metric)
     FINAL_LIST <-

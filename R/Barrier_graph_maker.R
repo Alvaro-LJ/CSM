@@ -169,8 +169,8 @@ Barrier_graph_maker <- function(
   }
 
   #If Image directory and Pixel_distance_ratio provided, the DATA_Phenotypes coordinates must be modified (Barrier_DATA is asumed to be already modified)
-  if(all(!is.null(Image_directory), !is.null(Pixel_distance_ratio))) DATA_Phenotypes %>% dplyr::mutate(X = X*Pixel_distance_ratio,
-                                                                                                       Y = Y*Pixel_distance_ratio)
+  if(all(!is.null(Image_directory), !is.null(Pixel_distance_ratio))) DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::mutate(X = X*Pixel_distance_ratio,
+                                                                                                                          Y = Y*Pixel_distance_ratio)
 
   #Filter the DATA_Phenotypes and the Barrier_data to obtain data from a single Subject_Names
   DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == Image_name)

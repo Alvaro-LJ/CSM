@@ -13,6 +13,9 @@
 #' @param Compute_texture_features A logical value indicating if texture features should be computed for all the markers measured.
 #' @param Texture_pixel_distance If Compute_texture_features is TRUE, de pixel distance taken into account to compute the GLCM and texture features.
 #'
+#' @param Save_cell_mask A logical value indicating if images containing cell masks should be saved or not.
+#' @param Output_directory If Save_cell_mask is TRUE, a character value indicating the path to the empty folder where output images should be written.
+#'
 #' @param Nuclear_marker (Used if Parameters_list is NULL) Character vector of markers corresponding to the nuclei.
 #' @param Cell_body_method (Used if Parameters_list is NULL) Method of cytoplasm identification. Can be 'none', 'dilate' or 'discModel'.
 #' @param Min_pixel (Used if Parameters_list is NULL) Integer value specifying the minimum pixels for an object to be recognized as a cell and not noise.
@@ -78,7 +81,9 @@ Cell_segmentator_quantificator <-
            quantiles_to_calculate = c(0.25, 0.5, 0.75), # quantiles to be calculated for each marker,
            Compute_texture_features = FALSE,
            Texture_pixel_distance = 1,
-
+           
+           Save_cell_mask = FALSE,
+           Output_directory = NULL,
 
            Nuclear_marker = NULL, #marker or list of markers corresponding to the nuclei
            Cell_body_method = NULL, #Method of cytoplasm identification. Can be 'none', dilate', 'discModel' or the name of a dedicated cytoplasm marker
@@ -161,6 +166,11 @@ Cell_segmentator_quantificator <-
     if(!all(length(Compute_texture_features) == 1, is.logical(Compute_texture_features))) stop("Compute_texture_features must be a logical value")
     if(Compute_texture_features){
       if(!all(length(Texture_pixel_distance) == 1, is.numeric(Texture_pixel_distance), Texture_pixel_distance%%1 == 0, Texture_pixel_distance >= 1)) stop("Texture_pixel_distance must be a integer value >= 1")
+    }
+    if(!all(length(Save_cell_mask) == 1, is.logical(Save_cell_mask))) stop("Save_cell_mask must be a logical value")
+    if(Save_cell_mask){
+      if(!dir.exists(Output_directory)) stop("Issue with output directory. Please check the path provided.")
+      if(length(list.files(Output_directory) != 0)) stop("Output_directory must be an empty directory")
     }
 
 
@@ -363,6 +373,19 @@ Cell_segmentator_quantificator <-
                                               tissue = Tissue_mask_markers,
                                               pca = Perform_PCA,
                                               cores = 1)
+          
+          #IF cell segmentation mask needs to be saved then proceed
+          if(Save_cell_mask){
+            #Generate the name
+            Mask_name <- str_c(Simple_Image_Names[Index], "_CellMask.tiff")
+            File_name <- str_c(Output_directory, "/", Mask_name)
+            
+            #Save modify the file
+            Mask_image <- Seg_results[[1]]/max(Seg_results[[1]])
+            EBImage::writeImage(Mask_image, File_name, bits.per.sample = 16, compression = "LZW")
+          }
+          
+          
           S4Vectors::mcols(Seg_results)$imageID <- as.character(Simple_Image_Names[Index])
 
           #Calculate basic tibble with morphology

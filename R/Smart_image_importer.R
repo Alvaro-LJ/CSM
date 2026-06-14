@@ -5,6 +5,7 @@
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #' @param Image_directory Character specifying the path to the image file that needs to be imported.
 #' @param Log10_pixel_output A single numeric value larger than 1. It indicates the size (in pixels) of the processed image. For example, if set to 6 (the default) the output image will have a size of 10^6 pixels.
+#' @param Percentage_downsize (OPTIONAL) Alternatively, the user can provide the downsize factor as the percentage of original pixel number. Used only if Log10_pixel_output is NULL.
 #' @param X_crop_coordinates (OPTIONAL) If only a subset of the image needs to be imported, a numeric vector of length = 2, indicating the min and max X coordinates to perform image subsetting.
 #' @param Y_crop_coordinates (OPTIONAL) If only a subset of the image needs to be imported, a numeric vector of length = 2, indicating the min and max Y coordinates to perform image subsetting.
 #' @param Ordered_Channels (OPTIONAL) If image has multiple channel, the user can provide channel names. These names will be used with Channels_to_keep (see below) to filter the resulting image.
@@ -23,7 +24,7 @@
 #' 
 #' Tile importing is powered by the RBioFormats Bioconductor package that parses the Bioformats Java library to R. Sometimes even if the user#' has installed the RBioFormats package from 
 #' bioconductor the function will still return an error. If this happens, the issue can be solved checking the installed Java version in the computer and manually installing the CRAN rJava package.
-#' 
+#' If the function returns an error due to RAM saturation, sometimes it can be solved by allowing Java to use an absurd amount of RAM (for example rJava::.jinit(parameters="-Xmx500g")).
 #'
 #'
 #' @examples
@@ -53,6 +54,7 @@ Smart_image_importer <-
     N_cores = 1,
     Image_directory,
     Log10_pixel_output = 6,
+    Percentage_downsize = NULL,
     X_crop_coordinates = NULL,
     Y_crop_coordinates = NULL,
     Ordered_Channels = NULL,
@@ -134,8 +136,32 @@ Smart_image_importer <-
     #If is RGB and channels have been substracted then stop the function
     if(Is_RGB & any(!is.null(Ordered_Channels), !is.null(Channels_to_keep))) stop("If image is RGB channels can not be subsetted")
     
-    #Log10_pixel_output
-    if(!all(length(Log10_pixel_output) == 1, is.numeric(Log10_pixel_output), Log10_pixel_output > 1)) stop("Log10_pixel_output must be a single numeric value higher than 1")
+    #Log10_pixel_output or Percentage_downsize
+    #Check LOG10_pixel_output if required
+    if(!is.null(Log10_pixel_output)){
+      if(!all(length(Log10_pixel_output) == 1, is.numeric(Log10_pixel_output), Log10_pixel_output > 1)) stop("Log10_pixel_output must be a single numeric value higher than 1")
+    }
+    #If both LOG10 and percentage provided print a message
+    if(all(!is.null(Log10_pixel_output), !is.null(Percentage_downsize))) message("\nBoth Log10_pixel_output and Percentage_downsize provided. Percentage_downsize will be ignored.")
+    
+    #If only Percentage_downsize provided compute LOG10_pixel_output
+    if(all(is.null(Log10_pixel_output), !is.null(Percentage_downsize))){
+      
+      if(!all(length(Percentage_downsize) == 1, is.numeric(Percentage_downsize), Percentage_downsize > 0, Percentage_downsize <= 1)) stop("Percentage_downsize must be a numeric value between 0 and 1")
+      
+      #If pyramidal
+      if(Image_type == "PYRAMIDAL"){
+        #Obtain the info from the layer with the highest resolution of get the total pixel number\
+        Max_Layer_data <- Image_metadata@.Data[[1]]$coreMetadata
+        Total_pixel_number <- Max_Layer_data$sizeX * Max_Layer_data$sizeY
+      }
+      #If only TIFF
+      else Total_pixel_number <- Image_metadata$coreMetadata$sizeX * Image_metadata$coreMetadata$sizeY
+      
+      #Compute the LOG_10_pixel_output
+      Log10_pixel_output <- round(log10(Total_pixel_number * Percentage_downsize), digits = 3)
+      
+    }
     
     #Crop coordinates
     if(any(!is.null(X_crop_coordinates), !is.null(Y_crop_coordinates))){

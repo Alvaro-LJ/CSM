@@ -5,7 +5,7 @@
 #'
 #' @param Directory Character string specifying the path to the folder where images are present.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
-#' @param Pixel_downsize (OPTIONAL) A numeric value between 0 and 1 indicating the percentage of pixel downsize. If NULL no pixel downsize will be performed.
+#' @param Pixel_downsize A numeric value between 0 and 1 indicating the percentage of pixel downsize. By default is set to 1 (no pixel downsize).
 #' @param Channel_for_test A character vector indicating the channel name to be displayed in the pre-processing test.
 #' @param Channels_to_keep Character vector indicating channels used in tissue mask generation.
 #' @param Threshold_type_tissueMask Type of threshold to performe tissue mask. Either 'Otsu', 'Arbitrary' or 'Absolute'.
@@ -76,9 +76,10 @@ Channel_Sample_diagnostics <-
 
            Directory = NULL,
            Ordered_Channels = NULL,
-           Pixel_downsize = NULL,
+           Pixel_downsize = 1,
            Channel_for_test = NULL,
            Channels_to_keep = NULL,
+           
            Threshold_type_tissueMask = NULL,
            Threshold_value_tissueMask = NULL,
            Blurr_tissueMask = FALSE,
@@ -140,7 +141,7 @@ Channel_Sample_diagnostics <-
     #Check arguments if images are provided
     if(!is.null(Directory)){
       Argument_checker <- c(Empty_directory = length(dir(Directory)) >= 1,
-                            Pixel_downsize_OK = any(is.null(Pixel_downsize), all(is.numeric(Pixel_downsize), Pixel_downsize > 0, Pixel_downsize < 1)),
+                            Pixel_downsize_OK = all(is.numeric(Pixel_downsize), Pixel_downsize > 0, Pixel_downsize <= 1),
                             Channels_OK = all(Channels_to_keep %in% Ordered_Channels),
                             Channel_for_test_OK = all(length(Channel_for_test) == 1, Channel_for_test %in% Ordered_Channels),
                             Threshold_type_tissueMask_OK = Threshold_type_tissueMask %in% c("Otsu", "Arbitrary", "Absolute"),
@@ -154,12 +155,13 @@ Channel_Sample_diagnostics <-
       )
 
       Stop_messages <- c(Empty_directory = "No files found at the directory provided. Please check out the path.",
-                         Pixel_downsize_OK = "Pixel_downsize must be eigher NULL or a numeric value between 0 and 1",
+                         Pixel_downsize_OK = "Pixel_downsize must be a numeric value between 0 and 1",
                          Channels_OK = stringr::str_c(
                            "The following channels are not present the channel names provided: ",
                            stringr::str_c(Channels_to_keep[!(Channels_to_keep %in% Ordered_Channels)], collapse = ", "),
                            sep = ""),
                          Channel_for_test_OK = "Channel_for_test must be a single character cotained in Ordered_Channels",
+                         Threshold_type_tissueMask_OK = "Threshold_type_tissueMask must be one of the following: Otsu, Arbitrary, Absolute",
                          Threshold_value_tissueMask_OK = "Threshold_value_tissueMask must be a single numeric value between 0 and 1",
                          Blurr_tissueMask_OK = "Blurr_tissueMask must be a logical value",
                          Sigma_tissueMask_OK = "Sigma_tissueMask must be a positive numeric value > 0"
@@ -196,16 +198,15 @@ Channel_Sample_diagnostics <-
         print("Running a tissue mask random test")
 
         Random_image_index <- sample(1:length(Image_paths), size = 1)
-        Image_Original <- magick::image_read(Image_paths[Random_image_index])
-
-        #Downsize if required
-        if(!is.null(Pixel_downsize)){
-         Image_processed <- Image_Original %>% magick::image_resize(magick::geometry_size_percent(width = Pixel_downsize*100))
-        }
-        else Image_processed <- Image_Original
+        
+        #Obtain image and apply downsize
+        Image_Original <- Smart_image_importer(N_cores = N_cores,
+                                               Image_directory = Image_paths[Random_image_index],
+                                               Log10_pixel_output = NULL,
+                                               Percentage_downsize = Pixel_downsize)$Image
 
         #Generate tissue mask
-        Tissue_mask <- Tissue_mask_generator(Image = Image_processed[Channel_to_keep_index] %>% magick::as_EBImage(),
+        Tissue_mask <- Tissue_mask_generator(Image = Image_Original[Channel_to_keep_index] %>% magick::as_EBImage(),
                                              Threshold_type = Threshold_type_tissueMask,
                                              Threshold_value = Threshold_value_tissueMask,
                                              Blurr = Blurr_tissueMask,
@@ -217,19 +218,8 @@ Channel_Sample_diagnostics <-
         Image_height <- magick::image_info(Image_Original[1])$height
         Channel_display_index <- match(Channel_for_test, Ordered_Channels)
 
-        Original_image_plot <- ggplot() +
-          annotation_raster(Image_Original[Channel_display_index], xmin = 1, ymin = 1, xmax = Image_width, ymax = Image_height) +
-          scale_x_continuous("", labels = NULL, limits = c(1, Image_width)) +
-          scale_y_continuous("", labels = NULL, limits = c(1, Image_height)) +
-          theme_minimal() +
-          ggtitle(stringr::str_c(Image_names[Random_image_index], Channel_for_test, sep = " - "),
-                  "Original image")+
-          theme(panel.grid = element_blank(),
-                axis.ticks = element_blank(),
-                aspect.ratio = Image_height/Image_width)
-
         Pre_processed_plot <- ggplot() +
-          annotation_raster(Image_processed[Channel_display_index], xmin = 1, ymin = 1, xmax = Image_width, ymax = Image_height) +
+          annotation_raster(Image_Original[Channel_display_index], xmin = 1, ymin = 1, xmax = Image_width, ymax = Image_height) +
           scale_x_continuous("", labels = NULL, limits = c(1, Image_width)) +
           scale_y_continuous("", labels = NULL, limits = c(1, Image_height)) +
           theme_minimal() +
@@ -250,7 +240,7 @@ Channel_Sample_diagnostics <-
                 axis.ticks = element_blank(),
                 aspect.ratio = Image_height/Image_width)
 
-        plot(Original_image_plot + Pre_processed_plot + Tissue_mask + patchwork::plot_layout(nrow = 1, ncol = 3))
+        plot(Pre_processed_plot + Tissue_mask + patchwork::plot_layout(nrow = 1, ncol = 3))
 
         #Exit the loop if required with an stop or with a proceed
         Answer <- menu(choices = c("Proceed", "Abort", "Test again"), title = "Check tissue mask generated. Should the analysis proceed?")
@@ -274,16 +264,13 @@ Channel_Sample_diagnostics <-
       #Generate a tibble with the pixel information
       INFO_tibble <-
         furrr::future_map_dfr(1:length(Image_paths), function(Image_index){
-          Image_Original <- magick::image_read(Image_paths[Image_index])
-
-          #Downsize if required
-          if(!is.null(Pixel_downsize)){
-            Image_processed <- Image_Original %>% magick::image_resize(magick::geometry_size_percent(width = Pixel_downsize*100))
-          }
-          else Image_processed <- Image_Original
+          Image_Original <- Smart_image_importer(N_cores = 1,
+                                                 Image_directory = Image_paths[Image_index],
+                                                 Log10_pixel_output = NULL,
+                                                 Percentage_downsize = Pixel_downsize)$Image
 
           #Generate the tissue mask
-          Tissue_mask <- Tissue_mask_generator(Image = Image_processed[Channel_to_keep_index] %>% magick::as_EBImage(),
+          Tissue_mask <- Tissue_mask_generator(Image = Image_Original[Channel_to_keep_index] %>% magick::as_EBImage(),
                                                Threshold_type = Threshold_type_tissueMask,
                                                Threshold_value = Threshold_value_tissueMask,
                                                Blurr = Blurr_tissueMask,
@@ -295,11 +282,11 @@ Channel_Sample_diagnostics <-
 
           #Add the pixel values for every required channel and bind it to the pixel tibble
           Used_channels <- unique(unlist(List_correlation_hubs))
-          Image_processed <- Image_processed %>% magick::as_EBImage()
+          Image_Original <- Image_Original %>% magick::as_EBImage()
 
           Pixel_channel <- suppressMessages(
             purrr::map_dfc(Used_channels, function(channel_name){
-              as.vector(Image_processed[,,match(channel_name, Ordered_Channels)])
+              as.vector(Image_Original[,,match(channel_name, Ordered_Channels)])
             })
           )
           names(Pixel_channel) <- Used_channels

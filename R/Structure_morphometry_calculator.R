@@ -11,17 +11,17 @@
 #' @param Feature_to_analyze A character value indicating the cell type or neighborhood type that will be morphologically analyzed
 #'
 #' @param Min_tile_number A integer value specifying the minimum number of tiles any morphological structure must contain to be considered real.
-#' @param Smooth_amount A numeric value specifying the amount of Gaussian smoothing to be applied to the tile information (higher values yield larger and more smoothened structures).
-#' @param Tolerance_value A numeric value specifying the minimum height of the structure between its highest point (seed) and the point where it contacts another object (MAY BE NULL).
-#' @param Neighborhood_distance A integer value indicating the radius of the neighborhood in pixels for the detection of neighboring objects. Higher value smooths out small objects.
-#'
+#' @param Fill_holes A logical value indicating if hole filling should be aplied before identifying structures.
+#' @param Watershed_tolerance A numeric value > 0 indicating the tolerance of the watershed algorithm. Higher values reduce the number of structures identified.
+#' @param Watershed_ext A numeric value indicating the extension watershed parameter. Higher values reduce the number of individual structures identified.
+#' 
 #' @param Minimum_cell_no_per_tile (If Tiled_Images are generated using the [Image_tiling_processing_function()]) A integer value indicating the minimum number of cells of interest a tile must contain to be considered positive (default is 1).
 #'
 #' @details
-#' The function will identify discrete structures using the watershed algorithm implemented in the simpleSeg Bioconductor package. To this end, the image tiles will be assigned a
+#' The function will identify discrete structures using the watershed algorithm implemented in the EBImage package. To this end, the image tiles will be assigned a
 #' positive (1) or negative (0) value according to the presence or absence of the desired cell feature. Afterwards, these positive/negative tile pattern is transformed
-#' into a pseudo-image and fed to the watershed algorithm to compute the structure mask image. This image is then analyzed to obtain the morphological features of the structures idenfified
-#' using the cytomapper Bioconductor package.
+#' into a pseudo-image and fed to the watershed algorithm to compute the structure mask image. This image is then analyzed to obtain the morphological features of the structures identified
+#' using the EBImage package.
 #'
 #' @returns A list containing a tibble with the structure morphology data and the structure mask.
 #'
@@ -47,9 +47,6 @@
 #'                                 Feature_to_analyze = "OTHER",
 #'
 #'                                 Min_tile_number = 1,
-#'                                 Smooth_amount = 0.01,
-#'                                 Tolerance_value = 1,
-#'                                 Neighborhood_distance = 1,
 #'                                 Minimum_cell_no_per_tile = 2)
 #'
 #' #Analyze the results
@@ -64,6 +61,8 @@
 #'}
 #'
 #'
+#' @import patchwork
+#'
 #' @export
 
 
@@ -74,11 +73,10 @@ Structure_morphometry_calculator <-
            Variable_name,
            Feature_to_analyze,
 
-
            Min_tile_number = 4,
-           Smooth_amount = 0.0000001,
-           Tolerance_value = 0.0000001,
-           Neighborhood_distance = 1,
+           Fill_holes = FALSE,
+           Watershed_tolerance = 1,
+           Watershed_ext = 1,
 
            Minimum_cell_no_per_tile = 1
   ){
@@ -95,58 +93,26 @@ Structure_morphometry_calculator <-
                })
         )
       )
-      if(!requireNamespace("simpleSeg", quietly = TRUE)) stop(
-        paste0("simpleSeg Bioconductor package is required to execute the function. Please install using the following code: ",
-               expression({
-                 if (!require("BiocManager", quietly = TRUE))
-                   install.packages("BiocManager")
-
-                 BiocManager::install("simpleSeg")
-               })
-        )
-      )
-      if(!requireNamespace("S4Vectors", quietly = TRUE)) stop(
-        paste0("S4Vectors Bioconductor package is required to execute the function. Please install using the following code: ",
-               expression({
-                 if (!require("BiocManager", quietly = TRUE))
-                   install.packages("BiocManager")
-
-                 BiocManager::install("S4Vectors")
-               })
-        )
-      )
-      if(!requireNamespace("cytomapper", quietly = TRUE)) stop(
-        paste0("cytomapper Bioconductor package is required to execute the function. Please install using the following code: ",
-               expression({
-                 if (!require("BiocManager", quietly = TRUE))
-                   install.packages("BiocManager")
-
-                 BiocManager::install("cytomapper")
-               })
-        )
-      )
     }
 
     ########Check arguments########
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
-
     if(!all(length(Variable_name) == 1, is.character(Variable_name))) stop("Variable_name should be a single character value")
     if(!all(length(Feature_to_analyze) == 1, is.character(Feature_to_analyze))) stop("Feature_to_analyze should be a single character value")
 
     #Check arguments by generating a argument check vector and message vector
     Argument_checker <- c(Min_tile_number_OK = all(is.numeric(Min_tile_number), Min_tile_number%%1 == 0, Min_tile_number >= 1),
-                          Smooth_amount_OK = all(is.numeric(Smooth_amount), Smooth_amount >= 0),
-                          Tolerance_value_OK = if(!is.null(Tolerance_value)) {
-                            all(is.numeric(Tolerance_value), Tolerance_value >= 0)
-                          } else(TRUE),
-                          Neighborhood_distance_OK = all(Neighborhood_distance%%1 == 0, Neighborhood_distance >= 0)
+                          Fill_holes_OK = is.logical(Fill_holes),
+                          Watershed_tolerance_OK = all(is.numeric(Watershed_tolerance), Watershed_tolerance > 0),
+                          Watershed_ext_OK = all(is.numeric(Watershed_ext), Watershed_ext > 0)
+                    
     )
 
 
     Stop_messages <- c(Min_tile_number_OK = "Min_tile_number must be a positive integer value larger than 0",
-                       Smooth_amount_OK = "Smooth amount must be a positive numeric value",
-                       Tolerance_value_OK = "Tolerance value must be NULL or a positive numeric value",
-                       Neighborhood_distance_OK = "Neighborhood distance must be a positive integer value"
+                       Fill_holes_OK = "Fill_holes must be a logical value",
+                       Watershed_tolerance_OK = "Watershed_tolerance must be a numeric value > 0",
+                       Watershed_ext_OK = "Watershed_ext must be a numeric value > 0"
     )
 
     #Check arguments and stop if necessary
@@ -261,7 +227,7 @@ Structure_morphometry_calculator <-
 
       stop(paste0("The tiles of the following images are not squared: ", stringr::str_c(Problematic_tiles, collapse = ", "), ". Morphometric analysis can only work with square tiles"))
     }
-
+    
     #Compute if any image has no positive tiles
     Devoid_tiles <-
       purrr::map_lgl(Tiled_Images, function(Image){
@@ -278,7 +244,7 @@ Structure_morphometry_calculator <-
       #Remove the actual images
       Tiled_Images <- Tiled_Images[!Devoid_tiles]
     }
-
+    
     ########RUN TEST########
     Test_OK <- 3
     while(Test_OK == 3){
@@ -309,50 +275,33 @@ Structure_morphometry_calculator <-
 
         #Turn the pseudo-image to an EBImage and Cytomapper object
         Pseudo_image <- EBImage::Image(Pseudo_image) %>% EBImage::flip()
-        Image <- cytomapper::CytoImageList(Pseudo_image)
-        cytomapper::channelNames(Image) <- "COUNTS" #Modify the channel name
-        S4Vectors::mcols(Image)$imageID <- "Pseudo_Image"#Modify name
+        
+        #Prepare for watershed segmentation
+        Image <- Pseudo_image
+        
+        #Do ammendments if required
+        if(Fill_holes) Image <- EBImage::fillHull(Image)
 
-        #Compute the structure mask and the object morphometry in a secure manner
-        Seg_results <- try(simpleSeg::simpleSeg(Image,
-                                                nucleus = "COUNTS",
-                                                cellBody = "none",
-                                                sizeSelection = Min_tile_number,
-                                                smooth = Smooth_amount,
-                                                transform = NULL,
-                                                watershed = "intensity",
-                                                tolerance = Tolerance_value,
-                                                ext = Neighborhood_distance,
-                                                discSize = 1,
-                                                tissue = NULL,
-                                                pca = FALSE,
-                                                cores = 1)
-        )
-
-
-        try(
-          #Change the ID of the mask
-          S4Vectors::mcols(Seg_results)$imageID <- "Pseudo_Image"
-        )
-
-        #Compute the mask features
-        Position_morphology_mean <- try(
-          cytomapper::measureObjects(mask = Seg_results,
-                                     image = Image,
-                                     img_id = "imageID",
-                                     feature_types = c("basic", "shape", "moment"),
-                                     shape_feature = c("area", "perimeter", "radius.mean", "radius.sd", "radius.max", "radius.min"),
-                                     moment_feature = c("cx", "cy", "eccentricity", "majoraxis"),
-                                     basic_feature = "mean")
-        )
-
-        Morphology_tibble <- try(
-          #Generate a tibble with the mask features
-          tibble::as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Position_morphology_mean)),
-                                  as_tibble(t(SummarizedExperiment::assays(Position_morphology_mean)[[1]])))) %>% dplyr::select(-objectNum)
-        )
-        try(names(Morphology_tibble)[-c(1:12)] <- stringr::str_c(names(Morphology_tibble)[-c(1:12)], "_AVERAGE"))
-
+        #Turn to distmap and segment using watershed
+        Image <- try(EBImage::distmap(Image))
+        Seg_results <- try(EBImage::watershed(EBImage::normalize(Image), tolerance = Watershed_tolerance, ext = Watershed_ext))
+        
+        #Obtain features
+        try({
+          Morphology_tibble <- dplyr::bind_cols(EBImage::computeFeatures.shape(Seg_results), EBImage::computeFeatures.moment(Seg_results))
+          #Filter objects below size threshold
+          Size_tibble <- tibble::tibble(Object_id = 1:nrow(Morphology_tibble),
+                                        Size = Morphology_tibble$s.area)
+          Morphology_tibble <- Morphology_tibble %>% dplyr::filter(s.area >= Min_tile_number) 
+          ID_tibble <- tibble::tibble(imageID = "Pseudo_image",
+                                      object_id = 1:nrow(Morphology_tibble))
+          
+          Morphology_tibble <- dplyr::bind_cols(ID_tibble, Morphology_tibble)
+        })
+  
+        #Before returning the structure mask we will remove those pixels that belong to objects that were removed
+        Objects_to_remove <- Size_tibble$Object_id[Size_tibble$Size < Min_tile_number]
+        Seg_results[Seg_results %in% Objects_to_remove] <- 0
 
         #Check errors and proceed if required
         if(berryFunctions::is.error(Seg_results)){
@@ -360,7 +309,7 @@ Structure_morphometry_calculator <-
           print(paste0("Unable to compute structure mask for ", Random_image_name, ". Trying another random sample."))
           Images_for_test_remaining <- Images_for_test_remaining[-which(Images_for_test_remaining == Random_image_name)]
 
-        } else if(max(Seg_results[[1]]) == 0){
+        } else if(max(Seg_results) == 0){
           #Print message and remove image
           print(paste0("No structures found in ", Random_image_name, ". Trying another random sample."))
           Images_for_test_remaining <- Images_for_test_remaining[-which(Images_for_test_remaining == Random_image_name)]
@@ -395,7 +344,7 @@ Structure_morphometry_calculator <-
       #Generate the plots
       Mask_plot <-
         ggplot() +
-        annotation_raster(EBImage::colorLabels(Seg_results[[1]]) %>% EBImage::rotate(angle = -90) %>% EBImage::flip() %>% EBImage::flop(),
+        annotation_raster(EBImage::colorLabels(Seg_results) %>% EBImage::rotate(angle = -90) %>% EBImage::flip() %>% EBImage::flop(),
                           xmin = min(Example_image_tiles$tile_xmin), xmax = max(Example_image_tiles$tile_xmax),
                           ymin = min(Example_image_tiles$tile_ymin), ymax = max(Example_image_tiles$tile_ymax)) +
 
@@ -464,57 +413,38 @@ Structure_morphometry_calculator <-
 
         #Turn the pseudo-image to an EBImage and Cytomapper object
         Pseudo_image <- EBImage::Image(Pseudo_image) %>% EBImage::flip()
-        Image <- cytomapper::CytoImageList(Pseudo_image)
-        cytomapper::channelNames(Image) <- "COUNTS" #Modify the channel name
-        S4Vectors::mcols(Image)$imageID <- "Pseudo_Image"#Modify name
-
-        #Compute the structure mask and the object morphometry in a secure manner
-        Seg_results <- try(simpleSeg::simpleSeg(Image,
-                                                nucleus = "COUNTS",
-                                                cellBody = "none",
-                                                sizeSelection = Min_tile_number,
-                                                smooth = Smooth_amount,
-                                                transform = NULL,
-                                                watershed = "intensity",
-                                                tolerance = Tolerance_value,
-                                                ext = Neighborhood_distance,
-                                                discSize = 1,
-                                                tissue = NULL,
-                                                pca = FALSE,
-                                                cores = 1)
-        )
-
-
-        try(
-          #Change the ID of the mask
-          S4Vectors::mcols(Seg_results)$imageID <- "Pseudo_Image"
-        )
-
-        #Compute the mask features
-        Position_morphology_mean <- try(
-          cytomapper::measureObjects(mask = Seg_results,
-                                     image = Image,
-                                     img_id = "imageID",
-                                     feature_types = c("basic", "shape", "moment"),
-                                     shape_feature = c("area", "perimeter", "radius.mean", "radius.sd", "radius.max", "radius.min"),
-                                     moment_feature = c("cx", "cy", "eccentricity", "majoraxis", "theta"),
-                                     basic_feature = "mean")
-        )
-
-        Morphology_tibble <- try(
-          #Generate a tibble with the mask features
-          tibble::as_tibble(cbind(as_tibble(SummarizedExperiment::colData(Position_morphology_mean)),
-                                  as_tibble(t(SummarizedExperiment::assays(Position_morphology_mean)[[1]])))) %>% dplyr::select(-objectNum)
-        )
-        try(names(Morphology_tibble)[-c(1:12)] <- stringr::str_c(names(Morphology_tibble)[-c(1:12)], "_AVERAGE"))
-
-
+        
+        #Prepare for watershed segmentation
+        Image <- Pseudo_image
+        
+        #Do ammendments if required
+        if(Fill_holes) Image <- EBImage::fillHull(Image)
+        
+        #Turn to distmap and segment using watershed
+        Image <- try(EBImage::distmap(Image))
+        Seg_results <- try(EBImage::watershed(EBImage::normalize(Image), tolerance = Watershed_tolerance, ext = Watershed_ext))
+        
+        #Obtain features
+        try({
+          Morphology_tibble <- dplyr::bind_cols(EBImage::computeFeatures.shape(Seg_results), EBImage::computeFeatures.moment(Seg_results))
+          #Filter objects below size threshold
+          Size_tibble <- tibble::tibble(Object_id = 1:nrow(Morphology_tibble),
+                                        Size = Morphology_tibble$s.area)
+          
+          Morphology_tibble <- Morphology_tibble %>% dplyr::filter(s.area >= Min_tile_number) 
+          ID_tibble <- tibble::tibble(imageID = "Pseudo_image",
+                                      object_id = 1:nrow(Morphology_tibble))
+          
+          Morphology_tibble <- dplyr::bind_cols(ID_tibble, Morphology_tibble)
+        })
+        
+        
         #Check errors and proceed if required
         if(berryFunctions::is.error(Seg_results)){
           #return message
           return("Unable to perform morphometry analysis")
 
-        } else if(max(Seg_results[[1]]) == 0){
+        } else if(max(Seg_results) == 0){
           #return message
           return("Unable to perform morphometry analysis")
 
@@ -546,7 +476,7 @@ Structure_morphometry_calculator <-
           #Select desired variables
           Morphology_tibble <- Morphology_tibble %>% dplyr::select(object_id, X_final, Y_final,
                                                                    s.area, s.perimeter, s.radius.mean, s.radius.sd, s.radius.min, s.radius.max,
-                                                                   m.majoraxis, m.eccentricity, m.theta_AVERAGE)
+                                                                   m.majoraxis, m.eccentricity, m.theta)
           #Change names
           names(Morphology_tibble)[1:3] <- c("Structure_ID", "X_centroid", "Y_centroid")
 
@@ -560,8 +490,13 @@ Structure_morphometry_calculator <-
                           s.radius.min = s.radius.min * Tile_size,
                           s.radius.max = s.radius.max * Tile_size,
                           m.majoraxis = m.majoraxis * Tile_size)
+          
+          #Before returning the structure mask we will remove those pixels that belong to objects that were removed
+          Objects_to_remove <- Size_tibble$Object_id[Size_tibble$Size < Min_tile_number]
+          Seg_results[Seg_results %in% Objects_to_remove] <- 0
+          
           return(list(Morphology_tibble = Morphology_tibble,
-                      Structure_mask = Seg_results[[1]] %>% EBImage::rotate(angle = -90) %>% EBImage::flip() %>% EBImage::flop()
+                      Structure_mask = Seg_results %>% EBImage::rotate(angle = -90) %>% EBImage::flip() %>% EBImage::flop()
                       )
                  )
         }
@@ -571,6 +506,7 @@ Structure_morphometry_calculator <-
     future::plan("future::sequential")
     gc()
 
+    
     ####REMOVE CONFLICTIVE IMAGES and RETURN result####
     #Remove images without adequate analysis
     Conflictive_images <-
