@@ -13,6 +13,8 @@ Cell_segmentator_quantificator(
   quantiles_to_calculate = c(0.25, 0.5, 0.75),
   Compute_texture_features = FALSE,
   Texture_pixel_distance = 1,
+  Save_cell_mask = FALSE,
+  Output_directory = NULL,
   Nuclear_marker = NULL,
   Cell_body_method = NULL,
   Min_pixel = NULL,
@@ -49,6 +51,10 @@ Cell_segmentator_quantificator(
 \item{Compute_texture_features}{A logical value indicating if texture features should be computed for all the markers measured.}
 
 \item{Texture_pixel_distance}{If Compute_texture_features is TRUE, de pixel distance taken into account to compute the GLCM and texture features.}
+
+\item{Save_cell_mask}{A logical value indicating if images containing cell masks should be saved or not.}
+
+\item{Output_directory}{If Save_cell_mask is TRUE, a character value indicating the path to the empty folder where output images should be written.}
 
 \item{Nuclear_marker}{(Used if Parameters_list is NULL) Character vector of markers corresponding to the nuclei.}
 

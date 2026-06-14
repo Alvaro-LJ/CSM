@@ -8,7 +8,7 @@ Channel_Sample_diagnostics(
   N_cores = 1,
   Directory = NULL,
   Ordered_Channels = NULL,
-  Pixel_downsize = NULL,
+  Pixel_downsize = 1,
   Channel_for_test = NULL,
   Channels_to_keep = NULL,
   Threshold_type_tissueMask = NULL,
@@ -27,7 +27,7 @@ Channel_Sample_diagnostics(
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
 
-\item{Pixel_downsize}{(OPTIONAL) A numeric value between 0 and 1 indicating the percentage of pixel downsize. If NULL no pixel downsize will be performed.}
+\item{Pixel_downsize}{A numeric value between 0 and 1 indicating the percentage of pixel downsize. By default is set to 1 (no pixel downsize).}
 
 \item{Channel_for_test}{A character vector indicating the channel name to be displayed in the pre-processing test.}
 

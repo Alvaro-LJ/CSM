@@ -10,6 +10,7 @@ TMA_dearrayer_function(
   Output_Directory,
   RGB_Color_images = FALSE,
   N_cores = 1,
+  Label_text_size = 7,
   Ordered_Channels = NULL,
   Channels_to_keep = NULL,
   Threshold_type_tissueMask = "Arbitrary",
@@ -38,6 +39,8 @@ TMA_dearrayer_function(
 \item{RGB_Color_images}{A logical value indicating if TMA contains RGB color images (these will be processed in a different manner to grayscale multi-channel tif images).}
 
 \item{N_cores}{Integer. Number of cores to parallelize your computation.}
+
+\item{Label_text_size}{Numeric value indicating the size of the text of the labels (used to generate adequately sized images).}
 
 \item{Ordered_Channels}{(OPTIONAL) If image has multiple channel, the user can provide channel names. These names will be used with Channels_to_keep (see below) to filter the resulting image.}
 
@@ -94,12 +97,12 @@ After identifying the position of TMA cores and the row and column they belong t
 \dontrun{
 
 TMA_image_downsized <-
-    Smart_image_importer(Image_directory = "Path/to/original/TMA/Image", 
+    Smart_image_importer(Image_directory = "Path/to/original/TMA/Image",
                          Log10_pixel_output = 6
-  ) 
-  
-TMA_dearrayer_function(Original_Image_Directory = "Path/to/original/TMA/Image", 
-                      Downsized_Image = TMA_image_downsized, 
+  )
+
+TMA_dearrayer_function(Original_Image_Directory = "Path/to/original/TMA/Image",
+                      Downsized_Image = TMA_image_downsized,
                       Output_Directory = "Path/to/ouput/directory")
 
 }

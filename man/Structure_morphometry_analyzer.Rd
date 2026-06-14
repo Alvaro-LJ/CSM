@@ -35,9 +35,6 @@ Structure_morphometry_calculator(N_cores = 1,
                                 Feature_to_analyze = "OTHER",
                                 
                                 Min_tile_number = 1, 
-                                Smooth_amount = 0.01, 
-                                Tolerance_value = 1, 
-                                Neighborhood_distance = 1,
                                 Minimum_cell_no_per_tile = 2)
 
 #Analyze the results

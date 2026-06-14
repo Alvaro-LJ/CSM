@@ -8,6 +8,7 @@ Smart_image_importer(
   N_cores = 1,
   Image_directory,
   Log10_pixel_output = 6,
+  Percentage_downsize = NULL,
   X_crop_coordinates = NULL,
   Y_crop_coordinates = NULL,
   Ordered_Channels = NULL,
@@ -22,6 +23,8 @@ Smart_image_importer(
 \item{Image_directory}{Character specifying the path to the image file that needs to be imported.}
 
 \item{Log10_pixel_output}{A single numeric value larger than 1. It indicates the size (in pixels) of the processed image. For example, if set to 6 (the default) the output image will have a size of 10^6 pixels.}
+
+\item{Percentage_downsize}{(OPTIONAL) Alternatively, the user can provide the downsize factor as the percentage of original pixel number. Used only if Log10_pixel_output is NULL.}
 
 \item{X_crop_coordinates}{(OPTIONAL) If only a subset of the image needs to be imported, a numeric vector of length = 2, indicating the min and max X coordinates to perform image subsetting.}
 
@@ -49,6 +52,7 @@ downsized.
 
 Tile importing is powered by the RBioFormats Bioconductor package that parses the Bioformats Java library to R. Sometimes even if the user#' has installed the RBioFormats package from
 bioconductor the function will still return an error. If this happens, the issue can be solved checking the installed Java version in the computer and manually installing the CRAN rJava package.
+If the function returns an error due to RAM saturation, sometimes it can be solved by allowing Java to use an absurd amount of RAM (for example rJava::.jinit(parameters="-Xmx500g")).
 }
 \examples{
 \dontrun{

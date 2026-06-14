@@ -10,9 +10,9 @@ Structure_morphometry_calculator(
   Variable_name,
   Feature_to_analyze,
   Min_tile_number = 4,
-  Smooth_amount = 1e-07,
-  Tolerance_value = 1e-07,
-  Neighborhood_distance = 1,
+  Fill_holes = FALSE,
+  Watershed_tolerance = 1,
+  Watershed_ext = 1,
   Minimum_cell_no_per_tile = 1
 )
 }
@@ -27,11 +27,11 @@ Structure_morphometry_calculator(
 
 \item{Min_tile_number}{A integer value specifying the minimum number of tiles any morphological structure must contain to be considered real.}
 
-\item{Smooth_amount}{A numeric value specifying the amount of Gaussian smoothing to be applied to the tile information (higher values yield larger and more smoothened structures).}
+\item{Fill_holes}{A logical value indicating if hole filling should be aplied before identifying structures.}
 
-\item{Tolerance_value}{A numeric value specifying the minimum height of the structure between its highest point (seed) and the point where it contacts another object (MAY BE NULL).}
+\item{Watershed_tolerance}{A numeric value > 0 indicating the tolerance of the watershed algorithm. Higher values reduce the number of structures identified.}
 
-\item{Neighborhood_distance}{A integer value indicating the radius of the neighborhood in pixels for the detection of neighboring objects. Higher value smooths out small objects.}
+\item{Watershed_ext}{A numeric value indicating the extension watershed parameter. Higher values reduce the number of individual structures identified.}
 
 \item{Minimum_cell_no_per_tile}{(If Tiled_Images are generated using the \code{\link[=Image_tiling_processing_function]{Image_tiling_processing_function()}}) A integer value indicating the minimum number of cells of interest a tile must contain to be considered positive (default is 1).}
 }
@@ -43,10 +43,10 @@ Given a list containing cell data from tiled images (generated using the \code{\
 identifies discrete structures and calculates a variety of morphology metrics (see details).
 }
 \details{
-The function will identify discrete structures using the watershed algorithm implemented in the simpleSeg Bioconductor package. To this end, the image tiles will be assigned a
+The function will identify discrete structures using the watershed algorithm implemented in the EBImage package. To this end, the image tiles will be assigned a
 positive (1) or negative (0) value according to the presence or absence of the desired cell feature. Afterwards, these positive/negative tile pattern is transformed
-into a pseudo-image and fed to the watershed algorithm to compute the structure mask image. This image is then analyzed to obtain the morphological features of the structures idenfified
-using the cytomapper Bioconductor package.
+into a pseudo-image and fed to the watershed algorithm to compute the structure mask image. This image is then analyzed to obtain the morphological features of the structures identified
+using the EBImage package.
 }
 \examples{
 \dontrun{
@@ -68,9 +68,6 @@ Structure_morphometry_calculator(N_cores = 1,
                                 Feature_to_analyze = "OTHER",
 
                                 Min_tile_number = 1,
-                                Smooth_amount = 0.01,
-                                Tolerance_value = 1,
-                                Neighborhood_distance = 1,
                                 Minimum_cell_no_per_tile = 2)
 
 #Analyze the results
