@@ -121,7 +121,6 @@ ReClustering_function <-
            Consensus_Name = NULL,
 
            #Parameters for Graph-Based approaches
-           Graph_type = NULL,
            Nearest_neighbors_for_graph = NULL,
            Graph_Method = NULL,
            Graph_Resolution = NULL,
@@ -457,7 +456,7 @@ ReClustering_function <-
 
           Max_SOM_clusters = N_Clusters,
 
-          Graph_type = Graph_type,
+          Graph_type = "SNN",
           Graph_Distance_method = Graph_Distance_method,
           Nearest_neighbors_for_graph = Nearest_neighbors_for_graph,
           Graph_Method = Graph_Method,
