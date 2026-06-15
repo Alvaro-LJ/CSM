@@ -20,7 +20,6 @@ ReClustering_function(
   Consensus_Cluster_Alg = NULL,
   Consensus_Distance = NULL,
   Consensus_Name = NULL,
-  Graph_type = NULL,
   Nearest_neighbors_for_graph = NULL,
   Graph_Method = NULL,
   Graph_Resolution = NULL,
