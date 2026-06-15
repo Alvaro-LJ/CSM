@@ -17,7 +17,7 @@ Segmentator_tester_app(Directory, Ordered_Channels, Max_Gb_cache = 10)
 \code{Segmentator_tester_app()} launches an APP to interactively explore cell segmentation parameters. Parameters can then be used to feed the \code{\link[=Cell_segmentator_quantificator]{Cell_segmentator_quantificator()}} function.
 }
 \details{
-In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the \code{\link[magick:editing]{magick::image_read()}} function. Loaded images will
+In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the \code{\link[magick:image_read]{magick::image_read()}} function. Loaded images will
 be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
 
 Control panel controls the image display settings. If Pre process is active (default) image pre-processing will be applied to the nuclear channels before running segmentation (this can enhance performance in some scenarios).

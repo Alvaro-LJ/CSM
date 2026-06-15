@@ -17,7 +17,7 @@ Image_thresholding_app_launcher(Directory, Ordered_Channels, Max_Gb_cache = 10)
 \code{Image_thresholding_app_launcher()} launches an APP to interactively explore image pixel segmentation parameters interactively.
 }
 \details{
-In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the \code{\link[magick:editing]{magick::image_read()}} function. Loaded images will
+In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the \code{\link[magick:image_read]{magick::image_read()}} function. Loaded images will
 be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
 
 Image parameters control the image and channel to be displayed.
