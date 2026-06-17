@@ -377,7 +377,7 @@ Cell_segmentator_quantificator <-
           #IF cell segmentation mask needs to be saved then proceed
           if(Save_cell_mask){
             #Generate the name
-            Mask_name <- stringr::str_c(Simple_Image_Names[Index], "_CellMask.tiff")
+            Mask_name <- stringr::str_c(Simple_Image_Names[Index], "_CellMask.tif")
             File_name <- stringr::str_c(Output_directory, "/", Mask_name)
 
             #Save modify the file
