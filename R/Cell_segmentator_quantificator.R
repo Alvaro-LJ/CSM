@@ -81,7 +81,7 @@ Cell_segmentator_quantificator <-
            quantiles_to_calculate = c(0.25, 0.5, 0.75), # quantiles to be calculated for each marker,
            Compute_texture_features = FALSE,
            Texture_pixel_distance = 1,
-           
+
            Save_cell_mask = FALSE,
            Output_directory = NULL,
 
@@ -373,19 +373,19 @@ Cell_segmentator_quantificator <-
                                               tissue = Tissue_mask_markers,
                                               pca = Perform_PCA,
                                               cores = 1)
-          
+
           #IF cell segmentation mask needs to be saved then proceed
           if(Save_cell_mask){
             #Generate the name
-            Mask_name <- str_c(Simple_Image_Names[Index], "_CellMask.tiff")
-            File_name <- str_c(Output_directory, "/", Mask_name)
-            
+            Mask_name <- stringr::str_c(Simple_Image_Names[Index], "_CellMask.tiff")
+            File_name <- stringr::str_c(Output_directory, "/", Mask_name)
+
             #Save modify the file
             Mask_image <- Seg_results[[1]]/max(Seg_results[[1]])
             EBImage::writeImage(Mask_image, File_name, bits.per.sample = 16, compression = "LZW")
           }
-          
-          
+
+
           S4Vectors::mcols(Seg_results)$imageID <- as.character(Simple_Image_Names[Index])
 
           #Calculate basic tibble with morphology
