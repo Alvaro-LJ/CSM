@@ -750,7 +750,7 @@ Clustering_Phenotyper <-
       Plot_required <- menu(choices = c("Proceed", "Abort"), title = "More than 100 features. Proceed with plot rendering?")
       if(Plot_required == 2){
         #Print a summary with the results
-        print(DATA_Phenotypes %>% dplyr::count(Neighborhood_assignment))
+        print(DATA_Phenotypes %>% dplyr::count(Phenotype))
 
         if(Perform_Dimension_reduction) return(list(DATA = DATA_Phenotypes,
                                                     Dimension_reduction = DATA_Reduction)
