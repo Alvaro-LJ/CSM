@@ -1,3 +1,14 @@
+#' Performs dimension reduction (2 dimensions computed)
+#'
+#' Intended for internal use only
+#'
+#' @details
+#' Used in [Clustering_Phenotyper()], [Neighborhood_discovery_function()], [Tiled_Image_Clustering_function()], [UTAG_Neighborhood_identifier()]
+#'
+#' @returns A dataframe containing three columns Cell_no, DIMENSION_1 and DIMENSION_2.
+#' 
+#' @keywords Internal
+
 CSM_Dimension_reduction_function <- 
   function(
     Original_data = NULL,

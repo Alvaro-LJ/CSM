@@ -77,3 +77,6 @@ unlink(c(Input_Dir, Output_Dir_tiles, Output_Dir_reconstruction), recursive = TR
 
 }
 }
+\seealso{
+\code{\link[=Image_tile_deconstruction_function]{Image_tile_deconstruction_function()}}
+}

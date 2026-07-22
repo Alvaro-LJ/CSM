@@ -1,3 +1,15 @@
+#' Identifies noisy cells 
+#'
+#' Intended for internal use only
+#'
+#' @details
+#' Used in [Clustering_Phenotyper()], [UTAG_Neighborhood_identifier()]
+#'
+#' @returns A list containing four items: NOISE_VECTOR containing logical values indicating if cells are noise or not, DATA_NOISE a tibble containing noisy cells,
+#' DATA a tibble containing non-noisy cells, MARKERS the markers of non-noisy cells.
+#' 
+#' @keywords Internal
+
 CSM_Denoising_function <- 
   function(
     Original_data = NULL,

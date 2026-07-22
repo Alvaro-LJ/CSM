@@ -1,6 +1,6 @@
 Package: CSM
 Title: Toolbox to analyze tissue images with spatial resolution
-Version: 1.0.3
+Version: 1.0.4
 Authors@R: c(
     person(given = "Alvaro", family = "Lopez-Janeiro", email = "alopezj@unav.es", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5744-3115")),
     person(given = "Paulo", family = "Perez-Dominguez", email = "pperezdomin@unav.es", role = "ctb"),

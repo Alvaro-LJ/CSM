@@ -30,6 +30,6 @@ An EBImage object containing the binary tissue mask of foreground pixels
 Internal use only
 }
 \details{
-Used in \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}, \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}, \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}
+Used in \code{\link[=Image_thresholding_app_launcher]{Image_thresholding_app_launcher()}}, \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}, \code{\link[=MFI_Experimet_Calculator]{MFI_Experimet_Calculator()}}, \code{\link[=TMA_dearrayer_function]{TMA_dearrayer_function()}}
 }
 \keyword{Internal}

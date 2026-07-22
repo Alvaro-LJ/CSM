@@ -12,7 +12,7 @@
 #'
 #' @returns A tibble containing cell features with modified X and Y coordinates and Subject_Names information.
 #'
-#' @seealso [Image_tile_deconstruction_function()], [Image_from_tile_rebuilder()]
+#' @seealso [Image_tile_deconstruction_function()], [Mask_conflict_resolver()], [Image_from_tile_rebuilder()]
 #'
 #' @examples
 #' \dontrun{
@@ -31,7 +31,7 @@
 Tile_to_image_cell_arrange_function <-
   function(DATA,
            Dist_to_edge = NULL,
-           Tile_overlap = NULL){
+           Tile_overlap = 0){
     #Check arguments
     if(!identical(names(DATA)[1:4],  c("Cell_no", "X", "Y", "Subject_Names")))  stop("DATA provided should have been processed using the DATA_arrange_function")
 

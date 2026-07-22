@@ -7,7 +7,7 @@
 Tile_to_image_cell_arrange_function(
   DATA,
   Dist_to_edge = NULL,
-  Tile_overlap = NULL
+  Tile_overlap = 0
 )
 }
 \arguments{
@@ -41,5 +41,5 @@ Tile_to_image_cell_arrange_function(
 
 }
 \seealso{
-\code{\link[=Image_tile_deconstruction_function]{Image_tile_deconstruction_function()}}, \code{\link[=Image_from_tile_rebuilder]{Image_from_tile_rebuilder()}}
+\code{\link[=Image_tile_deconstruction_function]{Image_tile_deconstruction_function()}}, \code{\link[=Mask_conflict_resolver]{Mask_conflict_resolver()}}, \code{\link[=Image_from_tile_rebuilder]{Image_from_tile_rebuilder()}}
 }
