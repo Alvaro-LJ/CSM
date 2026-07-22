@@ -520,13 +520,14 @@ TMA_dearrayer_function <-
       Col_index <- Look_up_table$col[tibble_row_index]
       TMA_core_name$ROW_COL <- stringr::str_c("Row", Row_index, "Col", Col_index)
 
+      #If no TMA core name then remove NA
+      TMA_core_name <- TMA_core_name[!purrr::map_lgl(TMA_core_name, ~is.na(.))]
 
       #Collapse the image name list
       Image_name <- stringr::str_c(TMA_core_name, collapse = "_")
 
       #Add the extension
       Image_name <- stringr::str_c(Image_name, ".tif")
-
 
       #Add the path
       Image_name <- stringr::str_c(Output_Directory, "/", Image_name)
