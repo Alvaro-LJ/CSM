@@ -552,7 +552,7 @@ TMA_dearrayer_function <-
           Save_processed_images = FALSE
         )
 
-      EBImage::writeImage(TMA_image$Image %>% magick::as_EBImage(), Image_name,
+      EBImage::writeImage(TMA_image$Image %>% magick::as_EBImage(), Image_name, type = "tiff",
                           bits.per.sample = 16, compression = "LZW")
       cat(paste0("\n", Image_name))
     },

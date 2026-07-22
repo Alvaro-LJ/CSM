@@ -8,7 +8,7 @@
 #' @param Sigma Sigma applied to the Gaussian kernel for blurring
 #'
 #' @details
-#' Used in [Image_thresholding_app_launcher()], [Pixel_Threshold_calculator()], [MFI_Experimet_Calculator()]
+#' Used in [Image_thresholding_app_launcher()], [Pixel_Threshold_calculator()], [MFI_Experimet_Calculator()], [TMA_dearrayer_function()]
 #'
 #'
 #' @returns An EBImage object containing the binary tissue mask of foreground pixels
