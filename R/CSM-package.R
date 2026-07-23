@@ -2,9 +2,10 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @importFrom magrittr %>%
+#' @import dplyr
 #' @import ggplot2
 #' @import tibble
-#' @import dplyr
+#' @importFrom lifecycle deprecated
+#' @importFrom magrittr %>%
 ## usethis namespace: end
 NULL

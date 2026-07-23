@@ -31,6 +31,7 @@ Imports:
     ggpubr,
     grDevices,
     gt,
+    lifecycle,
     magrittr,
     memoise,
     pals,
@@ -127,3 +128,4 @@ LazyData: true
 LazyDataCompression: xz
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.0.0
+RoxygenNote: 8.0.0
