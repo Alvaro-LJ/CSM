@@ -38,7 +38,7 @@ Cell_segmentator_quantificator(
 \arguments{
 \item{Directory}{Character specifying the path to the folder where images to be segmented are present.}
 
-\item{Parameter_list}{List obtained using the \code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}} containing segmentation parameters.}
+\item{Parameter_list}{List obtained using the \code{\link[=Watershed_tester_app]{Watershed_tester_app()}} containing segmentation parameters.}
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
 
@@ -96,8 +96,11 @@ Cell_segmentator_quantificator(
 A tibble containing cell feature data including cell X Y coordinates.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
+\details{
 \code{Cell_segmentator_quantificator()} performs cell segmentation according to user defined parameters.
-Parameters can then be obtained using \code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}}.
+Parameters can then be obtained using \code{\link[=Watershed_tester_app]{Watershed_tester_app()}}.
 }
 \examples{
 \dontrun{
@@ -130,5 +133,5 @@ unlink(Input_Dir, recursive = TRUE)
 
 }
 \seealso{
-\code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}}
+\code{\link[=Watershed_tester_app]{Watershed_tester_app()}}
 }

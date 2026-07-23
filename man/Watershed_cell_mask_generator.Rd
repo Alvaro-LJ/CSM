@@ -33,7 +33,7 @@ Watershed_cell_mask_generator(
 \arguments{
 \item{Directory}{Character specifying the path to the folder where images to be segmented are present.}
 
-\item{Parameter_list}{List obtained using the \code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}} containing segmentation parameters.}
+\item{Parameter_list}{List obtained using the \code{\link[=Watershed_tester_app]{Watershed_tester_app()}} containing segmentation parameters.}
 
 \item{Ordered_Channels}{Character vector specifying image channels in their exact order.}
 
@@ -82,7 +82,7 @@ Writes the cell mask images in the output directory
 }
 \description{
 Performs watershed cell segmentation using the simpleSeg Bioconductor R package.
-Parameters can then be obtained using \code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}}.
+Parameters can then be obtained using \code{\link[=Watershed_tester_app]{Watershed_tester_app()}}.
 }
 \examples{
 \dontrun{
@@ -112,18 +112,18 @@ Watershed_cell_mask_generator(
 )
 
 #Prepare parameters to obtain subcellular nuclear and cytoplasmic compartments---
-Subcellular_compartment_parameters <- 
- list(Nuclear = list(Channel_name = "DAPI", 
+Subcellular_compartment_parameters <-
+ list(Nuclear = list(Channel_name = "DAPI",
                      Type = "Positive",
-                     Threshold_type = "Arbitrary", 
+                     Threshold_type = "Arbitrary",
                      Threshold_value = 0.05,
-                     Blurr = TRUE, 
+                     Blurr = TRUE,
                      Sigma = 0.4),
-      Cytoplasmic = list(Channel_name = "DAPI", 
+      Cytoplasmic = list(Channel_name = "DAPI",
                          Type = "Negative",
-                         Threshold_type = "Arbitrary", 
+                         Threshold_type = "Arbitrary",
                          Threshold_value = 0.05,
-                         Blurr = TRUE, 
+                         Blurr = TRUE,
                          Sigma = 0.4)
  )
 
@@ -141,5 +141,5 @@ unlink(Output_Dir, recursive = TRUE)
 
 }
 \seealso{
-\code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}}
+\code{\link[=Watershed_tester_app]{Watershed_tester_app()}}
 }

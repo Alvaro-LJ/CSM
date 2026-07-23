@@ -88,18 +88,18 @@ Watershed_cell_mask_generator(
 )
 
 #Prepare parameters to obtain subcellular nuclear and cytoplasmic compartments---
-Subcellular_compartment_parameters <- 
- list(Nuclear = list(Channel_name = "DAPI", 
+Subcellular_compartment_parameters <-
+ list(Nuclear = list(Channel_name = "DAPI",
                      Type = "Positive",
-                     Threshold_type = "Arbitrary", 
+                     Threshold_type = "Arbitrary",
                      Threshold_value = 0.05,
-                     Blurr = TRUE, 
+                     Blurr = TRUE,
                      Sigma = 0.4),
-      Cytoplasmic = list(Channel_name = "DAPI", 
+      Cytoplasmic = list(Channel_name = "DAPI",
                          Type = "Negative",
-                         Threshold_type = "Arbitrary", 
+                         Threshold_type = "Arbitrary",
                          Threshold_value = 0.05,
-                         Blurr = TRUE, 
+                         Blurr = TRUE,
                          Sigma = 0.4)
  )
 
@@ -116,5 +116,5 @@ unlink(Output_Dir, recursive = TRUE)
 
 }
 \seealso{
-\code{\link[=Watershed_cell_mask_generator]{Watershed_cell_mask_generator()}}, \code{\link[=Segmentator_tester_app]{Segmentator_tester_app()}}
+\code{\link[=Watershed_cell_mask_generator]{Watershed_cell_mask_generator()}}, \code{\link[=Watershed_tester_app]{Watershed_tester_app()}}
 }

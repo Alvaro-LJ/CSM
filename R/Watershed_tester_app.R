@@ -1,15 +1,15 @@
-#' Launches a shiny APP to explore cell segmentation parameters
+#' Launches a shiny APP to explore watershed cell segmentation parameters
 #'
-#' `Segmentator_tester_app()` launches an APP to interactively explore cell segmentation parameters. Parameters can then be used to feed the [Cell_segmentator_quantificator()] function.
+#' `Watershed_tester_app()` launches an APP to interactively explore cell segmentation parameters. Parameters can then be used to feed the [Cell_segmentator_quantificator()] or the [Watershed_cell_mask_generator()] function.
 #'
 #' @param Directory Character specifying the path to the folder where images to be segmented are stored.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Max_Gb_cache A single numeric value indicating the memory size of the image cache (see details). 10 Gb by default.
 #'
-#' @seealso [Cell_segmentator_quantificator()]
+#' @seealso [Cell_segmentator_quantificator()], [Watershed_cell_mask_generator()]
 #'
 #' @details
-#' In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the [magick::image_read()] function. Loaded images will
+#' In order to deal with large images and speed up image toggling, the shiny APP works with a memoised version of the `magick::image_read()` function. Loaded images will
 #' be stored in a temporary cache until the APP is closed or the cache reaches it's limit.
 #'
 #' Control panel controls the image display settings. If Pre process is active (default) image pre-processing will be applied to the nuclear channels before running segmentation (this can enhance performance in some scenarios).
@@ -48,7 +48,7 @@
 #' })
 #'
 #' #Launch the app------------------------------------------------------------
-#' Segmentator_tester_app(
+#' Watershed_tester_app(
 #'     Directory = Input_Dir,
 #'     Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
 #'     )
@@ -58,7 +58,7 @@
 #'}
 #' @export
 
-Segmentator_tester_app <-
+Watershed_tester_app <-
   function(Directory,
            Ordered_Channels,
            Max_Gb_cache = 10){

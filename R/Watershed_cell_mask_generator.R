@@ -1,12 +1,12 @@
 #' Generates cell segmentation mask using the watershed algorithm
 #'
 #' Performs watershed cell segmentation using the simpleSeg Bioconductor R package.
-#' Parameters can then be obtained using [Segmentator_tester_app()].
+#' Parameters can then be obtained using [Watershed_tester_app()].
 #'
 #' @param Directory Character specifying the path to the folder where images to be segmented are present.
-#' @param Parameter_list List obtained using the [Segmentator_tester_app()] containing segmentation parameters.
+#' @param Parameter_list List obtained using the [Watershed_tester_app()] containing segmentation parameters.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
-#' @param N_cores Integer. Number of cores to parallelize your computation. 
+#' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
 #' @param Output_directory A character value indicating the path to the empty folder where output images should be written.
 #'
@@ -32,7 +32,7 @@
 #'
 #' @returns Writes the cell mask images in the output directory
 #'
-#' @seealso [Segmentator_tester_app()]
+#' @seealso [Watershed_tester_app()]
 #'
 #' @examples
 #' \dontrun{
@@ -62,18 +62,18 @@
 #')
 #'
 #'#Prepare parameters to obtain subcellular nuclear and cytoplasmic compartments---
-#'Subcellular_compartment_parameters <- 
-#'  list(Nuclear = list(Channel_name = "DAPI", 
+#'Subcellular_compartment_parameters <-
+#'  list(Nuclear = list(Channel_name = "DAPI",
 #'                      Type = "Positive",
-#'                      Threshold_type = "Arbitrary", 
+#'                      Threshold_type = "Arbitrary",
 #'                      Threshold_value = 0.05,
-#'                      Blurr = TRUE, 
+#'                      Blurr = TRUE,
 #'                      Sigma = 0.4),
-#'       Cytoplasmic = list(Channel_name = "DAPI", 
+#'       Cytoplasmic = list(Channel_name = "DAPI",
 #'                          Type = "Negative",
-#'                          Threshold_type = "Arbitrary", 
+#'                          Threshold_type = "Arbitrary",
 #'                          Threshold_value = 0.05,
-#'                          Blurr = TRUE, 
+#'                          Blurr = TRUE,
 #'                          Sigma = 0.4)
 #'  )
 #'
@@ -91,16 +91,16 @@
 #'
 #' @export
 
-Watershed_cell_mask_generator <- 
+Watershed_cell_mask_generator <-
   function(
-    
+
     Directory,
     Parameter_list = NULL,
     Ordered_Channels = NULL,
     N_cores = 1,
-    
+
     Output_directory = NULL,
-    
+
     Nuclear_marker = NULL, #marker or list of markers corresponding to the nuclei
     Cell_body_method = NULL, #Method of cytoplasm identification. Can be 'none', dilate', 'discModel' or the name of a dedicated cytoplasm marker
     Min_pixel = NULL, # Minimum pixels for an object to be recognized as a cell and not noise
@@ -112,7 +112,7 @@ Watershed_cell_mask_generator <-
     Disc_size = NULL, #The size of dilation around nuclei to create cell disc or capture cytoplasm
     Tissue_mask_markers = NULL, #A vector specifying the channels to be used to create the tissue mask if specified in transforms
     Perform_PCA = FALSE, #Whether to run PCA on aggregated nucleus markers in order to detect the cellular nucclei
-    
+
     Perform_nuclear_channel_processing = NULL,
     Black_level = NULL,
     White_level = NULL,
@@ -120,7 +120,7 @@ Watershed_cell_mask_generator <-
     Equalize = NULL,
     Opening_kernel_size = NULL,
     Closing_kernel_size = NULL
-    
+
     ){
     #####Check suggested packages####
     {
@@ -129,7 +129,7 @@ Watershed_cell_mask_generator <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("EBImage")
                })
         )
@@ -139,7 +139,7 @@ Watershed_cell_mask_generator <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("simpleSeg")
                })
         )
@@ -149,7 +149,7 @@ Watershed_cell_mask_generator <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("S4Vectors")
                })
         )
@@ -159,7 +159,7 @@ Watershed_cell_mask_generator <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("cytomapper")
                })
         )
@@ -169,20 +169,20 @@ Watershed_cell_mask_generator <-
                expression(install.packages("benchmarkme")))
       )
     }
-    
+
     #####Specify what to do on exit####
     on.exit(gc())
-    
+
     #Check regular arguments
     if(length(dir(Directory)) < 1) stop("No files found at the directory provided. Please check out the path.")
     if(!all(N_cores >= 1, N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
     if(!dir.exists(Output_directory)) stop("Issue with output directory. Please check the path provided.")
     if(length(list.files(Output_directory)) != 0) stop("Output_directory must be an empty directory")
-    
+
     #If parameter list is provided obtain the parameters
     if(!is.null(Parameter_list)){
       cat("\n Parameter_list provided. Any other segmentation related parameters will be ignored") #Print a message
-      
+
       Ordered_Channels <- Parameter_list[["Ordered_Channels"]]
       Nuclear_marker <- Parameter_list[["Nuclear_marker"]]
       Cell_body_method <- Parameter_list[["Cell_body_method"]]
@@ -195,7 +195,7 @@ Watershed_cell_mask_generator <-
       Disc_size <- Parameter_list[["Disc_size"]]
       Tissue_mask_markers <- Parameter_list[["Tissue_mask_markers"]]
       Perform_PCA <- Parameter_list[["Perform_PCA"]]
-      
+
       Perform_nuclear_channel_processing <- Parameter_list[["Perform_nuclear_channel_processing"]]
       Black_level <- Parameter_list[["Black_level"]]
       White_level <- Parameter_list[["White_level"]]
@@ -204,7 +204,7 @@ Watershed_cell_mask_generator <-
       Opening_kernel_size <- Parameter_list[["Opening_kernel_size"]]
       Closing_kernel_size <- Parameter_list[["Closing_kernel_size"]]
     }
-    
+
     #If null import from arguments
     else if(is.null(Parameter_list)){
       Ordered_Channels <- Ordered_Channels
@@ -227,7 +227,7 @@ Watershed_cell_mask_generator <-
       Opening_kernel_size <- Opening_kernel_size
       Closing_kernel_size <- Closing_kernel_size
     }
-    
+
     #Check arguments by generating a argument check vector and message vector
     Argument_checker <- c(Empty_directory = length(dir(Directory)) >= 1,
                           N_cores_OK = (N_cores >= 1 & N_cores%%1 == 0),
@@ -248,7 +248,7 @@ Watershed_cell_mask_generator <-
                           Perform_PCA_OK = is.logical(Perform_PCA),
                           Perform_nuclear_channel_processing_OK = is.logical(Perform_nuclear_channel_processing)
     )
-    
+
     Stop_messages <- c(Empty_directory = "No files found at the directory provided. Please check out the path.",
                        N_cores_OK = "N_cores must be a positive integer value",
                        Nuclear_OK = stringr::str_c("Nuclear marker specified not found in ", stringr::str_c(Ordered_Channels, collapse = ", ")),
@@ -263,14 +263,14 @@ Watershed_cell_mask_generator <-
                        Tissue_mask_markers_OK =  stringr::str_c("Tissue mask must be NULL or one of the following: ", stringr::str_c(Ordered_Channels, collapse = ", ")),
                        Perform_PCA_OK = "Perform PCA must be a logical value",
                        Perform_nuclear_channel_processing_OK = "Perform_nuclear_channel_processing must be a logical value")
-    
-    
+
+
     #Check arguments and stop if necessary
     if(!all(Argument_checker)){
       stop(cat(Stop_messages[!Argument_checker],
                fill = sum(!Argument_checker)))
     }
-    
+
     #Check specifically nuclear processing arguments if Perform_nuclear_channel_processing is true
     if(Perform_nuclear_channel_processing){
       if(!all(is.numeric(Black_level), Black_level >= 0, Black_level <= 100, Black_level < White_level)) stop("Black_level must be a numeric value between 0 - 100 and smaller than White_level")
@@ -280,7 +280,7 @@ Watershed_cell_mask_generator <-
       if(!all(Opening_kernel_size%%1 == 0, Opening_kernel_size >= 1)) stop("Opening_kernel_size must be a positive integer value >= 1")
       if(!all(Closing_kernel_size%%1 == 0, Closing_kernel_size >= 1)) stop("Closing_kernel_size must be a positive integer value >= 1")
     }
-    
+
     #Obtain the channels and the names of the directory
     Channels <- Ordered_Channels
     Simple_Image_Names <- dir(Directory, full.names = FALSE)
@@ -293,25 +293,25 @@ Watershed_cell_mask_generator <-
       future::plan("future::sequential")
       gc()
     })
-    
+
     #We make the clusters
     future::plan("future::multisession", workers = N_cores)
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
-    
+
     #Execute the function
     furrr::future_walk(seq_along(1:length(Complete_Image_Names)), function(Index){
       RESULT_TIBBLE <- try({
         #Pre-process nuclear channels if required
         if(Perform_nuclear_channel_processing){
           Image <- magick::image_read(Complete_Image_Names[Index]) #Import image
-          
+
           Nuclear_channels_number <- match(Nuclear_marker, Ordered_Channels)
-          
+
           #Apply changes to every nuclear channel
           for(index in Nuclear_channels_number){
             Image_Modified <- Image[index]
-            
+
             if(Equalize) Image_Modified <- Image_Modified %>% magick::image_equalize() #Equalize if necesary
             Image_Modified <- Image_Modified %>% magick::image_level(black_point = Black_level,
                                                                      white_point = White_level,
@@ -320,28 +320,28 @@ Watershed_cell_mask_generator <-
             Image_Modified  <-
               Image_Modified %>% EBImage::opening(EBImage::makeBrush(size = Opening_kernel_size, shape = "disc")) %>%
               EBImage::closing(EBImage::makeBrush(size = Closing_kernel_size, shape = "disc")) #opening and closing
-            
+
             Image_Modified <- magick::image_read(Image_Modified) #again as Magick image
-            
+
             Image[index] <- Image_Modified
           }
           #Returna a EBImage object
           Image <- Image %>% magick::as_EBImage()
         }
-        
+
         #Import image with the EBImage importer if no processing is required
         else{
           Image <- EBImage::readImage(Complete_Image_Names[Index])
         }
-        
+
         #Retain only the required channels
         Image <- Image[,,Channels_in_use_index]
-        
+
         #Transform it to cytoImage object
         Image <- cytomapper::CytoImageList(Image)
         cytomapper::channelNames(Image) <- Channels_in_use #define channel names
         S4Vectors::mcols(Image)$imageID <- as.character(Simple_Image_Names[Index])#Modify name
-        
+
         #Perform cell segmentation
         Seg_results <- try(
           simpleSeg::simpleSeg(Image,
@@ -358,31 +358,31 @@ Watershed_cell_mask_generator <-
                                pca = Perform_PCA,
                                cores = 1)
           )
-        
-        
+
+
 
         #Generate the name
         Mask_name <- stringr::str_c(Simple_Image_Names[Index], "_CellMask.tif")
         File_name <- stringr::str_c(Output_directory, "/", Mask_name)
-        
+
         #Modify the values of the image
         Seg_results <- try(Seg_results[[1]]/max(Seg_results[[1]]))
-        
+
         #Print a message if error and write empty segmentation mask
         if(berryFunctions::is.error(Seg_results) | max(Seg_results) == 0){
           Colored_print(paste0("\nIssue with ", Simple_Image_Names[Index], ". Unable to generate cell mask or no cells identified. \n Generating blank cell mask"), color = "red")
-          
+
           #Get dimensions
           Image_width <- dim(Image[[1]])[2]
           Image_height <- dim(Image[[1]])[1]
-          
+
           #Generate matrix
           Image_matrix <- matrix(0, nrow = Image_height, ncol = Image_width)
           Seg_results <- EBImage::as.Image(Image_matrix)
-          
+
           #Write the matrix
           EBImage::writeImage(Seg_results, File_name, bits.per.sample = 16, compression = "LZW")
-          
+
         } else{
           #Save modify the file
           EBImage::writeImage(Seg_results, File_name, bits.per.sample = 16, compression = "LZW")

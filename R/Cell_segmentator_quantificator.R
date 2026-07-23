@@ -1,10 +1,12 @@
 #' Performs cell segmentation and obtains cell feature matrix
 #'
+#' `r lifecycle::badge('deprecated')`
+#'
 #' `Cell_segmentator_quantificator()` performs cell segmentation according to user defined parameters.
-#' Parameters can then be obtained using [Segmentator_tester_app()].
+#' Parameters can then be obtained using [Watershed_tester_app()].
 #'
 #' @param Directory Character specifying the path to the folder where images to be segmented are present.
-#' @param Parameter_list List obtained using the [Segmentator_tester_app()] containing segmentation parameters.
+#' @param Parameter_list List obtained using the [Watershed_tester_app()] containing segmentation parameters.
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Channels_to_keep Character vector specifying image channels to be kept in the analysis (must be a subset of Ordered_Channels).
 #' @param N_cores Integer. Number of cores to parallelize your computation.
@@ -38,7 +40,7 @@
 #'
 #' @returns A tibble containing cell feature data including cell X Y coordinates.
 #'
-#' @seealso [Segmentator_tester_app()]
+#' @seealso [Watershed_tester_app()]
 #'
 #' @examples
 #' \dontrun{
@@ -106,6 +108,14 @@ Cell_segmentator_quantificator <-
            Opening_kernel_size = NULL,
            Closing_kernel_size = NULL
   ){
+
+    #Add deprecation badge
+    lifecycle::deprecate_warn(when = "1.0.4",
+                              what = "Cell_segmentator_quantificator()",
+                              details = c(
+                                "Use instead a cell mask generation approach (for example Watershed_cell_mask_generator())",
+                                "Followed by cell feature extraction (using Cell_feature_extractor())"
+                              ))
 
     #Check suggested packages
     {
