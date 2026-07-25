@@ -31,11 +31,25 @@ library(CSM)
 - [Segmentation based on watershed algorithm](#segmentation-based-on-watershed-algorithm)
     - [Testing segmentation parameters](#segmentation-tester-app)
     - [Performing cell segmentation](#performing-cell-segmentation)
+- [Obtaining cell feature data](#obtaining-cell-feature-data)
 
 ***
 
 ## Introduction
+Cell segmentation is the process of partitioning images into cells. Through this process, pixels are assigned to individual cells. After performing
+cell segmentation features from cells can be obtained by analyzing characteristics of their assigned pixels. For example, pixel size can be
+inferred by the number of pixels assigned to a single cell, or protein expression can be calculated as the average pixel intensity value for a 
+specific image channel. Adequate cell segmentation is pivotal to obtain satisfactory results. 
 
+In CSM cell segmentation is a two or three step process.
+
+* __Obtain cell segmentation masks:__ Original images will be used to compute cell segmentation mask images. Segmentation masks are images where pixels are assigned a pixel value according to the cell they belong. Therefore there are as many unique pixel values as cells are contained in the 
+image. 
+
+* __Refine cell segmentation masks:__ If cell segmentation masks have been computed using overlapping tiled images, edge bias correction may need
+to be applied. For more information, please see the Working with large images and TMAs vignette.
+
+* __Generate the cell feature matrix:__ The original images and cell masks can be used to obtain relevant cell features.
 
 ## Test datasets
 
@@ -60,7 +74,8 @@ function(Image){
 ## Segmentation based on watershed algorithm
 CSM implements cell segmentation based on the [watershed algorithm](https://en.wikipedia.org/wiki/Watershed_(image_processing) "link to Wikipedia"). Watershed-based cell segmentation
 is fast and computationally efficient. However, the user should take into account that this type of algorithms are limited when it comes to identify cell boundaries in very densely 
-populated areas. Anyways, with adequate parameter tuning this algorithm can perform nicely with very little computational cost. CSM implements watershed-based cell segmentation thanks 
+populated areas. Watershed algorithms work best when cell morphologies are homogeneous and cells are evenly spaced.
+Anyways, with adequate parameter tuning this algorithm can perform nicely with very little computational cost. CSM implements watershed-based cell segmentation thanks 
 to the simpleSeg Bioconductor package.
 In order to maximize the capabilities of watershed-based cell segmentation process there are several parameters that need to be carefully tuned:
 
@@ -113,44 +128,91 @@ function(Image){
 })
 
 #Launch the app------------------------------------------------------------
-Segmentator_tester_app(
+Watershed_tester_app(
   Directory = Input_Dir,
   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
 )
 ```
 
 ### Performing cell segmentation
-Once the segmentation parameters have been tuned, the user can perform cell segmentation. At the end of this process, the user will obtain a cell feature matrix where
-every cell is encoded in a unique row. Each cell has information regarding X, Y coordinates, basic shape features (size, radius, sphericity...) and mean channel expression (taking into account
-the whole cell surface area). In addition, the user can compute expression quantiles and texture features (the user must provide the pixel distance to compute GLCM).
+Once the segmentation parameters have been tuned, the user can compute cell segmentation masks and save them in an output directory. 
 
 ```{r Segmentation, eval = FALSE}
 #Get the images
-Input_Dir <- tempfile(pattern = "tempdir1_Input")
-dir.create(Input_Dir, recursive = TRUE)
-
-#Save images in Input directory
-purrr::map(1:2,
-function(Image){
-   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
-   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
-})
+Output_Dir <- tempfile(pattern = "tempdir1_Output")
+dir.create(Output_Dir, recursive = TRUE)
 
 #Check a segmentation parameters list obtained using the dedicated function----------
 print(CSM_SegmentParams_test)
 
 #Run the cell segmentation and feature extraction process (can only run interactively)--
-Cell_segmentator_quantificator(
+Watershed_cell_mask_generator(
   Directory = Input_Dir,
-  Parameter_list = CSM_SegmentParams_test,
-  N_cores = 1,
-  quantiles_to_calculate = c(0.05, 0.25, 0.5, 0.75, 0.95)
+  Output_directory = Output_Dir,
+  Parameter_list = CSM_SegmentParams_test
 )
-
-#Remove directories---------------------------------------------------------
-unlink(Input_Dir, recursive = TRUE)
 ```
 
+
+## Obtaining cell feature data
+After obtaining the segmentation masks, the next step is to obtain a cell feature matrix that can be used for subsequent analysis. This can be obtained using the `Cell_feature_extractor` function.
+The function requires two basic arguments, Image_directory (path to the folder containing the original images) and Mask_directory (path to the folder containing the cell masks). 
+
+By default, the function will return the following features for every cell:
+
+* Image where the cell is located
+* Cell id
+* Cell X and Y centroid coordinates
+* Basic morphology data (size, diameter, sphericity...)
+
+If `Compute_basic_features = TRUE` argument is set, then the original images will be used to compute channel expression values. This includes:
+
+* Average expression
+* Standard deviation
+* Quantiles (Optional). The quantiles to be computed are indicated using the `quantiles_to_calculate` argument. It can be set to NULL to avoid quantile computation.
+
+If `Compute_texture_features = TRUE` argument is set, texture features will be computed for every cell and channel being analyzed. Haralick texture features are based on the GLCM wich requires a distance 
+parameter to be computed. The distance is provided using the `Texture_pixel_distance` argument.
+
+Additionally, subcellular compartments can be defined. This allows the user to compute cell features in specific cell regions (cell nuclei, cytoplasm, membrane...) as long as this subcellular
+regions can be defined thresholding specific image channels to generate subcellular cell masks. Parameters to define subcellular regions can be provided through the `Subcellular_compartment_parameter_list` 
+argument. This should take the form of a list of named lists. Every element of the list should contain the following items:
+
+* Channel_name: The names of the channels that will be used for subcellular compartment definition. If various channels are providaded, they will be averaged.
+* Type: Either `Positive` or `Negative`. If positive, the subcellular compartment will be defined by the pixels that are found to be above the threshold. If negative the subcellular compartment will be
+defined by the pixels that are below the threshold. This can be useful to define perfectly complementary subcellular regions. For example, a Positive subcellular region based on DAPI can be used to identify
+the nuclear region, while a Negative region will define the cytoplasm and membrane region.
+* Threshold_type: Either Arbitrary or Otsu.
+* Threshold_value: If Threshold_type is Arbitrary, the numeric value used for the threshold.
+* Blurr: A logical value indicating if blurring should be performed before thresholding.
+* Sigma: If blurring is required, a numeric value indicating the sigma of the blurring kernel.
+
+```{r Feature_extraction, eval = FALSE}
+#Prepare parameters to obtain subcellular nuclear and cytoplasmic compartments---
+Subcellular_compartment_parameters <-
+ list(Nuclear = list(Channel_name = "DAPI",
+                     Type = "Positive",
+                     Threshold_type = "Arbitrary",
+                     Threshold_value = 0.05,
+                     Blurr = TRUE,
+                     Sigma = 0.4),
+      Cytoplasmic = list(Channel_name = "DAPI",
+                         Type = "Negative",
+                         Threshold_type = "Arbitrary",
+                         Threshold_value = 0.05,
+                         Blurr = TRUE,
+                         Sigma = 0.4)
+ )
+
+#Obtain the cell feature matrix--------------------------------------------
+Cell_feature_extractor(Image_directory = Input_Dir,
+                      Mask_directory = Output_Dir,
+                      Ordered_Channels = CSM_SegmentParams_test[["Channels_to_keep"]],
+                      Subcellular_compartment_parameter_list = Subcellular_compartment_parameters)
+
+```
+
+The result is a tibble containing cell features.
 
 ```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 sessionInfo()
