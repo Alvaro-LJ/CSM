@@ -1,3 +1,13 @@
+#' Computes clusters based on MARKERS
+#'
+#' Intended for internal use only
+#'
+#' @details
+#' Used in [Clustering_Phenotyper()], [Neighborhood_discovery_function()], [ReClustering_function()], [Tiled_Image_Clustering_function()], [UTAG_Neighborhood_identifier()]
+#'
+#' @returns A tibble containing cell data and a column named `Cluster` containing clustering result.
+#' @keywords Internal
+
 CSM_Clustering_function <- 
   function(
     Original_data,

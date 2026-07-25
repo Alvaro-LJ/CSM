@@ -12,7 +12,10 @@
 #' @param Output_directory Character string specifying the path to the folder where  output images are written. It must be an empty folder.
 #' @param RGB_Color_images Logical. Is the image a RGB color image?
 #' @param N_cores Integer. Number of cores to parallelize your computation.
+#' 
 #' @returns The function writes the images in the ouput directory.
+#' 
+#' @seealso [Image_tile_deconstruction_function()]
 #'
 #' @examples
 #' \dontrun{

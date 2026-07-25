@@ -94,8 +94,12 @@ If RGB images need to be chopped, all RGB channels will be kept. The image chopp
 #Can only run in an interactive setting
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 Output_Dir <- tempfile(pattern = "tempdir2_Output")
+Mask_Dir <- tempfile(pattern = "tempdir3_masks")
+Refined_Mask_Dir <- tempfile(pattern = "tempdir3_refined_masks")
 dir.create(Input_Dir, recursive = TRUE)
 dir.create(Output_Dir, recursive = TRUE)
+dir.create(Mask_Dir, recursive = TRUE)
+dir.create(Refined_Mask_Dir, recursive = TRUE)
 
 #Save images in Input directory
 purrr::map(1:2,
@@ -121,24 +125,58 @@ list.files(Output_Dir)
 ```
 
 ## Cell segmentation using tiled images
-Cell segmentation and feature extraction proceeds as usual.
+Cell segmentation and feature extraction proceeds as usual. First we need to generate the cellular segmentation masks.
+
 ```{r Segment, eval = FALSE}
 #Can only run in an interactive setting
-Cell_DATA_tiles <- 
-  Cell_segmentator_quantificator(
+Watershed_cell_mask_generator(
     Directory = Output_Dir,
+    Output_directory = Mask_Dir,
     Parameter_list = CSM_SegmentParams_test,
-    N_cores = 1,
-    quantiles_to_calculate = 0.5
+    N_cores = 1
 )
 ```
 
-After cell segmentation has been performed, the dataset needs to be formatted using the `Data_arrange_function()`. 
-Then, original cell coordinates can be obtained by running `Tile_to_image_cell_arrange_function()`. If tile overlap is detected, 
-redundant cells (sharing spatial coordinates) will be removed automatically. In addition, 
-if there is tile overlap, cells close to a shared tile edge can be removed according to
-user preferences (with the 'Dist_to_edge' argument). The function works based on the information contained in the file name.
-Manipulating the name can result in unexpected results. __PLEASE AVOID FILE NAME MODIFICATIONS!__
+After segmentation masks have been created, if there are overlaps between tiles (as in this case) there may be overlapping bias. In order to
+account for this CSM implements two approaches. The first one (and most recommended) is to refine segmentation mask images using the
+`Mask_conflict_resolver()`. This function analyzes overlapping areas between tiles and if there is any obvious conflict, it erodes pixels or whole cells
+according to user defined priority scores. 
+
+* __Distance to edge:__ The pixel or cell that is closest to the image edge will be removed. 
+* __Cell size:__ The pixel or cell that belongs to the largest cell will remain.
+
+A primary and a secondary priority score can be used if desired. The second approach (see below) is the use of the `Tile_to_image_cell_arrange_function()`
+after cell feature matrix has been generated using the `Cell_feature_extractor()`.
+
+```{r Refine, eval = FALSE}
+Mask_conflict_resolver(
+  Directory = Mask_Dir,
+  Output_directory = Refined_Mask_Dir, 
+  
+  Resolution_approach = "Remove_whole_cells",
+  Priority_type = c("Dist_to_edge", "Cell_size")
+ )
+```
+
+After refined cell segmentation masks have been created cell features can be extracted using the `Cell_feature_extractor()` (see the Performing cell
+segmentation vignette for more details about this function).
+```{r Extract, eval = FALSE}
+Cell_DATA_tiles <-
+  Cell_feature_extractor(Image_directory = Output_Dir,
+                         Mask_directory = Refined_Mask_Dir,
+                         Ordered_Channels = CSM_SegmentParams_test[["Channels_to_keep"]],
+                         Compute_basic_features = TRUE,
+                         quantiles_to_calculate = c(0.25, 0.5, 0.75),
+                         Compute_texture_features = FALSE
+                         )
+```
+
+After feature extraction has been performed, the resulting dataset needs to be formatted using the `Data_arrange_function()`. 
+Then, original cell coordinates can be obtained by running `Tile_to_image_cell_arrange_function()`. If overlap correction has not been performed using the
+`Mask_conflict_resolver()`, the overlap values can be corrected using the `Tile_to_image_cell_arrange_function()`. To this end the the `Tile_overlap` argument must be either
+NULL or the overlap between tiles value. If NULL, the overlap value will be automatically computed. The cells that are closer to the edge than the `Dist_to_edge` argument
+will be removed.
+
 ```{r Reassign_coordinates, eval = FALSE}
 #Can only run in an interactive setting
 #Arrange data
@@ -147,15 +185,14 @@ Cell_DATA_tiles <-
     DATA = Cell_DATA_tiles,
     X = 'm.cx',
     Y = "m.cy",
-    Subject_Names = "imageID",
-    Markers_to_keep = c("CK-EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE")
+    Subject_Names = "image_id",
+    Markers_to_keep = c("CK-EPCAM_mean", "CD8a_mean", "GZMB_mean")
 )
 
 #Return to original image X Y coordinates
 Cell_DATA_WholeImage <-
   Tile_to_image_cell_arrange_function(
-    DATA = Cell_DATA_tiles,
-    Dist_to_edge = 20
+    DATA = Cell_DATA_tiles
 )
 
 #Check that results are OK
@@ -164,6 +201,9 @@ Cell_DATA_WholeImage %>%
   ggplot2::ggplot(ggplot2::aes(x = X, y = Y)) + ggplot2::geom_point()
 
 ```
+
+All these functions that are based on tiles work identifying patterns in the the file name. These files do not contain any relevant metadata.
+Therefore, manipulation of the file name can result in unexpected results. __PLEASE AVOID FILE NAME MODIFICATIONS!__
 
 ## Pixel thresholding of tiled images and re-assembled images
 Single channels can be pixel-thresholded using image chunks. Afterwards thresholded image chunks can be used to re-assemble a 

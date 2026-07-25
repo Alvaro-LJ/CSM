@@ -31,8 +31,6 @@
 #'
 #' @param Core_names_matrix (OPTIONAL BUT HIGHLY RECOMMENDED) A dataframe or matrix containing TMA core names. These names will be used to identify output core images.
 #'
-#'
-#'
 #' @returns The function exports individual core images identified to the indicated output directory.
 #'
 #' @details
@@ -47,11 +45,14 @@
 #' If the tolerance values are high, higher rates of missalignment will be tolerated to consider new rows/columns.
 #'
 #' After identifying the position of TMA cores and the row and column they belong to, cores are labelled according to the user provided matrix.
+#' 
+#' If the TMA cores are large images (due to tissue size or image resolution), the function may hit the maximum RAM usage capacity of any JAVA-based functions. In order to avoid this,
+#' the user may need to open a fresh R session and before running any other code run `options(java.parameters = "-Xmx200g")` or `rJava::.jinit(parameters="-Xmx200g")` to increase max RAM
+#' use to an absurdly high memory use (200Gb in this case).
 #'
 #'
 #' @examples
 #' \dontrun{
-#'
 #' TMA_image_downsized <-
 #'     Smart_image_importer(Image_directory = "Path/to/original/TMA/Image",
 #'                          Log10_pixel_output = 6
@@ -504,6 +505,8 @@ TMA_dearrayer_function <-
     Look_up_table$Original_xmax[Look_up_table$Original_xmax > Image_downsized$Original_Dims[1]] <- Image_downsized$Original_Dims[1]
     Look_up_table$Original_ymax[Look_up_table$Original_ymax > Image_downsized$Original_Dims[2]] <- Image_downsized$Original_Dims[2]
 
+    #Change the max RAM use
+    rJava::.jinit(parameters="-Xmx200g") #To increase JAVA RAM use
 
     #Plan the multicore session
     future::plan("future::multisession", workers = N_cores)
@@ -512,6 +515,9 @@ TMA_dearrayer_function <-
 
     #Extract the actual cores
     furrr::future_walk(1:nrow(Look_up_table), function(tibble_row_index){
+      
+      #change the max RAM use
+      options(java.parameters = "-Xmx200g")
 
       #Generate a list for the Image name
       TMA_core_name <- list(TMA_name = TMA_image_name)

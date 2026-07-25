@@ -1,4 +1,4 @@
-#' Divide images into tile chuncks
+#' Divide images into tile chunks
 #'
 #' `Image_tile_deconstruction_function()` divides into smaller chunks all the images in a directory.
 #' This allows faster computations when using CSM apps, performing image thresholding and cell segmentation.
@@ -22,6 +22,14 @@
 #' @param N_cores Integer. Number of cores to parallelize your computation.
 #'
 #' @returns The function writes the tiles in the ouput directory.
+#' 
+#' @seealso [Mask_conflict_resolver()], [Image_from_tile_rebuilder()]
+#' 
+#' @details
+#' If the resulting tiles are large images (due to tile size, or number of channels), the function may hit the maximum RAM usage capacity of any JAVA-based functions. In order to avoid this,
+#' the user may need to open a fresh R session and before running any other code run `options(java.parameters = "-Xmx200g")` or `rJava::.jinit(parameters="-Xmx200g")` to increase max RAM
+#' use to an absurdly high memory use (200Gb in this case).
+#' 
 #'
 #' @examples
 #' \dontrun{
@@ -69,7 +77,7 @@ Image_tile_deconstruction_function <-
            Tile_Overlap = 0,
            N_cores = 1){
 
-    #Check installation of suggested packages
+    ####Check installation of suggested packages#####
     {
       if(!requireNamespace("RBioFormats", quietly = TRUE)) stop(
         paste0("RBioFormats Bioconductor package is required to execute the function. Please install using the following code: ",
@@ -100,7 +108,7 @@ Image_tile_deconstruction_function <-
     }
     )
 
-    #Check arguments
+    #####Check arguments####
     if(!length(dir(Directory)) >= 1) stop("Directory does not contain any files") #Check directory files
     if(berryFunctions::is.error(dir(Output_directory))) stop("Invalid output directory") #Check output directory
     if(length(dir(Output_directory)) != 0) stop("Output directory should be an empty folder") #Check that output directory is empty
@@ -117,8 +125,9 @@ Image_tile_deconstruction_function <-
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
     if(!all(Tile_pixel_size >= 1, Tile_pixel_size%%1 == 0)) stop("Tile_pixel_size must be an integer value > 0")
     if(!all(Tile_Overlap >= 0, Tile_Overlap%%1 == 0,  Tile_Overlap < Tile_pixel_size)) stop("Tile_Overlap must be an integer value >= 0 and smaller than Tile_pixel_size")
-
-
+    if(Tile_Overlap*2 >= Tile_pixel_size) stop(paste0("Tile_Overlap should be smaller than: ", floor(Tile_pixel_size*0.5)))
+    
+    #####Import image medatada#####
     print("Obtaining Image metadata")
     #Build the lookup table with the info
     Image_names <- dir(Directory, full.names = TRUE) #Get the full directory
@@ -158,16 +167,17 @@ Image_tile_deconstruction_function <-
       message(paste0("The following images are smaller or equal to the tile size, hence they will be left unchanged: ", stringr::str_c(Single_tile_images, collapse = ", ")))
     }
 
+    #####Size approx test#####
     print("Running size approximation test")
     #Run a small test to make the user understand the final size of the individual tiles
     {
       #Select the random sample and obtain their information
       Random_sample <- sample(unlist(Image_info %>% dplyr::filter(Approx_n_tiles != 1) %>% dplyr::select(Whole_path)),
                               size = 1)
-      N_series_Random <- Image_info[Image_info$Whole_path == Random_sample, 2]
-      N_Channels_Random <- Image_info[Image_info$Whole_path == Random_sample, 5]
-      Z_Planes_Random <- Image_info[Image_info$Whole_path == Random_sample, 6]
-      T_Planes_Random <- Image_info[Image_info$Whole_path == Random_sample, 7]
+      N_series_Random <- unlist(Image_info[Image_info$Whole_path == Random_sample, 2])
+      N_Channels_Random <- unlist(Image_info[Image_info$Whole_path == Random_sample, 5])
+      Z_Planes_Random <- unlist(Image_info[Image_info$Whole_path == Random_sample, 6])
+      T_Planes_Random <- unlist(Image_info[Image_info$Whole_path == Random_sample, 7])
 
       #Increase JAVA RAM use to 200Gb
       rJava::.jinit(parameters="-Xmx200g") #To increase JAVA RAM use
@@ -268,6 +278,7 @@ Image_tile_deconstruction_function <-
     #If user decides to stop then abort function and return stop message
     if(answer == 2) stop("The function has been stopped.")
 
+    #####PERFORM IMAGE TILING#####
     #Proceed with the function iterating by Image
     print("Tiling images")
     purrr::map(1:nrow(Image_info), function(Tibble_row){
