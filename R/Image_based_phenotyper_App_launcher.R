@@ -899,6 +899,13 @@ Image_based_phenotyper_App_launcher <-
           if(!is.null(Result_list$Training_Dataset)){
             Final_DATA <- Final_DATA %>% dplyr::filter(!Cell_no %in% Result_list$Training_Dataset$Cell_no)
             Cells_to_bind <- Result_list$Training_Dataset %>% dplyr::filter(Subject_Names == Case_id())
+
+            #Apply pixel dist to this new features
+            if(as.logical(Pixel_dist_conversion())){
+              Cells_to_bind$X <- Cells_to_bind$X * as.numeric(Pixel_dist_ratio())
+              Cells_to_bind$Y <- Cells_to_bind$Y * as.numeric(Pixel_dist_ratio())
+            }
+
             Final_DATA <- dplyr::bind_rows(Final_DATA, Cells_to_bind)
           }
 
