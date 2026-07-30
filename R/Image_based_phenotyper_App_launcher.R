@@ -959,6 +959,12 @@ Image_based_phenotyper_App_launcher <-
           #Add the color code
           Final_DATA <- dplyr::left_join(Final_DATA, Color_lookuptable(), by = "Label")
 
+          #Apply pixel dist to this new features
+          if(as.logical(Pixel_dist_conversion())){
+            Final_DATA$X <- Final_DATA$X * as.numeric(Pixel_dist_ratio())
+            Final_DATA$Y <- Final_DATA$Y * as.numeric(Pixel_dist_ratio())
+          }
+
           #Import the photo
           try(Photo <- Photo_plot_reactive())
 
