@@ -208,8 +208,8 @@ Phenotyping_evaluator_shiny_app_launcher <-
     else{DATA[Variables] <- DATA[Variables] %>% scale()}
 
     #Define quantiles 95 and 5 values of all the dataset for the heatmap
-    Min_HEATMAP <- quantile(unlist(DATA[Variables]), 0.025)
-    Max_HEATMAP <- quantile(unlist(DATA[Variables]), 0.975)
+    Min_HEATMAP <- quantile(unlist(DATA[Variables]), 0.025, na.rm = TRUE)
+    Max_HEATMAP <- quantile(unlist(DATA[Variables]), 0.975, na.rm = TRUE)
 
     ####BUILD THE USER INTERFACE####
     {
