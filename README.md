@@ -1,5 +1,6 @@
 # <img src="man/figures/Sticker.png" width="60" style = "align-items: center"> Comprehensive Spatial Methods (CSM) R package 
 **Current version:** 1.0.5
+
 **Summary:** CSM is an R package designed as a toolbox to analyze spatially resolved tissue data. To see a demo of CSM capabilities please see the related [*publication*](https://www.laboratoryinvestigation.org/article/S0023-6837(25)00187-4/fulltext).
 
 
