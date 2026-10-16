@@ -113,7 +113,7 @@ Image_tile_deconstruction_function <-
     if(berryFunctions::is.error(dir(Output_directory))) stop("Invalid output directory") #Check output directory
     if(length(dir(Output_directory)) != 0) stop("Output directory should be an empty folder") #Check that output directory is empty
     if(!is.logical(RGB_Color_images)) stop("RGB_Color_images must be a logical value")
-    #If dealing with RGB images assing channels to RGB
+    #If dealing with RGB images assign channels to RGB
     if(RGB_Color_images){
       Ordered_Channels <- c("R", "G", "B")
       Channels_to_keep <- c("R", "G", "B")
@@ -189,7 +189,7 @@ Image_tile_deconstruction_function <-
           Image_subset <- RBioFormats::read.image(Random_sample,
                                                   proprietary.metadata = FALSE,
                                                   read.metadata = TRUE,
-                                                  normalize = TRUE,
+                                                  normalize = FALSE,
                                                   subset = list(X = c(1:Tile_pixel_size),
                                                                 Y = c(1:Tile_pixel_size))
           )
@@ -199,7 +199,7 @@ Image_tile_deconstruction_function <-
           Image_subset <- RBioFormats::read.image(Random_sample,
                                                   proprietary.metadata = FALSE,
                                                   read.metadata = TRUE,
-                                                  normalize = TRUE,
+                                                  normalize = FALSE,
                                                   subset = list(X = c(1:Tile_pixel_size),
                                                                 Y = c(1:Tile_pixel_size))
           )
@@ -208,7 +208,7 @@ Image_tile_deconstruction_function <-
           Image_subset <- RBioFormats::read.image(Random_sample,
                                                   proprietary.metadata = FALSE,
                                                   read.metadata = TRUE,
-                                                  normalize = TRUE,
+                                                  normalize = FALSE,
                                                   subset = list(X = c(1:Tile_pixel_size),
                                                                 Y = c(1:Tile_pixel_size))
           )
@@ -224,7 +224,7 @@ Image_tile_deconstruction_function <-
           Image_subset <- RBioFormats::read.image(Random_sample,
                                                   proprietary.metadata = FALSE,
                                                   read.metadata = TRUE,
-                                                  normalize = TRUE,
+                                                  normalize = FALSE,
                                                   subset = list(X = c(1:Tile_pixel_size),
                                                                 Y = c(1:Tile_pixel_size))
           )[[1]]
@@ -234,7 +234,7 @@ Image_tile_deconstruction_function <-
           Image_subset <- RBioFormats::read.image(Random_sample,
                                                   proprietary.metadata = FALSE,
                                                   read.metadata = TRUE,
-                                                  normalize = TRUE,
+                                                  normalize = FALSE,
                                                   subset = list(X = c(1:Tile_pixel_size),
                                                                 Y = c(1:Tile_pixel_size))
           )[[1]]
@@ -243,7 +243,7 @@ Image_tile_deconstruction_function <-
           Image_subset <- RBioFormats::read.image(Random_sample,
                                                   proprietary.metadata = FALSE,
                                                   read.metadata = TRUE,
-                                                  normalize = TRUE,
+                                                  normalize = FALSE,
                                                   subset = list(X = c(1:Tile_pixel_size),
                                                                 Y = c(1:Tile_pixel_size))
           )[[1]]
@@ -303,8 +303,11 @@ Image_tile_deconstruction_function <-
         Y_Positions <- seq(from = 1, to = Image_Ymax, by = Tile_pixel_size-Tile_Overlap)
 
         #If the Max X and Y is equal to the Image MAX then remove the final X or Y position
-        if(X_Positions[length(X_Positions)] == Image_Xmax) X_Positions <- X_Positions[-length(X_Positions)]
-        if(Y_Positions[length(Y_Positions)] == Image_Ymax) Y_Positions <- Y_Positions[-length(Y_Positions)]
+        #If the Max X and Y is equal to the Image MAX then remove the final X or Y position or Check that if the penultimate plus the full length is equal or larger than the end of the image
+        if(any(X_Positions[length(X_Positions)] == Image_Xmax,
+               X_Positions[length(X_Positions)-1] + Image_tile_size - 1 >= Image_Xmax)) X_Positions <- X_Positions[-length(X_Positions)]
+        if(any(Y_Positions[length(Y_Positions)] == Image_Ymax,
+               Y_Positions[length(Y_Positions)-1] + Image_tile_size - 1 >= Image_Ymax)) Y_Positions <- Y_Positions[-length(Y_Positions)]
 
         Tile_Position_tibble <- tidyr::expand_grid(X_Positions, Y_Positions)
         names(Tile_Position_tibble) <- c("X_Position_Min", "Y_Position_Min")
@@ -341,7 +344,7 @@ Image_tile_deconstruction_function <-
               Tile_image <- RBioFormats::read.image(Image_path,
                                                     proprietary.metadata = FALSE,
                                                     read.metadata = TRUE,
-                                                    normalize = TRUE,
+                                                    normalize = FALSE,
                                                     subset = list(X = c(Tile_Position_tibble$X_Position_Min[Tile_index]:Tile_Position_tibble$X_Position_Max[Tile_index]),
                                                                   Y = c(Tile_Position_tibble$Y_Position_Min[Tile_index]:Tile_Position_tibble$Y_Position_Max[Tile_index]))
               )
@@ -353,7 +356,7 @@ Image_tile_deconstruction_function <-
                 Tile_image <- RBioFormats::read.image(Image_path,
                                                       proprietary.metadata = FALSE,
                                                       read.metadata = TRUE,
-                                                      normalize = TRUE,
+                                                      normalize = FALSE,
                                                       subset = list(X = c(Tile_Position_tibble$X_Position_Min[Tile_index]:Tile_Position_tibble$X_Position_Max[Tile_index]),
                                                                     Y = c(Tile_Position_tibble$Y_Position_Min[Tile_index]:Tile_Position_tibble$Y_Position_Max[Tile_index]))
                 )[[1]]
@@ -362,6 +365,77 @@ Image_tile_deconstruction_function <-
               if(!RGB_Color_images) EBImage::colorMode(Tile_image) <- "Grayscale"
               if(RGB_Color_images) EBImage::colorMode(Tile_image) <- "Color"
               Tile_image <- Tile_image[,,Channels_to_keep_index]
+              
+              #Check the need for padding in case there is tile overlap
+              if(Tile_Overlap > 0){
+                #Check dimensions of the tile 
+                Width <- dim(Tile_image)[1]
+                Height <- dim(Tile_image)[2]
+                Channels <- dim(Tile_image)[3]
+                
+                #If any dimension is smaller than the overlap then add the padding and change the name
+                if(any(Width <= Tile_Overlap, Height <= Tile_Overlap)){
+                  Right_padding <- Tile_Overlap + 1 - Width
+                  Bottom_padding <- Tile_Overlap + 1 - Height
+                  
+                  #If negative then turn to 0
+                  if(Right_padding <= 0) Right_padding <- 0
+                  if(Bottom_padding <= 0) Bottom_padding <- 0
+                  
+                  #Compute the white padding for RGB color images
+                  if(RGB_Color_images){
+                    Padding_image <- EBImage::Image(
+                      array(
+                        1, #White color
+                        dim = c(
+                          Width + Right_padding ,
+                          Height + Bottom_padding,
+                          Channels
+                        )
+                      ),
+                      colormode = "Color"
+                    )
+                  }
+                  #Compute the black padding for non-RGB color images
+                  if(!RGB_Color_images){
+                    Padding_image <- EBImage::Image(
+                      array(
+                        0, #Black color
+                        dim = c(
+                          Width + Right_padding ,
+                          Height + Bottom_padding,
+                          Channels
+                        )
+                      ),
+                      colormode = "Grayscale"
+                    )
+                  }
+                  
+                  #Place the Tile image in the top-left center of the padded images
+                  Padding_image[
+                    seq_len(Width),
+                    seq_len(Height),
+                  ] <- Tile_image
+                  
+                  #Substitute the Tile_image for it's padded version
+                  Tile_image <- Padding_image
+                  
+                  #Change the name of the image
+                  Tile_Image_name <- stringr::str_c(sub("(.*)\\.[^.]+$", "\\1", Image_name),
+                                                    "(",
+                                                    Tile_Position_tibble$Tile_ID[Tile_index], "-",
+                                                    Tile_Position_tibble$X_Position_Min[Tile_index], "-",
+                                                    Tile_Position_tibble$X_Position_Max[Tile_index] + Right_padding, "-",
+                                                    Tile_Position_tibble$Y_Position_Min[Tile_index], "-",
+                                                    Tile_Position_tibble$Y_Position_Max[Tile_index] + Bottom_padding,
+                                                    ")",
+                                                    ".tiff")
+                  #Print a message that paddin has ocurred
+                  message(paste0("\n", "Padding added to ", sub("(.*)\\.[^.]+$", "\\1", Image_name), "-", Tile_Position_tibble$Tile_ID[Tile_index], ". Width or height of resulting tile smaller than overlap value."))
+                }
+              }
+              
+              #Write the actual image
               EBImage::writeImage(Tile_image, paste0(Output_directory, "/", Tile_Image_name), bits.per.sample = 16, compression = "LZW")
 
 
@@ -399,7 +473,7 @@ Image_tile_deconstruction_function <-
               Tile_image <- RBioFormats::read.image(Image_path,
                                                     proprietary.metadata = FALSE,
                                                     read.metadata = TRUE,
-                                                    normalize = TRUE
+                                                    normalize = FALSE
               )
             }
 
@@ -408,7 +482,7 @@ Image_tile_deconstruction_function <-
               Tile_image <- RBioFormats::read.image(Image_path,
                                                     proprietary.metadata = FALSE,
                                                     read.metadata = TRUE,
-                                                    normalize = TRUE
+                                                    normalize = FALSE
               )[[1]]
             }
 
@@ -434,3 +508,4 @@ Image_tile_deconstruction_function <-
                         show_after = 1,
                         type = "iterator"))
   }
+

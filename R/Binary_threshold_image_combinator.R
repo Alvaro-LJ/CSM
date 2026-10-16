@@ -278,7 +278,7 @@ Binary_threshold_image_combinator <-
       #If images need to be written, then write
       if(Save_processed_images){
         EBImage::writeImage(Images, paste0(Output_Directory, "/", Image_names_intersect[Row], "_",
-                                           "CombinedThreshold", stringr::str_c(gsub("-", ".", Intercalated_vector), collapse = "-"),
+                                           stringr::str_c(gsub("-", ".", Intercalated_vector), collapse = "-"),"_CombinedThresholded", 
                                            ".tiff"),
                             compression = "LZW")
       }

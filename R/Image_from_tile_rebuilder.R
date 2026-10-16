@@ -156,7 +156,7 @@ Image_from_tile_rebuilder <-
             Column_image <- EBImage::abind(map(Column_information$Whole_path, ~RBioFormats::read.image(.,
                                                                                                        proprietary.metadata = FALSE,
                                                                                                        read.metadata = TRUE,
-                                                                                                       normalize = TRUE)),
+                                                                                                       normalize = FALSE)),
                                            along = 2) #Generate the columns
             return(Column_image)
           }),

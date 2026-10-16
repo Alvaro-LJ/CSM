@@ -253,7 +253,7 @@ Smart_image_importer <-
             Final_image <- RBioFormats::read.image(Image_directory,
                                                    proprietary.metadata = FALSE,
                                                    read.metadata = TRUE,
-                                                   normalize = TRUE, 
+                                                   normalize = FALSE, 
                                                    resolution = Resolution_layer_being_tested
                                                    )
             #Change the color mode
@@ -307,7 +307,7 @@ Smart_image_importer <-
             Final_image <- RBioFormats::read.image(Image_directory,
                                                    proprietary.metadata = FALSE,
                                                    read.metadata = TRUE,
-                                                   normalize = TRUE, 
+                                                   normalize = FALSE, 
                                                    resolution = Resolution_layer_being_tested,
                                                    subset = list(X = c(Candidate_layer_data$X_crop_coordinates_min[1]:Candidate_layer_data$X_crop_coordinates_max[1]),
                                                                  Y = c(Candidate_layer_data$Y_crop_coordinates_min[1]:Candidate_layer_data$Y_crop_coordinates_max[1]))
@@ -431,7 +431,7 @@ Smart_image_importer <-
               Tile_image <- RBioFormats::read.image(Image_directory,
                                                     proprietary.metadata = FALSE,
                                                     read.metadata = TRUE,
-                                                    normalize = TRUE,
+                                                    normalize = FALSE,
                                                     subset = list(X = c(Tile_x_min:Tile_x_max),
                                                                   Y = c(Tile_y_min:Tile_y_max))
               )
@@ -500,7 +500,7 @@ Smart_image_importer <-
             Final_image <- RBioFormats::read.image(Image_directory,
                                                     proprietary.metadata = FALSE,
                                                     read.metadata = TRUE,
-                                                    normalize = TRUE,
+                                                    normalize = FALSE,
                                                     subset = list(X = c(X_crop_coordinates[1]:X_crop_coordinates[2]),
                                                                   Y = c(Y_crop_coordinates[1]:Y_crop_coordinates[2]))
             )
@@ -534,7 +534,7 @@ Smart_image_importer <-
               Final_image <- RBioFormats::read.image(Image_directory,
                                                       proprietary.metadata = FALSE,
                                                       read.metadata = TRUE,
-                                                      normalize = TRUE,
+                                                      normalize = FALSE,
                                                       subset = list(X = c(X_crop_coordinates[1]:X_crop_coordinates[2]),
                                                                     Y = c(Y_crop_coordinates[1]:Y_crop_coordinates[2]))
               )
@@ -615,7 +615,7 @@ Smart_image_importer <-
                 Tile_image <- RBioFormats::read.image(Image_directory,
                                                       proprietary.metadata = FALSE,
                                                       read.metadata = TRUE,
-                                                      normalize = TRUE,
+                                                      normalize = FALSE,
                                                       subset = list(X = c(Tile_x_min:Tile_x_max),
                                                                     Y = c(Tile_y_min:Tile_y_max))
                 )

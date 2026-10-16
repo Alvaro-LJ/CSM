@@ -327,6 +327,20 @@ Mask_conflict_resolver <-
     
     #Add names
     names(Overlap_strategy_list) <- unique(Look_up_table$Original_image_name)
+    
+    #Generate a tibble containing all the conflict zones
+    Overlap_strategy_tibble <- 
+      purrr::map_dfr(1:length(Overlap_strategy_list), function(Overlap_strategy_list_index){
+        #Get only the conflict zones
+        Conflict_zones <- Overlap_strategy_list[[Overlap_strategy_list_index]][["Conflict_zones"]]
+        #Add the name of the whole image
+        Conflict_zones$Whole_image_name <- names(Overlap_strategy_list)[Overlap_strategy_list_index]
+        #Generate a unique ID
+        Conflict_zones$Unique_ID <- stringr::str_c(Conflict_zones$Whole_image_name, Conflict_zones$Crossroad, sep = "_")
+        #Return the product
+        return(Conflict_zones)
+      })
+    Overlap_strategy_tibble$LOCK <- FALSE
 
     #####COMPUTE EROSION MASKS AND SAVE THEM IN THE Final_Mask_refinement_path#####
     #Print some messages before proceeding
@@ -345,7 +359,8 @@ Mask_conflict_resolver <-
                                               "Secondary criteria will be: ", Priority_type[2]))
     
     cat(paste0("\n",
-               "Computing erosion masks for every tiled image"))
+               "Computing erosion masks for every tiled image",
+               "\n"))
     
     #Prepare for parallel computing
     #Set the on exit statement
@@ -359,88 +374,96 @@ Mask_conflict_resolver <-
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
     
-    #Start iteration over images
-    purrr::walk(1:length(Overlap_strategy_list), function(Image_index){
-      cat(paste0("\n", Image_index-1, "/", length(Overlap_strategy_list), " images completed"))
-      cat(paste0("\n", "     - Processing erosion masks for image ", names(Overlap_strategy_list)[Image_index]))
+    #Compute the total conflicts to be solved
+    Total_conflicts <- nrow(Overlap_strategy_tibble)
+    
+    #Start iteration over conflict zones
+    while(nrow(Overlap_strategy_tibble) > 0){
+      #Print the percentage done
+      Percentage_done <- (1 - (nrow(Overlap_strategy_tibble)/Total_conflicts))*100
+      cat("\r", sprintf("%d%%", floor(Percentage_done)))
       
-      #Get the current image
-      Current_image <- Overlap_strategy_list[[Image_index]]
+      #Generate the current conflict list round that will be filled by the for loop
+      Current_round_conflict_list <- list()
       
-      #Find the overlap value
-      Image_overlap <- Current_image$Overlap_pixel_value
-      
-      #Generate the modifiable conflict zone list and the Images involved in each conflict zones
-      Conflict_List_Modifiable <- Current_image[[3]]
-      Images_in_conflict_areas <- purrr::map(Conflict_List_Modifiable, ~.[["Mask_names"]])
-      
-      #Obtain the total length of the conflict list to print progress messages
-      TOTAL_length <- length(Conflict_List_Modifiable)
-      
-      #The loop will run until there are no conflict zones analyzed
-      while(length(Conflict_List_Modifiable) > 0){
+      #Fill the current round conflict list
+      for(i in 1:N_cores){
+        #If no UNLOCKED conflicts then skip
+        if(nrow(Overlap_strategy_tibble %>% dplyr::filter(!LOCK)) == 0) next
         
-        #Compute the final percentage and print it
-        Percentage_done <- (1 - (length(Conflict_List_Modifiable)/TOTAL_length))*100
-        cat("\r", sprintf("%d%%", floor(Percentage_done)))
+        #Else select a random crossroad from the UNLOCKED samples
+        Crossroad_to_be_analyzed <- sample((Overlap_strategy_tibble %>% dplyr::filter(!LOCK))$Unique_ID, size = 1)
         
+        #Get the random crossroad data
+        Crossroad_to_be_analyzed_data <- Overlap_strategy_tibble %>% dplyr::filter(Unique_ID == Crossroad_to_be_analyzed)
+        Crossroad_to_be_analyzed_Image_Name <- Crossroad_to_be_analyzed_data$Whole_image_name[1]
+        Crossroad_to_be_analyzed_Conflict_Zone_name <- Crossroad_to_be_analyzed_data$Crossroad[1]
         
-        #Generate a 0 length vector to store the conflicts to be solved in the current round and the images locked in the round
-        Conflicts_to_be_solved_in_round <- vector(mode = "character", length = 0L)
-        Locked_conflict_zones_in_round <- vector(mode = "character", length = 0L)
+        #Get the data for the Conflicted_image_mask_modifier function
+        Current_whole_image_data <- Overlap_strategy_list[[Crossroad_to_be_analyzed_Image_Name]]
+        Image_param_list <- Current_whole_image_data$Images_involved[[Crossroad_to_be_analyzed_Conflict_Zone_name]]
+        Conflict_type <- Crossroad_to_be_analyzed_Conflict_Zone_name
+        First_Column <- Crossroad_to_be_analyzed_data$First_Column[1]
+        First_Row <- Crossroad_to_be_analyzed_data$First_Row[1]
+        Last_Column <- Crossroad_to_be_analyzed_data$Last_Column[1]
+        Last_Row <- Crossroad_to_be_analyzed_data$Last_Row[1]
+        Overlap_value <- Current_whole_image_data$Overlap_pixel_value
         
-        for(i in 1:N_cores){ #Set the round to the maximum number of cores allowed
-          #Obtain the potential names to be sampled (discard those present in the locked images)
-          Names_to_be_sampled <- names(Conflict_List_Modifiable)[!names(Conflict_List_Modifiable) %in% Locked_conflict_zones_in_round]
-          
-          #If no images are available then proceed
-          if(length(Names_to_be_sampled) == 0) next
-          
-          #Sample a random image from the list
-          Conflict_selected <- sample(Names_to_be_sampled, size = 1)
-          
-          #Remove that Image from the modifiable list (THIS IS KEY STEP TO MAKE THE LOOP ADVANCE)
-          Conflict_List_Modifiable <- Conflict_List_Modifiable[!names(Conflict_List_Modifiable) %in% Conflict_selected]
-          
-          #Add the name of the current selection to the conflict vector 
-          Conflicts_to_be_solved_in_round <- c(Conflicts_to_be_solved_in_round, Conflict_selected)
-          
-          #Identify all images that belong to the conflict area and should be locked
-          Images_locked <- unique(unname(unlist(Images_in_conflict_areas[names(Images_in_conflict_areas) %in% Conflicts_to_be_solved_in_round])))
-          
-          #Compute which conflict zones have locked images
-          Locked_conflict_zones_in_round <- unique(c(Locked_conflict_zones_in_round, names(Images_in_conflict_areas)[purrr::map_lgl(Images_in_conflict_areas, ~any(Images_locked %in% .))]))
-        }
+        #Place it all in the current round conflict list
+        Current_round_conflict_list[[i]] <- list(Image_param_list = Image_param_list,
+                                                 Conflict_type = Conflict_type, 
+                                                 First_Column = First_Column,
+                                                 First_Row = First_Row,
+                                                 Last_Column = Last_Column,
+                                                 Last_Row = Last_Row,
+                                                 Overlap_value = Overlap_value
+        )
         
+        #Remove the current sample from the work tibble
+        Overlap_strategy_tibble <- Overlap_strategy_tibble %>% dplyr::filter(Unique_ID != Crossroad_to_be_analyzed)
         
-        #Filter the current image to parameters to only include the conflict zones that will be analyzed in the current round
-        Parameter_list_multicore <- Current_image
-        Parameter_list_multicore[[2]] <- Parameter_list_multicore[[2]] %>% dplyr::filter(Crossroad %in% sort(Conflicts_to_be_solved_in_round))
-        Parameter_list_multicore[[3]] <- Parameter_list_multicore[[3]][sort(Conflicts_to_be_solved_in_round)]
+        #Get the names that will be locked in the current round
+        Current_tiles_involved <- Image_param_list$Mask_names
+        #Check the crossroads from the current image that need to be locked
+        Conflict_index <- purrr::map_lgl(Current_whole_image_data[["Images_involved"]], function(Current_whole_image_data){
+          return(any(Current_tiles_involved %in% Current_whole_image_data$Mask_names))
+        })
         
+        #If no conflicts then proceed to the next round
+        if(!any(Conflict_index)) next
         
-        #iterate over the length of the items in Images_involved
-        furrr::future_walk(1:length(Parameter_list_multicore$Images_involved),
-                           function(Conflict_index){
-                             #Execute the mask modifier
-                             Conflicted_image_mask_modifier(Image_param_list = Parameter_list_multicore$Images_involved[[Conflict_index]],
-                                                            Conflict_type = Parameter_list_multicore$Conflict_zones$Crossroad[[Conflict_index]],
-                                                            First_Column = Parameter_list_multicore$Conflict_zones$First_Column[[Conflict_index]],
-                                                            First_Row = Parameter_list_multicore$Conflict_zones$First_Row[[Conflict_index]],
-                                                            Last_Column = Parameter_list_multicore$Conflict_zones$Last_Column[[Conflict_index]],
-                                                            Last_Row = Parameter_list_multicore$Conflict_zones$Last_Row[[Conflict_index]],
-                                                            Overlap_value = Image_overlap, 
-                                                            Resolution_approach = Resolution_approach, 
-                                                            Priority_type = Priority_type,
-                                                            Min_cell_size = Min_cell_size,
-                                                            Mask_refinement_path = Final_Mask_refinement_path)
-                             
-                           })
+        #else get the names of the crossroads
+        Crossroads_to_be_locked <- names(Current_whole_image_data[["Images_involved"]])[Conflict_index]
+        #Generate the unique IDs
+        Crossroads_to_be_locked <- stringr::str_c(Crossroad_to_be_analyzed_Image_Name, Crossroads_to_be_locked, sep = "_")
         
-        gc()
+        #Set the lock to all the required crossroads
+        Overlap_strategy_tibble$LOCK[Overlap_strategy_tibble$Unique_ID %in% Crossroads_to_be_locked] <- TRUE
       }
       
-    })
+      #Unlock again all the crossroads
+      Overlap_strategy_tibble$LOCK <- FALSE
+      
+      #Perform the computation and repeat as necessary
+      furrr::future_walk(Current_round_conflict_list,
+                         function(Conflict_index){
+                           #Execute the mask modifier
+                           Conflicted_image_mask_modifier(Image_param_list = Conflict_index[["Image_param_list"]],
+                                                          Conflict_type = Conflict_index[["Conflict_type"]],
+                                                          First_Column = Conflict_index[["First_Column"]],
+                                                          First_Row = Conflict_index[["First_Row"]],
+                                                          Last_Column = Conflict_index[["Last_Column"]],
+                                                          Last_Row = Conflict_index[["Last_Row"]],
+                                                          Overlap_value = Conflict_index[["Overlap_value"]], 
+                                                          
+                                                          Resolution_approach = Resolution_approach, 
+                                                          Priority_type = Priority_type,
+                                                          Min_cell_size = Min_cell_size,
+                                                          Mask_refinement_path = Final_Mask_refinement_path)
+                           
+                         })
+      
+    }
     
     cat(paste0("\n",
                "Erosion masks computed...")
@@ -489,3 +512,4 @@ Mask_conflict_resolver <-
     
     cat(paste0("\n", "DONE!!"))
   }
+
