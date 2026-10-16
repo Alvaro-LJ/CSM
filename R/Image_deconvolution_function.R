@@ -64,6 +64,10 @@ Image_deconvolution_function <-
                })
         )
       )
+      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
+        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("ijtiff")))
+      )
     }
 
 
@@ -178,16 +182,16 @@ Image_deconvolution_function <-
       Image <- magick::image_read(dir(Directory, full.names = TRUE)[Image_index])
 
       #Obtain a list with each element corresponding to each of the channels
-      List_of_image_channel <-purrr::map(Deconvolution_Parameters,
+      List_of_image_channel <- purrr::map(Deconvolution_Parameters,
                                          function(Channel_Parameters){
                                            Channel <- Channel_deconvolution_function(Image = Image,
                                                                                      Parameters = Channel_Parameters)
                                            return(Channel)
                                          })
       FINAL_Image <- EBImage::combine(List_of_image_channel)
-      FINAL_Image_Name <- stringr::str_c(Output_directory, "/", dir(Directory, full.names = FALSE)[Image_index], "_Channels.tiff")
+      FINAL_Image_Name <- stringr::str_c(Output_directory, "/", dir(Directory, full.names = FALSE)[Image_index], "_Channels.tif")
 
-      EBImage::writeImage(FINAL_Image, FINAL_Image_Name, type = "tiff", bits.per.sample = 16, compression = "LZW")
+      ijtiff::write_tif(img = FINAL_Image, path = FINAL_Image_Name, bits_per_sample = 32, compression = "LZW", msg = FALSE)
     },
     .progress = TRUE)
 
