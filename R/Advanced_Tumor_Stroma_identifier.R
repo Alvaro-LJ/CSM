@@ -74,8 +74,8 @@ Advanced_Tumor_Stroma_identifier <-
       }
     }
 
-    #Import all required Data
-    DATA_Phenotypes <- DATA_Phenotypes
+    #Import all required Data and turn it to a shared object
+    DATA_Phenotypes <- mori::share(DATA_Phenotypes)
 
     #Check more arguments
     if(!Index_phenotype %in% unique(DATA_Phenotypes$Phenotype)) stop(paste0("Index phenotype must be one of the following: ", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = ", ")))
