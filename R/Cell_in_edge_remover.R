@@ -33,8 +33,8 @@ Cell_in_edge_remover <-
            Image_preview = NULL
   ) {
     #Check arguments
-    #Obtain the data
-    DATA <- DATA
+    #Turn data into a shared object
+    DATA <- mori::share(DATA)
 
     if(!identical(names(DATA)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) { #Check if Data is correctly formatted
       stop("DATA provided should have an adecuate format")

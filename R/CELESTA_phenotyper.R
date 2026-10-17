@@ -64,8 +64,8 @@ CELESTA_phenotyper <-
       )
     }
 
-
-    DATA <- DATA
+    #Turn DATA into a shared object
+    DATA <- mori::share(DATA)
     #Check arguments
     if(!identical(names(DATA)[1:4], c("Cell_no", "X", "Y", "Subject_Names"))) {
       stop("DATA not correctly specified, please format appropiatetly (see Step 0)")
@@ -104,7 +104,7 @@ CELESTA_phenotyper <-
     if(any(purrr::map_lgl(Prior_info %>% dplyr::filter(Assignment_round == 1), function(var){
       sum(is.na(var)) == nrow(Prior_info %>% dplyr::filter(Assignment_round == 1))
     }))){
-      Conflictive_vars <- names(Prior_info)[map_lgl(Prior_info %>% dplyr::filter(Assignment_round == 1), function(var){
+      Conflictive_vars <- names(Prior_info)[purrr::map_lgl(Prior_info %>% dplyr::filter(Assignment_round == 1), function(var){
         sum(is.na(var)) == nrow(Prior_info %>% dplyr::filter(Assignment_round == 1))
       })]
       stop(paste0("The following variables have NA values for all phenotypes identified during round 1: ",
