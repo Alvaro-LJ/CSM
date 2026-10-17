@@ -45,20 +45,66 @@ If multi-level images are provided, the number of positive pixels pixels for eve
 }
 \examples{
 \dontrun{
+#Generate the thresholded images and save them in a directory
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Input_Dir, recursive = TRUE)
+dir.create(Output_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+         function(Image){
+           EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+                               file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+         })
+
+#Execute thresholding------------------------------------------------------
+Pixel_Threshold_calculator(
+ N_cores = 1,
+Directory = Input_Dir,
+Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+Target_channel = "CK-EPCAM",
+
+Save_processed_images = TRUE,
+Output_Directory = Output_Dir,
+
+Local_thresholding = FALSE,
+Threshold_type = "Arbitrary",
+Threshold_value = 0.02,
+
+Threshold_type_tissueMask = "Absolute",
+ Threshold_value_tissueMask = 0.001,
+ Blurr_tissueMask = TRUE,
+ Sigma_tissueMask = 0.5,
+Blurr_target = FALSE
+)
+
+#Compute the distance to closest pixel
+Cell_to_pixel_distance_calculator(
+ N_cores = 1,
+Directory = Output_Dir,
+ Image_x_flip = FALSE,
+ Image_y_flip = TRUE,
+ DATA = CSM_Phenotypecell_test,
+ Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+ Pixel_distance_ratio = NULL
+)
+
+#Compute the positive pixels in 50 pixel radius
 Pixels_in_radius_calculator(
-    N_cores = 1,
-    Directory = "Path/To/Thresholded_images",
-    Image_rotate = 90,
-    Image_x_flip = FALSE,
-    Image_y_flip = TRUE,
-    DATA = CSM_Phenotypecell_test,
-    Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
-    Pixel_distance_ratio = NULL,
-    Radius = 100
- )
+N_cores = 1,
+Directory = Output_Dir,
+Image_x_flip = FALSE,
+Image_y_flip = TRUE,
+DATA = CSM_Phenotypecell_test,
+Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+Pixel_distance_ratio = NULL,
+Radius = 50
+)
 }
 
 }
 \seealso{
-\code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}
+\code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}, \code{\link[=Cell_to_pixel_distance_calculator]{Cell_to_pixel_distance_calculator()}}.
 }
