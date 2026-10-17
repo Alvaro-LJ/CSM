@@ -464,6 +464,9 @@ Barrier_effect_calculator <-
       gc()
     })
 
+    #Turn the DATA_Phenotypes to a shared object
+    DATA_Phenotypes <- mori::share(DATA_Phenotypes)
+
     #Set the cores
     future::plan("future::multisession", workers = N_cores)
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
@@ -697,6 +700,9 @@ Barrier_effect_calculator <-
     future::plan("future::multisession", workers = N_cores)
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
+
+    #Turn the DATA_COO_triangulation into a shared object
+    DATA_COO_triangulation <- mori::share(DATA_COO_triangulation)
 
     #Execute the algorithm
     Results <- furrr::future_map_dfr(unique(DATA_COO_triangulation$Cell_no), function(COO_ID){
@@ -983,8 +989,3 @@ Barrier_effect_calculator <-
     #Return the final tibble
     return(Results)
   }
-
-
-
-
-
