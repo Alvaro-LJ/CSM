@@ -68,9 +68,9 @@ function(Image){
 })
 
 #reduce the pixel content of the image
-Smart_image_importer(Image_directory = dir(Input_Dir, full.names = TRUE)[1], 
+Smart_image_importer(Image_directory = dir(Input_Dir, full.names = TRUE)[1],
                      Log10_pixel_output = 5
-) 
+)
 
 }
 }

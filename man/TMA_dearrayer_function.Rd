@@ -89,7 +89,7 @@ the core images from the originial TMA whole slide image.
 If the image provided is an RGB image, in order to generate the mask the image is first inverted.
 
 After identifying the position of the TMA cores, the number of rows and columns present in the TMA is computed by clustering the X and Y centroid coordinates of the cores.
-If the tolerance values are high, higher rates of missalignment will be tolerated to consider new rows/columns.
+If the tolerance values are high, higher rates of misalignment will be tolerated to consider new rows/columns.
 
 After identifying the position of TMA cores and the row and column they belong to, cores are labelled according to the user provided matrix.
 

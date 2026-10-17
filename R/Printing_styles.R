@@ -13,7 +13,7 @@
 #' https://stackoverflow.com/questions/10802806/is-there-a-way-to-output-text-to-the-r-console-in-color
 #'
 #'
-#' @returns the text with the formatted color.
+#' @returns the text with the formatted color and or horizontally centerede in the console.
 #'
 #' @keywords Internal
 
@@ -36,13 +36,15 @@ Colored_print <- function(text, color = "green") {
   return(cat(ansi_colour, text, "\033[0m\n"))
 }
 
+
+#' @rdname Colored_print
 Centered_print <- function(text) {
   #Find the width of the console
   width <- getOption("width")
-  
+
   #Divide message into different lines
   lines <- strsplit(text, "\n")[[1]]
-  
+
   #Print the lines
   for (line in lines) {
     padding <- max(0, floor((width - nchar(line)) / 2))

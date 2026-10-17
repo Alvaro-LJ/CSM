@@ -25,7 +25,7 @@ The function writes the images in the ouput directory.
 }
 \description{
 \code{Image_from_tile_rebuilder()} builds a complete image from it's tiles.
-Warning: Image reconstruction is limited to ≈ 2-3Gb.
+Warning: Image reconstruction is limited to  a final image size of ≈ 2-3Gb.
 Image reconstruction is designed to rebuild complete images from tiles once these have undergone pixel thresholding using \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}}.
 }
 \details{

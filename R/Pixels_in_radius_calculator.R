@@ -2,7 +2,7 @@
 #'
 #' Given a thresholded image (either binary or multilevel) and the cell feature information matrix, the function will compute the number of positive pixels within each distance provided.
 #' This can be used to analyze the spatial interaction of cells with extra-cellular elements in the image. Images can be thresholded using the [Pixel_Threshold_calculator()] function.
-#' If multi-level images are provided, the number of positive pixels pixels for every pixel value and distance size will be computed. 
+#' If multi-level images are provided, the number of positive pixels pixels for every pixel value and distance size will be computed.
 #'
 #'
 #' @inheritParams Cell_to_pixel_distance_calculator
@@ -206,7 +206,7 @@ Pixels_in_radius_calculator <-
       }
       if(!nrow(Names_tibble) > 0) stop("No images with adequate number of cells.")
 
-     
+
       #######RANDOM TEST#######
       #Run a random test with the image with the lowest cell counts
       #Find the names of all the samples
@@ -262,7 +262,7 @@ Pixels_in_radius_calculator <-
       print("Running pixels in radius computation")
 
       #######COMPUTE THE ACTUAL DISTANCE BETWEEN CELLS AND PIXELS#######
-      
+
       #Generate a shared DATA object
       DATA <- mori::share(DATA)
 
@@ -281,7 +281,7 @@ Pixels_in_radius_calculator <-
 
           #Import Image
           Image <- magick::image_read(Names_tibble$Image_URL[[Index_image]])
-          
+
           #Check that the image has adequate max value (at least a non-zero pixel)
           Image_sum <- sum(Image %>% magick::as_EBImage()) > 0
           if(!Image_sum){
@@ -289,7 +289,7 @@ Pixels_in_radius_calculator <-
                                  stringr::str_c("\n", Names_tibble$Subject_names_in_data[Index_image], collapse = ", ")),
                           color = "red"
             )
-            
+
             #Return the DATA_image
             return(DATA_image)
           }
@@ -312,7 +312,7 @@ Pixels_in_radius_calculator <-
 
           #Keep non-0 values
           Image_tibble <- Image_tibble %>% dplyr::filter(Value != 0)
-          
+
           #If the pixel distance ratio is provided modify the values of the positive pixel values
           if(!is.null(Pixel_distance_ratio)) Image_tibble <- Image_tibble %>% dplyr::mutate(X = X*Pixel_distance_ratio, Y = Y*Pixel_distance_ratio)
 
@@ -330,7 +330,7 @@ Pixels_in_radius_calculator <-
               names(Pixels_in_radius) <- stringr::str_c("Dist_", Radius_size, "_Value", round(unique(Image_tibble$Value), digits = 2))
               return(Pixels_in_radius)
             })
-            
+
             #Bind the results to the cell data and return it
             Final_tibble <- dplyr::bind_cols(DATA_image, Cells_in_radius_tibble)
             return(Final_tibble)
@@ -343,14 +343,14 @@ Pixels_in_radius_calculator <-
             Unique_values <- unique(Image_tibble$Value)
 
             #Calculate a tibble containing pixels in radius for every unique value
-            Final_tibble <- 
+            Final_tibble <-
               purrr::map_dfc(Unique_values, function(Value_pixel){
                 #Obtain only the pixel values matching the unique value being analyzed
                 Current_pixels <- Image_tibble %>% dplyr::filter(Value == Value_pixel)
-                
+
                 #Calculate the targets
                 Targets <- rtree::RTree(cbind(Current_pixels[["X"]], Current_pixels[["Y"]]))
-                
+
                 #Calculate the pixels within radius
                 Cells_in_radius_tibble <- purrr::map_dfc(sort(Radius), function(Radius_size){
                   Pixels_in_radius <- tibble::tibble(Pixels_n = rtree::countWithinDistance(Targets, COO_info, Radius_size))
@@ -359,7 +359,7 @@ Pixels_in_radius_calculator <-
                 })
               return(Cells_in_radius_tibble)
             })
-            
+
             #Bind the results to the cell data and return it
             Final_tibble <- dplyr::bind_cols(DATA_image, Final_tibble)
             return(Final_tibble)
@@ -370,7 +370,7 @@ Pixels_in_radius_calculator <-
       #Return to single core
       future::plan("future::sequential")
       gc()
-      
+
       #If there is any NA values, turn them to 0 (For images with absolute zero pixels)
       RESULTS[is.na(RESULTS)] <- 0
 
