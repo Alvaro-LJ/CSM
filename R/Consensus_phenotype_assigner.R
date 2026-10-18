@@ -248,6 +248,9 @@ Consensus_phenotype_assigner <-
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
 
+    #Turn Vote_tibble into a shared object
+    Vote_tibble <- mori::share(Vote_tibble)
+
     #MAJORITY
     if(Win_strategy == "Majority"){
       Vote_tibble <-
