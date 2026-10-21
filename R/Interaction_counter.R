@@ -91,8 +91,7 @@ Interaction_counter <-
 
     #Check arguments
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
-    #Import data
-    DATA <- DATA
+
 
     if(!all(Phenotypes_included %in% unique(DATA$Phenotype))){
       stop(paste0("Phenotypes provided must be one of: ", stringr::str_c(unique(DATA$Phenotype), collapse = ", ")))
@@ -111,6 +110,10 @@ Interaction_counter <-
     }
 
     DATA <- DATA %>% dplyr::filter(Phenotype %in% Phenotypes_included)
+    #Turn data into a shared object
+    DATA <- mori::share(DATA)
+
+
 
     #save exit function if parallelization fails
     on.exit({
