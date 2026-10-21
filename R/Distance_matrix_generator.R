@@ -53,8 +53,8 @@ Distance_matrix_generator <-
       )
     }
 
-    #Obtain the data
-    DATA_Phenotypes <- DATA
+    #Obtain the data and turn it to a shared object
+    DATA_Phenotypes <- mori::share(DATA)
 
     if(!identical(names(DATA_Phenotypes)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) { #Check if Data is correctly formatted
       stop("DATA provided should have an adecuate format")
@@ -103,7 +103,7 @@ Distance_matrix_generator <-
       if(answer == 2) stop("The function has been stopped. Please tune edge correction parameters for a better result")
 
       #Remove cells
-      Keep_vector_list <-purrr::map(unique(DATA_Phenotypes$Subject_Names), function(x){
+      Keep_vector_list <- purrr::map(unique(DATA_Phenotypes$Subject_Names), function(x){
         #Prepare our data
         Image_tibble <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == x)
         Cells_sf <- sf::st_as_sf(Image_tibble , coords = c("X", "Y"))
@@ -111,11 +111,11 @@ Distance_matrix_generator <-
         Cells_in_Border_vector <- unlist(sf::st_is_within_distance(Cells_sf, Edge_line, sparse = F, dist = Distance_to_edge))
         #Calculate cells in border
         COO_in_Border_vector <- Image_tibble$Phenotype == Cell_Of_Origin  & Cells_in_Border_vector
-        
+
         #Prepare message
         N_cells_in_border <- sum(COO_in_Border_vector)
         N_COO <- sum(Image_tibble$Phenotype == Cell_Of_Origin)
-        
+
 
         #Print message to warn COO removed in analysis
         if(N_cells_in_border < N_COO) Colored_print(paste0("\n", "Sample ", as.character(x), ": ", N_cells_in_border, " / ", N_COO, " ", Cell_Of_Origin, " cell/s will be removed due to edge proximity."),

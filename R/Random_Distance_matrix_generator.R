@@ -55,8 +55,10 @@ Random_Distance_matrix_generator <-
       )
     }
 
+    #Obtain the data and turn it to a shared object
+    DATA_Phenotypes <- mori::share(DATA)
+
     #Check arguments
-    DATA_Phenotypes <- DATA
     if(!identical(names(DATA_Phenotypes)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) { #Check if Data is correctly formatted
       stop("DATA provided should have an adecuate format")
     }
@@ -173,7 +175,7 @@ Random_Distance_matrix_generator <-
     if(sum(Samples_to_remove) > 0) {
       Colored_print(paste0("\n",
                            "Samples without COO or target cells will be removed from the analysis. ",
-                           "The following samples will be removed: ", "\n", 
+                           "The following samples will be removed: ", "\n",
                            stringr::str_c(names(RESULTS)[Samples_to_remove], collapse = "\n")
                            ),
                     color = "red"

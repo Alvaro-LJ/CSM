@@ -384,6 +384,9 @@ Distance_analyzer <-
       options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
       furrr::furrr_options(scheduling = Inf)
 
+      #Turn DATA into a shared object
+      DATA <- mori::share(DATA)
+
       if(Metric == "Average_Distance") {
         print("Calculating Result")
 
