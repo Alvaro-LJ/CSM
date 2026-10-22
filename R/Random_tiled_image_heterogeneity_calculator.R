@@ -103,6 +103,9 @@ Random_tiled_image_heterogeneity_calculator <-
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
 
+    #Turn Random_tiled_images into a shared object
+    Random_tiled_images <- mori::share(Random_tiled_images)
+
     Heterogeneity_results <-
       furrr::future_map(Random_tiled_images[["Results"]], function(Image_results){
 
@@ -148,11 +151,13 @@ Random_tiled_image_heterogeneity_calculator <-
     future::plan("future::sequential")
     gc()
 
+    #Safely return the resulting object
+    Final_list <- list(Iteration_Parameters = Random_tiled_images[["Iteration_Parameters"]],
+                       Heterogeneity_by_tile = Heterogeneity_results)
+    Final_list <- rlang::duplicate(Final_list)
+
     #Return the final results
-    return(
-      list(Iteration_Parameters = Random_tiled_images[["Iteration_Parameters"]],
-           Heterogeneity_by_tile = Heterogeneity_results)
-    )
+    return(Final_list)
   }
 
 
