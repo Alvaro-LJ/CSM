@@ -36,6 +36,7 @@ library(CSM)
 - [Downsizing large images](#downsizing-large-images)
 - [De arraying TMA whole slide images into individual core images](#de-arraying-tmas)
 - [Merging multiple channels into a single color image](#merging-channels)
+- [Alignment of multiple cell datasets](#multiple-dataset-alignment)
 
 ***
 
@@ -369,6 +370,15 @@ TMA_dearrayer_function(Original_Image_Directory = "Path/to/original/TMA/Image",
                       Output_Directory = "Path/to/ouput/directory")
 
 ```
+
+## Merging channels
+  
+
+## Multiple dataset alignment
+
+
+
+
 
 ```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
 sessionInfo()
