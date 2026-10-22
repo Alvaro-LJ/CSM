@@ -92,11 +92,13 @@ SPIAT_Heterogeneity_Analyzer <-
                fill = sum(!Argument_checker)))
     }
 
-    #Import list containing SPIAT OBJECTS
-    DATA_SPIAT <- DATA_SPIAT
+    #Turn DATA spiat into a shared object
+    DATA_SPIAT <- mori::share(DATA_SPIAT)
 
     #Generate list containing Data_phenotypes objects
-    DATA_Phenotypes <-purrr::map(names(DATA_SPIAT), function(Image) DATA_Phenotypes %>% dplyr::filter(Subject_Names == Image))
+    DATA_Phenotypes <- purrr::map(names(DATA_SPIAT), function(Image) DATA_Phenotypes %>% dplyr::filter(Subject_Names == Image))
+    DATA_Phenotypes <- mori::share(DATA_Phenotypes)
+
 
     #save exit function if parallelization fails
     on.exit({
@@ -179,5 +181,8 @@ SPIAT_Heterogeneity_Analyzer <-
     future::plan("future::sequential")
     gc()
 
-    return(purrr::map_df(RESULTS,dplyr::bind_rows))
+    #Get the final result
+    Final_result <- purrr::map_df(RESULTS, dplyr::bind_rows)
+    Final_result <- rlang::duplicate(Final_result)
+    return(Final_result)
   }

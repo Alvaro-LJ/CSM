@@ -72,14 +72,13 @@ SPIAT_Tissue_structuring_function <-
     }
 
 
+    #Turn DATA spiat and Data phenotypes into a shared object
+    DATA_SPIAT <- mori::share(DATA_SPIAT)
+    DATA_Phenotypes <- mori::share(DATA_Phenotypes)
 
     #Check arguments
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
-
-    DATA_SPIAT <- DATA_SPIAT
     if(!all(purrr::map_lgl(DATA_SPIAT, function(Image) class(Image) == "SpatialExperiment"))) stop("DATA_SPIAT must be created using the SPIAT_object_generator function")
-
-    DATA_Phenotypes <- DATA_Phenotypes
     if(!identical(names(DATA_Phenotypes)[c(1:4)], c("Cell_no", "X", "Y", "Subject_Names"))) stop("DATA_Phenotypes must have an adequate format")
     if(!"Phenotype" %in% names(DATA_Phenotypes)) stop("DATA_Phenotypes must have an adequate format")
 
@@ -176,18 +175,26 @@ SPIAT_Tissue_structuring_function <-
     #Change names of the results
     names(RESULTS) <- names(DATA_SPIAT)
 
+    #Safely generate RESULTS
+    RESULTS <- rlang::duplicate(RESULTS)
+
     #Simplify the results if desired
     if(Simplify_result) {
-      return(purrr::map_dfr(RESULTS, function(x) x[[1]]) %>% dplyr::select(1:4, Phenotype, Location) %>%
-               dplyr::mutate(Location = case_when(Location == "Border" ~ "Border",
-                                                  Location == "Infiltrated.CoI" ~ "Core",
-                                                  Location == "Inside" ~ "Core",
-                                                  Location == "Stromal.CoI" ~ "Stroma",
-                                                  Location == "Outside" ~ "Stroma",
-                                                  Location == "Internal.margin.CoI" ~ "Internal_Border",
-                                                  Location == "Internal.margin" ~ "Internal_Border",
-                                                  Location == "External.margin.CoI" ~ "External_Border",
-                                                  Location == "External.margin" ~ "External_Border")))
+
+      #Simplify and return
+      FINAL_RESULT <-
+        purrr::map_dfr(RESULTS, function(x) x[[1]]) %>% dplyr::select(1:4, Phenotype, Location) %>%
+        dplyr::mutate(Location = case_when(Location == "Border" ~ "Border",
+                                           Location == "Infiltrated.CoI" ~ "Core",
+                                           Location == "Inside" ~ "Core",
+                                           Location == "Stromal.CoI" ~ "Stroma",
+                                           Location == "Outside" ~ "Stroma",
+                                           Location == "Internal.margin.CoI" ~ "Internal_Border",
+                                           Location == "Internal.margin" ~ "Internal_Border",
+                                           Location == "External.margin.CoI" ~ "External_Border",
+                                           Location == "External.margin" ~ "External_Border"))
+
+      return(FINAL_RESULT)
     }
 
     #If not return the complete results
