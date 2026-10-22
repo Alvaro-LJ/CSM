@@ -41,8 +41,8 @@ Neighborhood_voting_function <-
            Tiled_Images,
            Minimum_cell_no_per_tile = 1,
            Neighborhoods_included) {
-    #Import data from a Tiled_Images list
-    Tiled_Images <- Tiled_Images
+    #Turn Tiled_Images into a shared object
+    Tiled_Images <- mori::share(Tiled_Images)
 
     #Check arguments
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
@@ -128,7 +128,7 @@ Neighborhood_voting_function <-
 
     names(RESULTS) <- names(Tiled_Images)
 
-    Summary_tibble <-purrr::map_dfr(seq_along(1:length(RESULTS)), function(Image) {
+    Summary_tibble <- purrr::map_dfr(seq_along(1:length(RESULTS)), function(Image) {
       Subject_Names <- names(RESULTS)[Image]
       N_tiles <- nrow(RESULTS[[Image]])
       Counts <- RESULTS[[Image]] %>% dplyr::count(Winner) %>% tidyr::pivot_wider(names_from = Winner, values_from = n)
