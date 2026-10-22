@@ -14,7 +14,7 @@
 #' @param Fill_holes A logical value indicating if hole filling should be aplied before identifying structures.
 #' @param Watershed_tolerance A numeric value > 0 indicating the tolerance of the watershed algorithm. Higher values reduce the number of structures identified.
 #' @param Watershed_ext A numeric value indicating the extension watershed parameter. Higher values reduce the number of individual structures identified.
-#' 
+#'
 #' @param Minimum_cell_no_per_tile (If Tiled_Images are generated using the [Image_tiling_processing_function()]) A integer value indicating the minimum number of cells of interest a tile must contain to be considered positive (default is 1).
 #'
 #' @details
@@ -105,7 +105,7 @@ Structure_morphometry_calculator <-
                           Fill_holes_OK = is.logical(Fill_holes),
                           Watershed_tolerance_OK = all(is.numeric(Watershed_tolerance), Watershed_tolerance > 0),
                           Watershed_ext_OK = all(is.numeric(Watershed_ext), Watershed_ext > 0)
-                    
+
     )
 
 
@@ -227,7 +227,7 @@ Structure_morphometry_calculator <-
 
       stop(paste0("The tiles of the following images are not squared: ", stringr::str_c(Problematic_tiles, collapse = ", "), ". Morphometric analysis can only work with square tiles"))
     }
-    
+
     #Compute if any image has no positive tiles
     Devoid_tiles <-
       purrr::map_lgl(Tiled_Images, function(Image){
@@ -244,7 +244,7 @@ Structure_morphometry_calculator <-
       #Remove the actual images
       Tiled_Images <- Tiled_Images[!Devoid_tiles]
     }
-    
+
     ########RUN TEST########
     Test_OK <- 3
     while(Test_OK == 3){
@@ -275,30 +275,30 @@ Structure_morphometry_calculator <-
 
         #Turn the pseudo-image to an EBImage and Cytomapper object
         Pseudo_image <- EBImage::Image(Pseudo_image) %>% EBImage::flip()
-        
+
         #Prepare for watershed segmentation
         Image <- Pseudo_image
-        
+
         #Do ammendments if required
         if(Fill_holes) Image <- EBImage::fillHull(Image)
 
         #Turn to distmap and segment using watershed
         Image <- try(EBImage::distmap(Image))
         Seg_results <- try(EBImage::watershed(EBImage::normalize(Image), tolerance = Watershed_tolerance, ext = Watershed_ext))
-        
+
         #Obtain features
         try({
           Morphology_tibble <- dplyr::bind_cols(EBImage::computeFeatures.shape(Seg_results), EBImage::computeFeatures.moment(Seg_results))
           #Filter objects below size threshold
           Size_tibble <- tibble::tibble(Object_id = 1:nrow(Morphology_tibble),
                                         Size = Morphology_tibble$s.area)
-          Morphology_tibble <- Morphology_tibble %>% dplyr::filter(s.area >= Min_tile_number) 
+          Morphology_tibble <- Morphology_tibble %>% dplyr::filter(s.area >= Min_tile_number)
           ID_tibble <- tibble::tibble(imageID = "Pseudo_image",
                                       object_id = 1:nrow(Morphology_tibble))
-          
+
           Morphology_tibble <- dplyr::bind_cols(ID_tibble, Morphology_tibble)
         })
-  
+
         #Before returning the structure mask we will remove those pixels that belong to objects that were removed
         Objects_to_remove <- Size_tibble$Object_id[Size_tibble$Size < Min_tile_number]
         Seg_results[Seg_results %in% Objects_to_remove] <- 0
@@ -390,6 +390,9 @@ Structure_morphometry_calculator <-
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
 
+    #Turn Tiled_Images into a shared object
+    Tiled_Images <- mori::share(Tiled_Images)
+
     #Execute the algorithm
     FINAL_RESULT_LIST <-
       furrr::future_map(Tiled_Images, function(Image){
@@ -413,32 +416,32 @@ Structure_morphometry_calculator <-
 
         #Turn the pseudo-image to an EBImage and Cytomapper object
         Pseudo_image <- EBImage::Image(Pseudo_image) %>% EBImage::flip()
-        
+
         #Prepare for watershed segmentation
         Image <- Pseudo_image
-        
+
         #Do ammendments if required
         if(Fill_holes) Image <- EBImage::fillHull(Image)
-        
+
         #Turn to distmap and segment using watershed
         Image <- try(EBImage::distmap(Image))
         Seg_results <- try(EBImage::watershed(EBImage::normalize(Image), tolerance = Watershed_tolerance, ext = Watershed_ext))
-        
+
         #Obtain features
         try({
           Morphology_tibble <- dplyr::bind_cols(EBImage::computeFeatures.shape(Seg_results), EBImage::computeFeatures.moment(Seg_results))
           #Filter objects below size threshold
           Size_tibble <- tibble::tibble(Object_id = 1:nrow(Morphology_tibble),
                                         Size = Morphology_tibble$s.area)
-          
-          Morphology_tibble <- Morphology_tibble %>% dplyr::filter(s.area >= Min_tile_number) 
+
+          Morphology_tibble <- Morphology_tibble %>% dplyr::filter(s.area >= Min_tile_number)
           ID_tibble <- tibble::tibble(imageID = "Pseudo_image",
                                       object_id = 1:nrow(Morphology_tibble))
-          
+
           Morphology_tibble <- dplyr::bind_cols(ID_tibble, Morphology_tibble)
         })
-        
-        
+
+
         #Check errors and proceed if required
         if(berryFunctions::is.error(Seg_results)){
           #return message
@@ -490,11 +493,11 @@ Structure_morphometry_calculator <-
                           s.radius.min = s.radius.min * Tile_size,
                           s.radius.max = s.radius.max * Tile_size,
                           m.majoraxis = m.majoraxis * Tile_size)
-          
+
           #Before returning the structure mask we will remove those pixels that belong to objects that were removed
           Objects_to_remove <- Size_tibble$Object_id[Size_tibble$Size < Min_tile_number]
           Seg_results[Seg_results %in% Objects_to_remove] <- 0
-          
+
           return(list(Morphology_tibble = Morphology_tibble,
                       Structure_mask = Seg_results %>% EBImage::rotate(angle = -90) %>% EBImage::flip() %>% EBImage::flop()
                       )
@@ -506,7 +509,7 @@ Structure_morphometry_calculator <-
     future::plan("future::sequential")
     gc()
 
-    
+
     ####REMOVE CONFLICTIVE IMAGES and RETURN result####
     #Remove images without adequate analysis
     Conflictive_images <-
