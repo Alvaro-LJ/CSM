@@ -166,6 +166,10 @@ UTAG_message_passing <-
         future::plan("future::multisession", workers = N_cores)
         options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
         furrr::furrr_options(scheduling = Inf)
+
+        #Turn interim into a shared object
+        Interim <- mori::share(Interim)
+
         #Calculate message passed cells
         Message_passed_cells <-
           furrr::future_map_dfr(1:length(Index), function(row) {
@@ -187,7 +191,7 @@ UTAG_message_passing <-
             Neighbors_in_window <- Interim[Index[[row]],]
 
             #Calculate distances
-            Neighbors_in_window <- Neighbors_in_window %>%dplyr::mutate(DIST = sqrt((X - cell_X)^2 + (Y - cell_Y)^2)) %>% dplyr::arrange(DIST)
+            Neighbors_in_window <- Neighbors_in_window %>% dplyr::mutate(DIST = sqrt((X - cell_X)^2 + (Y - cell_Y)^2)) %>% dplyr::arrange(DIST)
 
             #Remove neighbors accounting for distance if required
             if(Neighbor_strategy == "Both"){
@@ -336,6 +340,9 @@ UTAG_message_passing <-
           .progress = TRUE)
         future::plan("future::sequential")
         gc()
+
+        #Generate a safe version
+        Message_passed_cells <- rlang::duplicate(Message_passed_cells)
         return(Message_passed_cells)
       }, .progress = list(clear = F,
                           name = "Performing Message Passing",
