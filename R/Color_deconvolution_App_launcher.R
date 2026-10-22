@@ -168,17 +168,17 @@ Color_deconvolution_App_launcher <-
             #Target color
             shiny::h4("Color targeting"),
             shiny::fluidRow(
-              shiny::column(3, shiny::textInput("Color_text", "Color", value = "#ffffff")),
-              shiny::column(2, shiny::numericInput("RED", "RED", value = 255, min = 0, max = 255, step = 1)),
-              shiny::column(2, shiny::numericInput("GREEN", "GREEN", value = 255, min = 0, max = 255, step = 1)),
-              shiny::column(2, shiny::numericInput("BLUE", "BLUE", value = 255, min = 0, max = 255, step = 1)),
+              shiny::column(3, shiny::textInput("Color_text", "Color", value = "#ffffff", updateOn = "blur")),
+              shiny::column(2, shiny::numericInput("RED", "RED", value = 255, min = 0, max = 255, step = 1, updateOn = "blur")),
+              shiny::column(2, shiny::numericInput("GREEN", "GREEN", value = 255, min = 0, max = 255, step = 1, updateOn = "blur")),
+              shiny::column(2, shiny::numericInput("BLUE", "BLUE", value = 255, min = 0, max = 255, step = 1, updateOn = "blur")),
               shiny::column(1, shiny::plotOutput("Target", width = 45, height = 45, inline = FALSE))
             ),
             shiny::fluidRow(
-              shiny::column(3, shiny::numericInput("Tolerance_RED", "Red Tol", value = 0.1, min = 0, max = 1, step = 0.01)),
-              shiny::column(3, shiny::numericInput("Tolerance_GREEN", "Green Tol", value = 0.1, min = 0, max = 1, step = 0.01)),
-              shiny::column(3, shiny::numericInput("Tolerance_BLUE", "Blue Tol", value = 0.1, min = 0, max = 1, step = 0.01)),
-              shiny::column(3, shiny::numericInput("Tolerance_Final", "End Tol", value = 0.1, min = 0, max = 1, step = 0.01))
+              shiny::column(3, shiny::numericInput("Tolerance_RED", "Red Tol", value = 0.1, min = 0, max = 1, step = 0.01, updateOn = "blur")),
+              shiny::column(3, shiny::numericInput("Tolerance_GREEN", "Green Tol", value = 0.1, min = 0, max = 1, step = 0.01, updateOn = "blur")),
+              shiny::column(3, shiny::numericInput("Tolerance_BLUE", "Blue Tol", value = 0.1, min = 0, max = 1, step = 0.01, updateOn = "blur")),
+              shiny::column(3, shiny::numericInput("Tolerance_Final", "End Tol", value = 0.1, min = 0, max = 1, step = 0.01, updateOn = "blur"))
             ),
 
             #Opening and closing
