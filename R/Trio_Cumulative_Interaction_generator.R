@@ -51,9 +51,8 @@ Trio_Cumulative_Interaction_generator <-
     }
     if(!all(Start_from >= 0, Stop_at > 0, Sampling_frequency > 0)) stop("Start_from, Stop_at and Sampling_frequency must have positive values")
 
-    #Get our data from the global environment
-    DATA <- DATA
-
+    #Turn DATA into a shared object
+    DATA <- mori::share(DATA)
 
     #save exit function if parallelization fails
     on.exit({
@@ -116,6 +115,10 @@ Trio_Cumulative_Interaction_generator <-
     gc()
 
     names(RESULTS) <- names(DATA)
+
+    #Generate a safe copy of RESULTS
+    RESULTS <- rlang::duplicate(RESULTS)
+
     #Return the results
     return(RESULTS)
   }

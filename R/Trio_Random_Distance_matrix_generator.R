@@ -54,8 +54,10 @@ Trio_Random_Distance_matrix_generator <-
       )
     }
 
+    #Turn Data into a shared object
+    DATA_Phenotypes <- mori::share(DATA)
+
     #Check arguments
-    DATA_Phenotypes <- DATA
     if(!identical(names(DATA_Phenotypes)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) { #Check if Data is correctly formatted
       stop("DATA provided should have an adecuate format")
     }
@@ -147,14 +149,14 @@ Trio_Random_Distance_matrix_generator <-
         })
 
         #Obtain individual distance matrices
-        Cell_A_to_B <-purrr::map_dfr(Distance_matrix, function(x) {
+        Cell_A_to_B <- purrr::map_dfr(Distance_matrix, function(x) {
           Interim <- x[[1]]
-          names(Interim)[-1] <-stringr::str_c("Random_Target_cell_", as.character(1:(ncol(Interim)-1)))
+          names(Interim)[-1] <- stringr::str_c("Random_Target_cell_", as.character(1:(ncol(Interim)-1)))
           return(Interim)
         })
-        Cell_A_to_C <-purrr::map_dfr(Distance_matrix, function(x) {
+        Cell_A_to_C <- purrr::map_dfr(Distance_matrix, function(x) {
           Interim <- x[[2]]
-          names(Interim)[-1] <-stringr::str_c("Random_Target_cell_", as.character(1:(ncol(Interim)-1)))
+          names(Interim)[-1] <- stringr::str_c("Random_Target_cell_", as.character(1:(ncol(Interim)-1)))
           return(Interim)
         })
 
@@ -176,8 +178,11 @@ Trio_Random_Distance_matrix_generator <-
     #Change the names of the RESULTS list
     names(RESULTS) <- unique(DATA_Phenotypes$Subject_Names)
 
+    #Generate a safe copy of RESULTS
+    RESULTS <- rlang::duplicate(RESULTS)
+
     #Calculate for which samples the distance matrix could not be calculated
-    Samples_to_remove <-purrr::map_lgl(RESULTS, function(x) is.na(x[[2]][[1,1]]))
+    Samples_to_remove <- purrr::map_lgl(RESULTS, function(x) is.na(x[[2]][[1,1]]))
 
     #If samples to remove are present print a warning and proceed to remove required samples
     if(sum(Samples_to_remove) > 0) {

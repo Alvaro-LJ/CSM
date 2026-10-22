@@ -87,6 +87,12 @@ Trio_Min_Distance_analyzer <-
       future::plan("future::multisession", workers = N_cores)
       options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
       furrr::furrr_options(scheduling = Inf)
+
+      #Turn DATA and DATA_RANDOM into a shared object
+      DATA <- mori::share(DATA)
+      DATA_RANDOM <- mori::share(DATA_RANDOM)
+
+      #Compute
       RESULTS <- furrr::future_map_dbl(DATA, function(DATA) {
         #Obtain the 2 individual distance matrices
         Interim_A_to_B <- DATA[[2]]
@@ -212,16 +218,16 @@ Trio_Min_Distance_analyzer <-
       names(RESULTS_tibble)[2] <- "Min_dist_to_TRIO"
 
       RESULTS_tibble$SE <- RESULTS_SE
-      RESULTS_tibble <- RESULTS_tibble %>%dplyr::mutate(Result_05CI = Min_dist_to_TRIO - 1.96*SE,
+      RESULTS_tibble <- RESULTS_tibble %>% dplyr::mutate(Result_05CI = Min_dist_to_TRIO - 1.96*SE,
                                                         Result_95CI = Min_dist_to_TRIO + 1.96*SE)
 
-      RESULTS_tibble$N_COO <-purrr::map_dbl(DATA, function(DATA) sum(!is.na(DATA[[2]]$Cell_Of_Origin_no)))
-      RESULTS_tibble$N_Target_1 <-purrr::map_dbl(DATA, function(DATA) sum(!is.na(DATA[[2]][1, -1])))
-      RESULTS_tibble$N_Target_2 <-purrr::map_dbl(DATA, function(DATA) sum(!is.na(DATA[[3]][1, -1])))
+      RESULTS_tibble$N_COO <- purrr::map_dbl(DATA, function(DATA) sum(!is.na(DATA[[2]]$Cell_Of_Origin_no)))
+      RESULTS_tibble$N_Target_1 <- purrr::map_dbl(DATA, function(DATA) sum(!is.na(DATA[[2]][1, -1])))
+      RESULTS_tibble$N_Target_2 <- purrr::map_dbl(DATA, function(DATA) sum(!is.na(DATA[[3]][1, -1])))
 
       RESULTS_tibble$Random <- RESULTS_RANDOM
       RESULTS_tibble$Random_SE <- RESULTS_RANDOM_SE
-      RESULTS_tibble <- RESULTS_tibble %>%dplyr::mutate(Random_05CI = Random - 1.96*Random_SE,
+      RESULTS_tibble <- RESULTS_tibble %>% dplyr::mutate(Random_05CI = Random - 1.96*Random_SE,
                                                         Random_95CI = Random + 1.96*Random_SE) %>%
         dplyr::mutate(Outside_CI = case_when(Min_dist_to_TRIO > Random_95CI | Min_dist_to_TRIO < Random_05CI ~ "Significant",
                                              TRUE ~ "Not Significant"),
@@ -246,6 +252,10 @@ Trio_Min_Distance_analyzer <-
 
       future::plan("future::sequential")
       gc()
+
+      #Generate a safe copy
+      RESULTS_tibble <- rlang::duplicate(RESULTS_tibble)
+
       #Return the final tibble
       return(RESULTS_tibble)
     }
@@ -260,6 +270,9 @@ Trio_Min_Distance_analyzer <-
       future::plan("future::multisession", workers = N_cores)
       options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
       furrr::furrr_options(scheduling = Inf)
+
+      #Turn DATA and DATA_RANDOM into a shared object
+      DATA <- mori::share(DATA)
 
       #Generate results (average min distance to TRIO)
       RESULTS <- furrr::future_map_dbl(DATA, function(DATA) {
@@ -319,6 +332,10 @@ Trio_Min_Distance_analyzer <-
 
       future::plan("future::sequential")
       gc()
+
+      #Generate a safe copy
+      RESULTS_tibble <- rlang::duplicate(RESULTS_tibble)
+
       #Return the final tibble
       return(RESULTS_tibble)
     }

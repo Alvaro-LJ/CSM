@@ -85,6 +85,10 @@ Distance_analyzer <-
         DATA_RANDOM <- DATA_RANDOM[intersect(names(DATA), names(DATA_RANDOM))]
       }
 
+      #Turn DATA and DATA_RANDOM into a shared object
+      DATA <- mori::share(DATA)
+      DATA_RANDOM <- mori::share(DATA_RANDOM)
+
       #save exit function if parallelization fails
       on.exit({
         future::plan("future::sequential")
@@ -181,8 +185,6 @@ Distance_analyzer <-
 
         future::plan("future::sequential")
         gc()
-        #Return the final results
-        return(RESULTS_tibble)
       }
 
       else if(Metric == "Min_Distance") {
@@ -274,7 +276,6 @@ Distance_analyzer <-
 
         future::plan("future::sequential")
         gc()
-        return(RESULTS_tibble)
       }
 
       else if(Metric == "Max_Distance") {
@@ -367,8 +368,13 @@ Distance_analyzer <-
 
         future::plan("future::sequential")
         gc()
-        return(RESULTS_tibble)
       }
+
+      #Generate a safe copy
+      RESULTS_tibble <- rland::duplicate(RESULTS_tibble)
+
+      #Return the final results
+      return(RESULTS_tibble)
     }
 
     #Specify what to do if random samples are not included in the analysis
@@ -427,7 +433,6 @@ Distance_analyzer <-
 
         future::plan("future::sequential")
         gc()
-        return(RESULTS_tibble)
       }
 
       else if(Metric == "Min_Distance") {
@@ -469,7 +474,6 @@ Distance_analyzer <-
 
         future::plan("future::sequential")
         gc()
-        return(RESULTS_tibble)
       }
 
       else if(Metric == "Max_Distance") {
@@ -511,7 +515,11 @@ Distance_analyzer <-
 
         future::plan("future::sequential")
         gc()
-        return(RESULTS_tibble)
+
       }
+
+      #Generate a safe copy
+      RESULTS_tibble <- rlang::duplicate(RESULTS_tibble)
+      return(RESULTS_tibble)
     }
   }
