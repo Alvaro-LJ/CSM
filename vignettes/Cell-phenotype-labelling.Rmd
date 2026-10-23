@@ -408,7 +408,6 @@ can be found at https://github.com/plevritis-lab/CELESTA.
 
 ```{r template, eval = FALSE}
 #Can only run interactively
-
 CELESTA_template_generator(
    DATA = CSM_Arrangedcellfeaturedata_test,
    Markers_to_keep = c("CK_EPCAM_AVERAGE", "CD8a_AVERAGE", "GZMB_AVERAGE"),
@@ -419,7 +418,6 @@ CELESTA_template_generator(
 After completing the template, the CELESTA algorithm is executed using the `CELESTA_phenotyper()` function.
 ```{r CELESTA, eval = FALSE}
 #Can only run interactively
-
 DATA_Phenotypes <- 
   CELESTA_phenotyper(
     DATA = CSM_Arrangedcellfeaturedata_test, 

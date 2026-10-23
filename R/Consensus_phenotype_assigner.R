@@ -17,6 +17,8 @@
 #'
 #' Difference voting assigns the label with the highest votes as long as the difference between the selected label and the second most voted option is above an arbitrary threshold.
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #' @returns Returns a tibble containing consensus cell labels.
 #'
 #' @examples

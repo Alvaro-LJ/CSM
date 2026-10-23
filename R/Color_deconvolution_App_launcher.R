@@ -41,6 +41,8 @@
 #' \item{Lower right: Final channel result after Final processing steps.}
 #' }
 #'
+#' For more information please see the vignette 'Working with RGB images'.
+#'
 #' @examples
 #' \dontrun{
 #' #Create temporary input and output directories------------------------------

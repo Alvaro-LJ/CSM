@@ -15,6 +15,10 @@
 #'
 #' @seealso [SPIAT_object_generator()].
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Generate SPIAT object list----------------------------

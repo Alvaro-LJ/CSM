@@ -12,6 +12,10 @@
 #'
 #' @seealso [SPIAT_object_generator()].
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Generate SPIAT object list----------------------------

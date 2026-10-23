@@ -21,6 +21,8 @@
 #'Target_masks should be a named lists. The names of the list should be any of the Channels_to_keep. Each element should be a list with the following named elements:
 #'Mask_name, Threshold_type, Threshold_value, Blurr, Sigma. These parameters should follow the same rules as the ones used to calculate tissueMask (see examples).
 #'
+#' For more information please see the vignette 'Working with pixels'.
+#'
 #' @seealso [Image_thresholding_app_launcher()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
 #'
 #' @examples

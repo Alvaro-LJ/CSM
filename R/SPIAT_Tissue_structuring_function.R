@@ -17,6 +17,10 @@
 #'
 #' @seealso [SPIAT_object_generator()].
 #'
+#' @details
+#' For more information please see the vignette 'Dividing tissue into cellular structures'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Generate SPIAT object list----------------------------

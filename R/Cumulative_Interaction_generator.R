@@ -13,6 +13,9 @@
 #'
 #' @returns A list containing the cumulative interaction matrix for every image.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
 #'
 #' @examples
 #' \dontrun{

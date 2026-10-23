@@ -10,6 +10,8 @@
 #'
 #' Overall_summary quantifies the central tendency and dispersion metrics of the tile heterogeneity metrics and their spatial autocorrelation.
 #'
+#'For more information please see the vignette 'Calculating tissue heterogeneity'.
+#'
 #' @returns A tibble containing the summary of the analysis.
 #'
 #' @seealso [Tiled_image_heterogeneity_calculator()], [Tiled_image_heterogeneity_graph_maker()]

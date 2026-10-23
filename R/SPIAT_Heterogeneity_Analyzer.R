@@ -16,6 +16,9 @@
 #'
 #' @seealso [SPIAT_object_generator()], [Tiled_image_heterogeneity_analyzer()].
 #'
+#' @details
+#' For more information please see the vignette 'Calculating tissue heterogeneity'.
+#'
 #'
 #' @examples
 #' \dontrun{

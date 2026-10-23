@@ -50,6 +50,7 @@
 #' the user may need to open a fresh R session and before running any other code run `options(java.parameters = "-Xmx200g")` or `rJava::.jinit(parameters="-Xmx200g")` to increase max RAM
 #' use to an absurdly high memory use (200Gb in this case).
 #'
+#' For more information please see the vignette 'Working with large images and TMAs'.
 #'
 #' @examples
 #' \dontrun{

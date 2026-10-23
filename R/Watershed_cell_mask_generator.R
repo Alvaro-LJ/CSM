@@ -34,6 +34,10 @@
 #'
 #' @seealso [Watershed_tester_app()]
 #'
+#' @details
+#' For more information please see the vignette 'Performing cell segmentation'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #'#Create temporary input directory----------------------------------------

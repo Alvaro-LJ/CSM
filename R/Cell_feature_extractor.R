@@ -35,6 +35,8 @@
 #' \item{Sigma: If Blurr is set to TRUE, the Sigma value indicates the sigma for Gaussian blurr filtering.}
 #'}
 #'
+#' For more information please see the vignette 'Performing cell segmentation'.
+#'
 #' @seealso [Watershed_cell_mask_generator()], [Watershed_tester_app()]
 #'
 #' @returns A tibble containing cell data.

@@ -12,6 +12,8 @@
 #'
 #' The first two random iterations will always contain tiling strategies in the extremes of the user defined tile size variation factor.
 #'
+#' For more information please see the vignette 'Calculating tissue heterogeneity'.
+#'
 #' @returns A list containing the parameters used to generate the tiled images and the actual results.
 #'
 #' @seealso [Random_image_tiling_processing_function()], [Random_tiled_image_heterogeneity_calculator()], [Random_texture_features_calculator()]

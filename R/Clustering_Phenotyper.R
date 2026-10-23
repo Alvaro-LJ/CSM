@@ -80,6 +80,8 @@
 #'
 #' Batch K-means, Gaussian Mixture Models and Clustering Large Applications (CLARA) are all based on the ClusterR package.
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #' @seealso [DATA_Phenotype_renamer()], [ReClustering_function()], [Consensus_phenotype_assigner()], [Concordance_calculator()], [Confusion_matrix_plotter()],
 #' [Phenotyping_evaluator_shiny_app_launcher()]
 #'

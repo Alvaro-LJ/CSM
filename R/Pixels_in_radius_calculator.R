@@ -12,6 +12,10 @@
 #'
 #' @seealso [Pixel_Threshold_calculator()], [Cell_to_pixel_distance_calculator()].
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction' and 'Working with pixels'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Generate the thresholded images and save them in a directory

@@ -16,6 +16,10 @@
 #'
 #' @returns A list containing the distance matrix for each image. Rows represent Cells of Origin and columns represent Target cells.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' Distance_matrix_generator(

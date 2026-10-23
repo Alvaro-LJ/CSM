@@ -80,6 +80,8 @@
 #'
 #' Batch K-means, Gaussian Mixture Models and Clustering Large Applications (CLARA) are all based on the ClusterR package.
 #'
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
 #' @seealso [UTAG_message_passing()], [DATA_neighborhoods_renamer()], [Neighborhood_Quantifier()], [Neighborhood_voting_function()], [Tiled_neighborhoods_graphicator()]
 #'
 #' @returns Returns a tibble with cell features and a column named 'Neighborhood_assignment' containing cell neighborhoods.

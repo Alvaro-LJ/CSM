@@ -29,6 +29,8 @@
 #' \item{Remove the pixel (Erode_pixels): The loser pixel is removed. Afterwards if the cell size is below the Min_cell_size threshold, the whole cell is removed.}
 #' }
 #'
+#' For more information please see the vignette 'Working with large images and TMAs'.
+#'
 #'
 #' @examples
 #' \dontrun{

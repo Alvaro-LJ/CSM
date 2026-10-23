@@ -13,6 +13,9 @@
 #'
 #' @returns A list containing the cumulative interaction matrix for every image as well as the trio interaction score.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
 #' @examples
 #' \dontrun{
 #' #Generate a data distance or random distance matrix--------------------------

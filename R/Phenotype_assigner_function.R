@@ -10,6 +10,10 @@
 #'
 #' @seealso [Thresholding_function()], [Thresholding_function_tailored()], [Marker_combinator_generator()]
 #'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Threshold data

@@ -26,6 +26,10 @@
 #'
 #' @seealso [Compartment_Phenotype_quantifier()]
 #'
+#' @details
+#' For more information please see the vignette 'Dividing tissue into cellular structures'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' Advanced_Tumor_Stroma_identifier(

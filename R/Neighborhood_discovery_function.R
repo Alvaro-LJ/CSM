@@ -76,6 +76,8 @@
 #'
 #' Batch K-means, Gaussian Mixture Models and Clustering Large Applications are all based on the ClusterR package.
 #'
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
 #' @seealso [Tailored_Closest_neighbor_calculator()], [DATA_neighborhoods_renamer()], [Neighborhood_Quantifier()], [Neighborhood_voting_function()], [Tiled_neighborhoods_graphicator()]
 #'
 #' @returns Returns a tibble with cell features and a column named 'Neighborhood_assignment' containing cell neighborhood.

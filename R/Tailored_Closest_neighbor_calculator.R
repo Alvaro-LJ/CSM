@@ -19,6 +19,10 @@
 #'
 #' @returns A list containing two tibbles. Percentage: A tibble containing the neighbor matrix expressed as percentages. Absolute: A tibble containing the neighbor matrix expressed as cell counts.
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' Tailored_Closest_neighbor_calculator(

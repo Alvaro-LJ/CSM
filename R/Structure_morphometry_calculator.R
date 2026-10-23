@@ -23,6 +23,8 @@
 #' into a pseudo-image and fed to the watershed algorithm to compute the structure mask image. This image is then analyzed to obtain the morphological features of the structures identified
 #' using the EBImage package.
 #'
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
 #' @returns A list containing a tibble with the structure morphology data and the structure mask.
 #'
 #' @seealso [Image_tiling_processing_function()], [Tiled_Image_Clustering_function()], [Structure_morphometry_analyzer()], [Structure_morphometry_graph_maker()]

@@ -20,6 +20,8 @@
 #' Autothreshold calculates thresholds using the autothresholdr::auto_thresh_mask. TriClass_Otsu calculates thresholds using imagerExtra::ThresholdTriclass function.
 #' Multi_level thresholds are calculated using imagerExtra::ThresholdML function.
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #' @seealso [Thresholding_tester_app()], [Thresholding_function_tailored()], [Thresholding_exploration_function()], [Thresholding_summary_function()], [Thresholding_graphicator_function()].
 #'
 #' @returns Returns a tibble with thresholded cell features. All features are thresholded using the same approach. For binary thresholding features are converted to logical vectors, for multi-level are converted to numeric vectors.

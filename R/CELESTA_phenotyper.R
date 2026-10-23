@@ -18,7 +18,11 @@
 #'
 #' @returns Returns a tibble with cell features and a column named 'Phenotype' containing cell labels.
 #'
-#' @seealso [CELESTA_template_generator()]. For more information on how to fulfill the template please visit https://github.com/plevritis-lab/CELESTA.
+#' @seealso [CELESTA_template_generator()].
+#'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#' For more information on how to fulfill the template please visit https://github.com/plevritis-lab/CELESTA.
 #'
 #'
 #' @examples

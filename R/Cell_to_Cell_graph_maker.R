@@ -14,6 +14,10 @@
 #'
 #' @returns A graph summarizing spatial interactions for the indicated image.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Generate distance matrix----------------------------------------------------

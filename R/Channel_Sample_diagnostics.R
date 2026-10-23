@@ -23,6 +23,7 @@
 #' positive correlation. If the correlation is not found, this may warrant the review of specific images or channels. The function is based on computing the Spearman correlation index.
 #' In order to ameliorate the computational burden, the images can be downsized with the Pixel_downsize argument.
 #'
+#' For more information please see the vignette 'Image QC flagging'.
 #'
 #' @returns A tibble containing flagged image channel and samples according to correlation metrics
 #'

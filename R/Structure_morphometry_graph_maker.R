@@ -16,6 +16,10 @@
 #'
 #' @seealso [Image_tiling_processing_function()], [Tiled_Image_Clustering_function()], [Structure_morphometry_calculator()], [Structure_morphometry_analyzer()]
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Divide cells into discrete tiles

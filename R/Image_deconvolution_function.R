@@ -5,8 +5,13 @@
 #' @param Output_directory Character string specifying the path to the folder where  output images are written. It must be an empty folder.
 #' @param Deconvolution_parameters A list containing parameters. Created using [Color_deconvolution_App_launcher()].
 #' @param N_cores Integer. Number of cores to parallelize your computation.
+#'
 #' @returns The function writes multi-tiff images in the ouput directory.
+#'
 #' @seealso [Color_deconvolution_App_launcher()]
+#'
+#' @details
+#' For more information please see the vignette 'Working with RGB images'.
 #'
 #' @examples
 #' \dontrun{

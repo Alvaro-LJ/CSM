@@ -34,6 +34,9 @@
 #' @returns A list containing two elements. The first is the Cell_feature_list containing the aligned X Y coordinates, the second is a tibble summarizing the alignment
 #' process for every sample included and the error of the model.
 #'
+#' @details
+#' For more information please see the vignette 'Working with large images and TMAs'.
+#'
 #'
 #' @examples
 #' \dontrun{

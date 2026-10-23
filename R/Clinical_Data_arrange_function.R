@@ -6,7 +6,12 @@
 #' @param DATA A dataframe or tibble containing image metadata.
 #' @param Subject_Names A character indicating the column name containing image name.
 #' @param Outcomes_to_keep A character vector indicating the names of the columns to be kept in the analysis.
+#'
 #' @returns Returns a tibble with image features.
+#'
+#' @details
+#' For more information please see the vignette 'Analyzing image metadata'.
+#'
 #'
 #' @examples
 #' \dontrun{

@@ -20,6 +20,10 @@
 #'
 #' @returns A tibble containing a summary by sample of spatial interactions.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Generate distance matrix and random distance matrix------------

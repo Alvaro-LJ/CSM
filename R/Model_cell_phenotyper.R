@@ -11,6 +11,10 @@
 #'
 #' @seealso [Image_based_phenotyper_App_launcher()]
 #'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Create temporary directory------------------------------

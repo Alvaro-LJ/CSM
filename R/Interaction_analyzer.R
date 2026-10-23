@@ -18,6 +18,10 @@
 #'
 #' @returns A list containing a summary of the pairwise cell-to-cell interactions by sample.
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Generate interaction data--------------------------------------------------

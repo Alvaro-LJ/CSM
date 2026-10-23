@@ -23,6 +23,7 @@
 #' @details
 #' For additional information please visit imcRtools Vignette: https://www.bioconductor.org/packages/release/bioc/vignettes/imcRtools/inst/doc/imcRtools.html#5_Spatial_analysis.
 #'
+#' For more information also see the vignette 'Cellular neighborhood analysis'.
 #'
 #' @seealso [Interaction_analyzer()]
 #'

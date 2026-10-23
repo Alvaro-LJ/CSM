@@ -10,6 +10,10 @@
 #'
 #' @seealso [Cell_image_plot_generator()]
 #'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #'Cell_plotter(

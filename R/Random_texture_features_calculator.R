@@ -11,6 +11,10 @@
 #'
 #' @seealso [Random_image_tiling_processing_function()], [Random_tiled_image_heterogeneity_calculator()], [Random_tiled_image_heterogeneity_analyzer()],
 #'
+#' @details
+#' For more information please see the vignette 'Calculating tissue heterogeneity'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #'

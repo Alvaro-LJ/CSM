@@ -16,6 +16,7 @@
 #' First '_Sample' indexes compare the observed cell composition against an homogeneous distribution where all cells have the same prevalence in the sample.
 #' Second '_Experiment' indexes compare the observed cell composition against the cell distribution observed in all the cells from DATA.
 #'
+#'For more information please see the vignette 'Calculating tissue heterogeneity'.
 #'
 #' @returns Generates a tibble containing heterogeneity metrics by image.
 #'

@@ -23,6 +23,8 @@
 #'
 #' The function is based on the original UTAG pipeline described in the following reference: https://doi.org/10.1038/s41592-022-01657-2 and https://github.com/ElementoLab/utag.
 #'
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
 #' @seealso [UTAG_Neighborhood_identifier()]
 #'
 #' @examples

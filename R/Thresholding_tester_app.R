@@ -35,6 +35,8 @@
 #' \item{Lower right: Sample feature expression histogram with the active threshold depicted.}
 #' }
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #'
 #' @examples
 #' \dontrun{

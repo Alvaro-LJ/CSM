@@ -10,6 +10,10 @@
 #'
 #' @seealso [Tiled_Image_Clustering_function()]
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' Clustered_Tiled_Images_renamer(

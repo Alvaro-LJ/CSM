@@ -17,6 +17,10 @@
 #'
 #' @seealso [Image_tile_deconstruction_function()]
 #'
+#' @details
+#' For more information please see the vignette 'Working with large images and TMAs'.
+#'
+#'
 #' @examples
 #' \dontrun{
 # Create temporary input and output directories------------------------------

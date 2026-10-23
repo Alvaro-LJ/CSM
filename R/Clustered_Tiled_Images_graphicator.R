@@ -7,6 +7,10 @@
 #'
 #' @returns A plot of the neighborhood identity of each tile.
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #'\dontrun{
 #' #Tile images with cell phenotype information---------------------------------
