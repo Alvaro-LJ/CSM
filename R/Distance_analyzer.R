@@ -375,7 +375,7 @@ Distance_analyzer <-
       }
 
       #Generate a safe copy
-      RESULTS_tibble <- rland::duplicate(RESULTS_tibble)
+      RESULTS_tibble <- rlang::duplicate(RESULTS_tibble)
 
       #Return the final results
       return(RESULTS_tibble)
