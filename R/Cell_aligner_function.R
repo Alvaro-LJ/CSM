@@ -53,7 +53,8 @@
 #'  Random_radians <- Random_degrees * pi / 180
 #'
 #'  Individual_sample[c("X", "Y")] <-
-#'   Rotate_points(as.matrix(Individual_sample[c("X", "Y")]), theta = Random_radians, non_negative = TRUE)
+#'   Rotate_points(as.matrix(Individual_sample[c("X", "Y")]),
+#'   theta = Random_radians, non_negative = TRUE)
 #'
 #'  return(Individual_sample)
 #'})
