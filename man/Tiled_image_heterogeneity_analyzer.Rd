@@ -30,6 +30,8 @@ Generates a summary of the heterogeneity by tile
 Quantify_by_Threshold counts the number of tiles above the arbitrary threshold and spatial autocorrelation (Moran's I) of the positive tiles.
 
 Overall_summary quantifies the central tendency and dispersion metrics of the tile heterogeneity metrics and their spatial autocorrelation.
+
+For more information please see the vignette 'Calculating tissue heterogeneity'.
 }
 \examples{
 \dontrun{

@@ -19,6 +19,9 @@ Generates a plot of the image cells.
 \description{
 The function generates a plot of the cells of a single image. It is similar to \code{\link[=Cell_image_plot_generator]{Cell_image_plot_generator()}} but the original image is not drawn in the background.
 }
+\details{
+For more information please see the vignette 'Cell phenotype labelling'.
+}
 \examples{
 \dontrun{
 Cell_plotter(

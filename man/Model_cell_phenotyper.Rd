@@ -20,6 +20,9 @@ A tibble containing a column named 'Phenotype' containing cell phenotype labels
 Given a cell feature dataset and a cell phenotype label prediction model, the function assigns cell phenotype labels to all cells in the dataset.
 The model must have been fitted using \code{\link[=Image_based_phenotyper_App_launcher]{Image_based_phenotyper_App_launcher()}}.
 }
+\details{
+For more information please see the vignette 'Cell phenotype labelling'.
+}
 \examples{
 \dontrun{
 #Create temporary directory------------------------------

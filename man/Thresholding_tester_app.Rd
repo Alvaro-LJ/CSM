@@ -48,6 +48,8 @@ Active results are shown in the lower area of the control panel.
 \item{Lower left: Cells above threshold for the currently selected image. Cells can be selected to explore the \% of positive cells from selection.}
 \item{Lower right: Sample feature expression histogram with the active threshold depicted.}
 }
+
+For more information please see the vignette 'Cell phenotype labelling'.
 }
 \examples{
 \dontrun{

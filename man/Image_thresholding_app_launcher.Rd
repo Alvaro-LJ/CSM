@@ -37,6 +37,8 @@ Image Panels:
 \item{Lower left: Pixels above the threshold included in the tissue mask.}
 \item{Lower right: Final result after applying blurring to the target (if required).}
 }
+
+For more information please see the vignette 'Working with pixels'.
 }
 \examples{
 \dontrun{

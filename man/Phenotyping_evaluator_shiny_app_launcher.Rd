@@ -41,6 +41,8 @@ Image Panels:
 \item{Lower left: Cell selection summary.}
 \item{Lower right: Heatmap. If any cells are selected, a heatmap of the relative feature expression will be generated.}
 }
+
+For more information please see the vignette 'Cell phenotype labelling'.
 }
 \examples{
 \dontrun{

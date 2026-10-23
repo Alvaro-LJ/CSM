@@ -43,6 +43,10 @@ Returns a tibble with cell features and a column named 'Phenotype' containing ce
 \description{
 The function runs the CELESTA algorithm using cell feature data and a template indicating expected features of cell phenotypes.
 }
+\details{
+For more information please see the vignette 'Cell phenotype labelling'.
+For more information on how to fulfill the template please visit https://github.com/plevritis-lab/CELESTA.
+}
 \examples{
 \dontrun{
 CELESTA_phenotyper(
@@ -60,5 +64,5 @@ CELESTA_phenotyper(
 
 }
 \seealso{
-\code{\link[=CELESTA_template_generator]{CELESTA_template_generator()}}. For more information on how to fulfill the template please visit https://github.com/plevritis-lab/CELESTA.
+\code{\link[=CELESTA_template_generator]{CELESTA_template_generator()}}.
 }

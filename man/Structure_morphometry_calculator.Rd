@@ -47,6 +47,8 @@ The function will identify discrete structures using the watershed algorithm imp
 positive (1) or negative (0) value according to the presence or absence of the desired cell feature. Afterwards, these positive/negative tile pattern is transformed
 into a pseudo-image and fed to the watershed algorithm to compute the structure mask image. This image is then analyzed to obtain the morphological features of the structures identified
 using the EBImage package.
+
+For more information please see the vignette 'Cellular neighborhood analysis'.
 }
 \examples{
 \dontrun{

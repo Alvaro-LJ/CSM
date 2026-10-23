@@ -63,6 +63,8 @@ Each named element must be a list containing the following items:
 
 The function returns the absolute cell and pixel counts within the barrier. The function also computes the ratios normalized by
 the total number of target cells studied, the area of the barrier polygon and the total distance of the COO to the target cells studied.
+
+For more information please see the vignette 'Cell to cell spatial interaction'.#'
 }
 \examples{
 \dontrun{

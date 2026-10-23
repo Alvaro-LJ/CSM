@@ -29,6 +29,9 @@ A tibble containing a summary of the analysis result by image.
 \description{
 The function calculates cell interaction pattern based on entropy gradients. For more information see related publication: https://doi.org/10.1038/s41467-023-37822-0.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 \dontrun{
 #Generate SPIAT object list----------------------------

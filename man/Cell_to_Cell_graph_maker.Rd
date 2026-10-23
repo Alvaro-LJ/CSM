@@ -33,6 +33,9 @@ A graph summarizing spatial interactions for the indicated image.
 The function generates a summary plot of the spatial interaction between two cell types.
 It can graph results for average, min and max distance as well as cell in radius analyses.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 \dontrun{
 #Generate distance matrix----------------------------------------------------

@@ -31,6 +31,8 @@ Rao index is calculated using the picante::raoD function.
 Gini index is calculated using the DescTools::Gini function.
 
 Graph modularity is computed using the igraph::modularity function.
+
+For more information please see the vignette 'Cellular neighborhood analysis'.
 }
 \examples{
 \dontrun{

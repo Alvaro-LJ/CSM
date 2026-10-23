@@ -31,6 +31,8 @@ Rao index is calculated using the picante::raoD function.
 Gini index is calculated using the DescTools::Gini function.
 
 Kullback_Leibler and Jensen_Shannon indexes are calculated using the philentropy package. They compare the observed cell composition within each tile against the global cell composition of the sample.
+
+For more information please see the vignette 'Calculating tissue heterogeneity'.
 }
 \examples{
 \dontrun{

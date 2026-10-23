@@ -32,6 +32,8 @@ Image reconstruction is designed to rebuild complete images from tiles once thes
 Another warning: Image re-build for overlapping tiles is not currently supported.
 
 Another warning: The re-building process is based on the file names. If file names are modified, the re-building process can yield unexpected results.
+
+For more information please see the vignette 'Working with large images and TMAs'.
 }
 \examples{
 \dontrun{

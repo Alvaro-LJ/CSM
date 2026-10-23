@@ -15,6 +15,9 @@ A list containing a tibble with the summary results.
 \description{
 Given a list containing structure morphometry metrics (generated using the \code{\link[=Structure_morphometry_calculator]{Structure_morphometry_calculator()}}) the function will compute by-sample summary metrics.
 }
+\details{
+For more information please see the vignette 'Cellular neighborhood analysis'.
+}
 \examples{
 \dontrun{
 #Divide cells into discrete tiles
@@ -27,14 +30,14 @@ Image_tiling_processing_function(
  Variables_to_keep = "Phenotype")
 
 #Try to identify morphological structures for OTHER cells according to tile distribution
-Structures <- 
+Structures <-
 Structure_morphometry_calculator(N_cores = 1,
-                                
+
                                 Tiled_Images = Tiled_Images,
                                 Variable_name = "Phenotype",
                                 Feature_to_analyze = "OTHER",
-                                
-                                Min_tile_number = 1, 
+
+                                Min_tile_number = 1,
                                 Minimum_cell_no_per_tile = 2)
 
 #Analyze the results

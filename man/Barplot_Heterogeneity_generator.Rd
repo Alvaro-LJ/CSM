@@ -17,6 +17,9 @@ Generates a barplot of the heterogeneity for every image in DATA.
 \description{
 After quantifying heterogeneity for every image using \code{\link[=Global_heterogeneity_calculator]{Global_heterogeneity_calculator()}}, the user can plot the results using this function.
 }
+\details{
+For more information please see the vignette 'Calculating tissue heterogeneity'.
+}
 \examples{
 \dontrun{
 #Calculate the global heterogeneity by sample----------------------------

@@ -43,6 +43,9 @@ Given a thresholded image (either binary or multilevel) and the cell feature inf
 This can be used to analyze the spatial interaction of cells with extra-cellular elements in the image. Images can be thresholded using the \code{\link[=Pixel_Threshold_calculator]{Pixel_Threshold_calculator()}} function.
 If multi-level images are provided, the number of positive pixels pixels for every pixel value and distance size will be computed.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction' and 'Working with pixels'.
+}
 \examples{
 \dontrun{
 #Generate the thresholded images and save them in a directory

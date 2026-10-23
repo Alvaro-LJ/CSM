@@ -19,6 +19,9 @@ Returns a tibble with cell features and the Neighborhood_assignment column with 
 \description{
 The function allows the user to modify neighborhood labels. The function works with any dataframe or tibble containing a column named 'Neighborhood_assignment'.
 }
+\details{
+For more information please see the vignette 'Cellular neighborhood analysis'.
+}
 \examples{
 \dontrun{
 print(unique(CSM_Neighborhoods_test$Neighborhood_assignment))

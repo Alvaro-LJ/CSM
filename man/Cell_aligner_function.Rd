@@ -63,6 +63,8 @@ The algorithm implemented in the \code{\link[=Cell_aligner_function]{Cell_aligne
 Morpho package is executed to perform fine alignment. Afterwards, image flipping (either X or Y) followed by rotation (1 to 360 degrees) is performed, re-aligned using the Morpho::icpmat function
 and model error tested by computing average distance to closest neighbor to the reference points. The alignment with the smallest error is selected and the alignment model is recorded to be
 used to align the whole dataset if required.
+
+For more information please see the vignette 'Working with large images and TMAs'.
 }
 \examples{
 \dontrun{

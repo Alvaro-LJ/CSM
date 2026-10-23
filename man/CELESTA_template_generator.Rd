@@ -19,6 +19,11 @@ Creates a CSV file containing the template in the working directory (or the path
 \description{
 In order to run CELESTA, a template indicating expected cell phenotypes present in the tissue must be prepared. This function generates the template that can be modified manually by the user.
 }
+\details{
+For more information on how to fullfill the template please visit https://github.com/plevritis-lab/CELESTA.
+
+For more information please see the vignette 'Cell phenotype labelling'.
+}
 \examples{
 \dontrun{
 CELESTA_template_generator(
@@ -31,5 +36,5 @@ CELESTA_template_generator(
 
 }
 \seealso{
-\code{\link[=CELESTA_phenotyper]{CELESTA_phenotyper()}}. For more information on how to fullfill the template please visit https://github.com/plevritis-lab/CELESTA.
+\code{\link[=CELESTA_phenotyper]{CELESTA_phenotyper()}}.
 }

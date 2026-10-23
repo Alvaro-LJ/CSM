@@ -19,6 +19,9 @@ Returns a list with tiles per image with the modified labels.
 \description{
 The function allows the user to modify neighborhood labels. The function works with any object created using the \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}} function.
 }
+\details{
+For more information please see the vignette 'Cellular neighborhood analysis'.
+}
 \examples{
 \dontrun{
 Clustered_Tiled_Images_renamer(

@@ -36,6 +36,9 @@ A tibble containing a summary of the analysis result by image.
 The function divides the images into tiles, calculates entropy within tile and then counts the number of tiles above a user defined threshold.
 Results may be similar to those obtained using \code{\link[=Tiled_image_heterogeneity_analyzer]{Tiled_image_heterogeneity_analyzer()}}.
 }
+\details{
+For more information please see the vignette 'Calculating tissue heterogeneity'.
+}
 \examples{
 \dontrun{
 #Generate SPIAT object list----------------------------

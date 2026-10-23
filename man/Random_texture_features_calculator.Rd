@@ -24,6 +24,9 @@ A list containing the parameters used to generate the tiled images and the actua
 The function is aimed to estimate impact of the Modifiable areal unit problem (MAUP). The function calculates the average texture features in a similar
 way as it's homologue function \code{\link[=Texture_features_calculator]{Texture_features_calculator()}}.
 }
+\details{
+For more information please see the vignette 'Calculating tissue heterogeneity'.
+}
 \examples{
 \dontrun{
 

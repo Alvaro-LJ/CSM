@@ -48,6 +48,8 @@ Once the losing cell or pixel has been identified then one of the following acti
 \item{Removing the whole cell (Remove_whole_cells): The loser cell is removed.}
 \item{Remove the pixel (Erode_pixels): The loser pixel is removed. Afterwards if the cell size is below the Min_cell_size threshold, the whole cell is removed.}
 }
+
+For more information please see the vignette 'Working with large images and TMAs'.
 }
 \examples{
 \dontrun{

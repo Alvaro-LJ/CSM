@@ -32,6 +32,9 @@ Returns a tibble with cell features and a column named 'Compartment' containing 
 \description{
 The function calculates tissue compartments (usually tumor and stroma) based on tile occupation by tumor cells.
 }
+\details{
+For more information please see the vignette 'Dividing tissue into cellular structures'.
+}
 \examples{
 \dontrun{
 Quick_Tumor_Stroma_identifier(

@@ -41,6 +41,9 @@ The closest neighbor matrix can be used to identify neighborhoods using \code{\l
 In addition to the matrix, the function generates a correlation plot. The correlation between neighbors composition can be interpreted as attraction repulsion patterns between cell types.
 Neighbors may be defined by distance (a cell is considered a neighbor if it's within a defined distance D), by number (neighbors are the closest N cells) or both (cells are N closest neighbors as long as they are within distance D).
 }
+\details{
+For more information please see the vignette 'Cellular neighborhood analysis'.
+}
 \examples{
 \dontrun{
 Tailored_Closest_neighbor_calculator(

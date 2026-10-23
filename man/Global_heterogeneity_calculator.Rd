@@ -27,6 +27,8 @@ Gini index is calculated using the DescTools::Gini function.
 Kullback_Leibler and Jensen_Shannon indexes are calculated using the philentropy package. They are computed in two different ways:
 First '_Sample' indexes compare the observed cell composition against an homogeneous distribution where all cells have the same prevalence in the sample.
 Second '_Experiment' indexes compare the observed cell composition against the cell distribution observed in all the cells from DATA.
+
+For more information please see the vignette 'Calculating tissue heterogeneity'.
 }
 \examples{
 \dontrun{

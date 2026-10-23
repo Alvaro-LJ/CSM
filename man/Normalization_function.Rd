@@ -36,6 +36,8 @@ imageID (The column name of the DATA that contains the image ID),
 transformation (Choose between:  NULL, "asinh", "sqrt"),
 method ("trim99", "minMax"),
 cores (Irrelevant argument. If parallelization is required use N_cores argument and \code{\link[=Normalization_function_parallel]{Normalization_function_parallel()}} function).
+
+For more information please see the vignette 'Normalizing cell features'.
 }
 \examples{
 \dontrun{

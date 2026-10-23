@@ -18,6 +18,9 @@ Returns summary plots.
 The function will analyze normalization performance by comparing the Coefficient of Variation of Otsu thresholds across samples. In theory, if normalization is successful,
 the coefficient of variation of the Otsu threshold should be reduced. In addition, the function will also generate smoothened histograms comparing feature expression distribution before and after normalization.
 }
+\details{
+For more information please see the vignette 'Normalizing cell features'.
+}
 \examples{
 \dontrun{
 #Run normalization----------------------

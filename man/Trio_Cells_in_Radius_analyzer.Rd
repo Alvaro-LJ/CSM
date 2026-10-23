@@ -31,6 +31,8 @@ The function calculates the average TRIO score for every image given a radius si
 }
 \details{
 If By_Sample_Random is TRUE, for every sample, a specific random background will be calculated to compute expected spatial interaction metrics. If By_Sample_Random is FALSE, the random background will be calculated using all image information. The same random background will be used for all images.
+
+For more information please see the vignette 'Cell to cell spatial interaction'.
 }
 \examples{
 \dontrun{

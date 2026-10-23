@@ -122,6 +122,8 @@ Multi_level thresholds are calculated using imagerExtra::ThresholdML function.
 Self Organizing Maps clustering is performed using the FlowSOM::FlowSOM function.
 
 Batch K-means and Gaussian Mixture Models are all based on the ClusterR package.
+
+For more information please see the vignette 'Cell phenotype labelling'.
 }
 \examples{
 \dontrun{

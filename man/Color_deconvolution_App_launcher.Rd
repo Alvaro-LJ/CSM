@@ -49,6 +49,8 @@ Image Panels:
 \item{Lower left: Initial color extracted according to active parameters.}
 \item{Lower right: Final channel result after Final processing steps.}
 }
+
+For more information please see the vignette 'Working with RGB images'.
 }
 \examples{
 \dontrun{

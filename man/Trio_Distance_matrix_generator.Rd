@@ -39,6 +39,9 @@ A list containing the distance matrix for each image. Rows represent Cells of Or
 The function calculates the Euclidean distance between three cell phenotypes. One is considered the Cell of Origin (COO) and the other two are considered the target cells.
 The COO and the target cells must be different cell types.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 \dontrun{
 Trio_Distance_matrix_generator(

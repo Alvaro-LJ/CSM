@@ -31,6 +31,8 @@ The function is aimed to estimate impact of the Modifiable areal unit problem (M
 way as it's homologue function \code{\link[=Tiled_image_heterogeneity_analyzer]{Tiled_image_heterogeneity_analyzer()}}.
 
 The first two random iterations will always contain tiling strategies in the extremes of the user defined tile size variation factor.
+
+For more information please see the vignette 'Calculating tissue heterogeneity'.
 }
 \examples{
 \dontrun{

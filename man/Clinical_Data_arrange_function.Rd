@@ -20,6 +20,9 @@ Returns a tibble with image features.
 \code{Clinical_Data_arrange_function()} must be run in order to format image metadata. Image metadata variables can be either numeric or strings. Time to event data must be coded in two separate features (one for event and other for time).
 This function is similar to \code{\link[=Data_arrange_function]{Data_arrange_function()}}, without adequate formatting, image metadata will no be able to work with \code{\link[=Clinical_Data_analyzer]{Clinical_Data_analyzer()}}.
 }
+\details{
+For more information please see the vignette 'Analyzing image metadata'.
+}
 \examples{
 \dontrun{
 Clinical_Data_arrange_function(

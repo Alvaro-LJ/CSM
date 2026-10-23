@@ -25,6 +25,8 @@ Local thresholding is generally discouraged. It may capture image-specific artif
 EBI_Otsu calculates Otsu threshold using EBImage::otsu function. Kmeans calculates threshold using the mmand::threshold function. Kmeans_Otsu calculates the threhold using imager::threshold function.
 Autothreshold calculates thresholds using the autothresholdr::auto_thresh_mask. TriClass_Otsu calculates thresholds using imagerExtra::ThresholdTriclass function.
 Multi_level thresholds are calculated using imagerExtra::ThresholdML function.
+
+For more information please see the vignette 'Cell phenotype labelling'.
 }
 \examples{
 \dontrun{

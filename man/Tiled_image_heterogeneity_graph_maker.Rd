@@ -21,6 +21,9 @@ Returns a plot with the cells and the overlying tiles shaded according to the he
 \description{
 Generates a plot illustrating heterogeneity by tile
 }
+\details{
+For more information please see the vignette 'Calculating tissue heterogeneity'.
+}
 \examples{
 \dontrun{
 #Divide cells into tiles---------

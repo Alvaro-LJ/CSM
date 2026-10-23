@@ -51,6 +51,8 @@ Disregarded_minority weighting allows low expressed features to have higher infl
 Proximity weighting is available for averaging and sum message passing strategies. Disregarded_minority can only be used with averaging.
 
 The function is based on the original UTAG pipeline described in the following reference: https://doi.org/10.1038/s41592-022-01657-2 and https://github.com/ElementoLab/utag.
+
+For more information please see the vignette 'Cellular neighborhood analysis'.
 }
 \examples{
 \dontrun{

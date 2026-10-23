@@ -40,6 +40,8 @@ The lower panel of the control panel shows the current active parameters.
 \item{Lower left: Nucleus are depicted}
 \item{Lower right: Heatmap of marker expression by cell. If image is zoomed in, only cells in the field of view are shown.}
 }
+
+For more information please see the vignette 'Performing cell segmentation'.
 }
 \examples{
 \dontrun{
