@@ -44,6 +44,9 @@ where cells within the same image share specific characteristics (like exposure 
 The model formula will look something like this: Number of Target cells ~ Image_Metadata*Distance_COO + Density_Target + (1|Cell_Of_Origin_ID)
 The multilevel model is calculated using lme4::lmer function. The contribution of each variables to the total variance explanation is calculated using the partR2::partR2 function.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 
 \dontrun{

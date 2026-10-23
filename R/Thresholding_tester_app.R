@@ -35,6 +35,8 @@
 #' \item{Lower right: Sample feature expression histogram with the active threshold depicted.}
 #' }
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #'
 #' @examples
 #' \dontrun{
@@ -294,7 +296,7 @@ Thresholding_tester_app <-
                                       shiny::sliderInput("Percentile", "Quantile selected", value = 0.5, min = 0.01, max = 0.99, step = 0.01)
               ),
               shiny::conditionalPanel(condition = "input.Threshold_method == 'Arbitrary'",
-                                      shiny::textInput("Arbitrary", "User selected threshold", placeholder = "0.9")
+                                      shiny::textInput("Arbitrary", "User selected threshold", placeholder = "0.9", updateOn = "blur")
               ),
               shiny::conditionalPanel(condition = "input.Threshold_method == 'Multi_level'",
                                       shiny::numericInput("Levels", "Number of Levels", value = 3, min = 2, max = 10)

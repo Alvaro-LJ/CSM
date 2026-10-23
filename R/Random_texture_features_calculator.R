@@ -11,6 +11,10 @@
 #'
 #' @seealso [Random_image_tiling_processing_function()], [Random_tiled_image_heterogeneity_calculator()], [Random_tiled_image_heterogeneity_analyzer()],
 #'
+#' @details
+#' For more information please see the vignette 'Calculating tissue heterogeneity'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -83,6 +87,9 @@ Random_texture_features_calculator <-
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
 
+    #Turn Random_tiled_images into a shared object
+    Random_tiled_images <- mori::share(Random_tiled_images)
+
     Texture_results <-
       furrr::future_map(Random_tiled_images[["Results"]], function(Image_results){
 
@@ -136,14 +143,16 @@ Random_texture_features_calculator <-
                                              N_iterations = nrow(Texture_results[[1]])),
                                       Median_tibble)
 
-    #Return all the results in a list
-    return(
-      list(
-        Iteration_Parameters = Random_tiled_images[["Iteration_Parameters"]],
-        Raw_results = Texture_results,
-        Average_by_sample = Average_tibble,
-        Median_by_sample = Median_tibble
-      )
+    #Return all the results in a safe list
+    Final_list <- list(
+      Iteration_Parameters = Random_tiled_images[["Iteration_Parameters"]],
+      Raw_results = Texture_results,
+      Average_by_sample = Average_tibble,
+      Median_by_sample = Median_tibble
     )
+
+    Final_list <- rlang::duplicate(Final_list)
+
+    return(Final_list)
   }
 

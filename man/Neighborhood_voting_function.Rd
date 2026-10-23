@@ -29,6 +29,8 @@ Given a tiled image, the function calculates neighborhood prevalence by tile. It
 \details{
 The winner from each tile will be reported as ABSOLUTE if there is a single neighborhood represented in each tile, SUPER if the winner has more than 50\% of votes and simple if the winner has less than 50\% of votes.
 If there are any ties, alphabetical order will break the tie.
+
+For more information please see the vignette 'Cellular neighborhood analysis'.
 }
 \examples{
 \dontrun{

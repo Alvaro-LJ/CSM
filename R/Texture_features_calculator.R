@@ -9,6 +9,7 @@
 #'
 #' @details
 #' Metrics are calculated using the glcm R package.
+#' For more information please see the vignette 'Calculating tissue heterogeneity'.
 #'
 #' @returns A tibble containing averaged texture features by image.
 #'

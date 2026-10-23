@@ -10,6 +10,10 @@
 #'
 #' @seealso [Normalization_function()], [Normalization_function_parallel()]
 #'
+#' @details
+#' For more information please see the vignette 'Normalizing cell features'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Run normalization----------------------

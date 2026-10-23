@@ -8,6 +8,10 @@
 #'
 #' @returns Returns a tibble with neighborhood counts, percentages and optionally densities per image.
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' Neighborhood_Quantifier(

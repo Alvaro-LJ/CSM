@@ -13,13 +13,15 @@
 #' the color to be applied to the channel (indicated by name or HEX code), the gamma correction (a numeric value between 0.001 and 1000), the min and max pixel value (a numeric value between 0 and 100 for both of them) and
 #' equalize (a logical value).
 #'
+#' For more information please see the vignette 'Working with large images and TMAs'.
+#'
 #' @examples
 #' \dontrun{
 #' #Read the image to be processed----------------------------------------------
 #' Image <- magick::image_read(CSM_MiniMultiTiff_test[[2]])
-#' 
+#'
 #' #Generate the merging parameters (in this case 4 channels will be merged)----
-#' Merge_parameter_list <- 
+#' Merge_parameter_list <-
 #'   list(
 #'       DAPI = list(channel_index = 1,
 #'                   color = "blue",
@@ -34,7 +36,7 @@
 #'                 min = 5,
 #'                 max = 20,
 #'                 equalize = FALSE),
-#'  
+#'
 #'       CD8 = list(channel_index = 6,
 #'                  color = "#f0703a",
 #'                  gamma = 1,
@@ -54,16 +56,16 @@
 #' #Perform the merging
 #' Image_channel_color_merger(Image = Image,
 #'                           Parameter_list = Merge_parameter_list)
-#' 
+#'
 #'}
 #' @export
 
-Image_channel_color_merger <- 
+Image_channel_color_merger <-
   function(Image,
            Parameter_list){
-    
+
     ########Check suggested packages########
-    {  
+    {
       if(!requireNamespace("magick", quietly = FALSE)) stop(
         paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("magick")))
@@ -73,17 +75,17 @@ Image_channel_color_merger <-
                expression({
                  if (!require("BiocManager", quietly = TRUE))
                    install.packages("BiocManager")
-                 
+
                  BiocManager::install("EBImage")
                })
         )
       )
-      
+
     }
-    
+
     ########Check arguments########
     if(class(Image) != "magick-image") stop("Image must be imported using magick::image_read()")
-    
+
     #Check the Parameter_list
     if(!is.list(Parameter_list)) stop("Parameter_list must be a list")
     if(length(Parameter_list) > 7) warning("Merging more than 7 channels is strongly discouraged")
@@ -97,7 +99,7 @@ Image_channel_color_merger <-
                   "The following elements do not contain all the required elements: ", "\n",
                   str_c(Conflictive_items, collapse = "\n")))
     }
-    
+
     #Check if channel index is possible
     Conflictive_channel_index <- purrr::map_lgl(Parameter_list, ~.[["channel_index"]] <= length(Image))
     if(any(!Conflictive_channel_index)){
@@ -106,7 +108,7 @@ Image_channel_color_merger <-
                   "The following elements do not contain adequate channel_index: ", "\n",
                   str_c(Conflictive_items, collapse = "\n")))
     }
-    
+
     #Check that colors are adequate
     Colors_chosen <- purrr::map_chr(Parameter_list, ~.[["color"]])
     Error_in_color <- purrr::map_lgl(Colors_chosen, function(color) berryFunctions::is.error(grDevices::col2rgb(color)))
@@ -123,7 +125,7 @@ Image_channel_color_merger <-
                   "The following elements do not contain unique colors: ", "\n",
                   str_c(Conflictive_items, collapse = "\n")))
     }
-    
+
     #Check gamma value
     Gamma_chosen_numeric <- purrr::map_lgl(Parameter_list, ~is.numeric(.[["gamma"]]))
     if(any(!Gamma_chosen_numeric)){
@@ -139,7 +141,7 @@ Image_channel_color_merger <-
                   "The following elements do not contain adequate gamma value: ", "\n",
                   str_c(Conflictive_items, collapse = "\n")))
     }
-    
+
     #Check min and max
     Min_chosen_numeric <- purrr::map_lgl(Parameter_list, ~is.numeric(.[["min"]]))
     if(any(!Min_chosen_numeric)){
@@ -177,7 +179,7 @@ Image_channel_color_merger <-
                   "The following elements do not contain adequate min or max value: ", "\n",
                   str_c(Conflictive_items, collapse = "\n")))
     }
-    
+
     #Check equalize
     Equalize_logical <- purrr::map_lgl(Parameter_list, ~is.logical(.[["equalize"]]))
     if(any(!Equalize_logical)){
@@ -186,11 +188,11 @@ Image_channel_color_merger <-
                   "The following elements do not contain adequate equalize value: ", "\n",
                   str_c(Conflictive_items, collapse = "\n")))
     }
-    
+
     ########Reduce the targets########
     Image <- purrr::map(Parameter_list, function(Channel_parameters){
       Channel <- Image[Channel_parameters[["channel_index"]]]
-      
+
       #Perform image equalization as requested by user
       if(Channel_parameters[["equalize"]]) Channel <- Channel %>% magick::image_equalize()
       #Perform image white adjustment
@@ -201,18 +203,18 @@ Image_channel_color_merger <-
         )
       #Change to EBImage object
       Channel <- Channel %>% magick::as_EBImage()
-      
+
       #Transform to grayscale just in case
       EBImage::colorMode(Channel) <- "Grayscale"
-      
+
       #Get the color RGB parameters
       RGB_values <- grDevices::col2rgb(Channel_parameters[["color"]])
-      
+
       Red_coeff <- RGB_values[1]/255
       Green_coeff <- RGB_values[2]/255
       Blue_coeff <- RGB_values[3]/255
-      
-      
+
+
       #Modify the channel color
       Channel <- EBImage::channel(Channel, "gray")
       Channel <- EBImage::rgbImage(
@@ -220,13 +222,13 @@ Image_channel_color_merger <-
         green = Green_coeff * Channel,
         blue  = Blue_coeff * Channel
       )
-      
+
       return(Channel)
     })
-    
+
     #Add the channels into a single image
     Image <- purrr::reduce(Image, function(Channel_1, Channel_2) Channel_1 + Channel_2)
-    
+
     #Return as a magick image
     return(magick::image_read(Image))
   }

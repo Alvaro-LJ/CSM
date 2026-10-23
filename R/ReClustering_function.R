@@ -52,6 +52,8 @@
 #'
 #' Batch K-means and Gaussian Mixture Models are all based on the ClusterR package.
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #' @returns A tibble containing cell features and the new column with labels after re-clusterization process.
 #'
 #' @examples

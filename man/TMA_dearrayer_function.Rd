@@ -89,13 +89,15 @@ the core images from the originial TMA whole slide image.
 If the image provided is an RGB image, in order to generate the mask the image is first inverted.
 
 After identifying the position of the TMA cores, the number of rows and columns present in the TMA is computed by clustering the X and Y centroid coordinates of the cores.
-If the tolerance values are high, higher rates of missalignment will be tolerated to consider new rows/columns.
+If the tolerance values are high, higher rates of misalignment will be tolerated to consider new rows/columns.
 
 After identifying the position of TMA cores and the row and column they belong to, cores are labelled according to the user provided matrix.
 
 If the TMA cores are large images (due to tissue size or image resolution), the function may hit the maximum RAM usage capacity of any JAVA-based functions. In order to avoid this,
 the user may need to open a fresh R session and before running any other code run \code{options(java.parameters = "-Xmx200g")} or \code{rJava::.jinit(parameters="-Xmx200g")} to increase max RAM
 use to an absurdly high memory use (200Gb in this case).
+
+For more information please see the vignette 'Working with large images and TMAs'.
 }
 \examples{
 \dontrun{

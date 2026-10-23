@@ -7,6 +7,9 @@
 #'
 #' @returns Generates a barplot of the heterogeneity for every image in DATA.
 #'
+#' @details
+#' For more information please see the vignette 'Calculating tissue heterogeneity'.
+#'
 #' @examples
 #' \dontrun{
 #' #Calculate the global heterogeneity by sample----------------------------

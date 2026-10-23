@@ -25,6 +25,8 @@
 #'  method ("trim99", "minMax"),
 #'  cores (Irrelevant argument. If parallelization is required use N_cores argument and [Normalization_function_parallel()] function).
 #'
+#'  For more information please see the vignette 'Normalizing cell features'.
+#'
 #' @seealso [Normalization_function_parallel()], [Normalization_diagnostics()]
 #'
 #' @examples

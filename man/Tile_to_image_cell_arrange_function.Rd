@@ -27,6 +27,9 @@ The function performs the operation based on the tile X Y coordinates info conta
 the Subject_Names variable of the dataset is also modified to reflect entire image information. If tiles present overlap, duplicated cells are removed. Further, cells close to the tile edge can
 also be discarded according to user preferences using the 'Dist_to_edge' argument.
 }
+\details{
+For more information please see the vignette 'Working with large images and TMAs'.
+}
 \examples{
 \dontrun{
 #Returns an error since Subject_Names in dataframe does not contain adequate tile information

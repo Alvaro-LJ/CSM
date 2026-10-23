@@ -8,6 +8,10 @@
 #'
 #' @returns Returns a tibble with cell counts, percentages and optionally cell densities per image.
 #'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Calculate tissue surface----------------

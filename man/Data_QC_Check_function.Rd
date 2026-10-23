@@ -31,6 +31,10 @@ DATA = CSM_Arrangedcellfeaturedata_test \%>\% dplyr::mutate(Constant_variable = 
 Data_QC_Check_function(
 DATA = CSM_Arrangedcellfeaturedata_test \%>\% dplyr::mutate(Missing_variable = NA)
 )
+
+Data_QC_Check_function(
+DATA = CSM_Arrangedcellfeaturedata_test \%>\% dplyr::mutate(X = -X)
+)
 }
 
 }

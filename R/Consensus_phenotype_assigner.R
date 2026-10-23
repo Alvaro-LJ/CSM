@@ -17,6 +17,8 @@
 #'
 #' Difference voting assigns the label with the highest votes as long as the difference between the selected label and the second most voted option is above an arbitrary threshold.
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #' @returns Returns a tibble containing consensus cell labels.
 #'
 #' @examples
@@ -247,6 +249,9 @@ Consensus_phenotype_assigner <-
     future::plan("future::multisession", workers = N_cores)
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
+
+    #Turn Vote_tibble into a shared object
+    Vote_tibble <- mori::share(Vote_tibble)
 
     #MAJORITY
     if(Win_strategy == "Majority"){

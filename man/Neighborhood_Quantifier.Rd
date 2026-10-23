@@ -19,6 +19,9 @@ Returns a tibble with neighborhood counts, percentages and optionally densities 
 \description{
 The function generates neighborhood counts, percentages and optionally neighborhood densities.
 }
+\details{
+For more information please see the vignette 'Cellular neighborhood analysis'.
+}
 \examples{
 \dontrun{
 Neighborhood_Quantifier(

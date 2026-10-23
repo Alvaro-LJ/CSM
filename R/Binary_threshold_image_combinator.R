@@ -16,6 +16,8 @@
 #' matters. This function can only combine binary thresholded images. Multi-level thresholded images are not supported.
 #' If processed images are saved, these can be further combined with cell position data using [Cell_to_pixel_distance_calculator()].
 #'
+#' For more information please see the vignette 'Working with pixels'.
+#'
 #' @seealso [Image_thresholding_app_launcher()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
 #'
 #' @examples
@@ -278,7 +280,7 @@ Binary_threshold_image_combinator <-
       #If images need to be written, then write
       if(Save_processed_images){
         EBImage::writeImage(Images, paste0(Output_Directory, "/", Image_names_intersect[Row], "_",
-                                           "CombinedThreshold", stringr::str_c(gsub("-", ".", Intercalated_vector), collapse = "-"),
+                                           stringr::str_c(gsub("-", ".", Intercalated_vector), collapse = "-"),"_CombinedThresholded",
                                            ".tiff"),
                             compression = "LZW")
       }

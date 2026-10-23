@@ -18,6 +18,9 @@ Returns a cell feature tibble containing a new column named 'Phenotype' where ce
 The function takes a thresholded cell feature matrix and a tibble obtained using \code{\link[=Marker_combinator_generator]{Marker_combinator_generator()}}. The resulting tibble obtained using \code{\link[=Marker_combinator_generator]{Marker_combinator_generator()}}
 must have a new column named 'Phenotype' where the user specifies the name of the phenotype according to the feature positivity pattern. The function uses this information to assign cell phenotypes to all cells in DATA.
 }
+\details{
+For more information please see the vignette 'Cell phenotype labelling'.
+}
 \examples{
 \dontrun{
 #Threshold data

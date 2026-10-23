@@ -53,6 +53,8 @@ Generate a plot of the barrier metrics of single samples
 \details{
 If pixel_distance_ratio is provided, it will modify the X and Y coordinates of the provided DATA_Phenotypes. The function will assume that
 X and Y coordinates of the Barrier_DATA has already been modified with the pixel_distance_ratio argument of the \code{\link[=Barrier_effect_calculator]{Barrier_effect_calculator()}}.
+
+For more information please see the vignette 'Cell to cell spatial interaction'.
 }
 \examples{
 \dontrun{

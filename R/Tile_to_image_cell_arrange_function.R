@@ -14,6 +14,10 @@
 #'
 #' @seealso [Image_tile_deconstruction_function()], [Mask_conflict_resolver()], [Image_from_tile_rebuilder()]
 #'
+#' @details
+#' For more information please see the vignette 'Working with large images and TMAs'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Returns an error since Subject_Names in dataframe does not contain adequate tile information

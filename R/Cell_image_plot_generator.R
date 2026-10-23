@@ -22,6 +22,10 @@
 #'
 #' @seealso [Cell_plotter()]
 #'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Create temporary directory------------------------------

@@ -11,8 +11,34 @@
 #'
 #' @seealso [Image_based_phenotyper_App_launcher()]
 #'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
+#'
 #' @examples
 #' \dontrun{
+#' #Create temporary directory------------------------------
+#' Input_Dir <- tempfile(pattern = "tempdir1_Input")
+#' dir.create(Input_Dir, recursive = TRUE)
+#'
+#' #Save images in Input directory
+#' purrr::map(1:2,
+#' function(Image){
+#'    EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+#'    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#' })
+#'
+#' #Deploy app----------------------------------------------
+#'Image_based_phenotyper_App_launcher(
+#'    DATA = CSM_Arrangedcellfeaturedata_test,
+#'    Directory = Input_Dir,
+#'    Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#'    Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+#')
+#'
+#'#Remove directories---------------------------------------------------------
+#' unlink(Input_Dir, recursive = TRUE)
+#'
 #' #Check the model generated using the dedicated app
 #' print(CSM_ModelParam_test)
 #'
@@ -67,8 +93,7 @@ Model_cell_phenotyper <-
     })
 
     print("Argument check...")
-    #Get the data
-    DATA <- DATA
+
     if(!identical(names(DATA)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) stop("DATA provided should have an adecuate format")
 
     #Check the cores
@@ -81,6 +106,8 @@ Model_cell_phenotyper <-
       stop(paste0("The following features are not present in data: ", stringr::str_c(Absent_features, collapse = ", ")))
     }
 
+    #Turn data into a shared object
+    DATA <- mori::share(DATA)
 
     #Proceed if features are OK (no need to check arguments because they have been pre-processed by the app)
     #If NO SPATIAL CONTEXT REQUIRED then proceed
@@ -139,7 +166,7 @@ Model_cell_phenotyper <-
 
       Features_DATA_list <- DATA %>% dplyr::select(Cell_no, Subject_Names, all_of(Model_parameters_list$Model_parameters$Model_features))
 
-      Features_DATA_list <-dplyr::left_join(Features_DATA_list,  DATA_Neighbors, by = "Cell_no")
+      Features_DATA_list <- dplyr::left_join(Features_DATA_list,  DATA_Neighbors, by = "Cell_no")
 
 
       print("Generating predictions")
@@ -156,6 +183,11 @@ Model_cell_phenotyper <-
       future::plan("future::multisession", workers = N_cores)
       options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
       furrr::furrr_options(scheduling = Inf)
+
+      #Turn Features_DATA_list into a shared object
+      Features_DATA_list <- mori::share(Features_DATA_list)
+
+      #Generate predictions
       PREDICTIONS <-
         furrr::future_map_dfr(Features_DATA_list, function(Image_features){
           #Load tidymodels to solve method dispatch issues

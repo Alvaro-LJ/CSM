@@ -34,6 +34,10 @@
 #'
 #' @seealso [Watershed_tester_app()]
 #'
+#' @details
+#' For more information please see the vignette 'Performing cell segmentation'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #'#Create temporary input directory----------------------------------------
@@ -121,7 +125,7 @@ Watershed_cell_mask_generator <-
     Opening_kernel_size = NULL,
     Closing_kernel_size = NULL
 
-    ){
+  ){
     #####Check suggested packages####
     {
       if(!requireNamespace("EBImage", quietly = TRUE)) stop(
@@ -167,6 +171,10 @@ Watershed_cell_mask_generator <-
       if(!requireNamespace("magick", quietly = FALSE)) stop(
         paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
                expression(install.packages("benchmarkme")))
+      )
+      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
+        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("ijtiff")))
       )
     }
 
@@ -285,7 +293,8 @@ Watershed_cell_mask_generator <-
     Channels <- Ordered_Channels
     Simple_Image_Names <- dir(Directory, full.names = FALSE)
     Complete_Image_Names <- dir(Directory, full.names = TRUE)
-    Channels_in_use <- unique(c(Nuclear_marker, Tissue_mask_markers))
+    if(!is.null(Tissue_mask_markers)) Channels_in_use <- unique(c(Nuclear_marker, Tissue_mask_markers))
+    if(is.null(Tissue_mask_markers)) Channels_in_use <- Nuclear_marker
     Channels_in_use_index <- match(Channels_in_use, Ordered_Channels)
 
     #save exit function if parallelization fails
@@ -301,98 +310,110 @@ Watershed_cell_mask_generator <-
 
     #Execute the function
     furrr::future_walk(seq_along(1:length(Complete_Image_Names)), function(Index){
-      RESULT_TIBBLE <- try({
-        #Pre-process nuclear channels if required
-        if(Perform_nuclear_channel_processing){
-          Image <- magick::image_read(Complete_Image_Names[Index]) #Import image
 
-          Nuclear_channels_number <- match(Nuclear_marker, Ordered_Channels)
+      tryCatch(
+        #RISKY CODE
+        {
+          #Pre-process nuclear channels if required
+          if(Perform_nuclear_channel_processing){
+            Image <- magick::image_read(Complete_Image_Names[Index]) #Import image
 
-          #Apply changes to every nuclear channel
-          for(index in Nuclear_channels_number){
-            Image_Modified <- Image[index]
+            Nuclear_channels_number <- match(Nuclear_marker, Ordered_Channels)
 
-            if(Equalize) Image_Modified <- Image_Modified %>% magick::image_equalize() #Equalize if necesary
-            Image_Modified <- Image_Modified %>% magick::image_level(black_point = Black_level,
-                                                                     white_point = White_level,
-                                                                     mid_point = 10^Gamma_level) #Chane withe, black and gamma
-            Image_Modified <- Image_Modified %>% magick::as_EBImage() #turn to EBImage object
-            Image_Modified  <-
-              Image_Modified %>% EBImage::opening(EBImage::makeBrush(size = Opening_kernel_size, shape = "disc")) %>%
-              EBImage::closing(EBImage::makeBrush(size = Closing_kernel_size, shape = "disc")) #opening and closing
+            #Apply changes to every nuclear channel
+            for(index in Nuclear_channels_number){
+              Image_Modified <- Image[index]
 
-            Image_Modified <- magick::image_read(Image_Modified) #again as Magick image
+              if(Equalize) Image_Modified <- Image_Modified %>% magick::image_equalize() #Equalize if necesary
 
-            Image[index] <- Image_Modified
+              Image_Modified <- Image_Modified %>% magick::image_level(black_point = Black_level,
+                                                                       white_point = White_level,
+                                                                       mid_point = 10^Gamma_level) #Chane withe, black and gamma
+
+              Image_Modified <- Image_Modified %>% magick::as_EBImage() #turn to EBImage object
+              Image_Modified  <-
+                Image_Modified %>% EBImage::opening(EBImage::makeBrush(size = Opening_kernel_size, shape = "disc")) %>%
+                EBImage::closing(EBImage::makeBrush(size = Closing_kernel_size, shape = "disc")) #opening and closing
+
+              Image_Modified <- magick::image_read(Image_Modified) #again as Magick image
+
+              Image[index] <- Image_Modified
+            }
+            #Returna a EBImage object
+            Image <- Image %>% magick::as_EBImage()
           }
-          #Returna a EBImage object
-          Image <- Image %>% magick::as_EBImage()
-        }
 
-        #Import image with the EBImage importer if no processing is required
-        else{
-          Image <- EBImage::readImage(Complete_Image_Names[Index])
-        }
+          #Import image with the EBImage importer if no processing is required
+          else{
+            Image <- EBImage::readImage(Complete_Image_Names[Index])
+          }
 
-        #Retain only the required channels
-        Image <- Image[,,Channels_in_use_index]
+          #Retain only the required channels if the image has multiple channels
+          if(!is.na(dim(Image)[3])) Image <- Image[,,Channels_in_use_index]
 
-        #Transform it to cytoImage object
-        Image <- cytomapper::CytoImageList(Image)
-        cytomapper::channelNames(Image) <- Channels_in_use #define channel names
-        S4Vectors::mcols(Image)$imageID <- as.character(Simple_Image_Names[Index])#Modify name
+          #Transform it to cytoImage object
+          Image <- cytomapper::CytoImageList(Image)
+          cytomapper::channelNames(Image) <- Channels_in_use #define channel names
+          S4Vectors::mcols(Image)$imageID <- as.character(Simple_Image_Names[Index])#Modify name
 
-        #Perform cell segmentation
-        Seg_results <- try(
-          simpleSeg::simpleSeg(Image,
-                               nucleus = Nuclear_marker,
-                               cellBody = Cell_body_method,
-                               sizeSelection = Min_pixel,
-                               smooth = Smooth_amount,
-                               transform = Normalization,
-                               watershed = Watershed_type,
-                               tolerance = Tolerance_value,
-                               ext = Neighborhood_distance,
-                               discSize = Disc_size,
-                               tissue = Tissue_mask_markers,
-                               pca = Perform_PCA,
-                               cores = 1)
-          )
+          #Perform cell segmentation
+          Seg_results <-
+            simpleSeg::simpleSeg(Image,
+                                 nucleus = Nuclear_marker,
+                                 cellBody = Cell_body_method,
+                                 sizeSelection = Min_pixel,
+                                 smooth = Smooth_amount,
+                                 transform = Normalization,
+                                 watershed = Watershed_type,
+                                 tolerance = Tolerance_value,
+                                 ext = Neighborhood_distance,
+                                 discSize = Disc_size,
+                                 tissue = Tissue_mask_markers,
+                                 pca = Perform_PCA,
+                                 cores = 1)
 
+          #Generate the name
+          Mask_name <- stringr::str_c(Simple_Image_Names[Index], "_CellMask.tif")
+          File_name <- stringr::str_c(Output_directory, "/", Mask_name)
 
+          #Modify the values of the image
+          Seg_results <- Seg_results[[1]]/max(Seg_results[[1]])
+          #Save modify the file
+          ijtiff::write_tif(img = Seg_results, path = File_name, bits_per_sample = 32, compression = "LZW", msg = FALSE)
 
-        #Generate the name
-        Mask_name <- stringr::str_c(Simple_Image_Names[Index], "_CellMask.tif")
-        File_name <- stringr::str_c(Output_directory, "/", Mask_name)
+          #Remove Image to save RAM space
+          rm(Image)
+          rm(Seg_results)
+          gc()
 
-        #Modify the values of the image
-        Seg_results <- try(Seg_results[[1]]/max(Seg_results[[1]]))
+        },
 
-        #Print a message if error and write empty segmentation mask
-        if(berryFunctions::is.error(Seg_results) | max(Seg_results) == 0){
+        #ERROR BEHAVIOUR
+        error = function(e) {
           Colored_print(paste0("\nIssue with ", Simple_Image_Names[Index], ". Unable to generate cell mask or no cells identified. \n Generating blank cell mask"), color = "red")
 
+          Image <- EBImage::readImage(Complete_Image_Names[Index])
+
           #Get dimensions
-          Image_width <- dim(Image[[1]])[2]
-          Image_height <- dim(Image[[1]])[1]
+          Image_width <- dim(Image)[2]
+          Image_height <- dim(Image)[1]
 
           #Generate matrix
           Image_matrix <- matrix(0, nrow = Image_height, ncol = Image_width)
           Seg_results <- EBImage::as.Image(Image_matrix)
 
+          #Generate the name
+          Mask_name <- stringr::str_c(Simple_Image_Names[Index], "_CellMask.tif")
+          File_name <- stringr::str_c(Output_directory, "/", Mask_name)
+
           #Write the matrix
-          EBImage::writeImage(Seg_results, File_name, bits.per.sample = 16, compression = "LZW")
+          ijtiff::write_tif(img = Seg_results, path = File_name, bits_per_sample = 32, compression = "LZW", msg = FALSE)
 
-        } else{
-          #Save modify the file
-          EBImage::writeImage(Seg_results, File_name, bits.per.sample = 16, compression = "LZW")
+          #Remove Image to save RAM space
+          rm(Image)
+          rm(Seg_results)
+          gc()
         }
-
-        #Remove Image to save RAM space
-        rm(Image)
-        rm(Seg_results)
-        gc()
-      }
       )
     },
     .progress = TRUE)
@@ -401,5 +422,4 @@ Watershed_cell_mask_generator <-
 
     #Print done
     print("DONE!")
-
   }

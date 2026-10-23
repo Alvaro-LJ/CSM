@@ -13,6 +13,9 @@
 #'
 #' @returns A list containing the cumulative interaction matrix for every image as well as the trio interaction score.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
 #' @examples
 #' \dontrun{
 #' #Generate a data distance or random distance matrix--------------------------
@@ -51,9 +54,8 @@ Trio_Cumulative_Interaction_generator <-
     }
     if(!all(Start_from >= 0, Stop_at > 0, Sampling_frequency > 0)) stop("Start_from, Stop_at and Sampling_frequency must have positive values")
 
-    #Get our data from the global environment
-    DATA <- DATA
-
+    #Turn DATA into a shared object
+    DATA <- mori::share(DATA)
 
     #save exit function if parallelization fails
     on.exit({
@@ -116,6 +118,10 @@ Trio_Cumulative_Interaction_generator <-
     gc()
 
     names(RESULTS) <- names(DATA)
+
+    #Generate a safe copy of RESULTS
+    RESULTS <- rlang::duplicate(RESULTS)
+
     #Return the results
     return(RESULTS)
   }

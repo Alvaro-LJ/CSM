@@ -42,14 +42,15 @@
 #' If the image provided is an RGB image, in order to generate the mask the image is first inverted.
 #'
 #' After identifying the position of the TMA cores, the number of rows and columns present in the TMA is computed by clustering the X and Y centroid coordinates of the cores.
-#' If the tolerance values are high, higher rates of missalignment will be tolerated to consider new rows/columns.
+#' If the tolerance values are high, higher rates of misalignment will be tolerated to consider new rows/columns.
 #'
 #' After identifying the position of TMA cores and the row and column they belong to, cores are labelled according to the user provided matrix.
-#' 
+#'
 #' If the TMA cores are large images (due to tissue size or image resolution), the function may hit the maximum RAM usage capacity of any JAVA-based functions. In order to avoid this,
 #' the user may need to open a fresh R session and before running any other code run `options(java.parameters = "-Xmx200g")` or `rJava::.jinit(parameters="-Xmx200g")` to increase max RAM
 #' use to an absurdly high memory use (200Gb in this case).
 #'
+#' For more information please see the vignette 'Working with large images and TMAs'.
 #'
 #' @examples
 #' \dontrun{
@@ -133,6 +134,10 @@ TMA_dearrayer_function <-
                  BiocManager::install("EBImage")
                })
         )
+      )
+      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
+        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("ijtiff")))
       )
     }
 
@@ -515,7 +520,7 @@ TMA_dearrayer_function <-
 
     #Extract the actual cores
     furrr::future_walk(1:nrow(Look_up_table), function(tibble_row_index){
-      
+
       #change the max RAM use
       options(java.parameters = "-Xmx200g")
 
@@ -548,7 +553,8 @@ TMA_dearrayer_function <-
         Smart_image_importer(
           N_cores = 1,
           Image_directory = Original_Image_Directory,
-          Log10_pixel_output = 10, #An incredibly high number of pixels
+          Log10_pixel_output = NULL,
+          Percentage_downsize = 1, #Full image size
 
           X_crop_coordinates = c(Subset_xmin, Subset_xmax),
 
@@ -559,8 +565,11 @@ TMA_dearrayer_function <-
           Save_processed_images = FALSE
         )
 
-      EBImage::writeImage(TMA_image$Image %>% magick::as_EBImage(), Image_name, type = "tiff",
-                          bits.per.sample = 16, compression = "LZW")
+      ijtiff::write_tif(img = TMA_image$Image %>% magick::as_EBImage(),
+                        path = Image_name,
+                        bits_per_sample = 32,
+                        compression = "LZW",
+                        msg = FALSE)
       cat(paste0("\n", Image_name))
     },
     .progress = TRUE)

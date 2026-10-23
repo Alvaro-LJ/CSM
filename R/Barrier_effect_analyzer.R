@@ -10,6 +10,10 @@
 #'
 #' @seealso [Barrier_effect_calculator()], [Barrier_graph_maker()]
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Create temporary input and output directories------------------------------

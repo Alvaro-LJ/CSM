@@ -19,6 +19,9 @@ Returns a tibble with cell features and the phenotype column with the modified l
 \description{
 The function allows the user to modify cell phenotype labels. The function works with any dataframe or tibble containing a column named 'Phenotype'.
 }
+\details{
+For more information please see the vignette 'Cell phenotype labelling'.
+}
 \examples{
 \dontrun{
 print(unique(CSM_Phenotypecell_test$Phenotype))

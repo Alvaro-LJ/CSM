@@ -18,6 +18,9 @@ Returns a tibble where each row are unique positive feature combinations found i
 Given a thresholded cell feature dataset, the function will find all unique combinations of positive features present. These combinations are actually cell phenotypes.
 The result can then be used to feed the \code{\link[=Phenotype_assigner_function]{Phenotype_assigner_function()}} to obtain cell phenotypes.
 }
+\details{
+For more information please see the vignette 'Cell phenotype labelling'.
+}
 \examples{
 \dontrun{
 #Threshold data-------------------------------------

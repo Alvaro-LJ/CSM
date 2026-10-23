@@ -49,6 +49,8 @@
 #' \item{Lower right: If a test has been performed, it shows the model results. Misclassified cells can be selected and labels can be re-assigned to refine the model.}
 #' }
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #' @examples
 #' \dontrun{
 #' #Create temporary directory------------------------------

@@ -59,6 +59,8 @@ These parameters should follow the same rules as the ones used to calculate tiss
 \item{Blurr: A logical value indicating if image blurring should be performed before thresholding.}
 \item{Sigma: If Blurr is set to TRUE, the Sigma value indicates the sigma for Gaussian blurr filtering.}
 }
+
+For more information please see the vignette 'Performing cell segmentation'.
 }
 \examples{
 \dontrun{

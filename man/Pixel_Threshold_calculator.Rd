@@ -75,6 +75,8 @@ Local thresholding calculates a threshold value for every image in the experimen
 Otsu threshold is calculated using the EBImage::otsu function. Automatic multilevel threshold is calculated using the imagerExtra::ThresholdML function.
 
 The Multi_score for multilevel modelling is computed as ∑(Pixel value * N pixels with value)/Total number of foreground pixels.
+
+For more information please see the vignette 'Working with pixels'.
 }
 \examples{
 \dontrun{

@@ -29,6 +29,8 @@ Calculates heterogeneity by tile using tiled images generated with random parame
 \details{
 The function is aimed to estimate impact of the Modifiable areal unit problem (MAUP). For a given set of tiled images generated using random parameters, the function will compute by-tile heterogeneity metrics in a similar
 way as it's homologue function \code{\link[=Tiled_image_heterogeneity_calculator]{Tiled_image_heterogeneity_calculator()}}.
+
+For more information please see the vignette 'Calculating tissue heterogeneity'.
 }
 \examples{
 \dontrun{

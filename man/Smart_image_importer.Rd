@@ -53,6 +53,8 @@ downsized.
 Tile importing is powered by the RBioFormats Bioconductor package that parses the Bioformats Java library to R. Sometimes even if the user#' has installed the RBioFormats package from
 bioconductor the function will still return an error. If this happens, the issue can be solved checking the installed Java version in the computer and manually installing the CRAN rJava package.
 If the function returns an error due to RAM saturation, sometimes it can be solved by allowing Java to use an absurd amount of RAM (for example rJava::.jinit(parameters="-Xmx500g")).
+
+For more information please see the vignette 'Working with large images and TMAs'.
 }
 \examples{
 \dontrun{
@@ -68,9 +70,9 @@ function(Image){
 })
 
 #reduce the pixel content of the image
-Smart_image_importer(Image_directory = dir(Input_Dir, full.names = TRUE)[1], 
+Smart_image_importer(Image_directory = dir(Input_Dir, full.names = TRUE)[1],
                      Log10_pixel_output = 5
-) 
+)
 
 }
 }

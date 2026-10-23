@@ -52,6 +52,8 @@ DBscan filtering is based on the dbscan::dbscan function.
 }
 \details{
 The function results can be used to run the \code{\link[=Compartment_Phenotype_quantifier]{Compartment_Phenotype_quantifier()}} function.
+
+For more information please see the vignette 'Dividing tissue into cellular structures'.
 }
 \examples{
 \dontrun{

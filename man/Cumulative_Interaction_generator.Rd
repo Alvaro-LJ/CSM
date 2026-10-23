@@ -30,6 +30,9 @@ A list containing the cumulative interaction matrix for every image.
 The cumulative interaction matrix contains information regarding the total potential interactions between COO and target cells. For a a given set of increasing distances,
 the number of target cells present from every COO is calculated.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 \dontrun{
 #Generate a data distance or random distance matrix--------------------------

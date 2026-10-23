@@ -16,6 +16,8 @@
 #' @details If image metadata variable is a character, the function will calculate t-tests or ANOVA depending on the number of categories.
 #' If image metadata is numeric, Pearson correlation will be calculated. For time-to event analysis, cut-off points for the image feature will be calculated using the survminer::surv_cutpoint function.
 #'
+#'For more information please see the vignette 'Analyzing image metadata'.
+#'
 #' @examples
 #' \dontrun{
 #' #Calculate the area of TMA samples-------------------------------------------

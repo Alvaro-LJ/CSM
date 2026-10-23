@@ -11,6 +11,8 @@
 #'
 #' Fowlkes-Mallows index is calculated using dendextend::FM_index function.
 #'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #' @returns Returns a tibble containing concordance values by sample. Generates summary plots.
 #'
 #' @examples

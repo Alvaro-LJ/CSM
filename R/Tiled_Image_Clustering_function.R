@@ -77,6 +77,8 @@
 #'
 #' Batch K-means, Gaussian Mixture Models and Clustering Large Applications (CLARA) are all based on the ClusterR package.
 #'
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
 #' @seealso [Image_tiling_processing_function()], [Clustered_Tiled_Images_renamer()], [Clustered_Tiled_Images_analyzer()], [Clustered_Tiled_Images_graphicator()]
 #'
 #' @returns Returns a list containing the tiles with their corresponding neighborhood assignment.

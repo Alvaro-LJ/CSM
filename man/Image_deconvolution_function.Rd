@@ -26,6 +26,9 @@ The function writes multi-tiff images in the ouput directory.
 \description{
 \code{Image_deconvolution_function()} generates multi-channel tiff images according to color deconvolution parameters.
 }
+\details{
+For more information please see the vignette 'Working with RGB images'.
+}
 \examples{
 \dontrun{
 #Create temporary input and output directories------------------------------

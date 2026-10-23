@@ -8,6 +8,10 @@
 #'
 #' @returns Returns a tibble with cell features and the Neighborhood_assignment column with the modified labels.
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' print(unique(CSM_Neighborhoods_test$Neighborhood_assignment))

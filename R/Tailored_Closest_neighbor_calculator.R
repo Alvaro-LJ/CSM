@@ -19,6 +19,10 @@
 #'
 #' @returns A list containing two tibbles. Percentage: A tibble containing the neighbor matrix expressed as percentages. Absolute: A tibble containing the neighbor matrix expressed as cell counts.
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' Tailored_Closest_neighbor_calculator(
@@ -124,6 +128,10 @@ Tailored_Closest_neighbor_calculator <-
           gc()
         })
 
+        #Turn Tibble_COO and Tibble_Targets into shared objects
+        Tibble_COO <- mori::share(Tibble_COO)
+        Tibble_Targets <- mori::share(Tibble_Targets)
+
         #Make the cluster
         future::plan("future::multisession", workers = N_cores)
         options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
@@ -138,7 +146,7 @@ Tailored_Closest_neighbor_calculator <-
             RESULT <- Tibble_Targets[Index[[row]],]
             #If COO is excluded, eliminate accordingly
             if(!Include_COO_in_neighborhood) RESULT <- RESULT %>% dplyr::filter(!Cell_no %in% Cell_no_ID)
-            RESULT <- RESULT %>%dplyr::mutate(DIST = sqrt((X - cell_X)^2 + (Y - cell_Y)^2)) %>% dplyr::arrange(DIST)
+            RESULT <- RESULT %>% dplyr::mutate(DIST = sqrt((X - cell_X)^2 + (Y - cell_Y)^2)) %>% dplyr::arrange(DIST)
 
             #If strategy includes distance and number filter out the neighbors that are not in a allowed distance range
             if(Strategy == "Both"){
@@ -192,7 +200,7 @@ Tailored_Closest_neighbor_calculator <-
                                                        c("Cell_no","X","Y","Subject_Names","Phenotype",
                                                          "N_neighbors", "min_DIST","max_DIST","avg_DIST","median_DIST"))]]
     #We need to remove columns without variability
-    Drop_vars <-purrr::map_lgl(For_correlation, ~length(unique(.)) == 1)
+    Drop_vars <- purrr::map_lgl(For_correlation, ~length(unique(.)) == 1)
     if(sum(Drop_vars >= 1)) message(paste0("The following phenotypes appear at a constant rate in neighbors and will be dropped from the correlation analysis: ",
                                            stringr::str_c(names(Drop_vars)[Drop_vars], collapse = ", ")))
     #Select only variables that are keen for correlation

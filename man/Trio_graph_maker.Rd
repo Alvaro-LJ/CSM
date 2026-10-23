@@ -32,6 +32,9 @@ A graph summarizing spatial interactions for the indicated image.
 \description{
 The function generates a summary plot of TRIO spatial interactions. It can graph results for min dist to TRIO and TRIO score within radius approaches
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 \dontrun{
 #Generate distance matrix-----------------------------------

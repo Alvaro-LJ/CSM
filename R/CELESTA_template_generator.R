@@ -8,7 +8,13 @@
 #'
 #' @returns Creates a CSV file containing the template in the working directory (or the path specified).
 #'
-#' @seealso [CELESTA_phenotyper()]. For more information on how to fullfill the template please visit https://github.com/plevritis-lab/CELESTA.
+#' @seealso [CELESTA_phenotyper()].
+#'
+#' @details
+#' For more information on how to fullfill the template please visit https://github.com/plevritis-lab/CELESTA.
+#'
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #'
 #' @examples
 #' \dontrun{

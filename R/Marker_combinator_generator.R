@@ -10,6 +10,10 @@
 #'
 #' @seealso [Thresholding_function()], [Thresholding_function_tailored()] [Phenotype_assigner_function()]
 #'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Threshold data-------------------------------------

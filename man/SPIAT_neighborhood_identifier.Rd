@@ -38,6 +38,9 @@ A tibble containing a summary of the analysis result by image.
 \description{
 The function identifies cell neighborhoods using the SPIAT::identify_neighborhoods function.
 }
+\details{
+For more information please see the vignette 'Cellular neighborhood analysis'.
+}
 \examples{
 \dontrun{
 #Generate SPIAT object list----------------------------

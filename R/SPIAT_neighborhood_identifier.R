@@ -15,6 +15,10 @@
 #'
 #' @seealso [SPIAT_object_generator()].
 #'
+#' @details
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Generate SPIAT object list----------------------------
@@ -63,7 +67,6 @@ SPIAT_neighborhood_identifier <-
     #Check arguments
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
 
-    DATA_SPIAT <- DATA_SPIAT
     if(!all(purrr::map_lgl(DATA_SPIAT, function(Image) class(Image) == "SpatialExperiment"))) stop("DATA_SPIAT must be created using the SPIAT_object_generator function")
 
     if(!Strategy %in% c("hierarchical", "dbscan")) stop("Strategy must be one of the following: hierarchical, dbscan")
@@ -87,6 +90,9 @@ SPIAT_neighborhood_identifier <-
     future::plan("future::multisession", workers = N_cores)
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
+
+    #Turn DATA spiat into a shared object
+    DATA_SPIAT <- mori::share(DATA_SPIAT)
 
     RESULTS <-
       suppressMessages(
@@ -145,5 +151,7 @@ SPIAT_neighborhood_identifier <-
     future::plan("future::sequential")
     gc()
 
+    #Return RESULTS safely
+    RESULTS <- rlang::duplicate(RESULTS)
     return(RESULTS)
   }

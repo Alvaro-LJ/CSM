@@ -29,6 +29,8 @@
 #' \item{Lower right: Final result after applying blurring to the target (if required).}
 #' }
 #'
+#' For more information please see the vignette 'Working with pixels'.
+#'
 #' @examples
 #' \dontrun{
 #' #Create temporary directory------------------------------

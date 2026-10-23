@@ -26,6 +26,7 @@ The tiled image is first transformed into a raster like object, then the grey le
 }
 \details{
 Metrics are calculated using the glcm R package.
+For more information please see the vignette 'Calculating tissue heterogeneity'.
 }
 \examples{
 \dontrun{

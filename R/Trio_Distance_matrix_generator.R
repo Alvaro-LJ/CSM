@@ -16,6 +16,10 @@
 #'
 #' @returns A list containing the distance matrix for each image. Rows represent Cells of Origin and columns represent Target cells.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' Trio_Distance_matrix_generator(
@@ -51,8 +55,10 @@ Trio_Distance_matrix_generator <-
       )
     }
 
-    DATA_Phenotypes <- DATA
+    #Turn Data into a shared object
+    DATA_Phenotypes <- mori::share(DATA)
 
+    #Check arguments
     if(!identical(names(DATA_Phenotypes)[1:4],  c("Cell_no", "X", "Y", "Subject_Names"))) { #Check if Data is correctly formatted
       stop("DATA provided should have an adecuate format")
     }
@@ -100,7 +106,7 @@ Trio_Distance_matrix_generator <-
       if(answer == 2) stop("The function has been stopped. Please tune edge correction parameters for a better result")
 
       #Remove cells
-      Keep_vector_list <-purrr::map(unique(DATA_Phenotypes$Subject_Names), function(x){
+      Keep_vector_list <- purrr::map(unique(DATA_Phenotypes$Subject_Names), function(x){
         #Prepare our data
         Image_tibble <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == x)
         Cells_sf <- sf::st_as_sf(Image_tibble , coords = c("X", "Y"))
@@ -112,7 +118,7 @@ Trio_Distance_matrix_generator <-
         #Print message to warn COO removed in analysis
         Cells_in_border_no <- sum(COO_in_Border_vector)
         Cells_of_origin_no <- sum(Image_tibble$Phenotype == Cell_Of_Origin)
-        
+
         if(Cells_in_border_no < Cells_of_origin_no){
           Colored_print(paste0("\n", "Sample ", as.character(x), ": ", Cells_in_border_no, " / ", Cells_of_origin_no, " ", Cell_Of_Origin, " cell/s will be removed due to edge proximity."),
                         color = "green")
@@ -121,7 +127,7 @@ Trio_Distance_matrix_generator <-
           Colored_print(paste0("\n", "Sample ", as.character(x), ": ", Cells_in_border_no, " / ", Cells_of_origin_no, " ", Cell_Of_Origin, " cell/s will be removed due to edge proximity."),
                         color = "red")
         }
-        
+
         #Return a vector with the cells to keep (either no COO or COO not in edge)
         return(!COO_in_Border_vector)
       })
@@ -189,6 +195,9 @@ Trio_Distance_matrix_generator <-
     gc()
     #Add names
     names(RESULTS) <- unique(DATA_Phenotypes$Subject_Names)
+
+    #Get a safe copy of RESULTS
+    RESULTS <- rlang::duplicate(RESULTS)
 
     #Calculate which samples have NA values and should be removed
     Samples_to_remove <- purrr::map_lgl(RESULTS, function(x) is.na(x[[2]][[1,1]]))

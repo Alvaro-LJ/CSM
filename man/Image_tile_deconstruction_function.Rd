@@ -52,6 +52,8 @@ checking the installed Java version in the computer and manually installing the 
 If the resulting tiles are large images (due to tile size, or number of channels), the function may hit the maximum RAM usage capacity of any JAVA-based functions. In order to avoid this,
 the user may need to open a fresh R session and before running any other code run \code{options(java.parameters = "-Xmx200g")} or \code{rJava::.jinit(parameters="-Xmx200g")} to increase max RAM
 use to an absurdly high memory use (200Gb in this case).
+
+For more information please see the vignette 'Working with large images and TMAs'.
 }
 \examples{
 \dontrun{

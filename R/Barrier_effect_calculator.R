@@ -34,6 +34,8 @@
 #' The function returns the absolute cell and pixel counts within the barrier. The function also computes the ratios normalized by
 #' the total number of target cells studied, the area of the barrier polygon and the total distance of the COO to the target cells studied.
 #'
+#' For more information please see the vignette 'Cell to cell spatial interaction'.#'
+#'
 #' @returns A tibble containing information of barrier cells and pixels per COO analyzed.
 #'
 #' @seealso [Barrier_effect_analyzer()], [Barrier_graph_maker()]
@@ -464,6 +466,9 @@ Barrier_effect_calculator <-
       gc()
     })
 
+    #Turn the DATA_Phenotypes to a shared object
+    DATA_Phenotypes <- mori::share(DATA_Phenotypes)
+
     #Set the cores
     future::plan("future::multisession", workers = N_cores)
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
@@ -697,6 +702,9 @@ Barrier_effect_calculator <-
     future::plan("future::multisession", workers = N_cores)
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
+
+    #Turn the DATA_COO_triangulation into a shared object
+    DATA_COO_triangulation <- mori::share(DATA_COO_triangulation)
 
     #Execute the algorithm
     Results <- furrr::future_map_dfr(unique(DATA_COO_triangulation$Cell_no), function(COO_ID){
@@ -983,8 +991,3 @@ Barrier_effect_calculator <-
     #Return the final tibble
     return(Results)
   }
-
-
-
-
-

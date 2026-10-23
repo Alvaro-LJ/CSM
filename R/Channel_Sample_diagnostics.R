@@ -23,6 +23,7 @@
 #' positive correlation. If the correlation is not found, this may warrant the review of specific images or channels. The function is based on computing the Spearman correlation index.
 #' In order to ameliorate the computational burden, the images can be downsized with the Pixel_downsize argument.
 #'
+#' For more information please see the vignette 'Image QC flagging'.
 #'
 #' @returns A tibble containing flagged image channel and samples according to correlation metrics
 #'
@@ -79,7 +80,7 @@ Channel_Sample_diagnostics <-
            Pixel_downsize = 1,
            Channel_for_test = NULL,
            Channels_to_keep = NULL,
-           
+
            Threshold_type_tissueMask = NULL,
            Threshold_value_tissueMask = NULL,
            Blurr_tissueMask = FALSE,
@@ -198,7 +199,7 @@ Channel_Sample_diagnostics <-
         print("Running a tissue mask random test")
 
         Random_image_index <- sample(1:length(Image_paths), size = 1)
-        
+
         #Obtain image and apply downsize
         Image_Original <- Smart_image_importer(N_cores = N_cores,
                                                Image_directory = Image_paths[Random_image_index],
@@ -361,6 +362,9 @@ Channel_Sample_diagnostics <-
           future::plan("future::multisession", workers = N_cores)
           options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
           furrr::furrr_options(scheduling = Inf)
+
+          #Turn HUB_tibble into a shared object
+          HUB_tibble <- mori::share(HUB_tibble)
 
           LOCAL_Correlation_List <-
             furrr::future_map(unique(HUB_tibble$Subject_Names), function(Image_name){
@@ -534,6 +538,9 @@ Channel_Sample_diagnostics <-
           future::plan("future::multisession", workers = N_cores)
           options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
           furrr::furrr_options(scheduling = Inf)
+
+          #Turn HUB_tibble into a shared object
+          HUB_tibble <- mori::share(HUB_tibble)
 
           LOCAL_Correlation_List <-
             furrr::future_map(unique(HUB_tibble$Subject_Names), function(Image_name){

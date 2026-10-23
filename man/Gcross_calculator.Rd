@@ -40,6 +40,9 @@ The function calculates the probability of spatial encounter between two cell ty
 Steep rise in probability as distance increases means high chances of spatial interaction. The function is calculated using the spatstat R metapackage
 (specifically the spatstat.explore::Gcross function). The Area Under the Curve (AUC) of the resulting function can be used as a metric of spatial association.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 \dontrun{
 Gcross_calculator(

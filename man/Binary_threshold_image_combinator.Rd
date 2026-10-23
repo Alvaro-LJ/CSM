@@ -34,6 +34,8 @@ The function will first match the file names in the provided directories. After 
 \bold{SEQUENTIALLY} using the operators provided by the user. This means that the order of the operators and the images being combined
 matters. This function can only combine binary thresholded images. Multi-level thresholded images are not supported.
 If processed images are saved, these can be further combined with cell position data using \code{\link[=Cell_to_pixel_distance_calculator]{Cell_to_pixel_distance_calculator()}}.
+
+For more information please see the vignette 'Working with pixels'.
 }
 \examples{
 \dontrun{

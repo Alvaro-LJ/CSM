@@ -15,6 +15,10 @@
 #'
 #' @returns A list containing two outputs: Raw_DATA contains the expected interaction probability for every distance point. Simplified_DATA cotains the AUC data by image.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #'Gcross_calculator(

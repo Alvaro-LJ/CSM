@@ -173,6 +173,8 @@ For graph based clustering, Nearest Neighbors Graphs (SNNG) are built using blus
 K_Means_Meta_clustering first summarizes the cell feature matrix observations using K means algorithm and the performs Consensus Clustering. Afterwards results are generalized to all cells.
 
 Batch K-means, Gaussian Mixture Models and Clustering Large Applications (CLARA) are all based on the ClusterR package.
+
+For more information please see the vignette 'Cell phenotype labelling'.
 }
 \examples{
 \dontrun{

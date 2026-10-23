@@ -84,6 +84,9 @@ Writes the cell mask images in the output directory
 Performs watershed cell segmentation using the simpleSeg Bioconductor R package.
 Parameters can then be obtained using \code{\link[=Watershed_tester_app]{Watershed_tester_app()}}.
 }
+\details{
+For more information please see the vignette 'Performing cell segmentation'.
+}
 \examples{
 \dontrun{
 #Create temporary input directory----------------------------------------

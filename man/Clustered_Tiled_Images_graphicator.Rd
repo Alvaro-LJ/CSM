@@ -17,6 +17,9 @@ A plot of the neighborhood identity of each tile.
 \description{
 The function generates plots of the neighborhood labels of each tile after running the \code{\link[=Tiled_Image_Clustering_function]{Tiled_Image_Clustering_function()}}.
 }
+\details{
+For more information please see the vignette 'Cellular neighborhood analysis'.
+}
 \examples{
 \dontrun{
 #Tile images with cell phenotype information---------------------------------

@@ -17,6 +17,9 @@ A list containing tibbles with by sample summary metrics.
 \description{
 Givena dataset obtained using the \code{\link[=Barrier_effect_calculator]{Barrier_effect_calculator()}}, the function computes sample summary metrics for every element analyzed.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 \dontrun{
 #Create temporary input and output directories------------------------------

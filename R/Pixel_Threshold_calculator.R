@@ -34,6 +34,8 @@
 #'
 #' The Multi_score for multilevel modelling is computed as ∑(Pixel value * N pixels with value)/Total number of foreground pixels.
 #'
+#' For more information please see the vignette 'Working with pixels'.
+#'
 #' @seealso [Image_thresholding_app_launcher()], [Binary_threshold_image_combinator()], [MFI_Experimet_Calculator()]
 #'
 #' @examples

@@ -57,6 +57,8 @@ Identify image issues based on correlation hubs
 The function is based on the prior knowledge of protein/biomolecule spatial distribution. If two proteins are expected to be expressed in the same cell/tissue structure they should show
 positive correlation. If the correlation is not found, this may warrant the review of specific images or channels. The function is based on computing the Spearman correlation index.
 In order to ameliorate the computational burden, the images can be downsized with the Pixel_downsize argument.
+
+For more information please see the vignette 'Image QC flagging'.
 }
 \examples{
 \dontrun{

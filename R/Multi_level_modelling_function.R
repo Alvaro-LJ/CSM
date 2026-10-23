@@ -19,6 +19,10 @@
 #'
 #' @returns Summary of the fitted multi-level model.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #'
 #' \dontrun{

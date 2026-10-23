@@ -21,6 +21,7 @@
 #' If pixel_distance_ratio is provided, it will modify the X and Y coordinates of the provided DATA_Phenotypes. The function will assume that
 #' X and Y coordinates of the Barrier_DATA has already been modified with the pixel_distance_ratio argument of the [Barrier_effect_calculator()].
 #'
+#'For more information please see the vignette 'Cell to cell spatial interaction'.
 #'
 #' @returns A plot of the barrier effect for a given sample.
 #'

@@ -8,6 +8,9 @@
 #'
 #' @returns Returns a tibble with cell features and the phenotype column with the modified labels.
 #'
+#' @details
+#' For more information please see the vignette 'Cell phenotype labelling'.
+#'
 #'
 #' @examples
 #' \dontrun{

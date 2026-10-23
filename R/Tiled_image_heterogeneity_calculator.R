@@ -19,6 +19,10 @@
 #'
 #' @seealso [Tiled_image_heterogeneity_analyzer()], [Tiled_image_heterogeneity_graph_maker()]
 #'
+#' @details
+#' For more information please see the vignette 'Calculating tissue heterogeneity'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' #Divide cells into tiles---------

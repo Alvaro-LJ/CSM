@@ -14,6 +14,10 @@
 #'
 #' @returns Returns a tibble with cell features and a column named 'Compartment' containing cell location.
 #'
+#' @details
+#' For more information please see the vignette 'Dividing tissue into cellular structures'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #' LISA_Tumor_Stroma_identifier(
@@ -62,8 +66,7 @@ LISA_Tumor_Stroma_identifier <-
         )
       )
     }
-    #Import all required Data
-    DATA_Phenotypes <- DATA_Phenotypes
+
 
     #Check more arguments
     if(!Index_phenotype %in% unique(DATA_Phenotypes$Phenotype)) stop(paste0("Index phenotype must be one of the following: ", stringr::str_c(unique(DATA_Phenotypes$Phenotype), collapse = ", ")))
@@ -78,6 +81,9 @@ LISA_Tumor_Stroma_identifier <-
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
 
     DATA_Phenotypes <- DATA_Phenotypes %>% dplyr::rename("x" = "X", "y" = "Y")
+
+    #Turn data phenotypes into a shared object
+    DATA_Phenotypes <- mori::share(DATA_Phenotypes)
 
     #Select Image to be previewed
     For_test <- DATA_Phenotypes %>% dplyr::filter(Subject_Names == Image_preview)

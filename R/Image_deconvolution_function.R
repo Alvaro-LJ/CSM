@@ -5,8 +5,13 @@
 #' @param Output_directory Character string specifying the path to the folder where  output images are written. It must be an empty folder.
 #' @param Deconvolution_parameters A list containing parameters. Created using [Color_deconvolution_App_launcher()].
 #' @param N_cores Integer. Number of cores to parallelize your computation.
+#'
 #' @returns The function writes multi-tiff images in the ouput directory.
+#'
 #' @seealso [Color_deconvolution_App_launcher()]
+#'
+#' @details
+#' For more information please see the vignette 'Working with RGB images'.
 #'
 #' @examples
 #' \dontrun{
@@ -63,6 +68,10 @@ Image_deconvolution_function <-
                  BiocManager::install("EBImage")
                })
         )
+      )
+      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
+        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("ijtiff")))
       )
     }
 
@@ -178,16 +187,16 @@ Image_deconvolution_function <-
       Image <- magick::image_read(dir(Directory, full.names = TRUE)[Image_index])
 
       #Obtain a list with each element corresponding to each of the channels
-      List_of_image_channel <-purrr::map(Deconvolution_Parameters,
+      List_of_image_channel <- purrr::map(Deconvolution_Parameters,
                                          function(Channel_Parameters){
                                            Channel <- Channel_deconvolution_function(Image = Image,
                                                                                      Parameters = Channel_Parameters)
                                            return(Channel)
                                          })
       FINAL_Image <- EBImage::combine(List_of_image_channel)
-      FINAL_Image_Name <- stringr::str_c(Output_directory, "/", dir(Directory, full.names = FALSE)[Image_index], "_Channels.tiff")
+      FINAL_Image_Name <- stringr::str_c(Output_directory, "/", dir(Directory, full.names = FALSE)[Image_index], "_Channels.tif")
 
-      EBImage::writeImage(FINAL_Image, FINAL_Image_Name, type = "tiff", bits.per.sample = 16, compression = "LZW")
+      ijtiff::write_tif(img = FINAL_Image, path = FINAL_Image_Name, bits_per_sample = 32, compression = "LZW", msg = FALSE)
     },
     .progress = TRUE)
 

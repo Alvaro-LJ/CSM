@@ -27,6 +27,8 @@
 #'  method ("trim99", "minMax"),
 #'  cores (Irrelevant argument. If parallelization is required use N_cores argument and [Normalization_function_parallel()] function)
 #'
+#' For more information please see the vignette 'Normalizing cell features'.
+#'
 #' @seealso [Normalization_function()], [Normalization_diagnostics()]
 #'
 #' @export
@@ -97,9 +99,8 @@ Normalization_function_parallel <-
                  fill = sum(!Argument_checker)))
       }
 
-      #Capture DATA and parameters
-      DATA <- DATA
-      Parameters <- Parameters
+      #Turn DATA into a shared object
+      DATA <- mori::share(DATA)
 
       #save exit function if parallelization fails
       on.exit({
@@ -147,9 +148,11 @@ Normalization_function_parallel <-
       future::plan("future::sequential")
       gc()
 
-      RESULTS <-purrr::map_dfc(RESULTS, ~bind_cols(., .name_repair = "universal"))
+      RESULTS <- purrr::map_dfc(RESULTS, ~bind_cols(., .name_repair = "universal"))
       names(RESULTS) <- names(DATA)[-c(1:4)]
-      return(bind_cols(DATA[1:4], RESULTS))
+      RESULTS <- bind_cols(DATA[1:4], RESULTS)
+      RESULTS <- rlang::duplicate(RESULTS)
+      return(RESULTS)
     }
 
     #Then simpleSeg
@@ -189,7 +192,8 @@ Normalization_function_parallel <-
                  fill = sum(!Argument_checker)))
       }
 
-      DATA <- DATA
+      #Turn DATA into a shared object
+      DATA <- mori::share(DATA)
 
       #save exit function if parallelization fails
       on.exit({
@@ -216,6 +220,8 @@ Normalization_function_parallel <-
       #Merge results in a tibble
       RESULTS <-purrr::map_dfc(RESULTS,dplyr::bind_cols)
       #Return all the results
-      dplyr::bind_cols(DATA[1:4], RESULTS)
+      RESULTS <- bind_cols(DATA[1:4], RESULTS)
+      RESULTS <- rlang::duplicate(RESULTS)
+      return(RESULTS)
     }
   }

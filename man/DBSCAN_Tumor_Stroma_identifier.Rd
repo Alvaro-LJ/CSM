@@ -33,6 +33,9 @@ Returns a tibble with cell features and a column named 'Compartment' containing 
 The function calculates tissue compartments (usually tumor and stroma) based on density based clustering. Cells are considered to be in the tissue compartment if they are clustered in proximity to index cell types.
 The function is based on the dbscan::dbscan function.
 }
+\details{
+For more information please see the vignette 'Dividing tissue into cellular structures'.
+}
 \examples{
 \dontrun{
 DBSCAN_Tumor_Stroma_identifier(

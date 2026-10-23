@@ -41,6 +41,8 @@ Majority voting assigns the label with the highest votes. If there is a tie betw
 Arbitrary voting assigns the label with the highest votes as long as it has received enough votes. Arbitrary threshold must be between 0.5 and 1.
 
 Difference voting assigns the label with the highest votes as long as the difference between the selected label and the second most voted option is above an arbitrary threshold.
+
+For more information please see the vignette 'Cell phenotype labelling'.
 }
 \examples{
 \dontrun{

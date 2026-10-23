@@ -19,6 +19,9 @@ Returns a tibble with cell counts, percentages and optionally cell densities per
 \description{
 The function generates cell counts, percentages and optionally, cell densities.
 }
+\details{
+For more information please see the vignette 'Cell phenotype labelling'.
+}
 \examples{
 \dontrun{
 #Calculate tissue surface----------------

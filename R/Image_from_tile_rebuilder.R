@@ -1,7 +1,7 @@
 #' Build images from tile image chunks
 #'
 #' `Image_from_tile_rebuilder()` builds a complete image from it's tiles.
-#' Warning: Image reconstruction is limited to ≈ 2-3Gb.
+#' Warning: Image reconstruction is limited to  a final image size of ≈ 2-3Gb.
 #' Image reconstruction is designed to rebuild complete images from tiles once these have undergone pixel thresholding using [Pixel_Threshold_calculator()].
 #'
 #' Another warning: Image re-build for overlapping tiles is not currently supported.
@@ -12,10 +12,14 @@
 #' @param Output_directory Character string specifying the path to the folder where  output images are written. It must be an empty folder.
 #' @param RGB_Color_images Logical. Is the image a RGB color image?
 #' @param N_cores Integer. Number of cores to parallelize your computation.
-#' 
+#'
 #' @returns The function writes the images in the ouput directory.
-#' 
+#'
 #' @seealso [Image_tile_deconstruction_function()]
+#'
+#' @details
+#' For more information please see the vignette 'Working with large images and TMAs'.
+#'
 #'
 #' @examples
 #' \dontrun{
@@ -91,6 +95,10 @@ Image_from_tile_rebuilder <-
                })
         )
       )
+      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
+        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
+               expression(install.packages("ijtiff")))
+      )
     }
 
     on.exit({
@@ -156,7 +164,7 @@ Image_from_tile_rebuilder <-
             Column_image <- EBImage::abind(map(Column_information$Whole_path, ~RBioFormats::read.image(.,
                                                                                                        proprietary.metadata = FALSE,
                                                                                                        read.metadata = TRUE,
-                                                                                                       normalize = TRUE)),
+                                                                                                       normalize = FALSE)),
                                            along = 2) #Generate the columns
             return(Column_image)
           }),
@@ -167,7 +175,7 @@ Image_from_tile_rebuilder <-
       if(!RGB_Color_images) EBImage::colorMode(Final_image) <- "Grayscale"
       if(RGB_Color_images) EBImage::colorMode(Final_image) <- "Color"
 
-      EBImage::writeImage(Final_image, paste0(Output_directory, "/", Image, ".tif"), bits.per.sample = 16, compression = "LZW")
+      ijtiff::write_tif(img = Final_image, path = paste0(Output_directory, "/", Image, ".tif"), bits_per_sample = 32, compression = "LZW", msg = FALSE)
     }, .progress = TRUE)
 
     future::plan("future::sequential")

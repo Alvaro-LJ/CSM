@@ -33,6 +33,9 @@
 #' \item{Lower right: Heatmap of marker expression by cell. If image is zoomed in, only cells in the field of view are shown.}
 #' }
 #'
+#' @details
+#' For more information please see the vignette 'Performing cell segmentation'.
+#'
 #'
 #' @examples
 #' \dontrun{

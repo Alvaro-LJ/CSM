@@ -174,6 +174,9 @@ Random_image_tiling_processing_function <-
         #Proceed with analysis
         Interim <- DATA %>% dplyr::filter(Subject_Names == Image_name)
 
+        #Turn Interim into a shared object
+        Interim <- mori::share(Interim)
+
         #Iterate over random iterations
         #Set the on exit statement
         on.exit({

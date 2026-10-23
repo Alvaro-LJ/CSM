@@ -31,6 +31,9 @@ The function calculates the spatial aggregation of a single cell type using Ripl
 that can serve as a metric of spatial interaction. The function is calculated using the spatstat R metapackage.
 (specifically the spatstat.explore::envelope). If integration fails, the user may try different Max_distance thresholds to make it work.
 }
+\details{
+For more information please see the vignette 'Cell to cell spatial interaction'.
+}
 \examples{
 \dontrun{
 Ripley_function_calculator(

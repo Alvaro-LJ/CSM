@@ -15,20 +15,71 @@
 #'
 #' @returns A tibble containing Cell feature information along with the distance to the closest positive pixel.
 #'
-#' @seealso [Pixel_Threshold_calculator()]
+#' @seealso [Pixel_Threshold_calculator()], [Pixels_in_radius_calculator()].
+#'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction' and 'Working with pixels'.
+#'
 #'
 #' @examples
 #' \dontrun{
-#' Cell_to_pixel_distance_calculator(
-#'     N_cores = 1,
-#'     Directory = "Path/To/Thresholded_images",
-#'     Image_rotate = 90,
-#'     Image_x_flip = FALSE,
-#'     Image_y_flip = TRUE,
-#'     DATA = CSM_Phenotypecell_test,
-#'     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
-#'     Pixel_distance_ratio = NULL
-#'  )
+#' #Generate the thresholded images and save them in a directory
+#'Input_Dir <- tempfile(pattern = "tempdir1_Input")
+#'Output_Dir <- tempfile(pattern = "tempdir2_Output")
+#'dir.create(Input_Dir, recursive = TRUE)
+#'dir.create(Output_Dir, recursive = TRUE)
+#'
+#' #Save images in Input directory
+#' purrr::map(1:2,
+#'          function(Image){
+#'            EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+#'                                file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+#'          })
+#'
+#'#Execute thresholding------------------------------------------------------
+#'Pixel_Threshold_calculator(
+#'  N_cores = 1,
+#' Directory = Input_Dir,
+#' Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#' Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+#' Target_channel = "CK-EPCAM",
+#'
+#' Save_processed_images = TRUE,
+#' Output_Directory = Output_Dir,
+#'
+#' Local_thresholding = FALSE,
+#' Threshold_type = "Arbitrary",
+#' Threshold_value = 0.02,
+#'
+#' Threshold_type_tissueMask = "Absolute",
+#'  Threshold_value_tissueMask = 0.001,
+#'  Blurr_tissueMask = TRUE,
+#'  Sigma_tissueMask = 0.5,
+#' Blurr_target = FALSE
+#')
+#'
+#'#Compute the distance to closest pixel
+#'Cell_to_pixel_distance_calculator(
+#'  N_cores = 1,
+#' Directory = Output_Dir,
+#'  Image_x_flip = FALSE,
+#'  Image_y_flip = TRUE,
+#'  DATA = CSM_Phenotypecell_test,
+#'  Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+#'  Pixel_distance_ratio = NULL
+#')
+#'
+#'#Compute the positive pixels in 50 pixel radius
+#'Pixels_in_radius_calculator(
+#' N_cores = 1,
+#' Directory = Output_Dir,
+#' Image_x_flip = FALSE,
+#' Image_y_flip = TRUE,
+#' DATA = CSM_Phenotypecell_test,
+#' Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+#' Pixel_distance_ratio = NULL,
+#' Radius = 50
+#' )
 #'}
 #'
 #' @export
@@ -150,7 +201,7 @@ Cell_to_pixel_distance_calculator <-
       #######Look up table generation#######
       #Generate a look up tibble with the image name, the closest name in data$Subject_Names and the image path
       #Evaluate which subject name in data is the closest one to the subject name in images
-      Closest_name_vector <-purrr::map_dbl(Subject_names_in_images, function(Image_name){
+      Closest_name_vector <- purrr::map_dbl(Subject_names_in_images, function(Image_name){
         Distance_vector <- adist(Image_name, Subject_names_in_data, fixed = TRUE, ignore.case = TRUE)
         which.min(Distance_vector)
       })
@@ -206,32 +257,6 @@ Cell_to_pixel_distance_calculator <-
         Names_tibble <- Names_tibble[Images_with_cells, ]
       }
       if(!nrow(Names_tibble) > 0) stop("No images with adequate number of cells.")
-
-      #######Check that images have positive pixels#######
-      print("Removing images without non-cero value pixels")
-
-      #Check that images have positive pixels
-      #Will iterate for every image in the names tibble
-      future::plan("future::multisession", workers = N_cores)
-      options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
-      furrr::furrr_options(scheduling = Inf)
-      Images_with_pixels <-
-        furrr::future_map_lgl(Names_tibble$Image_URL, function(Image){
-          Image <- magick::image_read(Image) %>% magick::as_EBImage()
-          sum(Image) > 0
-        })
-      #Return to single core
-      future::plan("future::sequential")
-      gc()
-      if(!all(Images_with_pixels)){
-        Colored_print(paste0("\n", "The following image/s do not have positive pixels. They will be removed: ",
-                       stringr::str_c("\n", Names_tibble$Subject_names_in_data[!Images_with_pixels], collapse = ", ")),
-                      color = "red"
-                      )
-        Names_tibble <- Names_tibble[Images_with_pixels, ]
-      }
-      if(!nrow(Names_tibble) > 0) stop("No images with adequate number of pixels and/or cells.")
-
 
       #######RANDOM TEST#######
       #Run a random test with the image with the lowest cell counts
@@ -290,6 +315,9 @@ Cell_to_pixel_distance_calculator <-
 
       #######COMPUTE THE ACTUAL DISTANCE BETWEEN CELLS AND PIXELS#######
 
+      #Generate a shared DATA object
+      DATA <- mori::share(DATA)
+
       #Will iterate for every image in the names tibble
       future::plan("future::multisession", workers = N_cores)
       options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
@@ -305,6 +333,18 @@ Cell_to_pixel_distance_calculator <-
 
           #Import Image
           Image <- magick::image_read(Names_tibble$Image_URL[[Index_image]])
+
+          #Check that the image has adequate max value (at least a non-zero pixel)
+          Image_sum <- sum(Image %>% magick::as_EBImage()) > 0
+          if(!Image_sum){
+            Colored_print(paste0("\n", "The following image does not have positive pixels. It will be removed from the analysis: ",
+                                 stringr::str_c("\n", Names_tibble$Subject_names_in_data[Index_image], collapse = ", ")),
+                          color = "red"
+            )
+            return(
+             tibble::tibble()
+            )
+          }
 
           #Execute rotation if required
           if(!is.null(Image_rotate)) Image <- Image %>% magick::image_rotate(degrees = Image_rotate)
@@ -325,7 +365,7 @@ Cell_to_pixel_distance_calculator <-
           #Keep non-0 values
           Image_tibble <- Image_tibble %>% dplyr::filter(Value != 0)
           #If the pixel distance ratio is provided modify the values of the positive pixel values
-          if(!is.null(Pixel_distance_ratio)) Image_mage_tibble <- Image_mage_tibble %>%dplyr::mutate(X = X*Pixel_distance_ratio, Y = Y*Pixel_distance_ratio)
+          if(!is.null(Pixel_distance_ratio)) Image_tibble <- Image_tibble %>% dplyr::mutate(X = X*Pixel_distance_ratio, Y = Y*Pixel_distance_ratio)
 
           #Cells will be origin, pixels will be targets.
           COO_info <- cbind(DATA_image[["X"]], DATA_image[["Y"]])
@@ -376,7 +416,7 @@ Cell_to_pixel_distance_calculator <-
                 names(Closest_pixel_tibble) <- stringr::str_c(Target_being_measured, "_DIST_", round(Unique_values[Indivudal_target], digits = 3), collapse = "")
                 return(Closest_pixel_tibble)
               })
-            DATA_image <-dplyr::bind_cols(DATA_image, Closest_pixel_tibble)
+            DATA_image <- dplyr::bind_cols(DATA_image, Closest_pixel_tibble)
             return(DATA_image)
           }
         }, .progress = TRUE)
@@ -389,4 +429,3 @@ Cell_to_pixel_distance_calculator <-
       return(RESULTS)
 
     }
-

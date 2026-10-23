@@ -12,6 +12,10 @@
 #'
 #' @returns A tibble containing results by image.
 #'
+#' @details
+#' For more information please see the vignette 'Cell to cell spatial interaction'.
+#'
+#'
 #' @examples
 #' \dontrun{
 #'Ripley_function_calculator(

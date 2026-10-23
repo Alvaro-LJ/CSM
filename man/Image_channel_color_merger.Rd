@@ -22,6 +22,8 @@ The parameter list must be a list of lists. Every element in parameter list must
 the parameters used to process that specific channel before merging. This include indicating the channel being processed (a numeric value indicating the channel position within the image),
 the color to be applied to the channel (indicated by name or HEX code), the gamma correction (a numeric value between 0.001 and 1000), the min and max pixel value (a numeric value between 0 and 100 for both of them) and
 equalize (a logical value).
+
+For more information please see the vignette 'Working with large images and TMAs'.
 }
 \examples{
 \dontrun{
@@ -29,7 +31,7 @@ equalize (a logical value).
 Image <- magick::image_read(CSM_MiniMultiTiff_test[[2]])
 
 #Generate the merging parameters (in this case 4 channels will be merged)----
-Merge_parameter_list <- 
+Merge_parameter_list <-
   list(
       DAPI = list(channel_index = 1,
                   color = "blue",
@@ -44,7 +46,7 @@ Merge_parameter_list <-
                 min = 5,
                 max = 20,
                 equalize = FALSE),
- 
+
       CD8 = list(channel_index = 6,
                  color = "#f0703a",
                  gamma = 1,

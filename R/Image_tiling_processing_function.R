@@ -38,8 +38,10 @@ Image_tiling_processing_function <-
            Tile_height,
            Variables_to_keep) {
 
-    #Load Data phenotypes and tile generator function to the environment created in the function
-    DATA <- DATA
+    #Turn DATA into a shared object
+    DATA <- mori::share(DATA)
+
+    #Check arguments
     if(!(is.numeric(Tile_width) & is.numeric(Tile_height))) stop("Both Tile_width and Tile_height must be numeric values")
     if(!(Tile_width%%1 == 0 & Tile_height%%1 ==0)) message("It is highly recommended that Tile_width and Tile_height are integer values")
     if(!(Tile_width > 0 & Tile_height > 0)) stop("Tile_width and Tile_height must be > 0")
@@ -47,36 +49,34 @@ Image_tiling_processing_function <-
     if(!all(Variables_to_keep %in% names(DATA))) stop(paste0(stringr::str_c(Variables_to_keep[!Variables_to_keep %in% names(DATA)], collapse = ", "),
                                                              " not found in DATA variables"))
 
-    else {
-      if (!all(c("X", "Y", "Subject_Names", Variables_to_keep) %in% names(DATA))) {
-        stop("DATA supplied must be follow the structure specified in step 0 and contain Variables_to_keep")
-      } else {
 
-        #save exit function if parallelization fails
-        on.exit({
-          future::plan("future::sequential")
-          gc()
-        })
-
-        future::plan("future::multisession", workers = N_cores)
-        options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
-        furrr::furrr_options(scheduling = Inf)
-        Tiled_Images <-
-          furrr::future_map(unique(DATA$Subject_Names), function(x)
-            Tile_generator_function(
-              Image_name = x,
-              DATA = DATA,
-              Tile_width = Tile_width,
-              Tile_height = Tile_height,
-              Variables_to_keep = Variables_to_keep
-            ),
-            .progress = TRUE)
-
-        future::plan("future::sequential")
-        gc()
-
-        names(Tiled_Images) <- unique(DATA$Subject_Names)
-        return(Tiled_Images)
-      }
+    if (!all(c("X", "Y", "Subject_Names", Variables_to_keep) %in% names(DATA))) {
+      stop("DATA supplied must be follow the structure specified in step 0 and contain Variables_to_keep")
     }
+
+    #save exit function if parallelization fails
+    on.exit({
+      future::plan("future::sequential")
+      gc()
+    })
+
+    future::plan("future::multisession", workers = N_cores)
+    options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
+    furrr::furrr_options(scheduling = Inf)
+    Tiled_Images <-
+      furrr::future_map(unique(DATA$Subject_Names), function(x)
+        Tile_generator_function(
+          Image_name = x,
+          DATA = DATA,
+          Tile_width = Tile_width,
+          Tile_height = Tile_height,
+          Variables_to_keep = Variables_to_keep
+        ),
+        .progress = TRUE)
+
+    future::plan("future::sequential")
+    gc()
+
+    names(Tiled_Images) <- unique(DATA$Subject_Names)
+    return(Tiled_Images)
   }

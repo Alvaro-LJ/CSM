@@ -31,6 +31,9 @@ Given a tiled image cell data (generated using the \code{\link[=Image_tiling_pro
 Morphometry_data (generated using the \code{\link[=Structure_morphometry_calculator]{Structure_morphometry_calculator()}}) the function will graph a specific image comparing the tile pattern
 and the structures identified. Structures can be identified can be colored by different structure metrics.
 }
+\details{
+For more information please see the vignette 'Cellular neighborhood analysis'.
+}
 \examples{
 \dontrun{
 #Divide cells into discrete tiles

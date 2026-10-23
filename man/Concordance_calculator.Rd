@@ -23,6 +23,8 @@ The function calculates concordance between two or more methods that generate ce
 Rand index is calculated using catsim::rand_index function.
 
 Fowlkes-Mallows index is calculated using dendextend::FM_index function.
+
+For more information please see the vignette 'Cell phenotype labelling'.
 }
 \examples{
 \dontrun{

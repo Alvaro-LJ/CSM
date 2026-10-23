@@ -15,6 +15,8 @@
 #'
 #' Graph modularity is computed using the igraph::modularity function.
 #'
+#' For more information please see the vignette 'Cellular neighborhood analysis'.
+#'
 #' @returns Generates a tibble containing neighborhood summary by sample and optionally heterogeneity metrics.
 #'
 #' @examples

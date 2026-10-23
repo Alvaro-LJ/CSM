@@ -155,8 +155,7 @@ The `Cell_to_pixel_distance_calculator()` will allow users to calculate the dist
 If the thresholds are multilevel, the function will calculate the distance to the closest pixel for every non-zero pixel value.
 
 Before computing the actual distances, the function will take the image with the smallest number of cells to run a test.
-Use the test to check if image needs to be 
-rotated or flipped or if 'pixel_distance_ratio' needs to be adjusted. If satisfied, interact with the menu to proceed with the computation.
+Use the test to check if image needs to be rotated or flipped or if 'pixel_distance_ratio' needs to be adjusted. If satisfied, interact with the menu to proceed with the computation.
 
 ```{r Distance_pixel, eval = FALSE}
 #Can only run in an interactive setting
@@ -170,6 +169,22 @@ Cell_to_pixel_distance_calculator(
     Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
     Pixel_distance_ratio = NULL
  )
+```
+
+Alternatively the user can compute the number of positive pixels surrounding each cell according to a user provided radius. The `Pixels_in_radius_calculator()` function can compute simultaneously
+several radius sizes if provided to the `Radius` argument. If multi-level threshold has been used, the number of positive pixels for every non-zero value will be computed.
+```{r Pixels_in_radius, eval = FALSE}
+#Can only run in an interactive setting
+Pixels_in_radius_calculator(
+  N_cores = 1,
+  Directory = Output_Dir,
+  Image_x_flip = FALSE,
+  Image_y_flip = TRUE,
+  DATA = CSM_Phenotypecell_test,
+  Phenotypes_included = unique(CSM_Phenotypecell_test$Phenotype),
+  Pixel_distance_ratio = NULL,
+  Radius = c(50, 60, 70)
+)
 ```
 
 ## Analyzing mean Fluorescence intensity-MFI

@@ -12,6 +12,10 @@
 #'
 #' @returns Returns a tibble with cell features and a column named 'Compartment' containing cell location.
 #'
+#' @details
+#' For more information please see the vignette 'Dividing tissue into cellular structures'.
+#'
+#'
 #'@examples
 #'\dontrun{
 #'DBSCAN_Tumor_Stroma_identifier(
@@ -130,6 +134,10 @@ DBSCAN_Tumor_Stroma_identifier <-
         gc()
       })
 
+      #Turn DATA_Phenotypes into a shared object
+      DATA_Phenotypes <- mori::share(DATA_Phenotypes)
+
+      #Go on with the paralellization
       future::plan("future::multisession", workers = N_cores)
       options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
       furrr::furrr_options(scheduling = Inf)
@@ -161,8 +169,8 @@ DBSCAN_Tumor_Stroma_identifier <-
       future::plan("future::sequential")
       gc()
 
-      return(
-        purrr::map_dfr(Final_list,dplyr::bind_rows)
-      )
+      #Bind all the rows
+      Final_tibble <- purrr::map_dfr(Final_list,dplyr::bind_rows)
+      return(Final_tibble)
     }
   }

@@ -10,6 +10,8 @@
 #' The function is aimed to estimate impact of the Modifiable areal unit problem (MAUP). For a given set of tiled images generated using random parameters, the function will compute by-tile heterogeneity metrics in a similar
 #' way as it's homologue function [Tiled_image_heterogeneity_calculator()].
 #'
+#' For more information please see the vignette 'Calculating tissue heterogeneity'.
+#'
 #' @returns A list containing the parameters used to generate the tiled images and the actual results.
 #'
 #' @seealso [Random_image_tiling_processing_function()], [Random_tiled_image_heterogeneity_analyzer()], [Random_texture_features_calculator()]
@@ -103,6 +105,9 @@ Random_tiled_image_heterogeneity_calculator <-
     options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
     furrr::furrr_options(scheduling = Inf)
 
+    #Turn Random_tiled_images into a shared object
+    Random_tiled_images <- mori::share(Random_tiled_images)
+
     Heterogeneity_results <-
       furrr::future_map(Random_tiled_images[["Results"]], function(Image_results){
 
@@ -148,11 +153,13 @@ Random_tiled_image_heterogeneity_calculator <-
     future::plan("future::sequential")
     gc()
 
+    #Safely return the resulting object
+    Final_list <- list(Iteration_Parameters = Random_tiled_images[["Iteration_Parameters"]],
+                       Heterogeneity_by_tile = Heterogeneity_results)
+    Final_list <- rlang::duplicate(Final_list)
+
     #Return the final results
-    return(
-      list(Iteration_Parameters = Random_tiled_images[["Iteration_Parameters"]],
-           Heterogeneity_by_tile = Heterogeneity_results)
-    )
+    return(Final_list)
   }
 
 
