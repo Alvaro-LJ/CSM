@@ -22,6 +22,28 @@ The model must have been fitted using \code{\link[=Image_based_phenotyper_App_la
 }
 \examples{
 \dontrun{
+#Create temporary directory------------------------------
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2,
+function(Image){
+   EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]],
+   file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Deploy app----------------------------------------------
+Image_based_phenotyper_App_launcher(
+   DATA = CSM_Arrangedcellfeaturedata_test,
+   Directory = Input_Dir,
+   Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
+   Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3")
+)
+
+#Remove directories---------------------------------------------------------
+unlink(Input_Dir, recursive = TRUE)
+
 #Check the model generated using the dedicated app
 print(CSM_ModelParam_test)
 

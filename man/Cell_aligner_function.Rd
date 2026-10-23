@@ -127,8 +127,8 @@ Cell_aligner_function(N_cores = 1,
 
 #Plot the results
 plot(
-  purrr::map_dfr(1:length(TEST$Cell_feature_list), function(List_item){
-  Item <- TEST$Cell_feature_list[[List_item]] \%>\% dplyr::mutate(Modification = names(TEST$Cell_feature_list)[List_item])
+  purrr::map_dfr(1:length(Aligned$Cell_feature_list), function(List_item){
+  Item <- Aligned$Cell_feature_list[[List_item]] \%>\% dplyr::mutate(Modification = names(Aligned$Cell_feature_list)[List_item])
 }) \%>\%
   ggplot(aes(X, Y, color = Modification)) +
   facet_wrap(~Subject_Names) +
