@@ -440,7 +440,8 @@ Each multiplex immunfluoresence panel evaluates up to 7-10 different proteins. I
 alignment needs to be carried out. Using CSM, the user can perform spatial alignment based on cell spatial coordinates information using the `Cell_aligner_function`.
 
 The `Cell_aligner_function` assumes that there is a spatial coherence between the samples provided. The function performance will increase as the similarity between spatial distribution
-patterns is more patent. In order to reduce the spatial noise present in cell spatial distribution coordinates the user can take one or more of the following approaches:
+patterns is more patent. Given two cell spatial distributions, the function will consider one of them as the reference (immovable) and the other as movable (moving points). 
+In order to reduce the spatial noise present in cell spatial distribution coordinates the user can take one or more of the following approaches:
 
 * __Work with specific cell phenotypes:__ In stead of working with all cell datapoints, the user can select those points belonging to certain cell types. For example, tumor cells show a trend to 
 display tissue-specific spatial clustering distributions. These distributions can be more spatially robust and consistent between slides than using whole cell spatial patterns.
@@ -452,12 +453,113 @@ to align different slides.
 
 This is how the  `Cell_aligner_function` works:
 
-* __1st :__
+* __1<sup>st</sup> Perform pre-processing:__ Apply cell phenotype and/or DBSCAN filtering and compute concave hull if required.
+
+* __2<sup>nd</sup> Align X and Y centroids of cell spatial coordinates:__ The spatial coordinates of the moving points are translated to match the centroid of the reference points.
+
+* __3<sup>rd</sup> Perform initial ICP:__ The Iterative Closest Point (ICP) is applied (based on the `Morpho::icpmat`). The ICP is an heuristic algorithm that translates and rotates points to 
+minimize the distance between each point in the moving dataset and it's closest neighbor in the reference dataset. The error of the model (average min distance from all points to their closest neighbor 
+in their homologous dataset) is recorded.
+
+* __4<sup>th</sup> Perform final ICP after rotation and flipping:__ The ICP algorithm results are greatly influenced by the initial distribution of the moving point pattern. In order to reduce the chances
+of finding local minima, the ICP is repeated after rotating and flipping the moving dataset before application (none, X and Y flipping and 360 degrees rotation tried. 1,080 combinations are always tried).
+The error of the model is recorded. The model with the lowest error is retained.
+
+* __5<sup>th</sup> Apply the model to all the datapoints if needed:__ When the alignment has been computed using a subset of the points (any sort of pre-processing has been performed) the model needs to be 
+applied to the whole moving point dataset. 
+
+* __6<sup>th</sup> Apply a final ICP step using the whole dataset:__ Sometimes, a final ICP performed on all the cells once the model has been applied can help to improve minor errors in the 
+alignment process. Other times this step is counterproductive. 
+
+When a single tissue has been sliced several times, the function can handle multi-slide alignment at once. To this end the function will use the first slide as absolute reference. In a multi-step process
+the other non-reference cell spatial distributions will be aligned to the reference slide. First the second slide will be aligned to the absolute reference. Afterwards the thirds slide is process to be
+aligned with the already aligned version of the second slide and so on. Although it would be much simpler to align all tissue slides to the absolute reference, we assume that there is higher
+spatial coherence between consecutive slides. It is reasonable to believe that doing the alignment in this way will improve the overall results.
+
+To demonstrate the way the aligner works we will first generate a reference dataset (the CSM_Phenotypecell_test). We will generate a rotated version of the reference dataset where each sample
+will be randomly rotated between 15 and 345 degrees. We will also generate a dataset that will be randomly X or Y flipped and translated by a random number of pixels. Finally, these
+datasets will be placed in a list that will be fed to the `Cell_aligner_function`.
+
+```{r Random_dataet, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Get the original dataset
+Original_dataset <- CSM::CSM_Phenotypecell_test
+
+#Generate a randomly rotated version
+Rotated_dataset <-
+  purrr::map_dfr(unique(Original_dataset$Subject_Names), function(Subject) {
+    #obtain each individual sample
+    Individual_sample <- Original_dataset %>% dplyr::filter(Subject_Names == Subject)
+    #Compute a random degree
+    Random_degrees <- sample(15:345, size = 1)
+    Random_radians <- Random_degrees * pi / 180
+    
+    Individual_sample[c("X", "Y")] <- Rotate_points(as.matrix(Individual_sample[c("X", "Y")]),
+                                                    theta = Random_radians,
+                                                    non_negative = TRUE)
+    
+    return(Individual_sample)
+  })
+#Generate a randomly flipped and translated
+Flipped_Translated_dataset <-
+  purrr::map_dfr(unique(Original_dataset$Subject_Names), function(Subject) {
+    #obtain each individual sample
+    Individual_sample <- Original_dataset %>% dplyr::filter(Subject_Names == Subject)
+    #Compute a random flipping
+    Random_flipping <- sample(c("x", "y"), size = 1)
+    Individual_sample[c("X", "Y")] <- Flip_xy(as.matrix(Individual_sample[c("X", "Y")]), mode = Random_flipping)
+    
+    #Compute a random translation
+    Random_X_translation <- sample(seq(from = 25, to = 100, by = 25), size = 1)
+    Random_Y_translation <- sample(seq(from = 25, to = 100, by = 25), size = 1)
+    Individual_sample$X <- Individual_sample$X + Random_X_translation
+    Individual_sample$Y <- Individual_sample$Y + Random_Y_translation
+    
+    return(Individual_sample)
+  })
+
+#Place them inside a list
+DATASETS_LIST <-
+  list(
+    Reference = Original_dataset,
+    Rotated = Rotated_dataset,
+    Flipped_translated = Flipped_Translated_dataset
+  )
+```
+
+Next we will execute the `Cell_aligner_function` function. We will use the whole cell dataset but computing the concave hull to work with tissue outlines in stead of the bare cell spatial coordinates.
+Afterwards we will plot the result to confirm that the algorithm has performed adequately.
+
+```{r Align, eval = FALSE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+Aligned <-
+  Cell_aligner_function(
+    N_cores = 1,
+    Cell_feature_list = DATASETS_LIST,
+    Iterations = 5,
+    Phenotypes_included = NULL,
+    
+    Apply_DBSCAN_denoise = FALSE,
+    
+    Concave_Hull = TRUE,
+    Hull_ratio = 0.1,
+    Polygon_sampling_density = 5,
+    
+    Perform_final_ICP_refinement = FALSE
+  )
 
 
-The function is based on the `Morpho::icpmat`
 
+#Plot the results
+plot(
+  purrr::map_dfr(1:length(Aligned$Cell_feature_list), function(List_item) {
+    Item <- Aligned$Cell_feature_list[[List_item]] %>% dplyr::mutate(Modification = names(Aligned$Cell_feature_list)[List_item])
+  }) %>%
+    ggplot(aes(X, Y, color = Modification)) +
+    facet_wrap( ~ Subject_Names) +
+    geom_point(size = 3)
+)
+```
 
+In order to achieve the desired results, multiple approaches are usually required. Do not despair.
 
 
 ```{r Session_info, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
