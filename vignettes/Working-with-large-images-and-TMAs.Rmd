@@ -372,10 +372,90 @@ TMA_dearrayer_function(Original_Image_Directory = "Path/to/original/TMA/Image",
 ```
 
 ## Merging channels
-  
+Multiple channels can be merged into a single RGB colored images using CSM. This can be achieved by the `Image_channel_color_merger` function. In order to run the function the user
+must have imported a `magick` object generated using the `magick::image_read()` function or the `Smart_image_importer` function. In addition, the user must prepare a list containing
+the parameters used to merge the channels. Each item of the list must be named. List items are also lists containing the following items:
+
+* __channel_index:__ A numeric value indicating the channel position to be merged.
+
+* __color:__ A character value (either color name or HEX value) indicating the color to be used to for the designated channel.
+
+* __gamma:__ A numeric value between a between 0.001 and 1000 indicating the gamma correction.
+
+* __min:__ A numeric value higher than 0 and lower than 1 (and lower than max) to adjust white level.
+
+* __max:__ A numeric value higher than 0 and lower than 1 (and higher than min) to adjust white level.
+
+* __equalize:__ A logical value indicating if equaliztion should be performed on the designated channel.
+
+The image channel color merger powers the channel merging capabilities of shiny apps deployed in CSM.
+
+```{r Color_merging, eval = TRUE, fig.align='center', out.width='100%', fig.width = 10, fig.height = 8}
+#Get the image
+Image <- magick::image_read(CSM_MiniMultiTiff_test[[2]])
+
+#Generate the merging parameters (in this case 4 channels will be merged)----
+Merge_parameter_list <- 
+  list(
+      DAPI = list(channel_index = 1,
+                  color = "blue",
+                  gamma = 1,
+                  min = 0,
+                  max = 80,
+                  equalize = FALSE),
+
+      CK = list(channel_index = 5,
+                color = "white",
+                gamma = 1.1,
+                min = 5,
+                max = 20,
+                equalize = FALSE),
+ 
+      CD8 = list(channel_index = 6,
+                 color = "#f0703a",
+                 gamma = 1,
+                 min = 10,
+                 max = 30,
+                 equalize = FALSE),
+
+      GZMB = list(channel_index = 3,
+                  color = "cyan",
+                  gamma = 1,
+                  min = 5,
+                  max = 20,
+                  equalize = FALSE)
+
+)
+
+#Perform the merging
+Image_channel_color_merger(Image = Image,
+                          Parameter_list = Merge_parameter_list)
+
+```
 
 ## Multiple dataset alignment
+Certain experiments require multiple serial sections of the same tissue sample. The most obvious example is the use of serial sections to perform 3D analysis of tissue architecture.
+For example, certain projects may involve performing several multiplexed immunofluorescence panels performed on serial tissue sections. 
+Each multiplex immunfluoresence panel evaluates up to 7-10 different proteins. In order to combine the information obtained from the individual sections, spatial
+alignment needs to be carried out. Using CSM, the user can perform spatial alignment based on cell spatial coordinates information using the `Cell_aligner_function`.
 
+The `Cell_aligner_function` assumes that there is a spatial coherence between the samples provided. The function performance will increase as the similarity between spatial distribution
+patterns is more patent. In order to reduce the spatial noise present in cell spatial distribution coordinates the user can take one or more of the following approaches:
+
+* __Work with specific cell phenotypes:__ In stead of working with all cell datapoints, the user can select those points belonging to certain cell types. For example, tumor cells show a trend to 
+display tissue-specific spatial clustering distributions. These distributions can be more spatially robust and consistent between slides than using whole cell spatial patterns.
+
+* __Apply DBSCAN filtering:__ By removing cells that are not spatially clustered, spatial patterns can be made more evident. 
+
+* __Work on the spatial concave hull:__ In stead of working on cell spatial coordinates, the concave hull of the cell outline can be computed. The overall shape of the cell distribution will be used
+to align different slides.
+
+This is how the  `Cell_aligner_function` works:
+
+* __1st :__
+
+
+The function is based on the `Morpho::icpmat`
 
 
 
