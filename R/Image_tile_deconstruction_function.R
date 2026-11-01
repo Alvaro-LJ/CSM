@@ -267,7 +267,7 @@ Image_tile_deconstruction_function <-
       if(RGB_Color_images) EBImage::colorMode(Image_subset) <- "Color"
       #Subset the channels and write the image
       Image_subset <- Image_subset[,,Channels_to_keep_index]
-      ijtiff::write_tif(img = Image_subset, path = file_path, bits_per_sample = 32, compression = "LZW", msg = FALSE)
+      ijtiff::write_tif(img = Image_subset, path = file_path, bits_per_sample = 32, compression = "LZW", msg = FALSE, overwrite = TRUE)
       #Retrieve information
       File_info <- file.info(file_path)
       #Remove the temporary directory
