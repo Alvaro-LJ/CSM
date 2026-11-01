@@ -184,6 +184,7 @@ Image_tile_deconstruction_function <-
       N_Channels_Random <- unlist(Image_info[Image_info$Whole_path == Random_sample, 5])
       Z_Planes_Random <- unlist(Image_info[Image_info$Whole_path == Random_sample, 6])
       T_Planes_Random <- unlist(Image_info[Image_info$Whole_path == Random_sample, 7])
+      Bit_Planes_Random <- unlist(Image_info[Image_info$Whole_path == Random_sample, 8])
 
       #Increase JAVA RAM use to 200Gb
       rJava::.jinit(parameters="-Xmx200g") #To increase JAVA RAM use
@@ -260,14 +261,14 @@ Image_tile_deconstruction_function <-
       # Create a temporary directory
       temp_dir <- tempdir()
       # Define a file path within the temp directory
-      file_path <- file.path(temp_dir, "Test_image.tiff")
+      file_path <- file.path(temp_dir, "Test_image.tif")
 
       #Define the color mode
       if(!RGB_Color_images) EBImage::colorMode(Image_subset) <- "Grayscale"
       if(RGB_Color_images) EBImage::colorMode(Image_subset) <- "Color"
       #Subset the channels and write the image
       Image_subset <- Image_subset[,,Channels_to_keep_index]
-      ijtiff::write_tif(img = Image_subset, path = file_path, bits_per_sample = 32, compression = "LZW", msg = FALSE, overwrite = TRUE)
+      ijtiff::write_tif(img = Image_subset, path = file_path, bits_per_sample = Bit_Planes_Random, compression = "LZW", msg = FALSE, overwrite = TRUE)
       #Retrieve information
       File_info <- file.info(file_path)
       #Remove the temporary directory
@@ -442,7 +443,7 @@ Image_tile_deconstruction_function <-
               }
 
               #Write the actual image
-              ijtiff::write_tif(img = Tile_image, path = paste0(Output_directory, "/", Tile_Image_name), bits_per_sample = 32, compression = "LZW", msg = FALSE)
+              ijtiff::write_tif(img = Tile_image, path = paste0(Output_directory, "/", Tile_Image_name), bits_per_sample = Pixel_depth, compression = "LZW", msg = FALSE)
 
 
             },
@@ -496,7 +497,7 @@ Image_tile_deconstruction_function <-
             if(!RGB_Color_images) EBImage::colorMode(Tile_image) <- "Grayscale"
             if(RGB_Color_images) EBImage::colorMode(Tile_image) <- "Color"
             Tile_image <- Tile_image[,,Channels_to_keep_index]
-            ijtiff::write_tif(img = Tile_image, path = paste0(Output_directory, "/", Tile_Image_name), bits_per_sample = 32, compression = "LZW", msg = FALSE)
+            ijtiff::write_tif(img = Tile_image, path = paste0(Output_directory, "/", Tile_Image_name), bits_per_sample = Pixel_depth, compression = "LZW", msg = FALSE)
 
 
           },
