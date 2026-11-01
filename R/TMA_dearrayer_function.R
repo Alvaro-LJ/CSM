@@ -577,6 +577,9 @@ TMA_dearrayer_function <-
     future::plan("future::sequential")
     gc()
 
+
+    Colored_print("\n Warning!!! By default the TMA_dearrayer_function writes images using a bitdepth of 32 bits")
+
     cat("DONE!")
 
   }

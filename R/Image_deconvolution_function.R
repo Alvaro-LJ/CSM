@@ -197,6 +197,7 @@ Image_deconvolution_function <-
       FINAL_Image_Name <- stringr::str_c(Output_directory, "/", dir(Directory, full.names = FALSE)[Image_index], "_Channels.tif")
 
       ijtiff::write_tif(img = FINAL_Image, path = FINAL_Image_Name, bits_per_sample = 32, compression = "LZW", msg = FALSE)
+      Colored_print("\n Warning!!! By default the Image_deconvolution_function function writes images using a bitdepth of 32 bits")
     },
     .progress = TRUE)
 

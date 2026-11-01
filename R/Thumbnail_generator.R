@@ -33,20 +33,20 @@
 #'
 #'
 #' #Export the thumbnails to the output directory
-#'Thumbnail_generator(DATA = CSM_Phenotypecell_test,  
+#'Thumbnail_generator(DATA = CSM_Phenotypecell_test,
 #'                  N_cores = 1,
-#'                  Radius = 75, 
-#'                  N_crops = 25, 
+#'                  Radius = 75,
+#'                  N_crops = 25,
 #'                  Variable_name = 'Phenotype',
-#'                  Feature_to_analyze = unique(CSM_Phenotypecell_test$Phenotype)[-1], 
+#'                  Feature_to_analyze = unique(CSM_Phenotypecell_test$Phenotype)[-1],
 #'                  Directory = Image_Dir,
 #'                  Output_directory = 'OUTPUT_TESTS',
-#'                  Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"), 
+#'                  Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
 #'                  Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
 #'                  Channel_for_test = "DAPI",
 #'                  RGB_Color_images = FALSE,
 #'                  Image_x_flip = FALSE,
-#'                  Image_y_flip = FALSE, 
+#'                  Image_y_flip = FALSE,
 #'                  Pixel_distance_ratio = 1
 #')
 #'
@@ -57,7 +57,7 @@
 #' TUMOR <- magick::image_read(dir(Output_Dir, full.names = TRUE)[3])
 #'
 #' #Set the merging params
-#' Merge_parameter_list <- 
+#' Merge_parameter_list <-
 #'   list(
 #'       DAPI = list(channel_index = 1,
 #'                   color = "blue",
@@ -72,7 +72,7 @@
 #'                 min = 5,
 #'                 max = 20,
 #'                 equalize = FALSE),
-#'  
+#'
 #'       CD8 = list(channel_index = 6,
 #'                  color = "#f0703a",
 #'                  gamma = 1,
@@ -88,19 +88,19 @@
 #'                   equalize = FALSE)
 #'
 #' )
-#' 
+#'
 #' #Merge channels
-#' Image_channel_color_merger(Image = CD8_GZMBneg, 
+#' Image_channel_color_merger(Image = CD8_GZMBneg,
 #'                            Parameter_list = Merge_parameter_list)
-#' 
-#' Image_channel_color_merger(Image = CD8_GZMBpos, 
+#'
+#' Image_channel_color_merger(Image = CD8_GZMBpos,
 #'                            Parameter_list = Merge_parameter_list)
-#' 
-#' Image_channel_color_merger(Image = TUMOR, 
+#'
+#' Image_channel_color_merger(Image = TUMOR,
 #'                           Parameter_list = Merge_parameter_list)
 #'
 #' }
-#' 
+#'
 #' @export
 
 Thumbnail_generator <- function(
@@ -125,18 +125,18 @@ Thumbnail_generator <- function(
     paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
            expression(install.packages("magick")))
   )
-  
+
   if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
     paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
            expression(install.packages("ijtiff")))
   )
-  
+
   if(!requireNamespace("RBioFormats", quietly = TRUE)) stop(
     paste0("RBioFormats Bioconductor package is required to execute the function. Please install using the following code: ",
            expression({
              if (!require("BiocManager", quietly = TRUE))
                install.packages("BiocManager")
-             
+
              BiocManager::install("RBioFormats")
            })
     )
@@ -146,19 +146,19 @@ Thumbnail_generator <- function(
            expression({
              if (!require("BiocManager", quietly = TRUE))
                install.packages("BiocManager")
-             
+
              BiocManager::install("EBImage")
            })
     )
   )
-  
+
   #####CHECK ARGUMENTS#####
   if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
   if(!identical(names(DATA)[c(1:4)], c("Cell_no", "X", "Y", "Subject_Names"))) stop("DATA has not been adequately formatted with the Data_arrange_function")
   if(!all(length(Variable_name) == 1, Variable_name %in% names(DATA))) stop(paste0(Variable_name, " not present in DATA"))
   if(!all(Feature_to_analyze %in% unique(DATA[[Variable_name]]))){
     Absent_features <- Feature_to_analyze[!Feature_to_analyze %in% unique(DATA[[Variable_name]])]
-    stop("The following cell labels are not present in ", Variable_name, 
+    stop("The following cell labels are not present in ", Variable_name,
          '\n',
          paste(Absent_features, sep = ', '))
   }
@@ -170,7 +170,7 @@ Thumbnail_generator <- function(
     Ordered_Channels <- c("R", "G", "B")
     Channels_to_keep <- c("R", "G", "B")
   }
-  
+
   if(!all(Channels_to_keep %in% Ordered_Channels)){
     Problematic_Channels <- Channels_to_keep[!Channels_to_keep %in% Ordered_Channels]
     stop(paste0("The following Channels_to_keep are not present in Ordered_Channels: ", stringr::str_c(Problematic_Channels, collapse = ", ")))
@@ -183,7 +183,7 @@ Thumbnail_generator <- function(
   if(!is.null(Pixel_distance_ratio)) {
     if(!all(is.numeric(Pixel_distance_ratio), Pixel_distance_ratio > 0)) stop("Pixel_distance_ratio must be NULL or a numeric value > 0")
   }
-   
+
   #####PRE-Process cell data####
   #If pixel_distance ratio has been provided apply it here
   DATA <- DATA
@@ -191,29 +191,29 @@ Thumbnail_generator <- function(
     DATA$X <- DATA$X * Pixel_distance_ratio
     DATA$Y <- DATA$Y * Pixel_distance_ratio
   }
-  
+
   #Perform image flipping as required
   if(any(Image_x_flip, Image_y_flip)){
     DATA <-
       purrr::map_dfr(unique(DATA$Subject_Names), function(Subject){
         Subject_data <- DATA %>% dplyr::filter(Subject_Names == Subject)
-        
+
         if(Image_x_flip) Subject_data[c("X", "Y")] <- Flip_xy(MATRIX = as.matrix(Subject_data[c("X", "Y")]), mode = "x")
         if(Image_y_flip) Subject_data[c("X", "Y")] <- Flip_xy(MATRIX = as.matrix(Subject_data[c("X", "Y")]), mode = "y")
-        
+
         return(Subject_data)
       })
   }
-  
+
   #####Run alignment test######
   cat(paste0('\n', 'Running an Image/Cell data alignment test'))
   #Get image names
   Full_image_names <- dir(Directory, full.names = TRUE)
   Image_names <- dir(Directory, full.names = FALSE)
-  
+
   Full_image_names_for_sampling <- dir(Directory, full.names = TRUE)
   Image_names_names_for_sampling <- dir(Directory, full.names = FALSE)
-  
+
   Answer_value <- 3
   while(Answer_value == 3){
     if(length(Full_image_names_for_sampling) < 1){
@@ -221,18 +221,18 @@ Thumbnail_generator <- function(
       Full_image_names_for_sampling <- dir(Directory, full.names = TRUE)
       Image_names_names_for_sampling <- dir(Directory, full.names = FALSE)
     }
-    
+
     #Sample a random Full_image
     Sample_index <- sample(1:length(Image_names_names_for_sampling), size = 1)
     Current_name <- Image_names_names_for_sampling[Sample_index]
     Current_path <- Full_image_names_for_sampling[Sample_index]
-    
+
     #Remove the index from the list (to avoid selecting it again)
     Full_image_names_for_sampling <- Full_image_names_for_sampling[-Sample_index]
     Image_names_names_for_sampling <- Image_names_names_for_sampling[-Sample_index]
-    
+
     #Get the Subject_Names from data that is closer to the Image_name
-    Similarity_scores <- 
+    Similarity_scores <-
       as.vector(adist(Current_name,
                       unique(DATA$Subject_Names),
                       fixed = TRUE,
@@ -241,25 +241,25 @@ Thumbnail_generator <- function(
 
     #Obtain the cell data
     Current_cell_data <- DATA %>% dplyr::select(1:4) %>% dplyr::filter(Subject_Names == Current_Subject_Names)
-    
+
     #If the cell data is too large simplify it
     if(nrow(Current_cell_data) > (10^5/2)){
       Colored_print(paste0("Current_Subject_Names", " has over 50K cells. Subsetting the dataset for plotting purposes"), color = 'green')
       Current_cell_data <- Current_cell_data %>% dplyr::slice_sample(n = (10^5/2))
-    } 
-    
+    }
+
     #Get the image
-    Image <- Smart_image_importer(N_cores = N_cores, 
-                                  Image_directory = Current_path, 
-                                  Log10_pixel_output = 5.69897, 
-                                  Ordered_Channels = Ordered_Channels, 
-                                  Channels_to_keep = Channel_for_test, 
+    Image <- Smart_image_importer(N_cores = N_cores,
+                                  Image_directory = Current_path,
+                                  Log10_pixel_output = 5.69897,
+                                  Ordered_Channels = Ordered_Channels,
+                                  Channels_to_keep = Channel_for_test,
                                   Save_processed_images = FALSE)
     #Get the widht height and Image
     Image_width <- Image$Original_Dims[1]
     Image_height <- Image$Original_Dims[2]
     Image <- Image$Image %>% magick::image_flip()
-    
+
     #Plot the image
     cat(paste0("\n", "Generating a sample overlay image using ", Current_name))
     plot(
@@ -276,7 +276,7 @@ Thumbnail_generator <- function(
               panel.background = element_rect(fill = "black"),
               plot.title = element_text(hjust = 0.5))
     )
-    
+
     #Generate a menu to proceed with compuation
     answer <- menu(c("Proceed", "Abort", "Test again"), title = paste0("\n", "Check parameters provided and sample image generated. Should the analysis proceed?"))
     #If user decides to stop then abort function and return stop message
@@ -288,8 +288,8 @@ Thumbnail_generator <- function(
   cat(paste0('\n', 'Selecting random cell crops', '\n'))
   #Get only desired candidate cells
   Cell_candidates <- DATA[DATA[[Variable_name]] %in% Feature_to_analyze,]
-  
-  Cell_candidates <- 
+
+  Cell_candidates <-
     purrr::map(Feature_to_analyze, function(Variable){
       #Get the cells belonging to the variable
       Current_candidates <- Cell_candidates[Cell_candidates[[Variable_name]] == Variable, ]
@@ -297,10 +297,10 @@ Thumbnail_generator <- function(
       if(N_crops > nrow(Current_candidates)) N_crops <- nrow(Current_candidates)
       #Randomly select the candidates
       Current_candidates <- Current_candidates %>% dplyr::slice_sample(n = N_crops)
-    
+
       #Get only desired variables
       Current_candidates <- Current_candidates %>% dplyr::select(1:4, dplyr::all_of(Variable_name))
-      
+
       #Align the Subject_names with the image names
       #Generate an alignment tibble with  the subject names
       Alignment_tibble <- tibble::tibble(Subject_Names = unique(Current_candidates$Subject_Names))
@@ -315,7 +315,7 @@ Thumbnail_generator <- function(
           Image_match <- Image_names[which.min(Scores)]
           Path <- Full_image_names[which.min(Scores)]
           Scores <- min(Scores)
-          
+
           return(list(
             Score = Scores,
             Image = Image_match,
@@ -326,7 +326,7 @@ Thumbnail_generator <- function(
       Alignment_tibble$Image <- purrr::map_chr(Alignment_scores, function(Item) Item[['Image']])
       Alignment_tibble$Path <- purrr::map_chr(Alignment_scores, function(Item) Item[['Path']])
       Alignment_tibble$Score <- purrr::map_dbl(Alignment_scores, function(Item) Item[['Score']])
-     
+
       #Check for duplicates
       if(any(duplicated(Alignment_tibble$Image))){
         #If duplicates are present keep only the ones with the smallest score
@@ -334,7 +334,7 @@ Thumbnail_generator <- function(
           Conflictive_Images <- Alignment_tibble %>% dplyr::filter(Image == i)
           Eliminated_images <- Conflictive_Images$Subject_Names[-which.min(Conflictive_Images$Score)]
           Alignment_tibble <- Alignment_tibble %>% dplyr::filter(!Subject_Names %in% Eliminated_images)
-          
+
           #Print a warning message
           Colored_print(paste0("Issue with randomly selected ", Variable, " cell candidates.",
                                "\n",
@@ -343,25 +343,25 @@ Thumbnail_generator <- function(
                         color = 'red')
         }
       }
-      
+
       #Bind the tibbles and remove NA values
       Current_candidates <- dplyr::left_join(Current_candidates, Alignment_tibble[-4], by = "Subject_Names")
       Current_candidates <- na.omit(Current_candidates)
-      
+
       #Find the cropping coords (if any below or equal to 0 upgrade to 1)
       Current_candidates$X_Position_Min <- floor(Current_candidates$X - ceiling(Radius/2))
       Current_candidates$X_Position_Min[Current_candidates$X_Position_Min <= 0] <- 1
       Current_candidates$Y_Position_Min <- floor(Current_candidates$Y - ceiling(Radius/2))
       Current_candidates$Y_Position_Min[Current_candidates$Y_Position_Min <= 0] <- 1
-      
+
       Current_candidates$X_Position_Max <- Current_candidates$X_Position_Min + Radius - 1
       Current_candidates$Y_Position_Max <- Current_candidates$Y_Position_Min + Radius - 1
-      
+
       return(Current_candidates)
     })
-  
+
   names(Cell_candidates) <- Feature_to_analyze
-  
+
   #Get the metadata of the unique images to obtain width and height
   Unique_image_paths <- unique(unlist(purrr::map(Cell_candidates, function(Cell_type_canditates) Cell_type_canditates[['Path']])))
   Image_dim_tibble <- tibble::tibble(Path = Unique_image_paths)
@@ -374,20 +374,20 @@ Thumbnail_generator <- function(
       #Return width and height
       return(list(Width = width, Height = height))
     })
-  
+
   Image_dim_tibble$X_Image_Max <- purrr::map_dbl(Dim_results, ~.[['Width']])
   Image_dim_tibble$Y_Image_Max <- purrr::map_dbl(Dim_results, ~.[['Height']])
-  
+
   #Add the obtained info to the test
-  Cell_candidates <- 
+  Cell_candidates <-
     purrr::map(Cell_candidates, function(Cell_type_canditates){
       return(dplyr::left_join(Cell_type_canditates, Image_dim_tibble, by = 'Path'))
     })
   names(Cell_candidates) <- Feature_to_analyze
-  
+
   ######GENERATE THE THUMBNAILS#####
   cat(paste0('\n', 'Generating thumbnails images', '\n'))
-  
+
   on.exit({
     future::plan("future::sequential")
     gc()
@@ -397,15 +397,15 @@ Thumbnail_generator <- function(
   future::plan("future::multisession", workers = N_cores)
   options(future.globals.maxSize = Inf, future.rng.onMisuse = "ignore")
   furrr::furrr_options(scheduling = Inf)
-  
+
 
   purrr::walk(1:length(Cell_candidates), function(Thumbnail_index){
     #Print a message
     cat(paste0('\n', 'Generating thumbnails image for ', names(Cell_candidates)[Thumbnail_index], '\n'))
-    
+
     #Obtain the current images information and arrange by the subject Names
     Current_images <- Cell_candidates[[Thumbnail_index]] %>% dplyr::arrange(Subject_Names)
-    
+
     #Get the number of rows and columns
     nrow <- floor(sqrt(nrow(Current_images)))
     ncol <- ceiling(nrow(Current_images) / nrow)
@@ -413,7 +413,7 @@ Thumbnail_generator <- function(
       nrow <- nrow + 1
       ncol <- ceiling(nrow(Current_images) / nrow)
     }
-    
+
     #Obtain the images
     Image_list <- furrr::future_map(1:nrow(Current_images), function(Image_index){
       #Obtain the current image and the individual characteristics
@@ -425,61 +425,61 @@ Thumbnail_generator <- function(
       Y_max <- Current_image[['Y_Position_Max']]
       Image_width <- Current_image[['X_Image_Max']]
       Image_height <- Current_image[['Y_Image_Max']]
-      
+
       #Set the padding to false
       X_padding <- FALSE
       Y_padding <- FALSE
       X_padding_pixels <- 0
       Y_padding_pixels <- 0
-      
+
       #If subsetting is larger than available turn to image max and set padding to true
       if(X_max > Image_width){
         X_padding_pixels <- X_max - Image_width
         X_max <- Image_width
         X_padding <- TRUE
-      }  
+      }
       if(Y_max > Image_height){
         Y_padding_pixels <- Y_max - Image_height
         Y_max <- Image_height
         Y_padding <- TRUE
-      } 
-      
+      }
+
       #Obtain the image
-      Image <- 
-        Smart_image_importer(N_cores = 1, 
-                             Image_directory = Image_path, 
-                             Log10_pixel_output = NULL, Percentage_downsize = 1, 
-                             
+      Image <-
+        Smart_image_importer(N_cores = 1,
+                             Image_directory = Image_path,
+                             Log10_pixel_output = NULL, Percentage_downsize = 1,
+
                              X_crop_coordinates = c(X_min, X_max),
-                             Y_crop_coordinates = c(Y_min, Y_max), 
-                             
-                             Ordered_Channels = Ordered_Channels, Channels_to_keep = Channels_to_keep, 
-                             
+                             Y_crop_coordinates = c(Y_min, Y_max),
+
+                             Ordered_Channels = Ordered_Channels, Channels_to_keep = Channels_to_keep,
+
                              Save_processed_images = FALSE)$Image %>% magick::as_EBImage()
-      
+
       #Turn third dimension to 1 if only a single channel
       if(any(is.null(dim(Image)[3]), is.na(dim(Image)[3]))) dim(Image)[3] <- 1
-      
+
       #Change color mode if necessary
       if(RGB_Color_images) EBImage::colorMode(Image) <- "Color"
       if(!RGB_Color_images) EBImage::colorMode(Image) <- "Grayscale"
-      
+
       #If padding required, perform padding
       if(any(X_padding, Y_padding)){
-        Image <- Pad_image(img = Image, 
-                           Right_padding = X_padding_pixels, 
+        Image <- Pad_image(img = Image,
+                           Right_padding = X_padding_pixels,
                            Bottom_padding = Y_padding_pixels)
       }
-      
+
       #Return the final product
       return(Image)
     })
-    
+
     #If the length of the Image list is smaller than the col*row then add fake images
     if((nrow*ncol) > length(Image_list)){
       #Fake image for color
       if(RGB_Color_images){
-        Fake_image <- 
+        Fake_image <-
           EBImage::Image(
             array(
               1, #white color
@@ -492,10 +492,10 @@ Thumbnail_generator <- function(
             colormode = "Color"
           )
       }
-      
+
       #Fake image for Grayscale
       if(!RGB_Color_images){
-        Fake_image <- 
+        Fake_image <-
           EBImage::Image(
             array(
               0, #Black color
@@ -508,39 +508,41 @@ Thumbnail_generator <- function(
             colormode = "Grayscale"
           )
       }
-      
+
       #Generate a fake list
       Fake_list <- list()
       for(i in 1:((nrow*ncol)-length(Image_list))){
         Fake_list[[i]] <- Fake_image
       }
-      
+
       #Append the results to the Image list
       Image_list <- append(Image_list, Fake_list)
-      
+
     }
-    
+
     #Generate the final image
     #Provide dimensions to the list
     dim(Image_list) <- c(nrow, ncol)
-    
+
     #Generate the rows
     Image_panels <- purrr::map(1:nrow, function(Row_index){
       return(EBImage::abind(Image_list[Row_index, ], along = 1))
     })
-    
+
     #Bind the rows together
     Image_panels <- EBImage::abind(Image_panels, along = 2)
-    
+
     #Save the results in the required directory
     Image_name <- paste0(Output_directory, "/", "Thumbnail-", names(Cell_candidates)[Thumbnail_index], ".tif")
     ijtiff::write_tif(img = Image_panels, path = Image_name, bits_per_sample = 32, msg = FALSE, compression = "LZW")
-    
+
     #Print message
     cat(paste0("\n", "Successfully saved ", names(Cell_candidates)[Thumbnail_index], " thumbnail collage(s) in: ", Output_directory, "\n"))
-    
+
   })
-    
+
+  Colored_print("\n Warning!!! By default the Thumbnail_generator function writes images using a bitdepth of 32 bits")
+
   future::plan("future::sequential")
   gc()
 
