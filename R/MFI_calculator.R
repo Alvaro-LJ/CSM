@@ -14,6 +14,7 @@
 MFI_calculator <-
   function(Target = NULL,
            Tissue_mask = NULL){
+    Target <- Target
     #Replace non tissue pixels for 0
     Target[!Tissue_mask] <- 0
     #Calculate MFI (sum of intensity divided by total foreground pixels)

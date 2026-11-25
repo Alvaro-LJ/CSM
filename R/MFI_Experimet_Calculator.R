@@ -216,13 +216,11 @@ MFI_Experimet_Calculator <-
       suppressMessages(
         furrr::future_map(seq_along(1:length(dir(Directory))), function(Image){
           #Import the image and turn it into EBI image format
-          Image <- magick::image_read(Full_directory[Image])
-          Image <- Image[which(Channels_to_keep %in% Ordered_Channels)]
-          Image <- Image %>% magick::as_EBImage()
-
+          Image <- magick::image_read(Image_names[Image_index]) %>% magick::as_EBImage()
+          Mask_Image <- Image[,,match(Channels_to_keep, Ordered_Channels)]
 
           #First generate a tissue mask
-          Tissue_mask <- Tissue_mask_generator(Image = Image,
+          Tissue_mask <- Tissue_mask_generator(Image = Mask_Image,
                                                Threshold_type = Threshold_type_tissueMask,
                                                Threshold_value = Threshold_value_tissueMask,
                                                Blurr = Blurr_tissueMask,
@@ -234,7 +232,7 @@ MFI_Experimet_Calculator <-
             Target_mask_list <-
               purrr::map(Target_masks, function(Mask_parameters){
                 return(
-                  Pixel_thresholder(Target = EBImage::getFrame(Image, which(Channels_to_keep == Mask_parameters[["Mask_name"]])),
+                  Pixel_thresholder(Target = EBImage::getFrame(Image, which(Mask_parameters[["Mask_name"]] == Ordered_Channels)),
                                     Tissue_mask = Tissue_mask,
                                     Threshold_type = Mask_parameters[["Threshold_type"]],
                                     Threshold_value = Mask_parameters[["Threshold_value"]],
@@ -254,7 +252,7 @@ MFI_Experimet_Calculator <-
           }
 
           #Get the target channel and remove Image (large object) and run gc()
-          Target_Image <- EBImage::getFrame(Image, which(Channels_to_keep == Target_channel))
+          Target_Image <- EBImage::getFrame(Image, which(Ordered_Channels == Target_channel))
           rm(Image)
           gc()
 
