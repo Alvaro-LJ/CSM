@@ -31,7 +31,7 @@ Pixel_Multilevel_thresholder <-
     }
 
     #Turn to 0 pixels outside tissue mask
-    Target[!Tissue_mask] <- 0
+    Image[!Tissue_mask] <- 0
 
     #For every threshold value, calculate a binary image (logical) then sum up the results
     Image <- purrr::reduce(purrr::map(Threshold_values, function(Threshold) Image > Threshold),

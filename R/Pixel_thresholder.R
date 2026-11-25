@@ -33,7 +33,7 @@ Pixel_thresholder <-
     }
 
     #Turn to 0 pixels outside tissue mask
-    Target[!Tissue_mask] <- 0
+    Image[!Tissue_mask] <- 0
 
     #Perform Otsu thresholding if required
     if(Threshold_type == "Otsu"){
