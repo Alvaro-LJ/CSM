@@ -181,5 +181,6 @@ Image_from_tile_rebuilder <-
     future::plan("future::sequential")
     gc()
 
+    Colored_print("\n Warning!!! By default the Image_from_tile_rebuilder writes images using a bitdepth of 32 bits")
     print("Done!")
   }
