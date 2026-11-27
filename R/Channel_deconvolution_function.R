@@ -39,6 +39,13 @@ Channel_deconvolution_function <-
                                        Color_Tolerance = Parameters[["Color_Tolerance"]],
                                        Final_Tolerance = Parameters[["Final_Tolerance"]]
     )
+    
+    #Turn to grayscale
+    EBImage::colorMode(Photo) <- "Grayscale"
+    
+    #If inversion required the perform inversiont
+    if(Parameters[["Inverse"]]) Photo <- 1 - Photo
+    
     #Apply post processing if required
     #Apply transformations before erosion and dilation
     if(Parameters[["Post_normalize"]]) Photo <- magick::image_read(Photo) %>% magick::image_normalize() %>% magick::as_EBImage()
@@ -62,6 +69,7 @@ Channel_deconvolution_function <-
         .init = Photo
       )
     }
-
+    
     return(Photo)
   }
+

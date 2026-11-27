@@ -95,10 +95,6 @@ Image_from_tile_rebuilder <-
                })
         )
       )
-      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
-        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("ijtiff")))
-      )
     }
 
     on.exit({
@@ -117,15 +113,6 @@ Image_from_tile_rebuilder <-
     #Start building the lookup table of the images contained in the director
     Image_names <- dir(Directory, full.names = TRUE)
     Image_names_short <- dir(Directory, full.names = FALSE)
-
-    print("Checking if any image is above 16bit depth")
-    #If any image is above 16bits of depth print a message
-    Above_16 <-purrr::map_lgl(Image_names, function(Path){
-      RBioFormats::read.metadata(Path)$coreMetadata$bitsPerPixel > 16
-    })
-    if(any(Above_16)) message(paste0(sum(Above_16), "/", length(Above_16),
-                                     " images have a bit depth above 16. The final rebuild image will be limited to 16bit depth.")
-    )
 
     #Now build the actual look-up table
     Look_up_table <- tibble(File_names = sub("(.*)\\.[^.]+$", "\\1", Image_names_short))
@@ -175,12 +162,11 @@ Image_from_tile_rebuilder <-
       if(!RGB_Color_images) EBImage::colorMode(Final_image) <- "Grayscale"
       if(RGB_Color_images) EBImage::colorMode(Final_image) <- "Color"
 
-      ijtiff::write_tif(img = Final_image, path = paste0(Output_directory, "/", Image, ".tif"), bits_per_sample = 32, compression = "LZW", msg = FALSE)
+      EBImage::writeImage(Final_image,paste0(Output_directory, "/", Image, ".tif"), bits.per.sample = 16, compression = "LZW")
     }, .progress = TRUE)
 
     future::plan("future::sequential")
     gc()
 
-    Colored_print("\n Warning!!! By default the Image_from_tile_rebuilder writes images using a bitdepth of 32 bits")
     print("Done!")
   }

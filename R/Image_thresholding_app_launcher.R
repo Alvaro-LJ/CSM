@@ -323,17 +323,18 @@ Image_thresholding_app_launcher <-
         ranges$y <- NULL
       })
 
+      #If the user hits the GO!!! button
       shiny::observeEvent(input$GO_button, {
         #First we need to import the photograph as EBI, select the required channels and transform it to a cytomapper object
         shiny::showModal(modalDialog("Importing image", footer=NULL))
         Image <- Photo_reactive()
-        Image <- Image[which(Ordered_Channels %in% input$Tissue_mask_channels)]
         Image <- magick::as_EBImage(Image)
+        Mask_Image <- Image[,,which(Ordered_Channels %in% input$Tissue_mask_channels)]
         shiny::removeModal()
 
         #Generate tissue mask
         shiny::showModal(modalDialog("Generating tissue mask", footer=NULL))
-        Tissue_mask <- Tissue_mask_generator(Image = Image,
+        Tissue_mask <- Tissue_mask_generator(Image = Mask_Image,
                                              Threshold_type = input$Tissue_threshold_type,
                                              Threshold_value = as.numeric(input$Tissue_value),
                                              Blurr = as.logical(input$Tissue_blurr),
@@ -343,7 +344,7 @@ Image_thresholding_app_launcher <-
 
         #Perform tissue thresholding according to user preferences
         shiny::showModal(modalDialog("Thresholding pixels", footer=NULL))
-        Image_index <- match(input$Channel, input$Tissue_mask_channels)
+        Image_index <- match(input$Channel, Ordered_Channels)
         Target_image <- EBImage::getFrame(y = Image, i = Image_index)
 
 
@@ -377,7 +378,7 @@ Image_thresholding_app_launcher <-
         if(all(input$Target_threshold_type == "Otsu", input$Target_threshold_local == "Global")){
           shiny::showModal(modalDialog("Calculating global Otsu images taking into account all images in Directory. This can take a while", footer=NULL))
           #Calculate a Tissue mask list
-          Tissue_mask_list <-purrr::map(seq_along(1:length(Complete_names)),
+          Tissue_mask_list <- purrr::map(seq_along(1:length(Complete_names)),
                                         function(Image_index){
                                           Image <- magick::image_read(Complete_names[Image_index])[which(Ordered_Channels %in% input$Tissue_mask_channels)]
                                           Image <- magick::as_EBImage(Image)
@@ -395,8 +396,8 @@ Image_thresholding_app_launcher <-
           #Generate a full vector containing all image values with an applied tissue mask
           Composite_Image_list <-purrr::map2(.x = 1:length(Complete_names), .y = Tissue_mask_list, function(.x, .y){
             #Import target image
-            Image <- magick::image_read(Complete_names[.x])[which(Ordered_Channels %in% input$Tissue_mask_channels)]
-            Target_Image <- Image[which(input$Channel == input$Tissue_mask_channels)]
+            Image <- magick::image_read(Complete_names[.x])
+            Target_Image <- Image[which(input$Channel == Ordered_Channels)]
             Target_Image <- magick::as_EBImage(Target_Image)
 
             #Turn target image values outside tissue mask to 0
@@ -478,8 +479,8 @@ Image_thresholding_app_launcher <-
           #Generate a full vector containing all image values with an applied tissue mask
           Composite_Image_list <-purrr::map2(.x = 1:length(Complete_names), .y = Tissue_mask_list, function(.x, .y){
             #Import target image
-            Image <- magick::image_read(Complete_names[.x])[which(Ordered_Channels %in% input$Tissue_mask_channels)]
-            Target_Image <- Image[which(input$Channel == input$Tissue_mask_channels)]
+            Image <- magick::image_read(Complete_names[.x])
+            Target_Image <- Image[which(input$Channel == Ordered_Channels)]
             Target_Image <- magick::as_EBImage(Target_Image)
 
             #Turn target image values outside tissue mask to 0

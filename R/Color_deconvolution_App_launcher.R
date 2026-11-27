@@ -29,7 +29,7 @@
 #' \item{End tolerance: After the individual RGB channels have been extracted and merged, individual tolerance regulates flexibility of pixel values with respect to the color target.}
 #' }
 #'
-#' Final processing stablishes how the image is going to be modified after color channel extraction.
+#' Final processing establishes how the image is going to be modified after color channel extraction.
 #'
 #' "Download Parameters" button saves parameters in the Global Environment.
 #'
@@ -84,7 +84,7 @@ Color_deconvolution_App_launcher <-
       )
       if(!requireNamespace("magick", quietly = FALSE)) stop(
         paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("benchmarkme")))
+               expression(install.packages("magick")))
       )
     }
 
@@ -187,6 +187,7 @@ Color_deconvolution_App_launcher <-
             shiny::h4("Final Processing"),
             #Normalize and equalize
             shiny::fluidRow(
+              shiny::column(2, shinyWidgets::materialSwitch("Post_Inverse", "Inverse", value = FALSE)),
               shiny::column(2, shinyWidgets::materialSwitch("Post_Normalize", "Normalize", value = FALSE)),
               shiny::column(2, shinyWidgets::materialSwitch("Post_Equalize", "Equalize", value = FALSE)),
             ),
@@ -306,6 +307,7 @@ Color_deconvolution_App_launcher <-
       Tolerance_value_BLUE <- shiny::reactive(input$Tolerance_BLUE)
       Tolerance_value_FINAL <- shiny::reactive(input$Tolerance_Final)
 
+      Inverse_post <- shiny::reactive(input$Post_Inverse)
       Normalize_post <- shiny::reactive(input$Post_Normalize)
       Equalize_post <- shiny::reactive(input$Post_Equalize)
       Erode <- shiny::reactive(input$Erode)
@@ -390,6 +392,14 @@ Color_deconvolution_App_launcher <-
       })
       Color_processed_photo <- shiny::reactive({
         Photo <- Color_extracted_photo()
+        
+        #Apply the inversion if required
+        if(as.logical(Inverse_post())){
+          Photo <- Photo %>% magick::as_EBImage()
+          Photo <- 1 - Photo
+          Photo <- magick::image_read(Photo)
+        }
+        
         #Apply transformations before erosion and dilation
         if(as.logical(Normalize_post())) Photo <- Photo %>% magick::image_normalize()
         if(as.logical(Equalize_post())) Photo <- Photo %>% magick::image_equalize()
@@ -527,6 +537,7 @@ Color_deconvolution_App_launcher <-
                                    Color_Tolerance = c(input$Tolerance_RED, input$Tolerance_GREEN, input$Tolerance_BLUE),
                                    Final_Tolerance = input$Tolerance_Final,
 
+                                   Inverse = as.logical(input$Post_Inverse),
                                    Post_normalize = as.logical(input$Post_Normalize),
                                    Post_equalize = as.logical(input$Post_Equalize),
                                    Erode = as.logical(input$Erode),

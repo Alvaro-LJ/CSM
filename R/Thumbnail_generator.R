@@ -461,7 +461,10 @@ Thumbnail_generator <- function(
       if(any(is.null(dim(Image)[3]), is.na(dim(Image)[3]))) dim(Image)[3] <- 1
 
       #Change color mode if necessary
-      if(RGB_Color_images) EBImage::colorMode(Image) <- "Color"
+      if(RGB_Color_images){
+        if(max(Image) > 1) Image <- Image/255
+        EBImage::colorMode(Image) <- "Color"
+      } 
       if(!RGB_Color_images) EBImage::colorMode(Image) <- "Grayscale"
 
       #If padding required, perform padding
@@ -541,7 +544,7 @@ Thumbnail_generator <- function(
 
   })
 
-  Colored_print("\n Warning!!! By default the Thumbnail_generator function writes images using a bitdepth of 32 bits")
+  Colored_print("\n Warning!!! By default the Thumbnail_generator function writes images using a bitdepth of 32 bits", color = "red")
 
   future::plan("future::sequential")
   gc()

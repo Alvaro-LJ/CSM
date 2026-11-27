@@ -578,7 +578,7 @@ TMA_dearrayer_function <-
     gc()
 
 
-    Colored_print("\n Warning!!! By default the TMA_dearrayer_function writes images using a bitdepth of 32 bits")
+    Colored_print("\n Warning!!! By default the TMA_dearrayer_function writes images using a bitdepth of 32 bits", color = "red")
 
     cat("DONE!")
 

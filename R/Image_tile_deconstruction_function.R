@@ -264,11 +264,19 @@ Image_tile_deconstruction_function <-
       file_path <- file.path(temp_dir, "Test_image.tif")
 
       #Define the color mode
-      if(!RGB_Color_images) EBImage::colorMode(Image_subset) <- "Grayscale"
-      if(RGB_Color_images) EBImage::colorMode(Image_subset) <- "Color"
-      #Subset the channels and write the image
-      Image_subset <- Image_subset[,,Channels_to_keep_index]
-      ijtiff::write_tif(img = Image_subset, path = file_path, bits_per_sample = Bit_Planes_Random, compression = "LZW", msg = FALSE, overwrite = TRUE)
+      if(!RGB_Color_images){
+        EBImage::colorMode(Image_subset) <- "Grayscale"
+        #Subset the channels and write the image
+        Image_subset <- Image_subset[,,Channels_to_keep_index]
+        ijtiff::write_tif(img = Image_subset, path = file_path, bits_per_sample = Bit_Planes_Random, compression = "LZW", msg = FALSE, overwrite = TRUE)
+      } 
+      if(RGB_Color_images){
+        if(max(Image_subset) > 1) Image_subset <- Image_subset/255
+        EBImage::colorMode(Image_subset) <- "Color"
+        #Write the image using EBImage
+        EBImage::writeImage(Image_subset, file_path, bits.per.sample = 8, compression = "LZW")
+      } 
+      
       #Retrieve information
       File_info <- file.info(file_path)
       #Remove the temporary directory
@@ -369,9 +377,15 @@ Image_tile_deconstruction_function <-
                 )[[1]]
               }
               #write it in the output directory
-              if(!RGB_Color_images) EBImage::colorMode(Tile_image) <- "Grayscale"
-              if(RGB_Color_images) EBImage::colorMode(Tile_image) <- "Color"
-              Tile_image <- Tile_image[,,Channels_to_keep_index]
+              #Define the color mode
+              if(!RGB_Color_images){
+                EBImage::colorMode(Tile_image) <- "Grayscale"
+                Tile_image <- Tile_image[,,Channels_to_keep_index]
+              } 
+              if(RGB_Color_images){
+                if(max(Tile_image) > 1) Tile_image <- Tile_image/255
+                EBImage::colorMode(Tile_image) <- "Color"
+              } 
 
               #Check the need for padding in case there is tile overlap
               if(Tile_Overlap > 0){
@@ -443,7 +457,13 @@ Image_tile_deconstruction_function <-
               }
 
               #Write the actual image
-              ijtiff::write_tif(img = Tile_image, path = paste0(Output_directory, "/", Tile_Image_name), bits_per_sample = Pixel_depth, compression = "LZW", msg = FALSE)
+              if(!RGB_Color_images){
+                ijtiff::write_tif(img = Tile_image, path = paste0(Output_directory, "/", Tile_Image_name), bits_per_sample = Pixel_depth, compression = "LZW", msg = FALSE)
+              }
+              if(RGB_Color_images){
+                EBImage::writeImage(Tile_image, paste0(Output_directory, "/", Tile_Image_name), bits.per.sample = 8, compression = "LZW")
+              }
+              
 
 
             },
@@ -494,10 +514,18 @@ Image_tile_deconstruction_function <-
             }
 
             #write it in the output directory
-            if(!RGB_Color_images) EBImage::colorMode(Tile_image) <- "Grayscale"
-            if(RGB_Color_images) EBImage::colorMode(Tile_image) <- "Color"
-            Tile_image <- Tile_image[,,Channels_to_keep_index]
-            ijtiff::write_tif(img = Tile_image, path = paste0(Output_directory, "/", Tile_Image_name), bits_per_sample = Pixel_depth, compression = "LZW", msg = FALSE)
+            #Define the color mode
+            if(!RGB_Color_images){
+              EBImage::colorMode(Tile_image) <- "Grayscale"
+              Tile_image <- Tile_image[,,Channels_to_keep_index]
+              ijtiff::write_tif(img = Tile_image, path = paste0(Output_directory, "/", Tile_Image_name), bits_per_sample = Pixel_depth, compression = "LZW", msg = FALSE)
+            } 
+            if(RGB_Color_images){
+              if(max(Tile_image) > 1) Tile_image <- Tile_image/255
+              EBImage::colorMode(Tile_image) <- "Color"
+              EBImage::writeImage(Tile_image, paste0(Output_directory, "/", Tile_Image_name), bits.per.sample = 8, compression = "LZW")
+            } 
+            
 
 
           },

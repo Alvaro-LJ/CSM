@@ -66,10 +66,6 @@ Mask_conflict_resolver <-
                })
         )
       )
-      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
-        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("ijtiff")))
-      )
     }
 
     #####Check arguments#####
@@ -499,7 +495,7 @@ Mask_conflict_resolver <-
                     Mask[Erosion_mask] <- 0
 
                     #Write results
-                    ijtiff::write_tif(img = Mask, path = paste0(Output_directory, "/", Mask_name), bits_per_sample = 32, compression = "LZW", msg = FALSE)
+                    EBImage::writeImage(Mask, paste0(Output_directory, "/", Mask_name), bits.per.sample = 16, compression = "LZW")
 
                   } else{
                     #If no erosion needed just copy the file

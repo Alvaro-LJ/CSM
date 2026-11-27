@@ -110,7 +110,7 @@ Watershed_tester_app <-
       )
       if(!requireNamespace("magick", quietly = FALSE)) stop(
         paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("benchmarkme")))
+               expression(install.packages("magick")))
       )
     }
 
@@ -826,37 +826,50 @@ Watershed_tester_app <-
 
       #What to do when user hits the go button
       shiny::observeEvent(input$GO_button, {
-        Photo <- Photo_reactive()$Image
-
-        Segmentation_result_list <- Shiny_segmentator_function(Image = Photo,
-                                                               Nuclear_pre_processing = as.logical(input$Pre_processing),
-
-                                                               Equalize = as.logical(input$Equalize),
-                                                               Photo_min = input$Min_Image,
-                                                               Photo_max = input$Max_Image,
-                                                               Photo_gamma = input$Gamma,
-                                                               Opening = input$Opening,
-                                                               Closing = input$Closing,
-
-                                                               Ordered_Channels = Channels_in_images,
-                                                               Channels_to_keep = input$Keep_channels,
-                                                               Nuclear_marker = input$Nuclear,
-                                                               Cell_body_method = input$Cell_body,
-                                                               Min_pixel = input$Min_pix,
-                                                               Smooth_amount = input$Gaussian,
-                                                               Normalization = input$Normalization,
-                                                               Watershed_type = input$Watershed,
-                                                               Tolerance_value = as.numeric(input$Tolerance),
-                                                               Neighborhood_distance = input$Neigh_dist,
-                                                               Disc_size = input$Disc_size,
-                                                               Tissue_mask_markers = input$Tissue_mask,
-                                                               Perform_PCA = as.logical(input$PCA)
-        )
-
-        #Export the results to the reactive values object
-        Segmentation_results$Nuclear_image <- Segmentation_result_list$Nuclear_image
-        Segmentation_results$Mask <- Segmentation_result_list$Mask
-        Segmentation_results$Segmentation_Parameters <- Segmentation_result_list$Segmentation_Parameters
+        
+        #Safely run the code
+        tryCatch({
+          Photo <- Photo_reactive()$Image
+          
+          Segmentation_result_list <- Shiny_segmentator_function(Image = Photo,
+                                                                 Nuclear_pre_processing = as.logical(input$Pre_processing),
+                                                                 
+                                                                 Equalize = as.logical(input$Equalize),
+                                                                 Photo_min = input$Min_Image,
+                                                                 Photo_max = input$Max_Image,
+                                                                 Photo_gamma = input$Gamma,
+                                                                 Opening = input$Opening,
+                                                                 Closing = input$Closing,
+                                                                 
+                                                                 Ordered_Channels = Channels_in_images,
+                                                                 Channels_to_keep = input$Keep_channels,
+                                                                 Nuclear_marker = input$Nuclear,
+                                                                 Cell_body_method = input$Cell_body,
+                                                                 Min_pixel = input$Min_pix,
+                                                                 Smooth_amount = input$Gaussian,
+                                                                 Normalization = input$Normalization,
+                                                                 Watershed_type = input$Watershed,
+                                                                 Tolerance_value = as.numeric(input$Tolerance),
+                                                                 Neighborhood_distance = input$Neigh_dist,
+                                                                 Disc_size = input$Disc_size,
+                                                                 Tissue_mask_markers = input$Tissue_mask,
+                                                                 Perform_PCA = as.logical(input$PCA)
+          )
+          
+          #Export the results to the reactive values object
+          Segmentation_results$Nuclear_image <- Segmentation_result_list$Nuclear_image
+          Segmentation_results$Mask <- Segmentation_result_list$Mask
+          Segmentation_results$Segmentation_Parameters <- Segmentation_result_list$Segmentation_Parameters
+          
+        },
+        #If error show a modal with the error message
+        error = function(e) {
+          shiny::showModal(modalDialog(
+            paste0(e$message),
+            easyClose = TRUE,
+            footer = NULL)
+          )
+        })
       })
 
 

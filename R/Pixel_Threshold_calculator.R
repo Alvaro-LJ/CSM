@@ -8,7 +8,7 @@
 #'
 #' @param Ordered_Channels Character vector specifying image channels in their exact order.
 #' @param Channels_to_keep Character vector indicating channels used in tissue mask generation.
-#' @param Target_channel Character value indicating the target channel to be thresholded.
+#' @param Target_channel Character value indicating the target channel to be thresholded (may or may not be included in the Channels_to_keep).
 #' @param Save_processed_images Logical value indicating if thresholded images should be written (see details).
 #' @param Output_Directory Character specifying the path to the folder where  output images are written. It must be an empty folder.
 #'
@@ -166,7 +166,7 @@ Pixel_Threshold_calculator <-
     Argument_checker <- c(N_cores_OK = (N_cores >= 1 & N_cores%%1 == 0),
                           Empty_directory = length(dir(Directory)) >= 1,
                           Channels_OK = all(Channels_to_keep %in% Ordered_Channels),
-                          Target_channel_OK = Target_channel %in% Channels_to_keep,
+                          Target_channel_OK = Target_channel %in% Ordered_Channels,
                           Save_processed_images_OK = is.logical(Save_processed_images),
                           Output_Directory_OK = if(Save_processed_images){
                             length(dir(Output_Directory)) == 0
@@ -205,7 +205,7 @@ Pixel_Threshold_calculator <-
                          "The following channels are not present the channel names provided: ",
                          stringr::str_c(Channels_to_keep[!(Channels_to_keep %in% Ordered_Channels)], collapse = ", "),
                          sep = ""),
-                       Target_channel_OK = stringr::str_c(Target_channel, " not present in ", stringr::str_c(Channels_to_keep, collapse = ", "), collapse = ""),
+                       Target_channel_OK = stringr::str_c(Target_channel, " not present in ", stringr::str_c(Ordered_Channels, collapse = ", "), collapse = ""),
                        Save_processed_images_OK = "Save_processed_images must be a logical value",
                        Output_Directory_OK = "Output_Directory must be an empty folder",
                        Local_thresholding_OK = "Local_thresholding must be a logical value",
@@ -229,7 +229,6 @@ Pixel_Threshold_calculator <-
     #Get the image full directory
     Image_names <- dir(Directory, full.names = TRUE)
     Image_names_short <- dir(Directory, full.names = FALSE)
-    Channels_to_keep_index <- match(Channels_to_keep, Ordered_Channels)
 
     #If user has decided to use Multilevel and has supplied LEVELS and Thresholds value, Threshold values will prevail
     if(all(Threshold_type == "Multilevel", !is.null(Threshold_value), !is.null(Levels))){
@@ -249,14 +248,12 @@ Pixel_Threshold_calculator <-
       RESULTS <- suppressMessages(
         furrr::future_map(seq_along(1:length(Image_names)), function(Image_index){
           #Import the image and keep only required channels and the target channel
-          Image <- magick::image_read(Image_names[Image_index])[Channels_to_keep_index]
-          Target_Image <- Image[match(Target_channel, Channels_to_keep)]
-
-          Image <- magick::as_EBImage(Image)
-          Target_Image <- magick::as_EBImage(Target_Image)
+          Image <- magick::image_read(Image_names[Image_index]) %>% magick::as_EBImage()
+          Target_Image <- Image[,,match(Target_channel, Ordered_Channels)]
+          Mask_Image <- Image[,,match(Channels_to_keep, Ordered_Channels)]
 
           #First generate the tissue mask and then remove the original image (no longer required)
-          Tissue_mask <- Tissue_mask_generator(Image = Image,
+          Tissue_mask <- Tissue_mask_generator(Image = Mask_Image,
                                                Threshold_type = Threshold_type_tissueMask,
                                                Threshold_value = Threshold_value_tissueMask,
                                                Blurr = Blurr_tissueMask,
@@ -347,8 +344,9 @@ Pixel_Threshold_calculator <-
 
       Tissue_mask_list <- suppressMessages(
         furrr::future_map(seq_along(1:length(Image_names)), function(Image_index){
-          Image <- magick::image_read(Image_names[Image_index])[Channels_to_keep_index]
-          Image <- magick::as_EBImage(Image)
+          #Import the image and keep only required channels and the target channel
+          Image <- magick::image_read(Image_names[Image_index]) %>% magick::as_EBImage()
+          Image <- Image[,,match(Channels_to_keep, Ordered_Channels)]
 
           #First generate the tissue mask and then remove the original image (no longer required)
           Tissue_mask <- Tissue_mask_generator(Image = Image,
@@ -374,8 +372,8 @@ Pixel_Threshold_calculator <-
           Composite_Image_list <- suppressMessages(
             furrr::future_map2(.x = 1:length(Image_names), .y = Tissue_mask_list, function(.x, .y){
               #Import target image
-              Image <- magick::image_read(Image_names[.x])[Channels_to_keep_index]
-              Target_Image <- Image[which(Target_channel == Channels_to_keep)]
+              Image <- magick::image_read(Image_names[.x])
+              Target_Image <- Image[which(Target_channel == Ordered_Channels)]
               Target_Image <- magick::as_EBImage(Target_Image)
 
 
@@ -445,8 +443,8 @@ Pixel_Threshold_calculator <-
           print("Thresholding images")
           RESULTS <- suppressMessages(
             furrr::future_map2(.x = seq_along(1:length(Image_names)), .y = Tissue_mask_list, function(.x, .y){
-              Target_Image <- magick::image_read(Image_names[.x])[Channels_to_keep_index]
-              Target_Image <- Target_Image[which(Target_channel == Channels_to_keep)]
+              Target_Image <- magick::image_read(Image_names[.x])
+              Target_Image <- Target_Image[which(Target_channel == Ordered_Channels)]
               Target_Image <- magick::as_EBImage(Target_Image)
               Pixel_thresholder(Target = Target_Image,
                                 Tissue_mask = .y,
@@ -493,8 +491,8 @@ Pixel_Threshold_calculator <-
         Composite_Image_list <- suppressMessages(
           furrr::future_map2(.x = 1:length(Image_names), .y = Tissue_mask_list, function(.x, .y){
             #Import target image
-            Image <- magick::image_read(Image_names[.x])[Channels_to_keep_index]
-            Target_Image <- Image[which(Target_channel == Channels_to_keep)]
+            Image <- magick::image_read(Image_names[.x])
+            Target_Image <- Image[which(Target_channel == Ordered_Channels)]
             Target_Image <- magick::as_EBImage(Target_Image)
 
             #Turn target image values outside tissue mask to 0
@@ -583,11 +581,11 @@ Pixel_Threshold_calculator <-
       RESULTS[is.na(RESULTS)] <- 0
 
       #Calculate the multiScore n_pixels*value / total foreground pixels
-      Multi_score <-purrr::map2_dfc(.x = RESULTS[-1], .y = 1:ncol(RESULTS[-1]), function(.x, .y) .x*.y)
+      Multi_score <- purrr::map2_dfc(.x = RESULTS[-1], .y = 1:ncol(RESULTS[-1]), function(.x, .y) .x*.y)
       Multi_score <- apply(Multi_score, MARGIN = 1, function(Row) sum(Row))/Final_tibble$Total_foreground_pixels
 
       #Generate the proportion
-      RESULTS_PROP <-purrr::map_dfc(RESULTS, function(column) column/Final_tibble$Total_foreground_pixels)
+      RESULTS_PROP <- purrr::map_dfc(RESULTS, function(column) column/Final_tibble$Total_foreground_pixels)
       names(RESULTS_PROP) <- stringr::str_c("PER_", names(RESULTS_PROP), sep = "")
       RESULTS <-dplyr::bind_cols(RESULTS, RESULTS_PROP)
 

@@ -212,7 +212,6 @@ Smart_image_importer <-
       if(!dir.exists(Output_Directory)) stop("Directory provided does not work. Please review")
     }
 
-
     ####Pyramidal (OME) TIFF####
     if(Image_type == "PYRAMIDAL"){
       #Get the number of layers and the resolution for each layer
@@ -225,8 +224,7 @@ Smart_image_importer <-
                          Image_Xmax = Layer_data$sizeX,
                          Image_Ymax = Layer_data$sizeY,
                          Total_pixel_count = Layer_data$sizeX*Layer_data$sizeY,
-                         Total_channels = max(Layer_data$sizeC, Layer_data$sizeZ, Layer_data$imageCount),
-                         Bit_depth = Layer_data$bitsPerPixel
+                         Total_channels = max(Layer_data$sizeC, Layer_data$sizeZ, Layer_data$imageCount)
           )
         })
       Layer_information$Layer_Ratio <- Layer_information$Total_pixel_count / max(Layer_information$Total_pixel_count)
@@ -264,15 +262,15 @@ Smart_image_importer <-
                                                    )
             #Change the color mode
             if(!Is_RGB) EBImage::colorMode(Final_image) <- "Grayscale"
-            if(Is_RGB) EBImage::colorMode(Final_image) <- "Color"
+            if(Is_RGB){
+              if(max(Final_image)> 1) Final_image <- Final_image/255
+              EBImage::colorMode(Final_image) <- "Color"
+            } 
 
             #Subset channels if required
             if(any(!is.null(Ordered_Channels), !is.null(Channels_to_keep))) Final_image <- Final_image[,,Channels_to_keep_index]
             #Obtain the reduction factor (the layer ratio compared to the maximum layer info)
             Reduction_factor <- Candidate_layer_data$Layer_Ratio[1]
-
-            #obtain the bits per sample
-            Bit_depth <- Candidate_layer_data$Bit_depth[1]
 
             Final_image <- magick::image_read(Final_image)
             Uncomplete_processing <- FALSE
@@ -323,16 +321,16 @@ Smart_image_importer <-
             )
             #Change color mode as required
             if(!Is_RGB) EBImage::colorMode(Final_image) <- "Grayscale"
-            if(Is_RGB) EBImage::colorMode(Final_image) <- "Color"
+            if(Is_RGB){
+              if(max(Final_image)> 1) Final_image <- Final_image/255
+              EBImage::colorMode(Final_image) <- "Color"
+            } 
 
             #Subset channels if required
             if(any(!is.null(Ordered_Channels), !is.null(Channels_to_keep))) Final_image <- Final_image[,,Channels_to_keep_index]
 
             #Obtain the reduction factor (the subset pixel count in the selected layer compared to the absolute subset pixel count)
             Reduction_factor <- Candidate_layer_data$Subset_pixel_count[1] / Absolute_Subset_pixel_count
-
-            #Obtain the bit depth
-            Bit_depth <- Candidate_layer_data$Bit_depth[1]
 
             Final_image <- magick::image_read(Final_image)
             Uncomplete_processing <- FALSE
@@ -350,9 +348,6 @@ Smart_image_importer <-
       #Basic image metadata obtained for non_piramidal TIFF
       Image_Xmax <- Image_metadata$coreMetadata$sizeX
       Image_Ymax <- Image_metadata$coreMetadata$sizeY
-
-      #Obtain the bit depth
-      Bit_depth <- Image_metadata$coreMetadata$bitsPerPixel
 
       #Compute the reduction factor
       Reduction_factor <- (10^Log10_pixel_output) / (Image_Xmax * Image_Ymax)
@@ -374,8 +369,8 @@ Smart_image_importer <-
         if(Image_size <= 1.5){
           cat("\nAttempting direct image resizing...")
           try({
+          
             Final_image <- magick::image_read(Image_directory)
-
             #Keep desired channels only
             if(any(!is.null(Ordered_Channels), !is.null(Channels_to_keep))) Final_image <- Final_image[Channels_to_keep_index]
 
@@ -453,7 +448,10 @@ Smart_image_importer <-
 
               #Change color mode as required
               if(!Is_RGB) EBImage::colorMode(Tile_image) <- "Grayscale"
-              if(Is_RGB) EBImage::colorMode(Tile_image) <- "Color"
+              if(Is_RGB){
+                if(max(Tile_image)> 1) Tile_image <- Tile_image/255
+                EBImage::colorMode(Tile_image) <- "Color"
+              } 
 
               #Keep desired channels only
               if(any(!is.null(Ordered_Channels), !is.null(Channels_to_keep))) Tile_image <- Tile_image[,,Channels_to_keep_index]
@@ -512,17 +510,21 @@ Smart_image_importer <-
         if(Subset_below_reduction & Subset_approx_size < 1){
           cat("\nAttempting direct image subsetting...")
           try({
-            Final_image <- RBioFormats::read.image(Image_directory,
-                                                    proprietary.metadata = FALSE,
-                                                    read.metadata = TRUE,
-                                                    normalize = FALSE,
-                                                    subset = list(X = c(X_crop_coordinates[1]:X_crop_coordinates[2]),
-                                                                  Y = c(Y_crop_coordinates[1]:Y_crop_coordinates[2]))
-            )
 
+            Final_image <- RBioFormats::read.image(Image_directory,
+                                                   proprietary.metadata = FALSE,
+                                                   read.metadata = TRUE,
+                                                   normalize = FALSE,
+                                                   subset = list(X = c(X_crop_coordinates[1]:X_crop_coordinates[2]),
+                                                                 Y = c(Y_crop_coordinates[1]:Y_crop_coordinates[2]))
+            )
+          
             #Change color mode as required
             if(!Is_RGB) EBImage::colorMode(Final_image) <- "Grayscale"
-            if(Is_RGB) EBImage::colorMode(Final_image) <- "Color"
+            if(Is_RGB){
+              if(max(Final_image)> 1) Final_image <- Final_image/255
+              EBImage::colorMode(Final_image) <- "Color"
+            } 
 
             #Keep desired channels only
             if(any(!is.null(Ordered_Channels), !is.null(Channels_to_keep))) Final_image <- Final_image[,,Channels_to_keep_index]
@@ -555,7 +557,10 @@ Smart_image_importer <-
               )
               #Change color mode as required
               if(!Is_RGB) EBImage::colorMode(Final_image) <- "Grayscale"
-              if(Is_RGB) EBImage::colorMode(Final_image) <- "Color"
+              if(Is_RGB){
+                if(max(Final_image)> 1) Final_image <- Final_image/255
+                EBImage::colorMode(Final_image) <- "Color"
+              } 
 
               #Keep desired channels only
               if(any(!is.null(Ordered_Channels), !is.null(Channels_to_keep))) Final_image <- Final_image[,,Channels_to_keep_index]
@@ -637,7 +642,10 @@ Smart_image_importer <-
 
                 #Change color mode as required
                 if(!Is_RGB) EBImage::colorMode(Tile_image) <- "Grayscale"
-                if(Is_RGB) EBImage::colorMode(Tile_image) <- "Color"
+                if(Is_RGB){
+                  if(max(Final_image) > 1) Final_image <- Final_image/255
+                  EBImage::colorMode(Final_image) <- "Color"
+                } 
 
                 #Keep desired channels only
                 if(any(!is.null(Ordered_Channels), !is.null(Channels_to_keep))) Tile_image <- Tile_image[,,Channels_to_keep_index]
@@ -684,13 +692,26 @@ Smart_image_importer <-
       if(any(!is.null(X_crop_coordinates), !is.null(Y_crop_coordinates))) New_image_name_elements$X_crop_limits <- stringr::str_c("SubsetX", stringr::str_c(X_crop_coordinates, collapse = "_"))
       if(any(!is.null(X_crop_coordinates), !is.null(Y_crop_coordinates))) New_image_name_elements$Y_crop_limits <- stringr::str_c("Y", stringr::str_c(Y_crop_coordinates, collapse = "_"))
       New_image_name_elements$Extension <- ".tif"
-      New_image_name <- paste(unlist(New_image_name_elements), collapse = "_")
 
-      try({
-        ijtiff::write_tif(img = Final_image %>% magick::as_EBImage(), path = paste0(Output_Directory, "/", New_image_name), bits_per_sample = 32, compression = "LZW", msg = FALSE)
-        cat(paste0("\n", New_image_name,  " has been successfully saved at ", Output_Directory))
-        Colored_print("\n Warning!!! By default the Smart_image_importer function writes images using a bitdepth of 32 bits")
+
+      New_image_name <- paste(unlist(New_image_name_elements), collapse = "_")
+      
+      #If RGB write with magick
+      if(Is_RGB){
+        try({
+          magick::image_write(Final_image, path = paste0(Output_Directory, "/", New_image_name), depth = 8, compression = "LZW")
+          cat(paste0("\n", New_image_name,  " has been successfully saved at ", Output_Directory))
         })
+      }
+      else{
+        try({
+          ijtiff::write_tif(img = Final_image %>% magick::as_EBImage(), path = paste0(Output_Directory, "/", New_image_name), bits_per_sample = 32, compression = "LZW", msg = FALSE)
+          cat(paste0("\n", New_image_name,  " has been successfully saved at ", Output_Directory))
+        })
+      }
+      
+
+      
     }
 
     cat("\n DONE!")

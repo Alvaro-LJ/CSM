@@ -170,11 +170,7 @@ Watershed_cell_mask_generator <-
       )
       if(!requireNamespace("magick", quietly = FALSE)) stop(
         paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("benchmarkme")))
-      )
-      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
-        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("ijtiff")))
+               expression(install.packages("magick")))
       )
     }
 
@@ -379,7 +375,7 @@ Watershed_cell_mask_generator <-
           #Modify the values of the image
           Seg_results <- Seg_results[[1]]/max(Seg_results[[1]])
           #Save modify the file
-          ijtiff::write_tif(img = Seg_results, path = File_name, bits_per_sample = 32, compression = "LZW", msg = FALSE)
+          EBImage::writeImage(Seg_results, File_name, bits.per.sample = 16, compression = "LZW")
 
           #Remove Image to save RAM space
           rm(Image)
@@ -407,7 +403,7 @@ Watershed_cell_mask_generator <-
           File_name <- stringr::str_c(Output_directory, "/", Mask_name)
 
           #Write the matrix
-          ijtiff::write_tif(img = Seg_results, path = File_name, bits_per_sample = 32, compression = "LZW", msg = FALSE)
+          EBImage::writeImage(Seg_results, File_name, bits.per.sample = 16, compression = "LZW")
 
           #Remove Image to save RAM space
           rm(Image)

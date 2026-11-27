@@ -69,26 +69,22 @@ Image_deconvolution_function <-
                })
         )
       )
-      if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
-        paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("ijtiff")))
-      )
     }
 
 
     print("Checking supplied arguments")
     #Check arguments
     if(!length(dir(Directory)) >= 1) stop("Directory does not contain any files") #Check directory files
-    if(berryFunctions::is.error(dir(Output_directory))) stop("Invalid output directory") #Check output directory
+    if(!dir.exists(Output_directory)) stop("Invalid output directory") #Check output directory
     if(length(dir(Output_directory)) != 0) stop("Output directory should be an empty folder") #Check that output directory is empty
     if(!all(N_cores >= 1 & N_cores%%1 == 0)) stop("N_cores must be an integer value > 0")
 
     #The expected names in each element of the parameter list
     Adequate_Names <- c("Brightness","Saturation","Hue", "Normalize", "Equalize", "Contrast", "Sharpen", "Reduce_color",
                         "Max_color", "RED_value", "GREEN_value", "BLUE_value", "Color_Tolerance", "Final_Tolerance",
-                        "Post_normalize", "Post_equalize", "Erode", "Erode_kern", "Erode_rounds", "Dilate", "Dilate_kern", "Dilate_rounds")
+                         "Inverse", "Post_normalize", "Post_equalize", "Erode", "Erode_kern", "Erode_rounds", "Dilate", "Dilate_kern", "Dilate_rounds")
     Deconvolution_Parameters <- Deconvolution_parameters
-    Names_ok <-purrr::map_lgl(Deconvolution_Parameters, function(Channel) identical(names(Channel), Adequate_Names)) #Check that the names are equal
+    Names_ok <- purrr::map_lgl(Deconvolution_Parameters, function(Channel) identical(names(Channel), Adequate_Names)) #Check that the names are equal
     if(!all(Names_ok)){
       stop(paste0("The following channels do not contain all the required deconvolution parameters: ",
                   stringr::str_c(names(Deconvolution_Parameters)[!Names_ok], collapse = ", "),
@@ -113,6 +109,7 @@ Image_deconvolution_function <-
                       BLUE_value_OK = Channel[["BLUE_value"]] >= 0 & Channel[["BLUE_value"]] <= 255,
                       Color_Tolerance_value_OK = all(is.numeric(Channel[["Color_Tolerance"]]), length(Channel[["Color_Tolerance"]]) == 3, all(Channel[["Color_Tolerance"]] >= 0), all(Channel[["Color_Tolerance"]] <= 1)),
                       Final_Tolerance_value_OK = all(is.numeric(Channel[["Final_Tolerance"]]), Channel[["Final_Tolerance"]] >= 0, Channel[["Final_Tolerance"]] <= 1),
+                      Inverse_OK = is.logical(Channel[["Inverse"]]),
                       Post_normalize_OK = is.logical(Channel[["Post_normalize"]]),
                       Post_equalize_OK = is.logical(Channel[["Post_equalize"]]),
                       Erode_OK = is.logical(Channel[["Erode"]]),
@@ -138,6 +135,7 @@ Image_deconvolution_function <-
                               BLUE_value_OK = "BLUE_value must be a numeric value between 0 and 255",
                               Color_Tolerance_value_OK = "Tolerance value must be a numeric vector of length = 3, containing values between 0 and 1",
                               Final_Tolerance_value_OK = "Final_Tolerance must be a single numeric value between 0 and 1",
+                              Inverse_OK = "Inverse must be a logical value",
                               Post_normalize_OK = "Post_normalize must be a logical value",
                               Post_equalize_OK = "Post_equalize must be a logical value",
                               Erode_OK = "Erode must be a logical value",
@@ -196,8 +194,8 @@ Image_deconvolution_function <-
       FINAL_Image <- EBImage::combine(List_of_image_channel)
       FINAL_Image_Name <- stringr::str_c(Output_directory, "/", dir(Directory, full.names = FALSE)[Image_index], "_Channels.tif")
 
-      ijtiff::write_tif(img = FINAL_Image, path = FINAL_Image_Name, bits_per_sample = 32, compression = "LZW", msg = FALSE)
-      Colored_print("\n Warning!!! By default the Image_deconvolution_function function writes images using a bitdepth of 32 bits")
+      #Write the image
+      EBImage::writeImage(FINAL_Image, FINAL_Image_Name, bits.per.sample = 16, compression = "LZW")
     },
     .progress = TRUE)
 

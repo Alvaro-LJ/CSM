@@ -161,7 +161,7 @@ Cell_segmentator_quantificator <-
       )
       if(!requireNamespace("magick", quietly = FALSE)) stop(
         paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
-               expression(install.packages("benchmarkme")))
+               expression(install.packages("magick")))
       )
     }
 
