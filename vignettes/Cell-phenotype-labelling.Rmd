@@ -146,10 +146,6 @@ above the threshold.
 in the current image as well as the computed threshold.
 
 
-```{r, echo=FALSE, out.width="100%"}
-knitr::include_graphics("Figures/Thresholding_app.png")
-```
-
 ```{r app, eval = FALSE}
 #Can only run interactively
 Input_Dir <- tempfile(pattern = "tempdir1_Input")

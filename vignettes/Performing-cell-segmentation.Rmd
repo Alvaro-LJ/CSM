@@ -99,9 +99,20 @@ displayed, the new channel will be added as far as the colors are not in use. Th
 `-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
 to turn back to grayscale mode.
 
-* __Current image data and navigation buttons:__ 
+* __Current image data and navigation buttons:__ The function will show the current image name and if there is an associated cell mask image in the `Output_Directory`. If 
+a cell mask image is present the status will appear as "DONE!". Else it will remain as "PENDING". The previous and next buttons can be used to navigate through the images.
+Once the masks have been drawn or refined the user can hit the "DONE!" button to save the result in the `Output_Directory`. If no cells have been drawed an empty cell segmentation
+mask image will be drawn.
 
-```{r Segmentation_mask_generation, , eval = FALSE}
+* __Draw and remove mode buttons:__ While in draw mode, the user can start drawing a cell mask polygon by clicking and holding the left-sided mouse button. If the user enters the remove
+mode, individual cell masks can be removed by left-clicking on the designated crossmark. Any changes to the cell mask wont be saved until the user hits the "DONE!" button.
+Finally, the user can hit the "Erase all" button to remove all cell masks present in the image. Again, changes will only be saved when hitting the "DONE!" button.
+
+* __Navigation panel:__ The navigation panel allows the user to see at a glance the number of pending images. The name of the pending images in the `Directory` can be seen by
+hovering the mouse around the boxes. If the user clicks on any of the boxes, the app will load the desired image.
+
+```{r Segmentation_mask_generation, eval = FALSE}
+#Write images into temporal directory
 Input_Dir <- tempfile(pattern = "tempdir1_Input")
 dir.create(Input_Dir, recursive = TRUE)
 
@@ -110,7 +121,8 @@ dir.create(Output_Dir, recursive = TRUE)
 
 #Save images in Input directory
 purrr::map(1:2, function(Image) {
-  EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+  EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], 
+                      file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 
 #Use the app to segment the cells
@@ -122,6 +134,34 @@ Segmentation_mask_generator(
 ```
 
 If the user has already got cell segmentation masks (for example generated using the watershed algorithm, see below) these can be placed in the `Output_Directory`. Then they can be modified using the app.
+
+```{r Segmentation_mask_modification, eval = FALSE}
+#Write images into temporal directory
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2, function(Image) {
+  EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], 
+                      file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Generate the whole cell masks using watershed (see below for more details)----------------
+Watershed_cell_mask_generator(
+ Directory = Input_Dir,
+ Output_directory = Output_Dir,
+ Parameter_list = CSM_SegmentParams_test
+)
+
+#Use the app to refine cell masks
+Segmentation_mask_generator(Directory = Input_Dir, 
+                           Output_Directory = Output_Dir, 
+                           Ordered_Channels = CSM_SegmentParams_test$Ordered_Channels
+)
+```
 
 ## Segmentation based on watershed algorithm
 CSM implements cell segmentation based on the [watershed algorithm](https://en.wikipedia.org/wiki/Watershed_(image_processing) "link to Wikipedia"). Watershed-based cell segmentation
