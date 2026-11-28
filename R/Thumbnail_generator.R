@@ -125,12 +125,6 @@ Thumbnail_generator <- function(
     paste0("magick CRAN package is required to execute the function. Please install using the following code: ",
            expression(install.packages("magick")))
   )
-
-  if(!requireNamespace("ijtiff", quietly = FALSE)) stop(
-    paste0("ijtiff CRAN package is required to execute the function. Please install using the following code: ",
-           expression(install.packages("ijtiff")))
-  )
-
   if(!requireNamespace("RBioFormats", quietly = TRUE)) stop(
     paste0("RBioFormats Bioconductor package is required to execute the function. Please install using the following code: ",
            expression({
@@ -464,7 +458,7 @@ Thumbnail_generator <- function(
       if(RGB_Color_images){
         if(max(Image) > 1) Image <- Image/255
         EBImage::colorMode(Image) <- "Color"
-      } 
+      }
       if(!RGB_Color_images) EBImage::colorMode(Image) <- "Grayscale"
 
       #If padding required, perform padding
@@ -537,7 +531,7 @@ Thumbnail_generator <- function(
 
     #Save the results in the required directory
     Image_name <- paste0(Output_directory, "/", "Thumbnail-", names(Cell_candidates)[Thumbnail_index], ".tif")
-    ijtiff::write_tif(img = Image_panels, path = Image_name, bits_per_sample = 32, msg = FALSE, compression = "LZW")
+    EBImage::writeImage(Image_panels, Image_name, bits.per.sample = 16, compression = "LZW")
 
     #Print message
     cat(paste0("\n", "Successfully saved ", names(Cell_candidates)[Thumbnail_index], " thumbnail collage(s) in: ", Output_directory, "\n"))
