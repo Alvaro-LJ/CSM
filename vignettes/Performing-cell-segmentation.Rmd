@@ -28,6 +28,7 @@ library(CSM)
 
 - [Introduction](#introduction)
 - [Test dataset info](#test-datasets)
+- [Manually generating and refining cell segmentation masks](#manual-generation-of-cell-segmentation-masks)
 - [Segmentation based on watershed algorithm](#segmentation-based-on-watershed-algorithm)
     - [Testing segmentation parameters](#segmentation-tester-app)
     - [Performing cell segmentation](#performing-cell-segmentation)
@@ -70,6 +71,13 @@ function(Image){
    file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
 })
 ```
+
+
+## Manual generation of cell segmentation-masks
+For some projects, user may need to generate their own cell segmentation masks manually or refine any segmentation mask
+generated using other pipelines. This may be necessary to improve the identification of cells that have weird morphologies and are scarce in the 
+tissue. To this end, CSM implements the `Segmentation_mask_generator` function. 
+
 
 ## Segmentation based on watershed algorithm
 CSM implements cell segmentation based on the [watershed algorithm](https://en.wikipedia.org/wiki/Watershed_(image_processing) "link to Wikipedia"). Watershed-based cell segmentation

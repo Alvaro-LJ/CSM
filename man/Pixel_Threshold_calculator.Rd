@@ -37,7 +37,7 @@ specifying thresholding parameters will be ignored.}
 
 \item{Channels_to_keep}{Character vector indicating channels used in tissue mask generation.}
 
-\item{Target_channel}{Character value indicating the target channel to be thresholded.}
+\item{Target_channel}{Character value indicating the target channel to be thresholded (may or may not be included in the Channels_to_keep).}
 
 \item{Save_processed_images}{Logical value indicating if thresholded images should be written (see details).}
 

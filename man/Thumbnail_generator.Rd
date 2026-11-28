@@ -68,20 +68,20 @@ purrr::map(1:2,
 
 
 #Export the thumbnails to the output directory
-Thumbnail_generator(DATA = CSM_Phenotypecell_test,  
+Thumbnail_generator(DATA = CSM_Phenotypecell_test,
                  N_cores = 1,
-                 Radius = 75, 
-                 N_crops = 25, 
+                 Radius = 75,
+                 N_crops = 25,
                  Variable_name = 'Phenotype',
-                 Feature_to_analyze = unique(CSM_Phenotypecell_test$Phenotype)[-1], 
+                 Feature_to_analyze = unique(CSM_Phenotypecell_test$Phenotype)[-1],
                  Directory = Image_Dir,
                  Output_directory = 'OUTPUT_TESTS',
-                 Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"), 
+                 Ordered_Channels = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
                  Channels_to_keep = c("DAPI", "PDL1", "GZMB", "PD1", "CK-EPCAM", "CD8a", "FOXP3"),
                  Channel_for_test = "DAPI",
                  RGB_Color_images = FALSE,
                  Image_x_flip = FALSE,
-                 Image_y_flip = FALSE, 
+                 Image_y_flip = FALSE,
                  Pixel_distance_ratio = 1
 )
 
@@ -92,7 +92,7 @@ CD8_GZMBpos <-  magick::image_read(dir(Output_Dir, full.names = TRUE)[2])
 TUMOR <- magick::image_read(dir(Output_Dir, full.names = TRUE)[3])
 
 #Set the merging params
-Merge_parameter_list <- 
+Merge_parameter_list <-
   list(
       DAPI = list(channel_index = 1,
                   color = "blue",
@@ -107,7 +107,7 @@ Merge_parameter_list <-
                 min = 5,
                 max = 20,
                 equalize = FALSE),
- 
+
       CD8 = list(channel_index = 6,
                  color = "#f0703a",
                  gamma = 1,
@@ -125,13 +125,13 @@ Merge_parameter_list <-
 )
 
 #Merge channels
-Image_channel_color_merger(Image = CD8_GZMBneg, 
+Image_channel_color_merger(Image = CD8_GZMBneg,
                            Parameter_list = Merge_parameter_list)
 
-Image_channel_color_merger(Image = CD8_GZMBpos, 
+Image_channel_color_merger(Image = CD8_GZMBpos,
                            Parameter_list = Merge_parameter_list)
 
-Image_channel_color_merger(Image = TUMOR, 
+Image_channel_color_merger(Image = TUMOR,
                           Parameter_list = Merge_parameter_list)
 
 }

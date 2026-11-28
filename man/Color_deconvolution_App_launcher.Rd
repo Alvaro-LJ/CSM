@@ -38,7 +38,7 @@ Tolerance values are key to extract the color adequately:
 \item{End tolerance: After the individual RGB channels have been extracted and merged, individual tolerance regulates flexibility of pixel values with respect to the color target.}
 }
 
-Final processing stablishes how the image is going to be modified after color channel extraction.
+Final processing establishes how the image is going to be modified after color channel extraction.
 
 "Download Parameters" button saves parameters in the Global Environment.
 
