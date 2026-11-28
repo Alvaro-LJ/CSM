@@ -501,11 +501,6 @@ training dataset to improve model performance.
 
 * __Training and test info:__ The lower left panel shows information related to the training dataset and the test result if they are available.
 
-
-```{r, echo=FALSE, out.width="100%"}
-knitr::include_graphics("Figures/Image_based_phenotyper_app.png")
-```
-
 ```{r model, eval = FALSE}
 #Can only run interactively
 
@@ -585,11 +580,6 @@ will reveal their label. In addition, the user can select cells to be displayed 
 
 * __Selected cells feature expression heatmap:__ This panel shows a heatmap of the features expressed in the selected cell population. The cell label identity
 is shown in the left colorbar.
-
-
-```{r, echo=FALSE, out.width="100%"}
-knitr::include_graphics("Figures/Phenotype_evaluator_app.png")
-```
 
 
 ```{r Phenotype_app, eval = FALSE}

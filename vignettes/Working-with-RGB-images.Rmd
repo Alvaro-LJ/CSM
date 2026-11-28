@@ -62,11 +62,6 @@ that can be then applied to all the images in the dataset. The app provides vari
 a filtered color channel, post-processing can be applied. The app can be used to generate a list of color thresholding parameters. These
 parameters can be used to feed the `Image_deconvolution_function()`.
 
-
-```{r, echo=FALSE, out.width="100%"}
-knitr::include_graphics("Figures/RGB_app.png")
-```
-
 Essentially, there are three main parameters that govern color filtering: Target color, tolerance to each color channel and end tolerance.
 
 * __Target color:__ Target color can be selected in three different ways using the `Color_deconvolution_App_launcher()`. First, the user can provide the HEX color code

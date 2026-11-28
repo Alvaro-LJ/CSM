@@ -78,6 +78,50 @@ For some projects, user may need to generate their own cell segmentation masks m
 generated using other pipelines. This may be necessary to improve the identification of cells that have weird morphologies and are scarce in the 
 tissue. To this end, CSM implements the `Segmentation_mask_generator` function. 
 
+This function is intended to work with small images or image tiles. The function has been tested with images up to 500x500 pixels. Although, on the paper the app can work with large 
+images, the speed limiting factor is the number of cell masks being displayed. As the number of cell masks rises, so does the computation requirements. With several tens of cell 
+masks, the computing power demand can be easily managed by the CPU. However, beyond several tens (in the orther of the 100 or larger), the app will start slowing down.
+
+In addition, the user should be aware that this app works with a very stringent mask morphology policy. Each cell mask must be fully connected set of pixels. This means that each cell is represented by a single
+polygon. No multi-polygon cell representation is allowed. In addition, no "cell in cell" phenomenon is allowed. This means that a cell mask cannot fully contain another cell mask. 
+
+The user must provide to the `Segmentation_mask_generator` two directories containing the original images and the cell masks, respectively. First the function will check which images in the `Directory` provided
+have a cell mask image in the `Output_Directory`. The function expects the cell mask images names in the  `Output_Directory` to be identical to the original images names with the "_CellMask.tif" suffix. If any
+cell mask is available, the app will load it in screen. Be aware that any non-compatible cell masks (multi-polygon and cell in cell) will be removed during loading. 
+
+The app has a control panel in the left. This control panel is divided into three different sections:
+
+* __Image settings:__ Here the user can select the image to be shown. The user can select the image channel to be displayed using
+the `Channel` selector. If multiple channels need to be displayed simultaneously the user can use the `+Add channel` button. 
+After hitting the button, the app will take the current image channel and color it based on the `Color`
+provided (either the name of the color or its associated HEX code). If a colored channel is already being
+displayed, the new channel will be added as far as the colors are not in use. The user can hit the
+`-Remove channel` button to remove the current active channel from the composite image or the `Reset` 
+to turn back to grayscale mode.
+
+* __Current image data and navigation buttons:__ 
+
+```{r Segmentation_mask_generation, , eval = FALSE}
+Input_Dir <- tempfile(pattern = "tempdir1_Input")
+dir.create(Input_Dir, recursive = TRUE)
+
+Output_Dir <- tempfile(pattern = "tempdir2_Output")
+dir.create(Output_Dir, recursive = TRUE)
+
+#Save images in Input directory
+purrr::map(1:2, function(Image) {
+  EBImage::writeImage(CSM_MiniMultiTiff_test[[Image]], file.path(Input_Dir, names(CSM_MiniMultiTiff_test)[Image]))
+})
+
+#Use the app to segment the cells
+Segmentation_mask_generator(
+  Directory = Input_Dir,
+  Output_Directory = Output_Dir,
+  Ordered_Channels = CSM_SegmentParams_test$Ordered_Channels
+)
+```
+
+If the user has already got cell segmentation masks (for example generated using the watershed algorithm, see below) these can be placed in the `Output_Directory`. Then they can be modified using the app.
 
 ## Segmentation based on watershed algorithm
 CSM implements cell segmentation based on the [watershed algorithm](https://en.wikipedia.org/wiki/Watershed_(image_processing) "link to Wikipedia"). Watershed-based cell segmentation
@@ -117,11 +161,6 @@ If the height is smaller than the tolerance, the object will be combined with on
 In order to make the parameter tuning process easier, CSM implements a shiny App to interactively test segmentation parameters.
 The function allows the user to test all the above mentioned parameters. In addition, if the user zooms in the main image panel, only the zoomed in area will be tested, speeding up the
 testing process. Once the parameters are found to be adequate, the user can save the results in an object in the global environment by hitting the `Download Parameters` button.
-
-```{r, echo=FALSE, out.width="100%"}
-knitr::include_graphics("Figures/Segmentation_tester_app.png")
-```
-
 
 ```{r app, eval = FALSE}
 #Can only run interactively
